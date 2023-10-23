@@ -19,10 +19,10 @@ import LineChart from '../../components/LineChart';
 import GeographyChart from '../../components/GeographyChart';
 import BarChart from '../../components/BarChart';
 // import ProgressCircle from "../../components/ProgressCircle";
-import MainChart from '../../components/MainChart';
+// import MainChart from '../../components/MainChart';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEffect } from 'react';
-import { fetchusers } from '../../redux/userSlice';
+import { fetchAccounts } from '../../redux/accountSlice';
 import { toast } from 'react-toastify';
 import { useState } from 'react';
 import { fetchOrders } from '../../redux/orderSlice';
@@ -30,7 +30,7 @@ import { fetchProducts } from '../../redux/productSlice';
 
 const Dashboard = () => {
   const dispatch = useDispatch();
-  const users = useSelector((state) => state.user.users);
+  const accounts = useSelector((state) => state.account.accounts);
   const orders = useSelector((state) => state.order.orders);
   const products = useSelector((state) => state.product.products);
   const [loading, setLoading] = useState(false);
@@ -42,7 +42,7 @@ const Dashboard = () => {
     setLoading(true);
     dispatch(fetchOrders())
       .then(() => {
-        // Không cần setFilteredusersStatus vì đã sử dụng useSelector để lấy danh sách sản phẩm
+        // Không cần setFilteredaccountsStatus vì đã sử dụng useSelector để lấy danh sách sản phẩm
       })
       .catch((error) => {
         toast.error(error);
@@ -55,7 +55,7 @@ const Dashboard = () => {
     setLoading(true);
     dispatch(fetchProducts())
       .then(() => {
-        // Không cần setFilteredusersStatus vì đã sử dụng useSelector để lấy danh sách sản phẩm
+        // Không cần setFilteredaccountsStatus vì đã sử dụng useSelector để lấy danh sách sản phẩm
       })
       .catch((error) => {
         toast.error(error);
@@ -66,9 +66,9 @@ const Dashboard = () => {
   }, [dispatch]);
   useEffect(() => {
     setLoading(true);
-    dispatch(fetchusers())
+    dispatch(fetchAccounts())
       .then(() => {
-        // Không cần setFilteredusersStatus vì đã sử dụng useSelector để lấy danh sách sản phẩm
+        // Không cần setFilteredaccountsStatus vì đã sử dụng useSelector để lấy danh sách sản phẩm
       })
       .catch((error) => {
         toast.error(error);
@@ -82,7 +82,7 @@ const Dashboard = () => {
     return currentValue + Math.round((percentIncrease / 100) * currentValue);
   };
 
-  const increasedUsers = calculateIncrease(users.length, 5);
+  const increasedaccounts = calculateIncrease(accounts.length, 5);
   const increasedOrders = calculateIncrease(orders.length, 5);
   const increasedProducts = calculateIncrease(products.length, 5);
   const total = orders.reduce(
@@ -91,24 +91,24 @@ const Dashboard = () => {
   );
 
   useEffect(() => {
-    // Lặp qua danh sách đơn hàng và gán userName dựa trên userId
-    const ordersWithUserNames = orders.map((order) => {
-      const user = users.find((user) => user.userId === order.userId);
-      const userName = user ? user.userName : 'Unknown User';
-      return { ...order, userName };
+    // Lặp qua danh sách đơn hàng và gán accountName dựa trên accountId
+    const ordersWithaccountNames = orders.map((order) => {
+      const account = accounts.find((account) => account.accountId === order.accountId);
+      const accountName = account ? account.accountName : 'Unknown account';
+      return { ...order, accountName };
     });
 
-    // Cập nhật danh sách đơn hàng đã được gán userName
-    setFilteredOrders(ordersWithUserNames);
-  }, [orders, users]);
+    // Cập nhật danh sách đơn hàng đã được gán accountName
+    setFilteredOrders(ordersWithaccountNames);
+  }, [orders, accounts]);
 
   return (
     <Box m="20px">
       {/* HEADER */}
       <Box display="flex" justifyContent="space-between" alignItems="center">
         <Header
-          title="Dashboard Book Store 2hand"
-          subtitle="Welcome to this dashboard made with 2Hand Book Store"
+          title="Bảng Điều Khiển Của Hệ Thống Cứu Hộ Ô Tô"
+          subtitle="Chào mừng bạn đến với Bảng điều khiển của hệ thống cứu hộ ô tô này"
         />
 
         <Box>
@@ -229,13 +229,13 @@ const Dashboard = () => {
                   variant="h4"
                   fontWeight="bold"
                   sx={{ color: colors.grey[100] }}>
-                  {users.length}
+                  {accounts.length}
                 </Typography>
               </Box>
               <Box>
                 <CircularProgress
                   variant="determinate"
-                  value={users.length}
+                  value={accounts.length}
                   sx={{ color: colors.greenAccent[500] }}
                 />
               </Box>
@@ -248,7 +248,7 @@ const Dashboard = () => {
                 variant="h5"
                 fontStyle="italic"
                 sx={{ color: colors.greenAccent[600] }}>
-                {increasedUsers}%
+                {increasedaccounts}%
               </Typography>
             </Box>
           </Box>
@@ -368,11 +368,11 @@ const Dashboard = () => {
                   {order.orderId}
                 </Typography>
 
-                {order.userId && (
+                {order.accountId && (
                   <Typography color={colors.grey[100]} key={order.orderId}>
-                    {users
-                      .filter((user) => user.userId === order.userId)
-                      .map((user) => user.userName)
+                    {accounts
+                      .filter((account) => account.accountId === order.accountId)
+                      .map((account) => account.accountName)
                       .join(', ')}
                   </Typography>
                 )}
@@ -453,7 +453,7 @@ const Dashboard = () => {
             fontWeight="600"
             sx={{ paddingBottom: "10px" }}
           >
-            Users by Geography
+            accounts by Geography
           </Typography>
           <Box height="250px" mt="-20px">
             <GeographyChart />

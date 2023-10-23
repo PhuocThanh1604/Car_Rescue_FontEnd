@@ -20,13 +20,13 @@ import Header from '../../components/Header';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEffect } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
-import { fetchusers } from '../../redux/userSlice';
 import { FilterList, Search } from '@mui/icons-material';
 import CustomTablePagination from '../products/TablePagination';
 import ToggleButton from '../products/ToggleButton';
 import SearchIcon from '@mui/icons-material/Search';
 import InputBase from '@mui/material/InputBase';
 import moment from 'moment';
+import { fetchAccounts } from '../../redux/accountSlice';
 const User = () => {
   const dispatch = useDispatch();
   const users = useSelector((state) => state.user.users);
@@ -117,7 +117,7 @@ const User = () => {
 
   useEffect(() => {
     setLoading(true);
-    dispatch(fetchusers())
+    dispatch(fetchAccounts()) 
       .then(() => {
         // Không cần setFilteredusersStatus vì đã sử dụng useSelector để lấy danh sách sản phẩm
       })

@@ -1,6 +1,6 @@
 {
-  "name": "react",
-  "version": "0.0.0",
+  "name": "Web_CarRescue",
+  "version": "0.1.0",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.11.1",
@@ -11,45 +11,39 @@
     "@fullcalendar/list": "5.11.4",
     "@fullcalendar/react": "5.11.4",
     "@fullcalendar/timegrid": "5.11.4",
-    "@mui/icons-material": "5.11.16",
-    "@mui/material": "5.13.6",
-    "@mui/styled-engine": "^5.13.2",
+    "@mui/icons-material": "^5.14.12",
+    "@mui/material": "^5.14.12",
+    "@mui/styled-engine": "^5.14.12",
     "@mui/styles": "^5.14.0",
     "@mui/system": "5.12.1",
     "@mui/x-data-grid": "^5.17.26",
-    "@reduxjs/toolkit": "^1.9.5",
-    "@types/react": "18.2.0",
-    "@types/react-dom": "18.2.1",
-    "apexcharts": "^3.39.0",
-    "axios": "^1.4.0",
-    "chart.js": "^4.3.0",
-    "d3-geo": "^3.1.0",
-    "firebase": "^9.22.1",
-    "formik": "^2.4.2",
-    "fullcalendar": "^6.1.6",
+    "@reduxjs/toolkit": "^1.8.2",
+    "axios": "^1.5.1",
+    "bcryptjs": "^2.4.3",
+    "cloudinary-core": "^2.13.0",
+    "date-fns": "^2.30.0",
+    "firebase": "^10.4.0",
+    "formik": "^2.4.5",
+    "jwt-decode": "^3.1.2",
+    "localStorage": "^1.0.4",
     "moment": "^2.29.4",
-    "prop-types": "15.8.1",
     "react": "^17.0.2",
-    "react-apexcharts": "^1.4.0",
-    "react-chartjs-2": "^5.2.0",
+    "react-apexcharts": "^1.4.1",
     "react-dom": "^17.0.2",
-    "react-fullcalendar": "^1.0.0",
-    "react-hook-form": "^7.45.1",
-    "react-placeholder-image": "^0.1.8",
+    "react-dropzone": "^14.2.3",
     "react-pro-sidebar": "0.7.1",
-    "react-redux": "^8.0.5",
-    "react-router-dom": "6.11.0",
+    "react-redux": "^8.0.2",
+    "react-router-dom": "^6.3.0",
     "react-scripts": "5.0.1",
-    "react-simple-maps": "^3.0.0",
     "react-slick": "^0.29.0",
     "react-toastify": "^9.1.3",
-    "recharts": "^2.7.2",
-    "redux": "4.2.1",
+    "recharts": "^2.8.0",
     "slick-carousel": "^1.8.1",
-    "typescript": "4.9.5",
-    "url": "^0.11.1",
-    "web-vitals": "2.1.4",
-    "yup": "0.32.11"
+    "stream-browserify": "^3.0.0",
+    "styled-components": "^5.3.11",
+    "util": "^0.12.5",
+    "validator": "^13.11.0",
+    "yup": "^1.3.2"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -57,24 +51,11 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
-  "devDependencies": {
-    "@types/react": "^18.0.28",
-    "@types/react-dom": "^18.0.11",
-    "@vitejs/plugin-react": "^4.0.0",
-    "autoprefixer": "^10.4.14",
-    "clean-webpack-plugin": "^4.0.0",
-    "copy-webpack-plugin": "^11.0.0",
-    "eslint": "^8.38.0",
-    "eslint-plugin-react": "^7.32.2",
-    "eslint-plugin-react-hooks": "^4.6.0",
-    "eslint-plugin-react-refresh": "^0.3.4",
-    "fs-extra": "^11.1.1",
-    "postcss": "^8.4.23",
-    "react-scripts": "latest",
-    "rimraf": "^5.0.1",
-    "sass": "^1.62.1",
-    "tailwindcss": "^3.3.2",
-    "vite": "^4.3.2"
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
   },
   "browserslist": {
     "production": [
@@ -86,12 +67,6 @@
       "last 1 chrome version",
       "last 1 firefox version",
       "last 1 safari version"
-    ]
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
     ]
   }
 }

@@ -21,32 +21,32 @@
 // }
 
 
-import React from "react";
-import { onAuthStateChanged } from "firebase/auth";
-import { useDispatch } from "react-redux";
-import { setUser, logout } from "../redux/authSlice";
-import { auth } from "../firebase/firebase";
+// import React from "react";
+// import { onAuthStateChanged } from "firebase/auth";
+// import { useDispatch } from "react-redux";
+// import { setUser, logout } from "../redux/authSlice";
+// import { auth } from "../firebase/firebase";
 
-const AuthContext = React.createContext();
+// const AuthContext = React.createContext();
 
-function AuthProvider({ children }) {
-  const dispatch = useDispatch();
+// function AuthProvider({ children }) {
+//   const dispatch = useDispatch();
 
-  React.useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        dispatch(setUser({ displayName: user.displayName, email: user.email, uid: user.uid }));
-      } else {
-        dispatch(logout());
-      }
-    });
+//   React.useEffect(() => {
+//     const unsubscribe = onAuthStateChanged(auth, (user) => {
+//       if (user) {
+//         dispatch(setUser({ displayName: user.displayName, email: user.email, uid: user.uid }));
+//       } else {
+//         dispatch(logout());
+//       }
+//     });
 
-    return () => {
-      unsubscribe();
-    };
-  }, []);
+//     return () => {
+//       unsubscribe();
+//     };
+//   }, []);
 
-  return <AuthContext.Provider value={auth}>{children}</AuthContext.Provider>;
-}
+//   return <AuthContext.Provider value={auth}>{children}</AuthContext.Provider>;
+// }
 
-export default AuthProvider;
+// export default AuthProvider;

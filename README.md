@@ -1,58 +1,17 @@
+# "React Redux Login Authentication Flow and JWT Access, Refresh Tokens, Cookies"
 
-# Admin Dashboard(reactBoard)
-# PLEASE GIVE MY REPO A STAR :)
-**published on - https://admin-bookstore2hand.vercel.app/**
+✅ [Check out my YouTube Channel with all of my tutorials](https://www.youtube.com/DaveGrayTeachesCode).
 
-This project is an admin dashboard built using JavaScript and React.js. It provides a comprehensive user interface for managing and monitoring various aspects of an application or system. The dashboard offers a range of features, including data visualization, user management, and system configuration.
- 
- 
-additonally, take a look at the package.json for all the dependencies that i had during the project.
+**Description:**
 
-## Features
+This repository shares the code applied during the [YouTube Tutorial](https://youtu.be/-JJFQ9bkUbo). 
 
-- **Data Visualization:** The dashboard includes interactive charts, graphs, and tables to help visualize and analyze data.
-- **User Management:** Administrators can manage user accounts, including creating new users, updating profiles, and assigning roles and permissions.
-- **Real-Time Monitoring:** Users can view real-time statistics and metrics to monitor the performance and health of the system.
-- **Responsive Design:** The user interface is designed to be responsive and accessible across various devices and screen sizes.
+Build the backend REST API that I use for authentication in this tutorial with my [7 hour Node JS for Beginners course](https://youtu.be/f2EqECiTBL8) on my channel.
 
-## Installation
+Just starting with Redux? I have a [4 hour Redux course tutorial video](https://youtu.be/NqzdVN2tyvQ) on my channel.  
 
-To run the admin dashboard locally, follow these steps:
+Learn about JWT Authentication Flow and React in my [React Login Series](https://www.youtube.com/playlist?list=PL0Zuz27SZ-6PRCpm9clX0WiBEMB70FWwd).
 
-1. Clone the repository:
+### Academic Honesty
 
-   ```bash
-   git clone https://github.com/PhuocThanh1604/admin-bookstore2hand
-   ```
-
-2. Navigate to the project directory:
-
-   ```bash
-   cd reactBoard
-   ```
-
-3. Install the dependencies:
-
-   ```bash
-   npm install
-   ```
-
-4. Start the development server:
-
-   ```bash
-   npm start
-   ```
-
-5. Open your web browser and visit `http://localhost:3000` to access the admin dashboard.
-
-
-## Contributing
-
-Contributions are welcome! If you find any issues or have suggestions for improvement, please open an issue or submit a pull request to the GitHub repository.
-
-## Acknowledgements
-
-- The dashboard UI design and components were inspired by various open-source projects and design libraries.
-## Contact
-
-If you have any questions, suggestions, or feedback, please feel free to me at phuocthanh20cgh@gamil.com.
+**DO NOT COPY FOR AN ASSIGNMENT** - Avoid plagiargism and adhere to the spirit of this [Academic Honesty Policy](https://www.freecodecamp.org/news/academic-honesty-policy/).

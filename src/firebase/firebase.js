@@ -1,24 +1,14 @@
-// Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+import { getStorage } from "firebase/storage";
 const firebaseConfig = {
-    apiKey: "AIzaSyBxp3h03ozQGAdC1ZxAxefGIIwo0i8ViRo",
-    authDomain: "book-store-2hand.firebaseapp.com",
-    projectId: "book-store-2hand",
-    storageBucket: "book-store-2hand.appspot.com",
-    messagingSenderId: "206884235195",
-    appId: "1:206884235195:web:b452a49e9f089a7110c69e",
-    measurementId: "G-4PB7QTRHJ2"
+  apiKey: "AIzaSyDwwpps4RBQJUWK17ivjFZTSl5Gx5zP7s8",
+  authDomain: "car-rescue-399511.firebaseapp.com",
+  projectId: "car-rescue-399511",
+  storageBucket: "car-rescue-399511.appspot.com",
+  messagingSenderId: "387575068560",
+  appId: "1:387575068560:web:52c7c2e4f8684b230a2515",
+  measurementId: "G-SYYVJXV5HQ"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
- // Lưu ý thêm đối số app vào getAuth()
-
- export const auth = getAuth(app);
-
+export const storage = getStorage(app)
