@@ -21,9 +21,9 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   editRescueVehicleOwner,
   fetchRescueVehicleOwners,
-} from "../../redux/rescueVehicleOwnerSlice";
+} from "../../../redux/rescueVehicleOwnerSlice";
 import { ToastContainer, toast } from "react-toastify";
-import UploadImageField from "../../components/uploadImage";
+import UploadImageField from "../../../components/uploadImage";
 
 const ModalEdit = ({
   openEditModal,
@@ -37,7 +37,7 @@ const ModalEdit = ({
   const [edit, setEdit] = useState({});
   const [isSuccess, setIsSuccess] = useState(false);
   const [initialFormState, setInitialFormState] = useState({});
-  // const [fullnameValue, setFullnameValue] = useState("");
+  const [fullnameValue, setFullnameValue] = useState("");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [filtereRescueVehicleOwners, setFilteredRescueVehicleOwners] = useState([]);
@@ -69,7 +69,7 @@ const ModalEdit = ({
         );
         if (RescuseVehicleOwnerToEditToEdit) {
           console.log(RescuseVehicleOwnerToEditToEdit);
-          // setFullnameValue(RescuseVehicleOwnerToEditToEdit.fullname);
+          setFullnameValue(RescuseVehicleOwnerToEditToEdit.fullname);
           setEdit(RescuseVehicleOwnerToEditToEdit);
           setInitialFormState(RescuseVehicleOwnerToEditToEdit);
         }
@@ -92,6 +92,7 @@ const ModalEdit = ({
       toast.error("Không có thông tin khách hàng để cập nhật.");
       return;
     }
+  
     // Kiểm tra xem có sự thay đổi trong dữ liệu so với dữ liệu ban đầu
     const hasChanges =
       JSON.stringify(edit) !== JSON.stringify(initialFormState);
@@ -215,10 +216,8 @@ const ModalEdit = ({
                     <TextField
                       name="fullname"
                       label="Họ Và Tên"
-                      type="text"
-                      value={edit.fullname || ""}
-                      onChange={handleInputChange}
-                      // disabled // Disable the TextField
+                      value={fullnameValue}
+                      disabled // Disable the TextField
                       fullWidth
                       margin="normal"
                     />

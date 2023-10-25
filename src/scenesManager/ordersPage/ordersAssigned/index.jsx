@@ -23,7 +23,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import InputBase from "@mui/material/InputBase";
 import moment from "moment";
 
-import { fetchOrdersCompleted, fetchOrdersNew, getOrderId } from "../../../redux/orderSlice";
+import { fetchOrdersAssigned, fetchOrdersNew, getOrderId } from "../../../redux/orderSlice";
 import { getCustomerIdFullName } from "../../../redux/customerSlice";
 import CreditScoreIcon from "@mui/icons-material/CreditScore";
 import AddCardIcon from "@mui/icons-material/AddCard";
@@ -31,7 +31,7 @@ import RepeatOnIcon from "@mui/icons-material/RepeatOn";
 import BuildIcon from "@mui/icons-material/Build";
 import SupportIcon from "@mui/icons-material/Support";
 import HandymanIcon from "@mui/icons-material/Handyman";
-const Orders = (props) => {
+const OrdersAssigned = (props) => {
   const dispatch = useDispatch();
   const orders = useSelector((state) => state.order.orders);
   const [openEditModal, setOpenEditModal] = useState(false);
@@ -108,7 +108,7 @@ const Orders = (props) => {
 
   useEffect(() => {
     setLoading(true);
-    dispatch(fetchOrdersCompleted())
+    dispatch(fetchOrdersAssigned())
       .then((response) => {
         // Đã lấy dữ liệu thành công
         const data = response.payload.data;
@@ -134,7 +134,7 @@ const Orders = (props) => {
         setIsSuccess(true);
       })
       .catch((error) => {
-        console.error("Lỗi khi lấy thông tin đơn hàng mới:", error);
+        console.error("Lỗi khi lấy thông tin đơn hàng đã được điều phối:", error);
       });
   };
 
@@ -153,7 +153,7 @@ const Orders = (props) => {
         }
       })
       .catch((error) => {
-        console.error("Lỗi khi tải lại danh sách đơn hàng:", error);
+        console.error("Lỗi khi tải lại danh sách đơn hàng đã được điều phối:", error);
       });
   };
 
@@ -169,11 +169,11 @@ const Orders = (props) => {
             [customerId]: data.fullname,
           }));
         } else {
-          console.error("Fullname not found in the API response.");
+          console.error("Không tìm thấy tên đầy đủ trong phản hồi API!!.");
         }
       })
       .catch((error) => {
-        console.error("Error while fetching customer data:", error);
+        console.error("Lỗi khi tìm nạp dữ liệu khách hàng:", error);
       });
   };
 
@@ -324,8 +324,8 @@ const Orders = (props) => {
   return (
     <Box m="5px">
       <Header
-        title="Danh Sách Đơn Hàng Đã Hoàn Thành"
-        subtitle="Danh sách chi tiết đơn hàng đã hoàn thành"
+        title="Danh Sách Đơn Hàng Đã Được Đều Phối"
+        subtitle="Danh sách chi tiết đơn hàng đã được điều phối"
       />
       <Box display="flex" className="box" left={0}>
         <Box
@@ -477,4 +477,4 @@ const Orders = (props) => {
   );
 };
 
-export default Orders;
+export default OrdersAssigned;

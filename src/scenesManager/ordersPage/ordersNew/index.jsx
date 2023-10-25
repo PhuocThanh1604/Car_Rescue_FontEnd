@@ -8,12 +8,18 @@ import {
   MenuItem,
   IconButton,
   FormControl,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Button,
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { tokens } from "../../../theme";
 import Header from "../../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
-import { Edit} from "@mui/icons-material";
+import { Edit } from "@mui/icons-material";
 import ModalDetail from "./ModalComponentDetail";
 import ModalEdit from "./ModalComponentEdit";
 import CustomTablePagination from "./TablePagination";
@@ -23,7 +29,11 @@ import SearchIcon from "@mui/icons-material/Search";
 import InputBase from "@mui/material/InputBase";
 import moment from "moment";
 
-import { fetchOrdersCompleted, fetchOrdersNew, getOrderId } from "../../../redux/orderSlice";
+import {
+  createAcceptOrder,
+  fetchOrdersNew,
+  getOrderId,
+} from "../../../redux/orderSlice";
 import { getCustomerIdFullName } from "../../../redux/customerSlice";
 import CreditScoreIcon from "@mui/icons-material/CreditScore";
 import AddCardIcon from "@mui/icons-material/AddCard";
@@ -31,6 +41,7 @@ import RepeatOnIcon from "@mui/icons-material/RepeatOn";
 import BuildIcon from "@mui/icons-material/Build";
 import SupportIcon from "@mui/icons-material/Support";
 import HandymanIcon from "@mui/icons-material/Handyman";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 const Orders = (props) => {
   const dispatch = useDispatch();
   const orders = useSelector((state) => state.order.orders);
@@ -49,6 +60,9 @@ const Orders = (props) => {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]);
   const [fullnameData, setFullnameData] = useState({});
+  const [orderId, setOrderId] = useState(null);
+  const [openConfirmModal, setOpenConfirmModal] = useState(false);
+  const [rescueVehicles, setRescueVehicles] = useState([]); // Tạo một state mới cho danh sách xe cứu hộ
 
   const handleSearchChange = (event) => {
     const value = event.target.value.toLowerCase();
@@ -69,12 +83,12 @@ const Orders = (props) => {
 
     setFilteredOrders(filteredOrders);
   };
-  
+
   const handleFilterChange = (event) => {
     const selectedStatusOption = event.target.value;
     setFilterOption(selectedStatusOption);
 
-    if (selectedStatusOption === 'rescueType') {
+    if (selectedStatusOption === "rescueType") {
       // Hiển thị tất cả các trạng thái
       setFilteredOrders(orders);
     } else {
@@ -108,7 +122,7 @@ const Orders = (props) => {
 
   useEffect(() => {
     setLoading(true);
-    dispatch(fetchOrdersCompleted())
+    dispatch(fetchOrdersNew())
       .then((response) => {
         // Đã lấy dữ liệu thành công
         const data = response.payload.data;
@@ -124,18 +138,64 @@ const Orders = (props) => {
   }, [dispatch]);
 
   const handleUpdateClick = (orderId) => {
-    console.log(orderId);
-    // Fetch the rescueVehicleOwnerId details based on the selected rescueVehicleOwnerId ID
+    console.log(orderId)
+
+     // Đặt trạng thái của danh sách xe cứu hộ về một mảng trống
+     setRescueVehicles(null);
+
+      // Fetch the rescueVehicleOwnerId details based on the selected rescueVehicleOwnerId ID
     dispatch(getOrderId({ id: orderId }))
       .then((response) => {
         const orderDetails = response.payload.data;
         setSelectedEditOrder(orderDetails);
         setOpenEditModal(true);
         setIsSuccess(true);
+        
       })
       .catch((error) => {
         console.error("Lỗi khi lấy thông tin đơn hàng mới:", error);
       });
+  };
+
+  const handleAcceptOrderClick = (orderId) => {
+    console.log(orderId);
+    // Fetch the rescueVehicleOwnerId details based on the selected rescueVehicleOwnerId ID
+    dispatch(createAcceptOrder({ id: orderId }))
+      .then(() => {
+        setOrderId(orderId);
+        setOpenConfirmModal(false);
+        setIsSuccess(true);
+        reloadOders();
+      })
+      .catch((error) => {
+        console.error(
+          "Lỗi khi lấy thông tin đơn hàng mới:",
+          error.status || error.message
+        );
+      });
+  };
+
+  const handleConfirm = (orderId) => {
+    try {
+      // Gửi orderId về máy chủ ở đây
+      console.log("Sending orderId to server: ", orderId);
+
+      // Thực hiện tải lại dữ liệu sau khi hoàn thành xử lý
+      // Tùy thuộc vào cách bạn tải lại dữ liệu
+      setOrderId(orderId);
+      // Đóng modal và đặt lại orderId
+      setOpenConfirmModal(true);
+    
+    } catch (error) {
+      // Xử lý lỗi (nếu có)
+      console.error("Lỗi khi xử lý:", error);
+    }
+  };
+
+  const handleCancel = () => {
+    // Đóng modal và đặt lại orderId
+    setOpenConfirmModal(false);
+    setOrderId(null);
   };
 
   const handleBookDetailClick = (book) => {
@@ -267,7 +327,6 @@ const Orders = (props) => {
       },
     },
     { field: "area", headerName: "khu vực", width: 60, key: "area" },
-
     {
       field: "status",
       headerName: "Trạng Thái",
@@ -303,7 +362,6 @@ const Orders = (props) => {
         );
       },
     },
-
     {
       field: "update",
       headerName: "Cập Nhật",
@@ -319,13 +377,28 @@ const Orders = (props) => {
       ),
       key: "update",
     },
+    {
+      field: "acceptOrder",
+      headerName: "Trạng Thái Đơn",
+      width: 60,
+      renderCell: (params) => (
+        <CheckCircleOutlineIcon
+          variant="contained"
+          color="primary"
+          onClick={() => handleConfirm(params.row.id)}
+        >
+          <Edit style={{ color: "red" }} />
+        </CheckCircleOutlineIcon>
+      ),
+      key: "acceptOrder",
+    },
   ];
 
   return (
     <Box m="5px">
       <Header
-        title="Danh Sách Đơn Hàng Đã Hoàn Thành"
-        subtitle="Danh sách chi tiết đơn hàng đã hoàn thành"
+        title="Danh Sách Đơn Hàng Mới"
+        subtitle="Danh sách chi tiết đơn hàng mới"
       />
       <Box display="flex" className="box" left={0}>
         <Box
@@ -346,9 +419,9 @@ const Orders = (props) => {
           </IconButton>
         </Box>
 
-        <ToastContainer />  
+        <ToastContainer />
         <Box display="flex" alignItems="center" className="filter-box">
-          <FormControl >
+          <FormControl>
             <Select
               labelId="demo-simple-select-label"
               id="demo-simple-select"
@@ -356,7 +429,7 @@ const Orders = (props) => {
               onChange={handleFilterChange} // Use a different handler for this action
               variant="outlined"
               className="filter-select"
-              style={{ width: '150px' }}
+              style={{ width: "150px" }}
             >
               <MenuItem key="rescueType-all" value="rescueType">
                 Hình Thức
@@ -468,11 +541,36 @@ const Orders = (props) => {
       <ModalEdit
         openEditModal={openEditModal}
         setOpenEditModal={setOpenEditModal}
-        selectedEditRescuseVehicleOwner={selectedEditOrder}
+        selectedEditOrder={selectedEditOrder}
         onClose={() => setOpenEditModal(false)}
         loading={loading}
       />
       <ToastContainer />
+      <Dialog
+        open={openConfirmModal}
+        onClose={handleCancel}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">Xác nhận</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Bạn có chắc chắn muốn chấp nhận đơn hàng?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCancel} color="primary">
+            Hủy
+          </Button>
+          <Button
+            onClick={() => handleAcceptOrderClick(orderId)}
+            color="primary"
+            autoFocus
+          >
+            Xác nhận
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

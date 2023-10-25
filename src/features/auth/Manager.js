@@ -5,18 +5,14 @@ import { CssBaseline, ThemeProvider } from "@mui/material";
 import Topbar from "../../components/Topbar";
 import Sidebar from "../../scenesManager/geographyManager/global/Sidebar";
 import Contacts from "../../scenesManager/contacts";
-import Calendar from "../../scenesManager/calendar";
-import User from "../../scenes/user";
-import Form from "../../scenesManager/form";
 import Invoices from "../../scenesManager/invoices";
-// import FAQ from './scenes/faq';
+import FAQ from '../../scenesManager/faq';
 // import Bar from './scenes/bar';
 // import Pie from './scenes/Pie';
 // import Line from './scenes/line';
 // import Geography from './scenes/geography';
 import Products from "../../scenesManager/products";
-import Orders from "../../scenesManager/ordersPage";
-import AuthProvider from "../../context/AuthContext";
+import Orders from "../../scenesManager/ordersPage/ordersNew";
 import { Routes, Route } from "react-router-dom";
 import Dashboard from "../../scenes/dashboard";
 import { useSelector } from "react-redux";
@@ -37,6 +33,13 @@ import Services from "../../scenesManager/servicePage";
 import UpdateProfileManager from "../../scenesManager/updateProfile";
 import Vehicles from "../../scenesManager/vehicle";
 import OrdersCompleted from "../../scenesManager/ordersPage/ordersCompleted";
+import OrdersAssigned from "../../scenesManager/ordersPage/ordersAssigned";
+import OrdersInprogress from "../../scenesManager/ordersPage/ordersInprogress";
+import OrdersAssigning from "../../scenesManager/ordersPage/ordersAssigning";
+import OrdersCancelled from "../../scenesManager/ordersPage/ordersCancelled";
+import CalendarRescueVehicleOwner from "../../scenesManager/calendarRescueVehicleOwner";
+import CalendarTechnician from "../../scenesManager/calendarTechnician";
+import Map from "../../scenesManager/map/google";
 
 const Manager = () => {
   const user = useSelector(selectCurrentUser);
@@ -59,20 +62,39 @@ const Manager = () => {
               <Routes>
                 <Route path="/client" element={<Dashboard />} />
                 <Route path="/manager/contacts" element={<Contacts />} />
-                <Route path="/manager/calendar" element={<Calendar />} />
-                <Route path="/manager/users" element={<User />} />
                 <Route path="/manager/invoices" element={<Invoices />} />
-                <Route path="/manager/form" element={<Form />} />
-                {/* <Route path="/faq" element={<FAQ />} />
+                <Route path="/manager/calendarTechnicians" element={<CalendarTechnician />} />
+                <Route path="/manager/calendarRescueVehicleOwners" element={<CalendarRescueVehicleOwner />} />
+                {/* } />
                   <Route path="/bar" element={<Bar />} />
                   <Route path="pie" element={<Pie />} />
                   <Route path="/line" element={<Line />} /> */}
                 {/* <Route path="/geography" element={<Geography />} /> */}
+                <Route path="/manager/googlemap" element={<Map />} />
                 <Route path="/manager/books" element={<Products />} />
-                {/* <Route path="/manager/addBook" element={<CreateBook />} />
-                  <Route path="/manager/addGenres" element={<CreateBookGenres />} /> */}
+            
+                <Route path="/manager/faq" element={<FAQ />} />
                 <Route path="/manager/orders" element={<Orders />} />
-                <Route path="/manager/ordersCompleted" element={<OrdersCompleted />} />
+                <Route
+                  path="/manager/ordersAssigned"
+                  element={<OrdersAssigned />}
+                />
+                <Route
+                  path="/manager/ordersCompleted"
+                  element={<OrdersCompleted />}
+                />
+                <Route
+                  path="/manager/ordersInprogress"
+                  element={<OrdersInprogress />}
+                />
+                <Route
+                  path="/manager/ordersAssigning"
+                  element={<OrdersAssigning />}
+                />
+                <Route
+                  path="/manager/ordersCancelled"
+                  element={<OrdersCancelled />}
+                />
                 {/* LIST actor */}
                 <Route path="/manager/customer" element={<Customers />} />
                 <Route path="/manager/techinian" element={<Technicians />} />
@@ -81,11 +103,8 @@ const Manager = () => {
                   path="/manager/rescueVehicleOwner"
                   element={<RescueVehicleOwners />}
                 />
-                  <Route
-                  path="/manager/vehicles"
-                  element={<Vehicles />}
-                />
-                
+                <Route path="/manager/vehicles" element={<Vehicles />} />
+
                 <Route path="/manager/service" element={<Services />} />
 
                 {/* create actor */}

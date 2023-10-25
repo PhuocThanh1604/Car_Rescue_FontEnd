@@ -357,7 +357,7 @@ const Managers = (props) => {
     <Box m="10px">
       <Header title="Quản lí" subtitle="Danh sách quản lí" />
 
-      <Box display="flex" alignItems="center" className="search-box">
+      <Box display="flex" className="box" left={0}>
         <Box
           display="flex"
           borderRadius="5px"

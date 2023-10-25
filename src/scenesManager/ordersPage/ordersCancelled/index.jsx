@@ -23,7 +23,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import InputBase from "@mui/material/InputBase";
 import moment from "moment";
 
-import { fetchOrdersCompleted, fetchOrdersNew, getOrderId } from "../../../redux/orderSlice";
+import { fetchOrdersCancelled, fetchOrdersNew, getOrderId } from "../../../redux/orderSlice";
 import { getCustomerIdFullName } from "../../../redux/customerSlice";
 import CreditScoreIcon from "@mui/icons-material/CreditScore";
 import AddCardIcon from "@mui/icons-material/AddCard";
@@ -31,7 +31,7 @@ import RepeatOnIcon from "@mui/icons-material/RepeatOn";
 import BuildIcon from "@mui/icons-material/Build";
 import SupportIcon from "@mui/icons-material/Support";
 import HandymanIcon from "@mui/icons-material/Handyman";
-const Orders = (props) => {
+const OrdersCancelled = (props) => {
   const dispatch = useDispatch();
   const orders = useSelector((state) => state.order.orders);
   const [openEditModal, setOpenEditModal] = useState(false);
@@ -53,7 +53,6 @@ const Orders = (props) => {
   const handleSearchChange = (event) => {
     const value = event.target.value.toLowerCase();
     setSearchText(value);
-
     // Filter the orders based on the entered search query
     const filteredOrders = orders.filter((order) => {
       const nameMatch =
@@ -108,7 +107,7 @@ const Orders = (props) => {
 
   useEffect(() => {
     setLoading(true);
-    dispatch(fetchOrdersCompleted())
+    dispatch(fetchOrdersCancelled())
       .then((response) => {
         // Đã lấy dữ liệu thành công
         const data = response.payload.data;
@@ -324,8 +323,8 @@ const Orders = (props) => {
   return (
     <Box m="5px">
       <Header
-        title="Danh Sách Đơn Hàng Đã Hoàn Thành"
-        subtitle="Danh sách chi tiết đơn hàng đã hoàn thành"
+        title="Danh Sách Đơn Hàng Đã Bị Hủy"
+        subtitle="Danh sách chi tiết đơn hàng đã bị hủy"
       />
       <Box display="flex" className="box" left={0}>
         <Box
@@ -477,4 +476,4 @@ const Orders = (props) => {
   );
 };
 
-export default Orders;
+export default OrdersCancelled;

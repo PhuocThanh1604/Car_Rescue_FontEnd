@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 export const createRescueVehicleOwner = createAsyncThunk(
-  "rescueVehicleOwners/createRescueVehicleOwners",
+  "vehicles/createRescueVehicleOwners",
   async (rescueVehicleOwner) => {
     try {
       const id = uuidv4();
@@ -28,7 +28,7 @@ export const createRescueVehicleOwner = createAsyncThunk(
 );
 
 export const fetchVehicle = createAsyncThunk(
-  "rescueVehicleOwners/fetchRescueVehicleOwners",
+  "vehicles/fetchVehicle",
   async () => {
     try {
       const response = await axios.get(
@@ -37,31 +37,31 @@ export const fetchVehicle = createAsyncThunk(
       const data = response.data;
       return data;
     } catch (error) {
-      console.error("Failed to retrieve rescueVehicleOwner:", error);
-      throw error;
+      console.error("Failed to retrieve fetch Vehicle:", error);
+      throw error.response.data || error.message;
     }
   }
 );
 
-export const getRescueVehicleOwnerId = createAsyncThunk(
-  "rescueVehicleOwner/getRescueVehicleOwnerId",
+export const getVehicleId = createAsyncThunk(
+  "vehicles/getVehicleId",
   async ({ id }) => {
     try {
       const response = await axios.get(
-        `https://rescuecapstoneapi.azurewebsites.net/api/RescueVehicleOwner/Get?id=${id}`
+        `https://rescuecapstoneapi.azurewebsites.net/api/Vehicle/Get?id=${id}`
       );
       const data = response.data;
       console.log(data);
       return data;
     } catch (error) {
-      console.error("Failed to get Rescue Vehicle Owner ", error.response);
+      console.error("Failed to get  Vehicle ", error.response);
       throw error.response.data || error.message;
     }
   }
 );
 
 export const editRescueVehicleOwner = createAsyncThunk(
-  "rescueVehicleOwners/edit",
+  "vehicles/edit",
   async ({ data }) => {
     try {
       const res = await axios.put(
@@ -82,7 +82,7 @@ export const editRescueVehicleOwner = createAsyncThunk(
   }
 );
 export const updateStatusRescueVehicleOwner = createAsyncThunk(
-  "rescueVehicleOwners/updateStatus",
+  "vehicles/updateStatus",
   async ({ data }) => {
     try {
       const res = await axios.put(
@@ -104,7 +104,7 @@ export const updateStatusRescueVehicleOwner = createAsyncThunk(
 );
 
 export const deleteRescueVehicleOwner = createAsyncThunk(
-  "rescueVehicleOwner/delete",
+  "vehicles/delete",
   async ({ id }) => {
     try {
       const response = await axios.post(
@@ -175,7 +175,7 @@ const rescueVehicleOwnerSlice = createSlice({
       .addCase(updateStatusRescueVehicleOwner.rejected, (state, action) => {
         state.status = "error";
       })
-      .addCase(getRescueVehicleOwnerId.fulfilled, (state, action) => {
+      .addCase(getVehicleId.fulfilled, (state, action) => {
         state.vehicles = action.payload.data;
       })
   },

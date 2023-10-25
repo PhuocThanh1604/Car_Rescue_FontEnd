@@ -1,65 +1,46 @@
 import React, { useEffect, useState } from "react";
 import {
   Box,
-  Button,
   Typography,
   useTheme,
-  Modal,
   TextField,
   Select,
   MenuItem,
   IconButton,
-  Card,
-  CardContent,
-  CardActions,
   FormControl,
-  InputLabel,
-  CircularProgress,
-  Switch,
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
-import { tokens } from "../../theme";
-import Header from "../../components/Header";
+import { tokens } from "../../../theme";
+import Header from "../../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
-import { Edit, FilterList, Search } from "@mui/icons-material";
+import { Edit} from "@mui/icons-material";
 import ModalDetail from "./ModalComponentDetail";
 import ModalEdit from "./ModalComponentEdit";
 import CustomTablePagination from "./TablePagination";
-import ToggleButton from "./ToggleButton";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import Fade from "@mui/material/Fade";
 import SearchIcon from "@mui/icons-material/Search";
 import InputBase from "@mui/material/InputBase";
 import moment from "moment";
-import {
-  getRescueVehicleOwnerId,
-  updateStatusRescueVehicleOwner,
-} from "../../redux/rescueVehicleOwnerSlice";
-import { fetchOrders, fetchOrdersNew } from "../../redux/orderSlice";
-import {
-  getCustomerId,
-  getCustomerIdFullName,
-} from "../../redux/customerSlice";
-import CreditScoreIcon from '@mui/icons-material/CreditScore';
-import AddCardIcon from '@mui/icons-material/AddCard';
-import RepeatOnIcon from '@mui/icons-material/RepeatOn';
-import BuildIcon from '@mui/icons-material/Build';
-import SupportIcon from '@mui/icons-material/Support';
-import HandymanIcon from '@mui/icons-material/Handyman';
-const Orders = (props) => {
+
+import { fetchOrdersInprogress, fetchOrdersNew, getOrderId } from "../../../redux/orderSlice";
+import { getCustomerIdFullName } from "../../../redux/customerSlice";
+import CreditScoreIcon from "@mui/icons-material/CreditScore";
+import AddCardIcon from "@mui/icons-material/AddCard";
+import RepeatOnIcon from "@mui/icons-material/RepeatOn";
+import BuildIcon from "@mui/icons-material/Build";
+import SupportIcon from "@mui/icons-material/Support";
+import HandymanIcon from "@mui/icons-material/Handyman";
+const OrdersInprogress = (props) => {
   const dispatch = useDispatch();
   const orders = useSelector((state) => state.order.orders);
-  const [orderStatus, setOrderStatus] = useState([]);
   const [openEditModal, setOpenEditModal] = useState(false);
   const [searchText, setSearchText] = useState("");
-  const [filterOption, setFilterOption] = useState("Status");
+  const [filterOption, setFilterOption] = useState("rescueType");
   const [openModal, setOpenModal] = useState(false);
   const [selectedBook, setSelectedBook] = useState(null);
-  const [selectedEditOrder, setSelectedEditOrder] =
-    useState(null);
-  const [filteredOrders, setFilteredOrders] =
-    useState([]);
+  const [selectedEditOrder, setSelectedEditOrder] = useState(null);
+  const [filteredOrders, setFilteredOrders] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(8);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -67,14 +48,42 @@ const Orders = (props) => {
   const [endDate, setEndDate] = useState(null);
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]);
-  const [initialFormState, setInitialFormState] = useState({});
-  const [editStatus, setEditStatus] = useState({});
   const [fullnameData, setFullnameData] = useState({});
 
-
   const handleSearchChange = (event) => {
-    const value = event.target.value || ""; // Use an empty string if the value is null
+    const value = event.target.value.toLowerCase();
     setSearchText(value);
+
+    // Filter the orders based on the entered search query
+    const filteredOrders = orders.filter((order) => {
+      const nameMatch =
+        fullnameData[order.customerId] && // Check if fullname data is available
+        fullnameData[order.customerId].toLowerCase().includes(value);
+      const filterMatch =
+        filterOption === "rescueType" ||
+        (filterOption === "Fixing" && order.rescueType === "Fixing") ||
+        (filterOption === "repair" && order.rescueType === "repair") ||
+        (filterOption === "Towing" && order.rescueType === "Towing");
+      return nameMatch && filterMatch;
+    });
+
+    setFilteredOrders(filteredOrders);
+  };
+  
+  const handleFilterChange = (event) => {
+    const selectedStatusOption = event.target.value;
+    setFilterOption(selectedStatusOption);
+
+    if (selectedStatusOption === 'rescueType') {
+      // Hiển thị tất cả các trạng thái
+      setFilteredOrders(orders);
+    } else {
+      // Lọc sản phẩm dựa trên giá trị trạng thái
+      const filteredOrders = orders.filter(
+        (order) => order.rescueType === selectedStatusOption
+      );
+      setFilteredOrders(filteredOrders);
+    }
   };
   const handleDateFilterChange = () => {
     if (startDate && endDate) {
@@ -90,56 +99,6 @@ const Orders = (props) => {
       setFilteredOrders(orders);
     }
   };
-  const handleFilterChange = (event) => {
-    const selectedStatusOption = event.target.value;
-    setFilterOption(selectedStatusOption);
-
-    if (selectedStatusOption === "Status") {
-      // Hiển thị tất cả các trạng thái
-      setFilteredOrders(orders);
-    } else {
-      // Lọc sản phẩm dựa trên giá trị trạng thái
-      const filteredrescueVehicleOwners = orders.filter(
-        (rescueVehicleOwner) =>
-          rescueVehicleOwner.status === selectedStatusOption
-      );
-      setFilteredOrders(filteredrescueVehicleOwners);
-    }
-  };
-
-  useEffect(() => {
-    if (orders) {
-      if (orders.id) {
-        const OrderToEditToEdit = orders.find(
-          (order) => order.id === orders.id
-        );
-        if (OrderToEditToEdit) {
-          console.log(OrderToEditToEdit);
-          setEditStatus(OrderToEditToEdit);
-          setInitialFormState(OrderToEditToEdit);
-        }
-      }
-    }
-  }, [orders]);
-
-  useEffect(() => {
-    const filteredOrders = orders
-      ? orders.filter((order) => {
-          const nameMatch =
-          order.fullname &&
-          order.fullname
-              .toLowerCase()
-              .includes(searchText.toLowerCase());
-          const filterMatch =
-            filterOption === "Status" ||
-            (filterOption === "NEW" && order.status === "NEW") ||
-            (filterOption === "COMPLETED" &&order.status === "COMPLETED")||
-            (filterOption === "ASSIGNED" &&order.status === "ASSIGNED");
-          return nameMatch && filterMatch;
-        })
-      : [];
-      setFilteredOrders(filteredOrders);
-  }, [orders, searchText, filterOption]);
 
   if (orders) {
     orders.forEach((rescueVehicleOwner) => {
@@ -149,7 +108,7 @@ const Orders = (props) => {
 
   useEffect(() => {
     setLoading(true);
-    dispatch(fetchOrdersNew())
+    dispatch(fetchOrdersInprogress())
       .then((response) => {
         // Đã lấy dữ liệu thành công
         const data = response.payload.data;
@@ -167,7 +126,7 @@ const Orders = (props) => {
   const handleUpdateClick = (orderId) => {
     console.log(orderId);
     // Fetch the rescueVehicleOwnerId details based on the selected rescueVehicleOwnerId ID
-    dispatch(getRescueVehicleOwnerId({ id: orderId }))
+    dispatch(getOrderId({ id: orderId }))
       .then((response) => {
         const orderDetails = response.payload.data;
         setSelectedEditOrder(orderDetails);
@@ -175,7 +134,7 @@ const Orders = (props) => {
         setIsSuccess(true);
       })
       .catch((error) => {
-        console.error("Lỗi khi lấy thông tin đơn hàng mới:", error);
+        console.error("Lỗi khi lấy thông tin đơn hàng đang thực hiện:", error);
       });
   };
 
@@ -194,52 +153,10 @@ const Orders = (props) => {
         }
       })
       .catch((error) => {
-        console.error("Lỗi khi tải lại danh sách đơn hàng:", error);
+        console.error("Lỗi khi tải lại danh sách đơn hàng đang thực hiện:", error);
       });
   };
-  const handleSaveClickStatus = (rescueVehicleOwnerId, fullname, newStatus) => {
-    if (!rescueVehicleOwnerId || !fullname || !newStatus) {
-      toast.error("Không có thông tin để cập nhật.");
-      return;
-    }
-    console.log(fullname);
-    console.log(rescueVehicleOwnerId);
-    console.log(newStatus);
-    // Create an object containing the necessary data
-    const updateData = {
-      id: rescueVehicleOwnerId,
-      fullname: fullname,
-      sex: "",
-      phone: "",
-      avatar: "",
-      address: "",
-      createAt: "",
-      updateAt: "",
-      area: "",
-      status: newStatus,
-    };
-    const updateDataJson = JSON.stringify(updateData);
-    console.log("dã update" + updateData);
-    // Update the status of the matching RescueVehicleOwner and send the update to the server
-    dispatch(updateStatusRescueVehicleOwner({ data: updateDataJson }))
-      .then(() => {
-        toast.success("Thay đổi trạng thái thành công.");
-        reloadOders();
-        setIsSuccess(true);
-      })
-      .catch((error) => {
-        if (error.response && error.response.data) {
-          toast.error(
-            `Lỗi khi cập nhật đơn hàng: ${error.response.data.message}`
-          );
-        } else if (error.message) {
-          toast.error(`Lỗi khi cập nhật đơn hàng: ${error.message}`);
-        } else {
-          toast.error("Lỗi khi cập nhật đơn hàng");
-        }
-      });
-  };
-  
+
   const fetchFullname = (customerId) => {
     // You can use your existing code to fetch the fullname
     dispatch(getCustomerIdFullName({ id: customerId }))
@@ -252,11 +169,11 @@ const Orders = (props) => {
             [customerId]: data.fullname,
           }));
         } else {
-          console.error("Fullname not found in the API response.");
+          console.error("Không tìm thấy tên đầy đủ trong phản hồi API..");
         }
       })
       .catch((error) => {
-        console.error("Error while fetching customer data:", error);
+        console.error("Lỗi khi tìm nạp dữ liệu khách hàng:", error);
       });
   };
 
@@ -271,6 +188,7 @@ const Orders = (props) => {
       }
     });
   }, [data, fullnameData]);
+
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -280,20 +198,11 @@ const Orders = (props) => {
     setPage(0);
   };
 
-  const filteredOrdersPagination =
-  filteredOrders.slice(
-      page * rowsPerPage,
-      page * rowsPerPage + rowsPerPage
-    );
+  const filteredOrdersPagination = filteredOrders.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
+  );
 
-  function isAllCharactersSame(value) {
-    if (!value) {
-      return false;
-    }
-
-    const firstChar = value[0];
-    return value.split("").every((char) => char === firstChar);
-  }
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   // eslint-disable-next-line no-sparse-arrays
@@ -301,7 +210,7 @@ const Orders = (props) => {
     {
       field: "customerId",
       headerName: "Tên Khách Hàng",
-      width: 160,
+      width: 100,
       valueGetter: (params) => {
         // Get the fullname from the state based on customerId
         return fullnameData[params.value] || "";
@@ -313,6 +222,14 @@ const Orders = (props) => {
       headerName: "Ghi Chú của Customer",
       width: 120,
       key: "customerNote",
+    },
+    {
+      field: "createdAt",
+      headerName: "Date",
+      width: 100,
+      key: "createdAt",
+      valueGetter: (params) =>
+        moment(params.row.createdAt).utcOffset(7).format("DD-MM-YYYY"),
     },
     {
       field: "rescueType",
@@ -330,18 +247,19 @@ const Orders = (props) => {
             fontSize={10}
             borderRadius={8} // Corrected prop name from "buserRadius" to "borderRadius"
             backgroundColor={
-              rescueType === 'Fixing'
+              rescueType === "Fixing"
                 ? colors.greenAccent[700]
-                : rescueType === 'repair'
+                : rescueType === "repair"
                 ? colors.grey[800]
                 : colors.grey[800]
                 ? colors.redAccent[700]
-                : rescueType === 'Towing'
-            }>
-            {rescueType === 'repair' && <BuildIcon />}
-            {rescueType === 'Towing' && <SupportIcon />}
-            {rescueType === 'Fixing' && <HandymanIcon />}
-            <Typography color={colors.grey[100]} sx={{ ml: '8px' }}>
+                : rescueType === "Towing"
+            }
+          >
+            {rescueType === "repair" && <BuildIcon />}
+            {rescueType === "Towing" && <SupportIcon />}
+            {rescueType === "Fixing" && <HandymanIcon />}
+            <Typography color={colors.grey[100]} sx={{ ml: "8px" }}>
               {rescueType}
             </Typography>
           </Box>
@@ -349,12 +267,12 @@ const Orders = (props) => {
       },
     },
     { field: "area", headerName: "khu vực", width: 60, key: "area" },
-      
+
     {
-      field: 'status',
-      headerName: 'Trạng Thái',
+      field: "status",
+      headerName: "Trạng Thái",
       width: 150,
-      key: 'status',
+      key: "status",
       renderCell: ({ row: { status } }) => {
         return (
           <Box
@@ -366,25 +284,26 @@ const Orders = (props) => {
             fontSize={10}
             borderRadius={8} // Corrected prop name from "buserRadius" to "borderRadius"
             backgroundColor={
-              status === 'NEW'
+              status === "NEW"
                 ? colors.greenAccent[700]
-                : status === 'ASSIGNED'
+                : status === "ASSIGNED"
                 ? colors.redAccent[700]
                 : colors.redAccent[700]
                 ? colors.blueAccent[700]
-                : status === 'COMPLETED'
-            }>
-            {status === 'NEW' && <AddCardIcon />}
-            {status === 'COMPLETED' && <CreditScoreIcon />}
-            {status === 'ASSIGNED' && <RepeatOnIcon />}
-            <Typography color={colors.grey[100]} sx={{ ml: '8px' }}>
+                : status === "COMPLETED"
+            }
+          >
+            {status === "NEW" && <AddCardIcon />}
+            {status === "COMPLETED" && <CreditScoreIcon />}
+            {status === "ASSIGNED" && <RepeatOnIcon />}
+            <Typography color={colors.grey[100]} sx={{ ml: "8px" }}>
               {status}
             </Typography>
           </Box>
         );
       },
     },
-  
+
     {
       field: "update",
       headerName: "Cập Nhật",
@@ -404,8 +323,11 @@ const Orders = (props) => {
 
   return (
     <Box m="5px">
-      <Header title="Danh Sách Đơn Hàng" subtitle="Danh sách chi tiết đơn hàng" />
-      <Box display="flex" alignItems="center" className="search-box">
+      <Header
+        title="Danh Sách Đơn Hàng Đang Thực Hiện "
+        subtitle="Danh sách chi tiết đơn hàng đang thực hiện"
+      />
+      <Box display="flex" className="box" left={0}>
         <Box
           display="flex"
           borderRadius="5px"
@@ -424,32 +346,34 @@ const Orders = (props) => {
           </IconButton>
         </Box>
 
-        <ToastContainer />
+        <ToastContainer />  
         <Box display="flex" alignItems="center" className="filter-box">
-          <FormControl fullWidth>
+          <FormControl >
             <Select
               labelId="demo-simple-select-label"
               id="demo-simple-select"
               value={filterOption}
-              onChange={handleFilterChange}
+              onChange={handleFilterChange} // Use a different handler for this action
               variant="outlined"
               className="filter-select"
+              style={{ width: '150px' }}
             >
-              <MenuItem key="status-all" value="Status">
-                Trạng Thái Đơn Hàng
+              <MenuItem key="rescueType-all" value="rescueType">
+                Hình Thức
               </MenuItem>
-              <MenuItem key="status-active" value="NEW">
-                Mới
+              <MenuItem key="rescueType-repair" value="repair">
+                Sửa Chữa Tại Chỗ
               </MenuItem>
-              <MenuItem key="status-unactive" value="ASSIGNED">
-               Đã Phân Công
+              <MenuItem key="rescueType-towing" value="Towing">
+                Kéo Xe
               </MenuItem>
-              <MenuItem key="status-unactive" value="COMPLETED">
-               Đã Hoàn Thành
+              <MenuItem key="rescueType-fixing" value="Fixing">
+                Sữa Chữa
               </MenuItem>
             </Select>
           </FormControl>
         </Box>
+
         <Box display="flex" alignItems="center" className="startDate-box">
           <TextField
             label="Từ ngày"
@@ -549,9 +473,8 @@ const Orders = (props) => {
         loading={loading}
       />
       <ToastContainer />
-   
     </Box>
   );
 };
 
-export default Orders;
+export default OrdersInprogress;

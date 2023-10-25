@@ -295,7 +295,7 @@ const Vehicles = (props) => {
         title="Danh Sách Xe Cứu Hộ"
         subtitle="Danh Sách Chi Tiết Xe Cứu Hộ"
       />
-      <Box display="flex" alignItems="center" className="search-box">
+      <Box display="flex" className="box" left={0}>
         <Box
           display="flex"
           borderRadius="5px"

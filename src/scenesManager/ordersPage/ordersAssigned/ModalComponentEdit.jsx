@@ -21,9 +21,9 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   editRescueVehicleOwner,
   fetchRescueVehicleOwners,
-} from "../../redux/rescueVehicleOwnerSlice";
+} from "../../../redux/rescueVehicleOwnerSlice";
 import { ToastContainer, toast } from "react-toastify";
-import UploadImageField from "../../components/uploadImage";
+import UploadImageField from "../../../components/uploadImage";
 
 const ModalEdit = ({
   openEditModal,

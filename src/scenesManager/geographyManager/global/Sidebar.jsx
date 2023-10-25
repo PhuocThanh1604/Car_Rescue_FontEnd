@@ -33,6 +33,7 @@ import DvrIcon from '@mui/icons-material/Dvr';
 import CancelIcon from '@mui/icons-material/Cancel';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import LoopIcon from '@mui/icons-material/Loop';
+import PermContactCalendarIcon from '@mui/icons-material/PermContactCalendar';
 const Item = ({ title, to, icon, selected, setSelected, subItems }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -221,24 +222,25 @@ const Sidebar = () => {
                   selected={selected}
                   setSelected={setSelected}
                 />
-                <Item
-                  title="Đang Thực Hiện"
-                  to="manager/books"
-                  icon={<HourglassTopIcon />}
-                  selected={selected}
-                  setSelected={setSelected}
-                />
+         
                    <Item
                   title="Đang Điều Phối"
-                  to="manager/books"
+                  to="manager/ordersAssigning"
                   icon={<LoopIcon />}
                   selected={selected}
                   setSelected={setSelected}
                 />
                   <Item
-                  title="Đã Điều Phối"
-                  to="manager/books"
+                  title="Đã Được Điều Phối"
+                  to="manager/ordersAssigned"
                   icon={<AssignmentTurnedInIcon />}
+                  selected={selected}
+                  setSelected={setSelected}
+                />
+                       <Item
+                  title="Đang Thực Hiện"
+                  to="manager/ordersInprogress"
+                  icon={<HourglassTopIcon />}
                   selected={selected}
                   setSelected={setSelected}
                 />
@@ -251,7 +253,7 @@ const Sidebar = () => {
                 />
                  <Item
                   title="Đã Bị Hủy"
-                  to="manager/books"
+                  to="manager/ordersCancelled"
                   icon={<CancelIcon />}
                   selected={selected}
                   setSelected={setSelected}
@@ -340,13 +342,7 @@ const Sidebar = () => {
             >
               Pages
             </Typography>
-            <Item
-              title="Profile Form"
-              to="manager/form"
-              icon={<PersonOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
+ 
             <Item
               title="New Service"
               to="manager/add/service"
@@ -361,37 +357,17 @@ const Sidebar = () => {
               selected={selected}
               setSelected={setSelected}
             />
-            <Item
-              title="New Customer"
-              to="manager/add/customer"
-              icon={<PersonOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            {/* <Item
-              title="New Book"
-              to="manager/addBook"
-              icon={<BookmarkAddIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="New Genres"
-              to="manager/addGenres"
-              icon={<CategoryIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            /> */}
+        
             <Item
               title="Lịch Kỹ Thuật Viên"
-              to="manager/calendar"
-              icon={<CalendarTodayOutlinedIcon />}
+              to="manager/calendarTechnicians"
+              icon={<PermContactCalendarIcon />}
               selected={selected}
               setSelected={setSelected}
             />
             <Item
               title="Lịch Xe Cứu Hộ"
-              to="manager/calendar"
+              to="manager/calendarRescueVehicleOwners"
               icon={<CalendarTodayOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}

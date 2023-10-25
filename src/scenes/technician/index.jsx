@@ -301,7 +301,7 @@ const Technicians = (props) => {
     <Box m="10px">
       <Header title="Kỹ Thuật Viên" subtitle="Danh sách kỹ thuật vi" />
 
-      <Box display="flex" alignItems="center" className="search-box">
+      <Box display="flex" className="box" left={0}>
         <Box
           display="flex"
           borderRadius="5px"
@@ -407,14 +407,7 @@ const Technicians = (props) => {
             borderBottom: 'none',
           },
         }}>
-     {/* <DataGrid
-  rows={filteredtechniciansPagination.map((row, index) => ({ ...row, id: index + 1 }))} // Thêm id nếu không có
-  columns={columns}
-  getRowId={(row) => row.id}
-  autoHeight
-  checkboxSelection
-  loading={loading}
-/> */}
+
  <DataGrid
           rows={filteredtechniciansPagination}
           columns={columns}

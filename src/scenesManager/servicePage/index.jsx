@@ -32,18 +32,14 @@ import moment from "moment";
 import { fetchServices, getServiceId } from "../../redux/serviceSlice";
 const Services = (props) => {
   const dispatch = useDispatch();
-  const services = useSelector(
-    (state) => state.service.services
-  );
+  const services = useSelector((state) => state.service.services);
   const [openEditModal, setOpenEditModal] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [filterOption, setFilterOption] = useState("Status");
   const [openModal, setOpenModal] = useState(false);
   const [selectedBook, setSelectedBook] = useState(null);
-  const [selectedEditSevice, setSelectedEditSevice] =
-    useState(null);
-  const [filteredSerivces, setFilteredSerivces] =
-    useState([]);
+  const [selectedEditSevice, setSelectedEditSevice] = useState(null);
+  const [filteredSerivces, setFilteredSerivces] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(8);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
@@ -83,19 +79,18 @@ const Services = (props) => {
       setFilteredSerivces(services);
     } else {
       // Lọc sản phẩm dựa trên giá trị trạng thái
-      const filteredSerivces= services.filter(
-        (service) =>
-        service.status === selectedStatusOption
-      );//check
+      const filteredSerivces = services.filter(
+        (service) => service.status === selectedStatusOption
+      ); //check
       setFilteredSerivces(filteredSerivces);
     }
   };
   const handleUpdateClick = (serviceId) => {
-    console.log(serviceId);//check
+    console.log(serviceId); //check
     // Fetch the serviceId details based on the selected serviceId ID
-    dispatch(getServiceId({ id: serviceId }))//check
+    dispatch(getServiceId({ id: serviceId })) //check
       .then((response) => {
-        const serviceDetails = response.payload.data;//check
+        const serviceDetails = response.payload.data; //check
         setSelectedEditSevice(serviceDetails);
         setOpenEditModal(true);
         setIsSuccess(true);
@@ -112,21 +107,18 @@ const Services = (props) => {
 
   useEffect(() => {
     const filteredServices = services
-  ? services.filter((service) => {
-      const nameMatch =
-      service.name &&
-      service.name.toLowerCase().includes(searchText.toLowerCase());
-      const filterMatch =
-        filterOption === "Status" ||
-        (filterOption === "ACTIVE" &&
-        service.status === "ACTIVE") ||
-        (filterOption === "Unactive" &&
-        service.status === "Unactive");
-      return nameMatch && filterMatch;
-  })
-  : [];
-  setFilteredSerivces(filteredServices);
-
+      ? services.filter((service) => {
+          const nameMatch =
+            service.name &&
+            service.name.toLowerCase().includes(searchText.toLowerCase());
+          const filterMatch =
+            filterOption === "Status" ||
+            (filterOption === "ACTIVE" && service.status === "ACTIVE") ||
+            (filterOption === "Unactive" && service.status === "Unactive");
+          return nameMatch && filterMatch;
+        })
+      : [];
+    setFilteredSerivces(filteredServices);
   }, [services, searchText, filterOption]);
 
   if (services) {
@@ -134,7 +126,6 @@ const Services = (props) => {
       // Đây bạn có thể truy cập và xử lý dữ liệu từng đối tượng khách hàng ở đây
     });
   }
-
 
   useEffect(() => {
     setLoading(true);
@@ -163,11 +154,10 @@ const Services = (props) => {
     setPage(0);
   };
 
-  const filteredServicesPagination =
-    filteredSerivces.slice(
-      page * rowsPerPage,
-      page * rowsPerPage + rowsPerPage
-    );
+  const filteredServicesPagination = filteredSerivces.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
+  );
 
   function isAllCharactersSame(value) {
     if (!value) {
@@ -181,7 +171,6 @@ const Services = (props) => {
   const colors = tokens(theme.palette.mode);
   // eslint-disable-next-line no-sparse-arrays
   const columns = [
-
     {
       field: "name",
       headerName: "Tên Dịch Vụ",
@@ -268,30 +257,12 @@ const Services = (props) => {
       ),
       key: "update",
     },
-    // {
-    //   field: 'delete',
-    //   headerName: 'Xóa',
-    //   width: 60,
-    //   renderCell: (params) => (
-    //     <IconButton
-    //       variant="contained"
-    //       color="secondary"
-    //       onClick={() => handleDeleteClick(params.row)}
-    //       {...(loading ? { loading: true } : {})} // Conditionally include the loading attribute
-    //       comingsoon={loading ? 1 : 0}
-
-    //     >
-    //       <DeleteOutline />
-    //     </IconButton>
-    //   ),
-    //   key: 'deleted',
-    // },
   ];
 
   return (
     <Box m="5px">
       <Header title="Dịch Vụ" subtitle="Danh sách dịch vụ" />
-      <Box display="flex" alignItems="center" className="search-box">
+      <Box display="flex" className="box" left={0}>
         <Box
           display="flex"
           borderRadius="5px"
@@ -416,7 +387,6 @@ const Services = (props) => {
           loading={loading}
         />
       </Box>
-
 
       <ModalEdit
         openEditModal={openEditModal}

@@ -31,9 +31,7 @@ const Topbar = () => {
   };
   // Lấy đối tượng manager từ localStorage
   const managerString = localStorage.getItem("manager");
-  const adminString = localStorage.getItem("role_user");
   const isAdmin = localStorage.getItem("isAdmin") === "true";
-  let admin = null;
   let manager = null;
 
   if (managerString) {

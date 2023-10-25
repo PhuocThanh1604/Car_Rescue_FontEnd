@@ -16,7 +16,7 @@ import {
 import Header from "../../components/Header";
 import { tokens } from "../../theme";
 
-const Calendar = () => {
+const CalendarTechnician = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [currentEvents, setCurrentEvents] = useState([]);
@@ -49,7 +49,7 @@ const Calendar = () => {
 
   return (
     <Box m="20px">
-      <Header title="Calendar" subtitle="Full Calendar Interactive Page" />
+      <Header title="Lịch Kỹ Thuật Viên" subtitle="Trang tương tác toàn bộ lịch" />
 
       <Box display="flex" justifyContent="space-between">
         {/* CALENDAR SIDEBAR */}
@@ -129,4 +129,4 @@ const Calendar = () => {
   );
 };
 
-export default Calendar;
+export default CalendarTechnician;

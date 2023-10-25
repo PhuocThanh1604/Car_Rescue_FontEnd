@@ -50,7 +50,87 @@ export const fetchOrdersCompleted = createAsyncThunk(
       return data;
     } catch (response) {
       console.error(
-        "Failed to retrieve orders:",
+        "Failed to retrieve fetch Orders Completed:",
+        response.status,
+        response.message
+      );
+      throw response.status || response.message;
+    }
+  }
+);
+export const fetchOrdersInprogress = createAsyncThunk(
+  "orders/fetchOrdersInprogress",
+  async () => {
+    try {
+      const response = await axios.get(
+        "https://rescuecapstoneapi.azurewebsites.net/api/Order/GetAllOrderInprogress"
+      );
+      const data = response.data;
+      console.log(response.data);
+      return data;
+    } catch (response) {
+      console.error(
+        "Failed to retrieve fetch Orders Inprogress:",
+        response.status,
+        response.message
+      );
+      throw response.status || response.message;
+    }
+  }
+);
+export const fetchOrdersAssigned = createAsyncThunk(
+  "orders/fetchOrdersAssigned",
+  async () => {
+    try {
+      const response = await axios.get(
+        "https://rescuecapstoneapi.azurewebsites.net/api/Order/GetAllOrderAssigned"
+      );
+      const data = response.data;
+      console.log(response.data);
+      return data;
+    } catch (response) {
+      console.error(
+        "Failed to retrieve Orders Assigned:",
+        response.status,
+        response.message
+      );
+      throw response.status || response.message;
+    }
+  }
+);
+export const fetchOrdersCancelled = createAsyncThunk(
+  "orders/fetchOrdersCancelled",
+  async () => {
+    try {
+      const response = await axios.get(
+        "https://rescuecapstoneapi.azurewebsites.net/api/Order/GetAllOrderCancelled"
+      );
+      const data = response.data;
+      console.log(response.data);
+      return data;
+    } catch (response) {
+      console.error(
+        "Failed to retrieve Orders Assigned:",
+        response.status,
+        response.message
+      );
+      throw response.status || response.message;
+    }
+  }
+);
+export const fetchOrdersAssigning = createAsyncThunk(
+  "orders/fetchOrdersAssigning",
+  async () => {
+    try {
+      const response = await axios.get(
+        "https://rescuecapstoneapi.azurewebsites.net/api/Order/GetAllOrderAssigning"
+      );
+      const data = response.data;
+      console.log(response.data);
+      return data;
+    } catch (response) {
+      console.error(
+        "Failed to retrieve Orders Assigning:",
         response.status,
         response.message
       );
@@ -75,8 +155,8 @@ export const fetchOrdersDetail = createAsyncThunk(
     }
   }
 );
-export const getOderId = createAsyncThunk(
-  "orders/getOderId",
+export const getOrderId = createAsyncThunk(
+  "orders/getOrderId",
   async ({ id }) => {
     try {
       const response = await axios.get(
@@ -86,7 +166,48 @@ export const getOderId = createAsyncThunk(
       console.log(data);
       return data;
     } catch (error) {
-      console.error("Failed to get Rescue Vehicle Owner ", error.response);
+      console.error("Failed to get  Order Id ", error.response);
+      throw error.response.data || error.message;
+    }
+  }
+);
+
+// export const createAcceptOrder = createAsyncThunk(
+//   "orders/createAcceptOrder",
+//   async ({ data }) => {
+//     try {
+//       const response = await axios.post(
+//         `https://rescuecapstoneapi.azurewebsites.net/api/Order/ManagerAssignOrder`,data
+//       );
+//       const data = response.data;
+//       console.log(data);
+//       return data;
+//     } catch (error) {
+//       console.error("Failed to create Accept Order ", error.response);
+//       throw error.response.data || error.message;
+//     }
+//   }
+// );
+export const createAcceptOrder = createAsyncThunk(
+  "orders/createAcceptOrder",
+  async (data) => {
+    try {
+      // const orderData = {
+      //   ...data,
+      // };
+      const res = await axios.post(
+        "https://rescuecapstoneapi.azurewebsites.net/api/Order/ManagerAssignOrder",
+        data ,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log(data)
+      return res.data;
+    } catch (error) {
+      console.error("Failed to create Accept Order:", error.response);
       throw error.response.data || error.message;
     }
   }
@@ -123,13 +244,45 @@ const orderSlice = createSlice({
       .addCase(fetchOrdersCompleted.pending, (state, action) => {
         state.status = "loading";
       })
+      .addCase(fetchOrdersInprogress.fulfilled, (state, action) => {
+        state.orders = action.payload.data;
+      })
+      .addCase(fetchOrdersInprogress.pending, (state, action) => {
+        state.status = "loading";
+      })
+      .addCase(fetchOrdersAssigned.fulfilled, (state, action) => {
+        state.orders = action.payload.data;
+      })
+      .addCase(fetchOrdersAssigned.pending, (state, action) => {
+        state.status = "loading";
+      })
+      .addCase(fetchOrdersCancelled.fulfilled, (state, action) => {
+        state.orders = action.payload.data;
+      })
+      .addCase(fetchOrdersCancelled.pending, (state, action) => {
+        state.status = "loading";
+      })
+      .addCase(fetchOrdersAssigning.fulfilled, (state, action) => {
+        state.orders = action.payload.data;
+      })
+      .addCase(fetchOrdersAssigning.pending, (state, action) => {
+        state.status = "loading";
+      })
       .addCase(fetchOrdersDetail.fulfilled, (state, action) => {
         state.ordersDetails = action.payload; // Lưu trữ dữ liệu ordersDetails vào state
       })
       .addCase(fetchOrdersDetail.pending, (state, action) => {
         state.status = "loading";
-      }).addCase(getOderId.fulfilled, (state, action) => {
-        state.rescueVehicleOwnerData = action.payload.data;
+      }).addCase(getOrderId.fulfilled, (state, action) => {
+        state.orderData = action.payload.data;
+      }).addCase(createAcceptOrder.fulfilled, (state, action) => {
+        state.orders.push(action.payload);
+      })
+      .addCase(createAcceptOrder.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(createAcceptOrder.rejected, (state, action) => {
+        state.status = "error";
       })
   },
 });

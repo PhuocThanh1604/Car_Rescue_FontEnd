@@ -365,7 +365,7 @@ const RescueVehicleOwners = (props) => {
   return (
     <Box m="5px">
       <Header title="Chủ Xe Cứu Hộ" subtitle="Danh sách chủ xe cứu hộ" />
-      <Box display="flex" alignItems="center" className="search-box">
+      <Box display="flex" className="box" left={0}>
         <Box
           display="flex"
           borderRadius="5px"

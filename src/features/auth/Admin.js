@@ -5,7 +5,6 @@ import { ColorModeContext, useMode } from '../../theme';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import Topbar from '../../components/Topbar';
 import Sidebar from '../../scenes/geography/global/Sidebar';
-import User from '../../scenes/user';
 
 import Products from '../../scenes/products';
 import Customer from '../../scenes/customer';

@@ -24,6 +24,7 @@
     "date-fns": "^2.30.0",
     "firebase": "^10.4.0",
     "formik": "^2.4.5",
+    "google-map-react": "^2.2.1",
     "jwt-decode": "^3.1.2",
     "localStorage": "^1.0.4",
     "moment": "^2.29.4",

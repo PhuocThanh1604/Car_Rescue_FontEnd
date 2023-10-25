@@ -22,8 +22,7 @@ import "react-toastify/dist/ReactToastify.css";
 import SearchIcon from "@mui/icons-material/Search";
 import InputBase from "@mui/material/InputBase";
 import moment from "moment";
-
-import { fetchOrdersCompleted, fetchOrdersNew, getOrderId } from "../../../redux/orderSlice";
+import { fetchOrdersAssigning, fetchOrdersNew, getOrderId } from "../../../redux/orderSlice";
 import { getCustomerIdFullName } from "../../../redux/customerSlice";
 import CreditScoreIcon from "@mui/icons-material/CreditScore";
 import AddCardIcon from "@mui/icons-material/AddCard";
@@ -31,7 +30,7 @@ import RepeatOnIcon from "@mui/icons-material/RepeatOn";
 import BuildIcon from "@mui/icons-material/Build";
 import SupportIcon from "@mui/icons-material/Support";
 import HandymanIcon from "@mui/icons-material/Handyman";
-const Orders = (props) => {
+const OrdersAssigning = (props) => {
   const dispatch = useDispatch();
   const orders = useSelector((state) => state.order.orders);
   const [openEditModal, setOpenEditModal] = useState(false);
@@ -108,7 +107,7 @@ const Orders = (props) => {
 
   useEffect(() => {
     setLoading(true);
-    dispatch(fetchOrdersCompleted())
+    dispatch(fetchOrdersAssigning())
       .then((response) => {
         // Đã lấy dữ liệu thành công
         const data = response.payload.data;
@@ -143,7 +142,7 @@ const Orders = (props) => {
     setOpenModal(true);
   };
   const reloadOders = () => {
-    dispatch(fetchOrdersNew())
+    dispatch(fetchOrdersAssigning())
       .then((response) => {
         const data = response.payload.data;
         if (data) {
@@ -324,8 +323,8 @@ const Orders = (props) => {
   return (
     <Box m="5px">
       <Header
-        title="Danh Sách Đơn Hàng Đã Hoàn Thành"
-        subtitle="Danh sách chi tiết đơn hàng đã hoàn thành"
+        title="Danh Sách Đơn Hàng Mới"
+        subtitle="Danh sách chi tiết đơn hàng mới"
       />
       <Box display="flex" className="box" left={0}>
         <Box
@@ -477,4 +476,4 @@ const Orders = (props) => {
   );
 };
 
-export default Orders;
+export default OrdersAssigning;

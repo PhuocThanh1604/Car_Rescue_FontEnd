@@ -121,9 +121,11 @@ body,
 
 .search-box {
   transition: all 0.3s ease;
-  flex-direction: row-reverse;
-  margin-right:10px ;
+  flex-direction: row-reverse; /* Đảo ngược hướng của các phần tử con */
+  justify-content: flex-start; /* Đặt phần tử cố định bên trái */
+  left: 0;
 }
+
 
 .search-input {
   transition: border-color 0.4s ease;
@@ -136,6 +138,7 @@ body,
 
 .filter-select {
   transition: border-color 0.3s ease;
+  width: 150px; 
 }
 
 .data-grid {
