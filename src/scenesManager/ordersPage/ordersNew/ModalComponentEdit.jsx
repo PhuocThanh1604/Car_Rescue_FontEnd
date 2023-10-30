@@ -10,6 +10,10 @@ import {
   Button,
   IconButton,
   Autocomplete,
+  Avatar,
+  Grid,
+  CardHeader,
+  Icon,
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
@@ -18,7 +22,12 @@ import { ToastContainer, toast } from "react-toastify";
 import { createAcceptOrder, fetchOrdersNew } from "../../../redux/orderSlice";
 import { fetchVehicle, getVehicleId } from "../../../redux/vehicleSlice";
 import { fetchTechnicians } from "../../../redux/technicianSlice";
-
+import QueryBuilderIcon from "@mui/icons-material/QueryBuilder";
+import CategoryIcon from "@mui/icons-material/Category";
+import PlaceIcon from "@mui/icons-material/Place";
+import PaymentIcon from "@mui/icons-material/Payment";
+import SupportIcon from "@mui/icons-material/Support";
+import HandymanIcon from "@mui/icons-material/Handyman";
 const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
   const dispatch = useDispatch();
   const orders = useSelector((state) => state.order.orders);
@@ -32,18 +41,27 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
   const [filtereRescueVehicleOwners, setFilteredRescueVehicleOwners] = useState(
     []
   );
-  const [currentImageUrl, setCurrentImageUrl] = useState(edit.avatar || "");
   const [serverError, setServerError] = useState(null);
   const [selectedVehicle, setSelectedVehicel] = useState(null);
   const [vehicleId, setVehicleId] = useState(null);
   const [orderId, setOrderId] = useState(null);
   const [loadingVehicle, setLoadingVehicle] = useState(true);
   const [vehicleData, setVehicleData] = useState([]);
+  const [vehicleDetails, setVehicleDetails] = useState(null);
   const [technicianId, setTechnicianId] = useState(null);
   const [loadingTechnician, setLoadingTechnician] = useState(true);
   const [technicianData, setTechnicianData] = useState([]);
   const [selectedTechnician, setSelectedTechnician] = useState(null);
   const [technicianDetails, setTechnicianDetails] = useState(null);
+  const [selectedRescueType, setSelectedRescueType] = useState([
+    "Fixing",
+    "Towing",
+  ]);
+  const [selectedRescueTypeTowing, setSelectedRescueTypeTowing] =
+    useState("Towing");
+  const [filteredTechnicianData, setFilteredTechnicianData] = useState([]);
+  const [filteredVehicleData, setFilteredVehicleData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
   const managerString = localStorage.getItem("manager");
   let manager = null;
 
@@ -54,22 +72,72 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
       console.error("Lỗi khi phân tích chuỗi JSON:", error);
     }
   }
+  //lọc kéo và sửa cho tech và carowner
+  useEffect(() => {
+    // Filter and set the list of technicians or rescue vehicles based on the selected rescueType
+    if (selectedRescueType === "Fixing") {
+      setFilteredTechnicianData(
+        technicianData.filter((tech) => tech.status === "ACTIVE")
+      );
+      setFilteredTechnicianData([]);
+    } else if (selectedRescueTypeTowing === "Towing") {
+      setFilteredVehicleData(
+        vehicleData.filter((vehicle) => vehicle.status === "ACTIVE")
+      );
+      setFilteredVehicleData([]);
+    }
+  }, [
+    selectedRescueType,
+    selectedRescueTypeTowing,
+    technicianData,
+    vehicleData,
+  ]);
+
+  useEffect(() => {
+    if (selectedTechnician) {
+      console.log("test tec" + selectedTechnician);
+      const selectedTechnicianId = selectedTechnician.id;
+      // Filter the active technicians based on the selected technician's ID
+      const filteredTechnicianDetails = technicianData.find(
+        (technician) => technician.id === selectedTechnicianId
+      );
+      setTechnicianDetails(filteredTechnicianDetails);
+      console.log("detail" + technicianDetails);
+    } else {
+      setTechnicianDetails(null);
+    }
+  }, [selectedTechnician, technicianData]);
+
+  useEffect(() => {
+    if (selectedVehicle) {
+      const selectedVehicleId = selectedVehicle.id;
+      // Lọc danh sách các phương tiện dựa trên ID của phương tiện được chọn
+      const filteredVehicleDetails = vehicleData.find(
+        (vehicle) => vehicle.id === selectedVehicleId
+      );
+      setVehicleDetails(filteredVehicleDetails);
+      console.log("detail" + vehicleDetails);
+    } else {
+      setVehicleDetails(null);
+    }
+  }, [selectedVehicle, vehicleData]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const vehicleResponse = await dispatch(fetchVehicle());
         const vehicleData = vehicleResponse.payload.data;
-
+        console.log("Dữ liệu xe cứu hộ:", vehicleData);
         if (vehicleData) {
-          const activeManufacturers = vehicleData
-            .filter((item) => item.status === "ACTIVE")
-            .map((item) => ({
-              id: item.id,
-              manufacturer: item.manufacturer,
-            }));
+          const activeManufacturers = vehicleData.filter(
+            (item) => item.status === "ACTIVE"
+        
+            );
 
           setVehicleData(activeManufacturers);
+
+          // Xác định selectedVehicle ban đầu
+     
         } else {
           console.error("Vehicle response does not contain 'data'.");
         }
@@ -88,7 +156,7 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
       try {
         const technicianResponse = await dispatch(fetchTechnicians());
         const technicianData = technicianResponse.payload.data;
-
+        console.log("dữ liệu tech " + technicianData);
         if (technicianData) {
           const activeTechnicians = technicianData.filter(
             (item) => item.status === "ACTIVE"
@@ -117,16 +185,6 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
 
     fetchData();
   }, [dispatch]);
-  useEffect(() => {
-    if (selectedTechnician) {
-      const selectedTechnicianId = selectedTechnician.id;
-      // Filter the active technicians based on the selected technician's ID
-      const filteredTechnicianDetails = technicianData.find(
-        (technician) => technician.id === selectedTechnicianId
-      );
-      setTechnicianDetails(filteredTechnicianDetails);
-    }
-  }, [selectedTechnician, technicianData]);
 
   const reloadOrders = () => {
     dispatch(fetchOrdersNew())
@@ -157,16 +215,6 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
       }
     }
   }, [selectedEditOrder, orders]);
-  useEffect(() => {
-    if (selectedEditOrder) {
-      // Kiểm tra xem selectedEditOrder có chứa giá trị id không
-      if (selectedEditOrder.id) {
-        setOrderId(selectedEditOrder.id);
-      } else {
-        setOrderId(null);
-      }
-    }
-  }, [selectedEditOrder]);
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -179,10 +227,6 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
   };
 
   const handleSaveClick = () => {
-    console.log("orderId " + orderId);
-    console.log("vehicleId " + vehicleId);
-    console.log("techniciansId " + technicianId);
-    console.log("managerId " + manager.id);
     if (!selectedEditOrder || !data) {
       toast.error("Không có thông tin khách hàng để cập nhật.");
       return;
@@ -226,15 +270,32 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
 
   const handleClose = () => {
     setOpenEditModal(false);
+    setEdit("");
   };
 
-  if (!orders) {
-    return null;
-  }
+  // Function to reset Fixing state variables
+  const resetFixingState = () => {
+    setSelectedTechnician(null);
+    setTechnicianId(null);
+  };
+
+  // Function to reset Towing state variables
+  const resetTowingState = () => {
+    setSelectedVehicel(null);
+    setVehicleId(null);
+  };
+
+  // When rescue type is changed, reset the state accordingly
+  useEffect(() => {
+    if (selectedRescueType === "Fixing") {
+      resetTowingState();
+    } else if (selectedRescueType === "Towing") {
+      resetFixingState();
+    }
+  }, [selectedRescueType]);
 
   return (
     <>
-      <ToastContainer />
       <Modal
         open={openEditModal}
         onClose={handleClose}
@@ -255,9 +316,9 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
               sx={{
                 position: "relative",
                 width: "80%",
-                maxWidth: "800px",
-                maxHeight: "90%",
-                overflowY: "auto",
+                maxWidth: "800px", // You can adjust the maximum width
+                maxHeight: "100%", // Set a fixed maximum height
+                overflowY: "auto", // Add overflow to enable scrolling if content overflows
                 bgcolor: "background.paper",
                 boxShadow: 24,
                 p: 4,
@@ -284,110 +345,259 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
                   ? "Tạo thông tin điều phối nhân sự"
                   : "RescuseVehicleOwner Detail"}
               </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={6}>
+                  {selectedEditOrder && (
+                    <>
+                      <Card sx={{ height: "300px" }}>
+                        <CardContent>
+                          <Typography variant="h4" sx={{ marginBottom: 2 }}>
+                            Thông Tin Chi Tiết Đơn Hàng
+                          </Typography>
+                          <TextField
+                            name="id"
+                            label="id"
+                            value={edit.id || ""}
+                            onChange={(event) => {
+                              if (!selectedEditOrder) {
+                                handleInputChange(event);
+                              }
+                            }}
+                            style={{ display: "none" }}
+                          />
+                          <Box
+                            sx={{
+                              display: "flex",
+                              flexWrap: "wrap",
+                              alignItems: "center",
+                              justifyContent: "space-between",
+                            }}
+                          >
+                            <Box
+                              sx={{
+                                mr: 2,
+                                display: "flex",
+                                alignItems: "center",
+                              }}
+                            >
+                              <Avatar
+                                alt="Mary Vaughn"
+                                src="https://thumbs.dreamstime.com/b/businessman-icon-vector-male-avatar-profile-image-profile-businessman-icon-vector-male-avatar-profile-image-182095609.jpg"
+                                sx={{
+                                  width: 44,
+                                  height: 44,
+                                  marginRight: 2.75,
+                                }}
+                              />
+                              <Typography
+                                variant="body2"
+                                sx={{
+                                  display: "flex",
+                                  alignItems: "center", // Căn chỉnh theo chiều dọc
+                                }}
+                              >
+                                Mary Vaughn
+                              </Typography>
+                            </Box>
+                          </Box>
+                          <Typography
+                            variant="body1"
+                            component="p"
+                            sx={{
+                              display: "flex",
+                              alignItems: "center", // Căn chỉnh theo chiều dọc
+                              marginBottom: "8px", // Thêm khoảng cách dưới cùng của dòng
+                            }}
+                          >
+                            <CategoryIcon /> <strong>Rescue Type:</strong>{" "}
+                            <Box
+                              width="30%"
+                              ml="4px"
+                              p="2px"
+                              display="flex"
+                              justifyContent="center"
+                              fontSize={10}
+                              borderRadius={8}
+                              backgroundColor={
+                                edit.rescueType === "Fixing"
+                                  ? "green"
+                                  : edit.rescueType === "Towing"
+                                  ? "red"
+                                  : "grey"
+                              }
+                            >
+                              {edit.rescueType === "Towing" && <SupportIcon />}
+                              {edit.rescueType === "Fixing" && <HandymanIcon />}
+                              <Typography color="white">
+                                {edit.rescueType}
+                              </Typography>
+                            </Box>
+                          </Typography>
+                          <Typography
+                            variant="body1"
+                            component="p"
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              marginBottom: "8px", // Thêm khoảng cách dưới cùng của dòng
+                            }}
+                          >
+                            <QueryBuilderIcon /> <strong>Date:</strong>{" "}
+                            {edit.createdAt}
+                          </Typography>
+                          <Typography
+                            variant="body1"
+                            component="p"
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              marginBottom: "8px", // Thêm khoảng cách dưới cùng của dòng
+                            }}
+                          >
+                            <PlaceIcon /> <strong>Departure:</strong>{" "}
+                            {edit.departure}
+                          </Typography>
+                          <Typography
+                            variant="body1"
+                            component="p"
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              marginBottom: "8px", // Thêm khoảng cách dưới cùng của dòng
+                            }}
+                          >
+                            <PlaceIcon /> <strong>Destination:</strong>{" "}
+                            {edit.destination}
+                          </Typography>
+                          <Typography
+                            variant="body1"
+                            component="p"
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              marginBottom: "8px", // Thêm khoảng cách dưới cùng của dòng
+                            }}
+                          >
+                            <PaymentIcon /> <strong>Payment ID:</strong>{" "}
+                            {edit.paymentId}
+                          </Typography>
+                        </CardContent>
+                      </Card>
+                    </>
+                  )}
+                </Grid>
+                <Grid item xs={6}>
+                  <Card sx={{ height: "300px" }}>
+                    <CardContent>
+                      <Typography variant="h4" sx={{ marginBottom: 2 }}>
+                        Điều phối nhân sự
+                      </Typography>
+                      {useEffect(() => {
+                        // Reset các giá trị khi thay đổi loại cứu hộ
+                        setSelectedVehicel(null);
+                        setVehicleDetails(null);
+                        setSelectedTechnician(null);
+                        setTechnicianDetails(null);
+                      }, [edit.rescueType])}
 
-              {selectedEditOrder && (
-                <Card>
-                  <CardContent>
-                    <TextField
-                      name="id"
-                      label="id"
-                      value={edit.id || ""}
-                      onChange={(event) => {
-                        if (!selectedEditOrder) {
-                          handleInputChange(event);
-                        } 
+                      {edit.rescueType === "Fixing" && (
+                        <div>
+                          <Autocomplete
+                            id="technicians-select"
+                            options={technicianData}
+                            getOptionLabel={(option) =>
+                              option && option.fullname
+                            }
+                            value={selectedTechnician}
+                            onChange={(_, newValue) => {
+                              setSelectedTechnician(newValue);
+                              setTechnicianId(newValue && newValue.id);
+                            }}
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                label="Danh Sách Kỹ Thuật Viên Đang Hoạt Động"
+                                variant="filled"
+                                margin="normal"
+                              />
+                            )}
+                            renderOption={(props, option) => (
+                              <li {...props}>
+                                <Avatar
+                                  src={option.avatar}
+                                  alt={option.fullname}
+                                />
+                                {option.fullname}
+                              </li>
+                            )}
+                          />
 
-                        // Lấy giá trị `id` từ selectedEditOrder và đặt nó vào orderId
-                      }}
-                      style={{display:"none"}}
-                    />
-
-                    <Autocomplete
-                      id="technicians-select"
-                      options={technicianData} // Should now contain only active manufacturers
-                      getOptionLabel={(option) => option && option.fullname}
-                      value={selectedTechnician}
-                      onChange={(_, newValue) => {
-                        setSelectedTechnician(newValue);
-                        // Handle the selected manufacturer here
-                        console.log("Selected fullname:", newValue);
-                        // You can also get the details of the selected manufacturer using the 'data' array
-                        setTechnicianId(newValue && newValue.id);
-                        // Handle the selected manufacturer and id here
-                        console.log(
-                          "Selected fullname technicians:",
-                          newValue && newValue.fullname
-                        );
-                        console.log(
-                          "Selected id technicians :",
-                          newValue && newValue.id
-                        );
-                      }}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label="Danh Sách Kỹ Thuật Viên Đang Hoạt Động"
-                          variant="filled"
-                          margin="normal"
-                        />
+                          {technicianDetails && (
+                            <div>
+                              <h2>Selected Technician Details</h2>
+                              <p>Fullname: {technicianDetails.fullname}</p>
+                              <p>phone: {technicianDetails.phone}</p>
+                              <p>status: {technicianDetails.status}</p>
+                              {/* Add more properties as needed */}
+                            </div>
+                          )}
+                        </div>
                       )}
-                    />
-                    {technicianDetails && (
-                      <div>
-                        <h2>Selected Technician Details</h2>
-                        <p>Fullname: {technicianDetails.fullname}</p>
-                        <p>Avatar: {technicianDetails.avatar}</p>
-                        <p>Avatar: {technicianDetails.avatar}</p>
-                        <p>Avatar: {technicianDetails.avatar}</p>
-                        <p>Avatar: {technicianDetails.avatar}</p>
 
-                        {/* Add more properties as needed */}
-                      </div>
-                    )}
-                    <Autocomplete
-                      id="vehicle-select"
-                      options={vehicleData} // Use the fetched vehicle data
-                      getOptionLabel={(option) => option && option.manufacturer}
-                      value={selectedVehicle}
-                      onChange={(_, newValue) => {
-                        setSelectedVehicel(newValue);
-                        // Set the selected vehicle ID when an option is selected
-                        setVehicleId(newValue && newValue.id);
-                        // Handle the selected manufacturer and ID here
-                        console.log(
-                          "Selected manufacturer:",
-                          newValue && newValue.manufacturer
-                        );
-                        console.log("Selected ID:", newValue && newValue.id);
-                      }}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label="Danh Sách Xe Cứu Hộ Đang Hoạt Động"
-                          variant="filled"
-                          margin="normal"
-                        />
+                      {edit.rescueType === "Towing" && (
+                        <div>
+                          <Autocomplete
+                            id="vehicle-select"
+                            options={vehicleData}
+                            getOptionLabel={(option) =>
+                              option && option.manufacturer
+                            }
+                            value={selectedVehicle}
+                            onChange={(_, newValue) => {
+                              setSelectedVehicel(newValue);
+                              setVehicleId(newValue && newValue.id);
+                              // Cập nhật vehicleDetails dựa trên newValue
+                            }}
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                label="Danh Sách Xe Cứu Hộ Đang Hoạt Động"
+                                variant="filled"
+                                margin="normal"
+                              />
+                            )}
+                          />
+
+                          {vehicleDetails && (
+                            <div>
+                              <h2>Selected Vehicle Details</h2>
+                              <p>
+                                vinNumber: {vehicleDetails.vinNumber}
+                              </p>
+                              <p>
+                                License Plate: {vehicleDetails.licensePlate}
+                              </p>
+                              {/* Add more properties as needed */}
+                            </div>
+                          )}
+                        </div>
                       )}
-                    />
-                  </CardContent>
-
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                      marginBottom: "5px",
-                    }}
-                  >
-                    <Button
-                      onClick={handleSaveClick}
-                      variant="contained"
-                      color="primary"
-                    >
-                      Lưu
-                    </Button>
-                  </Box>
-                </Card>
-              )}
+                    </CardContent>
+                  </Card>
+                </Grid>
+              </Grid>
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  marginBottom: "5px",
+                  marginTop: "5px",
+                }}
+              >
+                <Button onClick={handleSaveClick} variant="contained">
+                  Đồng Ý Điều Phối
+                </Button>
+              </Box>
             </Box>
           </Box>
         </Fade>

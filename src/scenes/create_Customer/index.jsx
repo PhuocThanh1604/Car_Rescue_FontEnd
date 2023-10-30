@@ -1,12 +1,11 @@
-
-
-
 import React, { useEffect, useRef, useState } from "react";
 import {
   Autocomplete,
+  Avatar,
   Box,
   Button,
   FormControl,
+  Grid,
   InputLabel,
   MenuItem,
   Select,
@@ -21,25 +20,32 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { createAccount, getAccountEmail } from "../../redux/accountSlice";
 import { createRescueVehicleOwner } from "../../redux/rescueVehicleOwnerSlice";
+import { createCustomer } from "../../redux/customerSlice";
+import UploadImageField from "../../components/uploadImage";
 
 const AddCustomer = () => {
   const dispatch = useDispatch();
-  const rescueVehicleOwner = useSelector(
-    (state) => state.rescueVehicleOwner.rescueVehicleOwners
-  );
+
+  const customer = useSelector((state) => state.customer.customers);
   const isNonMobile = useMediaQuery("(min-width:600px)");
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  const [currentImageUrl, setCurrentImageUrl] = useState(data.avatar || "");
+  const [downloadUrl, setDownloadUrl] = useState("");
+
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [fileUrls, setFileUrls] = useState([]);
   const checkoutSchema = yup.object().shape({
     fullname: yup.string().required("Required"),
     sex: yup.string().required("Required"),
     status: yup.string().required("Required"),
-    address: yup.string().required("Required"),
+    address: yup.string(),
     phone: yup.string().required("Required"),
-    avatar: yup.string().required("Required"),
-    birthdate: yup.date().required("Required"), // Date validation
-    accountId: yup.string().required("Required"),
+    avatar: yup.string(),
+    birthdate: yup.date(), // Date validation
+    accountId: yup.string(),
   });
   const statusOptions = ["ACTIVE", "Unactive"];
   const initialValues = {
@@ -58,15 +64,19 @@ const AddCustomer = () => {
 
   const handleFormSubmit = (values, { resetForm }) => {
     resetForm({ values: initialValues });
-    setSelectedAccount(null); 
+    setSelectedAccount(null);
+    if (values.avatar) {
+      URL.revokeObjectURL(values.avatar);
+    }
     // In ra tất cả dữ liệu đã nhập
-    console.log("Dữ liệu đã nhập:", rescueVehicleOwner);
-    dispatch(createRescueVehicleOwner(values))
+    console.log("Dữ liệu đã nhập:", customer);
+    dispatch(createCustomer(values))
       .then((response) => {
         console.log(response);
-        toast.success("Tạo Tài Khoản Thành Công");
+        toast.success("Tạo Khách hàng Thành Công");
 
         // Đặt lại giá trị của formik về giá trị ban đầu (rỗng)
+  
         formikRef.current.resetForm();
       })
       .catch((error) => {
@@ -91,9 +101,16 @@ const AddCustomer = () => {
         setLoading(false);
       });
   }, [dispatch]);
+
+  //Upload hình ảnh nếu có
+  const handleImageUploaded = (imageUrl) => {
+    setDownloadUrl(imageUrl);
+    // Set the avatar value to the uploaded image URL
+    formikRef.current.setFieldValue("avatar", imageUrl);
+  };
   return (
     <Box m="20px">
-      <Header title="Tạo Thông Tin" subtitle="Tạo Thông Tin Khách Hàng" />
+      <Header title="Tạo Khách Hàng" subtitle="Tạo Thông Tin Khách Hàng" />
 
       <Formik
         onSubmit={handleFormSubmit}
@@ -113,7 +130,7 @@ const AddCustomer = () => {
           <form onSubmit={handleSubmit}>
             <Box display="flex" justifyContent="left" mb="20px">
               <Button type="submit" color="secondary" variant="contained">
-                Tạo Chủ Xe Cứu Hộ
+                Tạo Khách Hàng
               </Button>
             </Box>
             <Box
@@ -137,6 +154,25 @@ const AddCustomer = () => {
                 helperText={touched.fullname && errors.fullname}
                 sx={{ gridColumn: "span 2" }}
               />
+              <Grid container spacing={4} alignItems="center" marginBottom={2}>
+                <Grid item xs={6}>
+                  <Grid container spacing={1} alignItems="center">
+                    <Grid item>
+                      <Avatar
+                        alt="Avatar"
+                        src={values.avatar} // Bind the src to values.avatar
+                        sx={{ width: 50, height: 50 }}
+                      />
+                    </Grid>
+                    <Grid item>
+                      <UploadImageField
+                        onImageUploaded={handleImageUploaded}
+                        imageUrl={currentImageUrl}
+                      />
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Grid>
               <Autocomplete
                 id="account-select"
                 options={data}
@@ -201,19 +237,6 @@ const AddCustomer = () => {
                 name="phone"
                 error={touched.phone && errors.phone ? true : false}
                 helperText={touched.phone && errors.phone}
-                sx={{ gridColumn: "span 2" }}
-              />
-              <TextField
-                fullWidth
-                variant="filled"
-                type="phone"
-                label="Avatar"
-                onBlur={handleBlur}
-                onChange={handleChange}
-                value={values.avatar}
-                name="avatar"
-                error={touched.avatar && errors.avatar ? true : false}
-                helperText={touched.avatar && errors.avatar}
                 sx={{ gridColumn: "span 2" }}
               />
               <TextField

@@ -1,4 +1,3 @@
-
 import { useRef, useState, useEffect } from "react";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
@@ -29,7 +28,7 @@ function Copyright(props) {
     >
       {"Copyright © "}
       <Link color="inherit" href="#">
-       Hệ Thống Quản Lí Xe Cứu Hộ
+        Hệ Thống Quản Lí Xe Cứu Hộ
       </Link>{" "}
       {new Date().getFullYear()}
       {"."}
@@ -69,7 +68,7 @@ export default function SignInSide() {
   if (errRef.current) {
     shouldFocus = true; // Nếu errRef.current tồn tại, đặt shouldFocus thành true
   }
-  
+
   if (errRef.current && errRef.current.focus) {
     errRef.current.focus();
   }
@@ -94,24 +93,27 @@ export default function SignInSide() {
         setErrMsg("Định dạng email không hợp lệ");
         return;
       }
+      // Lấy `deviceToken` từ `localStorage`
+      const devicetoken1 = localStorage.getItem("deviceToken");
+      console.log(devicetoken1);
+      const devicetoken = `${devicetoken1}`;
       // Sau khi đăng nhập thành công
-      const userData = await singin({ email, password }).unwrap();
+      const userData = await singin({ email, password, devicetoken }).unwrap();
       dispatch(setCredentials({ ...userData, email }));
-      console.log(email);
-      console.log(password);
+   
       // Lưu token vào Local Storage
-      localStorage.setItem('token', userData.token);
+      localStorage.setItem("token", userData.token);
       setEmail("");
       setPassword("");
-     navigate('/client')
+      navigate("/client");
       let redirectTo = "/welcome"; // Đường dẫn mặc định
 
-      if (userData.roles="Admin") {
+      if ((userData.roles = "Admin")) {
         // Nếu có vai trò 5150, chuyển hướng đến "/welcome"
-        redirect('/welcome')
-      } else if (userData.roles="Manager") {
+        redirect("/welcome");
+      } else if ((userData.roles = "Manager")) {
         // Nếu có vai trò 1984 hoặc 2001, chuyển hướng đến "/manager"
-        redirect('/manager') 
+        redirect("/manager");
       }
     } catch (err) {
       if (!err?.originalStatus) {
@@ -121,10 +123,9 @@ export default function SignInSide() {
         setErrMsg("Thiếu tên người dùng hoặc mật khẩu");
       } else if (err.originalStatus === 401) {
         setErrMsg("Bạn không có quyền try cập");
-      }
-      else if (err.originalStatus === 500) {
+      } else if (err.originalStatus === 500) {
         setErrMsg("lỗi tạm thời trên Web Server");
-      }  else {
+      } else {
         setErrMsg("Đăng nhập thất bại");
       }
       if (shouldFocus) {
@@ -148,14 +149,14 @@ export default function SignInSide() {
           md={7}
           sx={{
             backgroundImage:
-              "url(https://www.duclongauto.com/thumb/1350x879/2/90/upload/product/xe-keo-xe-7373.png)",
+              "url(https://scontent.fsgn2-6.fna.fbcdn.net/v/t1.15752-9/395646041_853414299597827_3662894112485871322_n.png?_nc_cat=110&ccb=1-7&_nc_sid=8cd0a2&_nc_ohc=PukP_bH6ivcAX93pOlS&_nc_ht=scontent.fsgn2-6.fna&oh=03_AdQo-iiYA2xq6tyxfg8Pyb7ze-OtDyet5qV2CC3IxfFz9Q&oe=6560BB64)",
             backgroundRepeat: "no-repeat",
             backgroundColor: (t) =>
               t.palette.mode === "light"
                 ? t.palette.grey[50]
                 : t.palette.grey[900],
             backgroundSize: "cover",
-            backgroundPosition: "center",
+            backgroundPosition: "center bottom",
           }}
         />
         <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
@@ -172,7 +173,7 @@ export default function SignInSide() {
               <LockOutlinedIcon />
             </Avatar>
             <Typography component="h1" variant="h5">
-            Đăng Nhập
+              Đăng Nhập
             </Typography>
             {errMsg && <Typography color="error">{errMsg}</Typography>}
             {isLoading && <CircularProgress size={24} />}
@@ -223,7 +224,7 @@ export default function SignInSide() {
               <Grid container>
                 <Grid item xs>
                   <Link href="#" variant="body2">
-                   Quên Mật Khẩu
+                    Quên Mật Khẩu
                   </Link>
                 </Grid>
                 <Grid item>

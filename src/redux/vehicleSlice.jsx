@@ -42,6 +42,21 @@ export const fetchVehicle = createAsyncThunk(
     }
   }
 );
+export const fetchVehicleWatting = createAsyncThunk(
+  "vehicles/fetchVehicleWatting",
+  async () => {
+    try {
+      const response = await axios.get(
+        "https://rescuecapstoneapi.azurewebsites.net/api/Vehicle/GetWaiting"
+      );
+      const data = response.data;
+      return data;
+    } catch (error) {
+      console.error("Failed to retrieve fetch Vehicle Watting:", error);
+      throw error.response.data || error.message;
+    }
+  }
+);
 
 export const getVehicleId = createAsyncThunk(
   "vehicles/getVehicleId",
@@ -118,7 +133,26 @@ export const deleteRescueVehicleOwner = createAsyncThunk(
     }
   }
 );
+export const createAcceptRegisterVehicle = createAsyncThunk(
+  "vehicles/createAcceptRegisterVehicle",
+  async ({ id }) => {
+    try {
+      const response = await axios.post(
+        `https://rescuecapstoneapi.azurewebsites.net/api/Vehicle/ApproveVehicle?id=${id}`
+      );
 
+      const data = response.data;
+      console.log(data);
+      return data;
+    } catch (error) {
+      console.error(
+        "Failed to  create Accept Register Vehicle:",
+        error.response
+      );
+      throw error.response.data || error.message;
+    }
+  }
+);
 const rescueVehicleOwnerSlice = createSlice({
   name: "vehicle",
   initialState: {
@@ -147,6 +181,12 @@ const rescueVehicleOwnerSlice = createSlice({
       })
       .addCase(fetchVehicle.pending, (state, action) => {
         state.status = "loading";
+      })
+      .addCase(fetchVehicleWatting.fulfilled, (state, action) => {
+        state.technicians = action.payload.data;
+      })
+      .addCase(fetchVehicleWatting.pending, (state, action) => {
+        state.status = 'loading';
       })
       .addCase(createRescueVehicleOwner.fulfilled, (state, action) => {
         state.vehicles.push(action.payload);
@@ -178,9 +218,19 @@ const rescueVehicleOwnerSlice = createSlice({
       .addCase(getVehicleId.fulfilled, (state, action) => {
         state.vehicles = action.payload.data;
       })
+      .addCase(createAcceptRegisterVehicle.fulfilled, (state, action) => {
+        state.vehicles.push(action.payload);
+      })
+      .addCase(createAcceptRegisterVehicle.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(createAcceptRegisterVehicle.rejected, (state, action) => {
+        state.status = "error";
+      });
   },
 });
-export const { updateRescueVehicleOwnerStatus } = rescueVehicleOwnerSlice.actions;
+export const { updateRescueVehicleOwnerStatus } =
+  rescueVehicleOwnerSlice.actions;
 export const { setrescueVehicleOwners } = rescueVehicleOwnerSlice.actions;
 export default rescueVehicleOwnerSlice.reducer;
 export const { reducer } = rescueVehicleOwnerSlice;

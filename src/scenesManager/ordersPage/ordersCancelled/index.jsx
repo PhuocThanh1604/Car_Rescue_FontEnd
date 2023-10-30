@@ -8,6 +8,7 @@ import {
   MenuItem,
   IconButton,
   FormControl,
+  Grid,
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { tokens } from "../../../theme";
@@ -31,6 +32,7 @@ import RepeatOnIcon from "@mui/icons-material/RepeatOn";
 import BuildIcon from "@mui/icons-material/Build";
 import SupportIcon from "@mui/icons-material/Support";
 import HandymanIcon from "@mui/icons-material/Handyman";
+import InfoIcon from "@mui/icons-material/Info";
 const OrdersCancelled = (props) => {
   const dispatch = useDispatch();
   const orders = useSelector((state) => state.order.orders);
@@ -49,6 +51,21 @@ const OrdersCancelled = (props) => {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]);
   const [fullnameData, setFullnameData] = useState({});
+
+//hàm detail 
+const handleDetailClick = (orderId) => {
+  console.log(orderId);
+  // Fetch the rescueVehicleOwnerId details based on the selected rescueVehicleOwnerId ID
+  dispatch(getOrderId({ id: orderId }))
+    .then((response) => {
+      const orderDetails = response.payload.data;
+      setSelectedEditOrder(orderDetails);
+      setOpenModal(true);
+    })
+    .catch((error) => {
+      console.error("Lỗi khi lấy thông tin đơn hàng mới:", error);
+    });
+};
 
   const handleSearchChange = (event) => {
     const value = event.target.value.toLowerCase();
@@ -318,6 +335,23 @@ const OrdersCancelled = (props) => {
       ),
       key: "update",
     },
+    {
+      field: "orderDetails",
+      headerName: "Chi Tiết Đơn Hàng",
+      width: 120,
+      renderCell: (params) => (
+        <Grid container justifyContent="center" alignItems="center">
+          <IconButton
+            color="indigo"
+            onClick={() => handleDetailClick(params.row.id)}
+            aria-label="Chi Tiết Đơn Hàng"
+          >
+            <InfoIcon />
+          </IconButton>
+        </Grid>
+      ),
+      key: "bookDetail",
+    }
   ];
 
   return (

@@ -212,6 +212,28 @@ export const createAcceptOrder = createAsyncThunk(
     }
   }
 );
+export const createOrderOffline = createAsyncThunk(
+  "orders/createOrderOffline",
+  async (data) => {
+    try {
+
+      const res = await axios.post(
+        "https://rescuecapstoneapi.azurewebsites.net/api/Order/CreateOrderForCustomer",
+        data ,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log(data)
+      return res.data;
+    } catch (error) {
+      console.error("Failed to create Order Offline:", error.response);
+      throw error.response.data || error.message;
+    }
+  }
+);
 const orderSlice = createSlice({
   name: "order",
   initialState: {
@@ -282,6 +304,14 @@ const orderSlice = createSlice({
         state.status = "loading";
       })
       .addCase(createAcceptOrder.rejected, (state, action) => {
+        state.status = "error";
+      }).addCase(createOrderOffline.fulfilled, (state, action) => {
+        state.orders.push(action.payload);
+      })
+      .addCase(createOrderOffline.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(createOrderOffline.rejected, (state, action) => {
         state.status = "error";
       })
   },

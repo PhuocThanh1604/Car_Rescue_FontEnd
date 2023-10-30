@@ -49,6 +49,17 @@ export const getTechnicianId = createAsyncThunk('technician/getTechnicianId', as
     throw error.response.data || error.message;
   }
 });
+export const getScheduleOfTechinciansAWeek = createAsyncThunk('technician/getScheduleOfTechinciansAWeek', async ({year}) => {
+  try {
+    const response = await axios.get(`https://rescuecapstoneapi.azurewebsites.net/api/Schedule/GetWeeksByYear?year=${year}`);
+    const data = response.data;
+    console.log(data);
+    return data;
+  } catch (error) {
+    console.error('Failed to get Schedule Of Techincians A Week:', error.response);
+    throw error.response.data || error.message;
+  }
+});
 export const editTechnician = createAsyncThunk(
   'technicians/edit',
   async ({ data }) => {
@@ -102,6 +113,12 @@ const technicianSlice = createSlice({
         state.technicians = action.payload.data;
       })
       .addCase(fetchTechnicians.pending, (state, action) => {
+        state.status = 'loading';
+      })
+      .addCase(getScheduleOfTechinciansAWeek.fulfilled, (state, action) => {
+        state.technicians = action.payload.data;
+      })
+      .addCase(getScheduleOfTechinciansAWeek.pending, (state, action) => {
         state.status = 'loading';
       })
       .addCase(createTechnician.fulfilled, (state, action) => {

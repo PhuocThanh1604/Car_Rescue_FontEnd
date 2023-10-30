@@ -67,6 +67,10 @@ const AddRescueVehicleOwner = () => {
   const handleFormSubmit = (values, { resetForm }) => {
     resetForm({ values: initialValues });
     setSelectedAccount(null);
+
+    if (values.avatar) {
+      URL.revokeObjectURL(values.avatar);
+    }
     // In ra tất cả dữ liệu đã nhập
     console.log("Dữ liệu đã nhập:", rescueVehicleOwner);
     dispatch(createRescueVehicleOwner(values))

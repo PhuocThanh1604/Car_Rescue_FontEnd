@@ -43,9 +43,7 @@ const Topbar = () => {
   }
 
   const handleLogout = () => {
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("refresh_token");
-    localStorage.removeItem("role_user");
+    localStorage.clear();
     // Gọi hàm logout khi người dùng chọn "Logout"
     logout(); // Bạn cần tự định nghĩa hàm logout để xóa JWT Token và thông tin đăng nhập
 

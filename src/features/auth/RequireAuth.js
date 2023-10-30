@@ -15,6 +15,7 @@ const RequireAuth = () => {
     localStorage.setItem("role_user", data?.role);
     localStorage.setItem("access_token", data?.accessToken);
     localStorage.setItem("manager", data?.manager);
+    localStorage.setItem("deviceToken", data?.deviceToken);
   }
 
   if (data && data.manager) {
@@ -37,7 +38,12 @@ const RequireAuth = () => {
     console.log("Thông tin của manager:", manager);
     console.log("Id của manager:", manager.id);
   }
-
+  const devicetoken1 = localStorage.getItem("deviceToken");
+  if (devicetoken1) {
+    // Có deviceToken, bạn có thể sử dụng nó tại đây
+    console.log("Test device"+devicetoken1);
+  }
+  
   const thisrole = data?.role ? `Role ${data?.role}!` : "role!";
   // Sử dụng useLocation để lấy thông tin vị trí hiện tại (đường dẫn URL) của ứng dụng
   const location = useLocation();

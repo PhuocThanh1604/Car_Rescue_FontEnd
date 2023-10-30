@@ -1,23 +1,20 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 // import { customerDataService } from '../services/customerService';
 import axios from "axios";
+import { v4 as uuidv4 } from "uuid";
 
 export const createCustomer = createAsyncThunk(
-  "customers/create",
+  "customers/createCustomer",
   async (customer) => {
     try {
-      // Trích xuất genreName từ mảng genres
-      const genreName = customer.genres[0]?.genreName;
-      // const url = customer.bookImages[0]?.url;
-      // Tạo payload mới với genreName đã trích xuất
-      const payload = {
+      const id = uuidv4();
+      const customerData = {
         ...customer,
-        genres: [{ genreName }],
+        id: id,
       };
-
       const res = await axios.post(
-        "https://secondhandbookstoreapi.azurewebsites.net/api/Books/Create",
-        payload,
+        "https://rescuecapstoneapi.azurewebsites.net/api/Customer/Create",
+        customerData,
         {
           headers: {
             "Content-Type": "application/json",
@@ -27,7 +24,7 @@ export const createCustomer = createAsyncThunk(
       return res.data;
     } catch (error) {
       console.error("Failed to create customer:", error.response);
-      throw error.response.data || error.message;
+      throw error.response.data;
     }
   }
 );
@@ -238,29 +235,16 @@ const customerSlice = createSlice({
       })
       .addCase(getCustomerIdFullName.fulfilled, (state, action) => {
         state.customerData = action.payload.data;
-      });
-    // .addCase(createcustomer.fulfilled, (state, action) => {
-    //   state.customers = state.customers.concat(action.payload);
-    // })
-
-    // .addCase(deletecustomer.fulfilled, (state, action) => {
-    //   const deletedcustomerId = action.payload;
-    //   state.customers = state.customers.filter(
-    //     (customer) => customer.bookId !== deletedcustomerId
-    //   );
-    // })
-    // .addCase(deleteAllcustomers.fulfilled, (state, action) => {
-    //   state.customers = [];
-    // })
-    // .addCase(findcustomersByTitle.fulfilled, (state, action) => {
-    //   state.customers = action.payload;
-    // })
-    // .addCase(createGenres.fulfilled, (state, action) => {
-    //   state.customers = state.customers.concat(action.payload);
-    // })
-    // .addCase(getGenresId.fulfilled, (state, action) => {
-    //   state.genres = action.payload;
-    // })
+      })
+      .addCase(createCustomer.fulfilled, (state, action) => {
+        state.customers.push(action.payload);
+      })
+      .addCase(createCustomer.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(createCustomer.rejected, (state, action) => {
+        state.status = "error";
+      })
   },
 });
 export const { setcustomers, updateCustomer } = customerSlice.actions;

@@ -7,7 +7,6 @@ import Topbar from '../../components/Topbar';
 import Sidebar from '../../scenes/geography/global/Sidebar';
 
 import Products from '../../scenes/products';
-import Customer from '../../scenes/customer';
 // import UploadImage from './scenes/products/uploadImage';
 import AuthProvider from '../../context/AuthContext';
 import { Routes, Route } from 'react-router-dom';
@@ -20,7 +19,6 @@ import Managers from "../../scenes/manager";
 import AddRescueVehicleOwner from "../../scenes/create_RescueVehicleOwner";
 import AddTechnian  from "../../scenes/create_Technician";
 import AddManager from "../../scenes/create_Manager";
-import AddCustomer from "../../scenes/create_Customer";
 import Technicians from "../../scenes/technician";
 import CreateAccount from "../../scenes/account/createAccount";
 import { ToastContainer } from 'react-toastify';

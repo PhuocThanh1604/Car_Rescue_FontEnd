@@ -16,50 +16,44 @@ import {
   InputLabel,
   CircularProgress,
   Switch,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import Header from "../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
-import { Edit, FilterList, Search } from "@mui/icons-material";
-import { Delete } from "@mui/icons-material";
+import { Edit} from "@mui/icons-material";
 import ModalDetail from "./ModalComponentDetail";
 import ModalEdit from "./ModalComponentEdit";
 import CustomTablePagination from "./TablePagination";
-import ToggleButton from "./ToggleButton";
-import { DeleteOutline } from "@mui/icons-material";
+
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import Fade from "@mui/material/Fade";
 import SearchIcon from "@mui/icons-material/Search";
 import InputBase from "@mui/material/InputBase";
 import moment from "moment";
 import {
-  fetchvehicles,
-  getvehicleId,
-  updateStatusvehicle,
-} from "../../redux/vehicleSlice";
-import { fetchVehicle } from "../../redux/vehicleSlice";
-import { getRescueVehicleOwnerId, updateStatusRescueVehicleOwner } from "../../redux/rescueVehicleOwnerSlice";
+  fetchRescueVehicleOwners,
+  getRescueVehicleOwnerId,
+} from "../../redux/rescueVehicleOwnerSlice";
+import { createAcceptRegisterVehicle, fetchVehicleWatting } from "../../redux/vehicleSlice";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 const Vehicles = (props) => {
   const dispatch = useDispatch();
-  const  vehicles = useSelector(
-    (state) => state.vehicle?.vehicles
-  );
-  const [vehicleStatus, setvehicleStatus] = useState([]);
+  const vehicles = useSelector((state) => state.vehicle.vehicles);
   const [openEditModal, setOpenEditModal] = useState(false);
-  const [openEditModalRescuse, setOpenEditModalRescuse] = useState(true);
   const [searchText, setSearchText] = useState("");
   const [filterOption, setFilterOption] = useState("Status");
   const [openModal, setOpenModal] = useState(false);
   const [selectedBook, setSelectedBook] = useState(null);
-  const [selectedEditvehicle, setSelectedEditvehicle] =
-    useState(null);
-  const [filteredvehicles, setFilteredvehicles] =
-    useState([]);
+  const [selectedEditVehicle, setSelectedEditVehicle] = useState(null);
+  const [filteredVehicles, setFilteredVehicles] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(8);
-  const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
@@ -67,6 +61,72 @@ const Vehicles = (props) => {
   const [data, setData] = useState([]);
   const [initialFormState, setInitialFormState] = useState({});
   const [editStatus, setEditStatus] = useState({});
+  const [vehicleId, setVehicleId] = useState(null);
+  const [openConfirmModal, setOpenConfirmModal] = useState(false);
+
+  //hàm chấp nhận đaăn kí xe gọi modal
+  const handleConfirm = (orderId) => {
+    try {
+      // Gửi orderId về máy chủ ở đây
+      console.log("Sending vehicleID to server: ", orderId);
+
+      // Thực hiện tải lại dữ liệu sau khi hoàn thành xử lý
+      // Tùy thuộc vào cách bạn tải lại dữ liệu
+      setVehicleId(orderId);
+      // Đóng modal và đặt lại orderId
+      setOpenConfirmModal(true);
+    } catch (error) {
+      // Xử lý lỗi (nếu có)
+      console.error("Lỗi khi xử lý:", error);
+    }
+  };
+  //Hủy đăng kí xe 
+  const handleCancel = () => {
+    // Đóng modal và đặt lại orderId
+    setOpenConfirmModal(false);
+    setVehicleId(null);
+  };
+
+  //Reload data after accept resgistration vehicle
+
+const reloadVehicle = () => {
+  dispatch(fetchVehicleWatting())
+    .then((response) => {
+      const data = response.payload.data;
+      if (data) {
+        setFilteredVehicles(data);
+        // Đặt loading thành false sau khi tải lại dữ liệu
+        setLoading(false);
+        console.log("Services reloaded:", data);
+      }
+    })
+    .catch((error) => {
+      console.error("Lỗi khi tải lại danh sách xe cứu hộ:", error);
+    });
+};
+//Chấp nhận order 
+  const handleAcceptOrderClick = (vehicleId) => {
+    console.log(vehicleId);
+    // Fetch the rescueVehicleOwnerId details based on the selected rescueVehicleOwnerId ID
+    dispatch(createAcceptRegisterVehicle({ id: vehicleId }))
+      .then(() => {
+        setVehicleId(vehicleId);
+        setOpenConfirmModal(false);
+        setIsSuccess(true);
+        toast.success("Chấp nhận thành công.");
+        reloadVehicle();
+      })
+      .catch((error) => {
+        console.error(
+          "Lỗi khi lấy thông tin đơn hàng mới:",
+          error.status || error.message
+        );
+      });
+  };
+
+
+
+
   useEffect(() => {
     if (isSuccess) {
     }
@@ -77,32 +137,32 @@ const Vehicles = (props) => {
   };
   const handleDateFilterChange = () => {
     if (startDate && endDate) {
-      const filteredvehicles = vehicles.filter((user) => {
+      const filteredrescueVehicleOwners = vehicles.filter((user) => {
         const orderDate = moment(user.createAt).format("YYYY-MM-DD");
         const isAfterStartDate = moment(orderDate).isSameOrAfter(startDate);
         const isBeforeEndDate = moment(orderDate).isSameOrBefore(endDate);
         return isAfterStartDate && isBeforeEndDate;
       });
-      setFilteredvehicles(filteredvehicles);
+      setFilteredVehicles(filteredrescueVehicleOwners);
       setFilterOption("Date");
     } else {
-      setFilteredvehicles(vehicles);
+      setFilteredVehicles(vehicles);
     }
   };
   const handleFilterChange = (event) => {
     const selectedStatusOption = event.target.value;
     setFilterOption(selectedStatusOption);
 
-    if (selectedStatusOption === "Status") {
+    if (selectedStatusOption === "type") {
       // Hiển thị tất cả các trạng thái
-      setFilteredvehicles(vehicles);
+      setFilteredVehicles(vehicles);
     } else {
       // Lọc sản phẩm dựa trên giá trị trạng thái
-      const filteredvehicles = vehicles.filter(
-        (vehicle) =>
-          vehicle.status === selectedStatusOption
+      const filteredrescueVehicleOwners = vehicles.filter(
+        (rescueVehicleOwner) =>
+          rescueVehicleOwner.type === selectedStatusOption
       );
-      setFilteredvehicles(filteredvehicles);
+      setFilteredVehicles(filteredrescueVehicleOwners);
     }
   };
 
@@ -110,11 +170,9 @@ const Vehicles = (props) => {
     if (vehicles) {
       if (vehicles.id) {
         const RescuseVehicleOwnerToEditToEdit = vehicles.find(
-          (rescuseVehicleOwner) =>
-            rescuseVehicleOwner.id === vehicles.id
+          (rescuseVehicleOwner) => rescuseVehicleOwner.id === vehicles.id
         );
         if (RescuseVehicleOwnerToEditToEdit) {
-          console.log(RescuseVehicleOwnerToEditToEdit);
           setEditStatus(RescuseVehicleOwnerToEditToEdit);
           setInitialFormState(RescuseVehicleOwnerToEditToEdit);
         }
@@ -123,40 +181,40 @@ const Vehicles = (props) => {
   }, [vehicles]);
 
   useEffect(() => {
-    const filteredvehicles = vehicles
-      ? vehicles.filter((vehicle) => {
+    const filteredRescueVehicleOwners = vehicles
+      ? vehicles.filter((rescueVehicleOwner) => {
           const nameMatch =
-            vehicle.fullname &&
-            vehicle.fullname
+            rescueVehicleOwner.fullname &&
+            rescueVehicleOwner.fullname
               .toLowerCase()
               .includes(searchText.toLowerCase());
           const filterMatch =
-            filterOption === "Status" ||
-            (filterOption === "ACTIVE" &&
-              vehicle.status === "ACTIVE") ||
-            (filterOption === "Unactive" &&
-              vehicle.status === "Unactive");
+            filterOption === "type" ||
+            (filterOption === "Crane" &&
+              rescueVehicleOwner.type === "Crane") ||
+            (filterOption === "Towing" &&
+              rescueVehicleOwner.type === "Towing");
           return nameMatch && filterMatch;
         })
       : [];
-    setFilteredvehicles(filteredvehicles);
+    setFilteredVehicles(filteredRescueVehicleOwners);
   }, [vehicles, searchText, filterOption]);
 
   if (vehicles) {
-    vehicles.forEach((vehicle) => {
+    vehicles.forEach((rescueVehicleOwner) => {
       // Đây bạn có thể truy cập và xử lý dữ liệu từng đối tượng khách hàng ở đây
     });
   }
 
   useEffect(() => {
     setLoading(true);
-    dispatch(fetchVehicle())
+    dispatch(fetchVehicleWatting())
       .then((response) => {
         // Đã lấy dữ liệu thành công
         const data = response.payload.data;
         if (data) {
           setData(data);
-          setFilteredvehicles(data);
+          setFilteredVehicles(data);
 
           setLoading(false); // Đặt trạng thái loading thành false sau khi xử lý dữ liệu
         }
@@ -166,18 +224,18 @@ const Vehicles = (props) => {
       });
   }, [dispatch]);
 
-  const handleUpdateClick = (vehicleId) => {
-    console.log(vehicleId);
-    // Fetch the vehicleId details based on the selected vehicleId ID
-    dispatch(getRescueVehicleOwnerId({ id: vehicleId }))
+  const handleUpdateClick = (rescueVehicleOwnerId) => {
+    console.log(rescueVehicleOwnerId);
+    // Fetch the rescueVehicleOwnerId details based on the selected rescueVehicleOwnerId ID
+    dispatch(getRescueVehicleOwnerId({ id: rescueVehicleOwnerId }))
       .then((response) => {
-        const vehicleDetails = response.payload.data;
-        setSelectedEditvehicle(vehicleDetails);
+        const rescueVehicleOwnerDetails = response.payload.data;
+        setFilteredVehicles(rescueVehicleOwnerDetails);
         setOpenEditModal(true);
         setIsSuccess(true);
       })
       .catch((error) => {
-        console.error("Lỗi khi lấy thông tin chủ xe cứu hộ:", error);
+        console.error("Lỗi khi lấy thông tin xe cứu hộ:", error);
       });
   };
 
@@ -185,62 +243,21 @@ const Vehicles = (props) => {
     setSelectedBook(book);
     setOpenModal(true);
   };
-  const reloadvehicles = () => {
-    dispatch(fetchVehicle())
+  const reloadRescueVehicleOwners = () => {
+    dispatch(fetchRescueVehicleOwners())
       .then((response) => {
         const data = response.payload.data;
         if (data) {
-          setFilteredvehicles(data);
+          setFilteredVehicles(data);
           // Đặt loading thành false sau khi tải lại dữ liệu
           setLoading(false);
         }
       })
       .catch((error) => {
-        console.error("Lỗi khi tải lại danh sách xe cứu hộ:", error);
+        console.error("Lỗi khi tải lại danh sách chủ xe cứu hộ:", error);
       });
   };
-  const handleSaveClickStatus = (vehicleId, fullname, newStatus) => {
-    if (!vehicleId || !fullname || !newStatus) {
-      toast.error("Không có thông tin để cập nhật.");
-      return;
-    }
-    console.log(fullname);
-    console.log(vehicleId);
-    console.log(newStatus);
-    // Create an object containing the necessary data
-    const updateData = {
-      id: vehicleId,
-      fullname: fullname,
-      sex: "",
-      phone: "",
-      avatar: "",
-      address: "",
-      createAt: "",
-      updateAt: "",
-      area: "",
-      status: newStatus,
-    };
-    const updateDataJson = JSON.stringify(updateData);
-    console.log("dã update" + updateData);
-    // Update the status of the matching vehicle and send the update to the server
-    dispatch(updateStatusRescueVehicleOwner({ data: updateDataJson }))
-      .then(() => {
-        toast.success("Thay đổi trạng thái thành công.");
-        reloadvehicles();
-        setIsSuccess(true);
-      })
-      .catch((error) => {
-        if (error.response && error.response.data) {
-          toast.error(
-            `Lỗi khi cập nhật xe cứu hộ: ${error.response.data.message}`
-          );
-        } else if (error.message) {
-          toast.error(`Lỗi khi cập nhật xe cứu hộ: ${error.message}`);
-        } else {
-          toast.error("Lỗi khi cập nhật xe cứu hộ");
-        }
-      });
-  };
+
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -251,11 +268,10 @@ const Vehicles = (props) => {
     setPage(0);
   };
 
-  const filteredvehiclesPagination =
-    filteredvehicles.slice(
-      page * rowsPerPage,
-      page * rowsPerPage + rowsPerPage
-    );
+  const filteredrescueVehicleOwnersPagination = filteredVehicles.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
+  );
 
   function isAllCharactersSame(value) {
     if (!value) {
@@ -269,32 +285,78 @@ const Vehicles = (props) => {
   const colors = tokens(theme.palette.mode);
   // eslint-disable-next-line no-sparse-arrays
   const columns = [
-    { field: "id", headerName: "ID", width: 60, key: "id" },
-    { field: "rvoid", headerName: "vroid", width: 60, key: "rvoid" },
-    { field: "vinNumber", headerName: "Mã Xe", width: 160, key: "vinNumber" },
+    {
+      field: "vinNumber",
+      headerName: "vinNumber",
+      width: 100,
+      key: "vinNumber",
+    },
     {
       field: "licensePlate",
-      headerName: "Biển Số",
+      headerName: "licensePlate",
       width: 100,
       key: "licensePlate",
     },
-    { field: "type", headerName: "Loại Xe", width: 100, key: "type" },
-    { field: "color", headerName: " Màu Xe", width: 40, key: "color" },
+    { field: "type", headerName: "Loại Xe ", width: 140, key: "type" },
+    {
+      field: "manufacturer",
+      headerName: "Hiệu xe  ",
+      width: 100,
+      key: "manufacturer",
+    },
     {
       field: "manufacturingYear",
-      headerName: " Năm sản xuất",
-      width: 40,
-      key: "color",
+      headerName: "Năm sản xuất",
+      width: 120,
+      key: "manufacturingYear",
     },
-    { field: "manufacturer", headerName: "Hãng xe", width: 70, key: "color" },
+    {
+      field: "image",
+      headerName: "Hình ảnh",
+      width: 120,
+      renderCell: (params) => {
+        const containsSpecialChars =
+          /[áàảãạâấầẩẫậăắằẳẵặéèẻẽẹêếềểễệíìỉĩịóòỏõọôốồổỗộơớờởỡợúùủũụưứừửữựýỳỷỹỵÁÀẢÃẠÂẤẦẨẪẬĂẮẰẲẴẶÉÈẺẼẸÊẾỀỂỄỆÍÌỈĨỊÓÒỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢÚÙỦŨỤƯỨỪỬỮỰÝỲỶỸỴ]/.test(
+            params.value
+          );
+        const isRandomChars = isAllCharactersSame(params.value);
+        const avatarSrc =
+          params.value && !containsSpecialChars && !isRandomChars
+            ? params.value
+            : "https://cdn-icons-png.flaticon.com/512/6596/6596121.png"; // Đặt URL của hình mặc định ở đây
+        return (
+          <img
+            src={avatarSrc}
+            alt="Hình ảnh"
+            style={{
+              width: "40px",
+              height: "40px",
+              borderRadius: "50%", // Tạo hình tròn
+            }}
+          />
+        );
+      },
+    },
+   
+    {
+      field: "acceptOrder",
+      headerName: "Trạng Thái Đơn",
+      width: 60,
+      renderCell: (params) => (
+        <CheckCircleOutlineIcon
+          variant="contained"
+          style={{ color: "green" }} // Set the color to green
+          onClick={() => handleConfirm(params.row.id)}
+        />
+      ),
+      key: "acceptOrder",
+    }
+    
   ];
 
   return (
     <Box m="5px">
-      <Header
-        title="Danh Sách Xe Cứu Hộ"
-        subtitle="Danh Sách Chi Tiết Xe Cứu Hộ"
-      />
+      <Header title="Danh Sách Xe Cứu Hộ" subtitle="Danh sách xe cứu hộ chờ duyệt" />
       <Box display="flex" className="box" left={0}>
         <Box
           display="flex"
@@ -325,15 +387,16 @@ const Vehicles = (props) => {
               variant="outlined"
               className="filter-select"
             >
-              <MenuItem key="status-all" value="Status">
-                Trạng Thái
+              <MenuItem key="type-all" value="type">
+                Loại Xe
               </MenuItem>
-              <MenuItem key="status-active" value="ACTIVE">
-                Hoạt động
+              <MenuItem key="type-crane" value="Crane">
+              Xe Cẩu
               </MenuItem>
-              <MenuItem key="status-unactive" value="Unactive">
-                Không hoạt động
+              <MenuItem key="type-towing" value="Towing">
+               Xe Kéo
               </MenuItem>
+              
             </Select>
           </FormControl>
         </Box>
@@ -403,7 +466,7 @@ const Vehicles = (props) => {
         }}
       >
         <DataGrid
-          rows={filteredvehiclesPagination} // Thêm id nếu không có
+          rows={filteredrescueVehicleOwnersPagination} // Thêm id nếu không có
           columns={columns}
           getRowId={(row) => row.id}
           autoHeight
@@ -412,7 +475,7 @@ const Vehicles = (props) => {
         />
 
         <CustomTablePagination
-          count={filteredvehicles.length}
+          count={filteredVehicles.length}
           page={page}
           rowsPerPage={rowsPerPage}
           onPageChange={handleChangePage}
@@ -431,53 +494,36 @@ const Vehicles = (props) => {
       <ModalEdit
         openEditModal={openEditModal}
         setOpenEditModal={setOpenEditModal}
-        selectedEditRescuseVehicleOwner={selectedEditvehicle}
+        selectedEditRescuseVehicleOwner={selectedEditVehicle}
         onClose={() => setOpenEditModal(false)}
         loading={loading}
       />
       <ToastContainer />
-      <Modal
-        open={openDeleteModal}
-        onClose={() => setOpenDeleteModal(false)}
-        className="centered-modal" // Thêm className cho modal
+      <Dialog
+        open={openConfirmModal}
+        onClose={handleCancel}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
       >
-        <Fade in={openDeleteModal}>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              height: "100%",
-              boxShadow: 24,
-              borderRadius: 16,
-            }}
+        <DialogTitle id="alert-dialog-title">Xác nhận</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Bạn có chắc chắn muốn chấp nhận xe cứu hộ vào hệ thống?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCancel} color="primary">
+            Hủy
+          </Button>
+          <Button
+            onClick={() => handleAcceptOrderClick(vehicleId)}
+            color="primary"
+            autoFocus
           >
-            {/* <Card>
-              <CardContent>
-                <Typography variant="h3">Confirm Delete</Typography>
-                <Typography>
-                  Are you sure you want to delete this book?
-                </Typography>
-              </CardContent>
-              <CardActions>
-                <Button
-                  onClick={handleConfirmDelete}
-                  variant="contained"
-                  color="error"
-                >
-                  Delete
-                </Button>
-                <Button
-                  onClick={() => setOpenDeleteModal(false)}
-                  variant="contained"
-                >
-                  Cancel
-                </Button>
-              </CardActions>
-            </Card> */}
-          </Box>
-        </Fade>
-      </Modal>
+            Đồng Ý
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

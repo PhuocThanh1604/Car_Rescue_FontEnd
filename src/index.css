@@ -172,3 +172,9 @@ body,
 .hide-value {
   display: none;
 }
+
+.center-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

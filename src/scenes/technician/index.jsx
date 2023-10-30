@@ -70,12 +70,12 @@ const Technicians = (props) => {
 
   const handleDateFilterChange = () => {
     if (startDate && endDate) {
-      const filteredtechnicians = technicians.filter((user) => {
+      const filteredtechnicians = technicians? technicians.filter((user) => {
         const orderDate = moment(user.createAt).format('YYYY-MM-DD');
         const isAfterStartDate = moment(orderDate).isSameOrAfter(startDate);
         const isBeforeEndDate = moment(orderDate).isSameOrBefore(endDate);
         return isAfterStartDate && isBeforeEndDate;
-      });
+      }):[];
       setFilteredTechnicians(filteredtechnicians);
       setFilterOption('Date');
     } else {

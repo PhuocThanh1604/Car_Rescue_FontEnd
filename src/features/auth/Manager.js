@@ -31,7 +31,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Services from "../../scenesManager/servicePage";
 import UpdateProfileManager from "../../scenesManager/updateProfile";
-import Vehicles from "../../scenesManager/vehicle";
+// import Vehicles from "../../scenesManager/vehicle";
 import OrdersCompleted from "../../scenesManager/ordersPage/ordersCompleted";
 import OrdersAssigned from "../../scenesManager/ordersPage/ordersAssigned";
 import OrdersInprogress from "../../scenesManager/ordersPage/ordersInprogress";
@@ -40,6 +40,8 @@ import OrdersCancelled from "../../scenesManager/ordersPage/ordersCancelled";
 import CalendarRescueVehicleOwner from "../../scenesManager/calendarRescueVehicleOwner";
 import CalendarTechnician from "../../scenesManager/calendarTechnician";
 import Map from "../../scenesManager/map/google";
+import Vehicles from "../../scenesManager/vehicle";
+import CreateOrderOffline from "../../scenesManager/create_OrderOffline";
 
 const Manager = () => {
   const user = useSelector(selectCurrentUser);
@@ -119,6 +121,7 @@ const Manager = () => {
                 <Route path="/manager/add/manager" element={<AddManager />} />
                 <Route path="/manager/add/customer" element={<AddCustomer />} />
                 <Route path="/manager/add/service" element={<AddService />} />
+                <Route path="/manager/add/orderOffline" element={<CreateOrderOffline />} />
                 {/*Update Profile*/}
                 <Route
                   path="/manager/update/profile"

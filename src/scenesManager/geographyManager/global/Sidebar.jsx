@@ -34,6 +34,8 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import LoopIcon from '@mui/icons-material/Loop';
 import PermContactCalendarIcon from '@mui/icons-material/PermContactCalendar';
+import AddToQueueIcon from '@mui/icons-material/AddToQueue';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
 const Item = ({ title, to, icon, selected, setSelected, subItems }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -321,6 +323,13 @@ const Sidebar = () => {
               selected={selected}
               setSelected={setSelected}
             />{" "}
+              <Item
+              title="FeedBack"
+              to="manager/service"
+              icon={<ListIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />{" "}
             <Item
               title="Contacts Info"
               to="manager/contacts"
@@ -342,16 +351,29 @@ const Sidebar = () => {
             >
               Pages
             </Typography>
- 
             <Item
-              title="New Service"
+              title="Tạo Đơn Hàng Offline"
+              to="manager/add/orderOffline"
+              icon={<AddToQueueIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+                <Item
+              title="Tạo Mới Khách Hàng"
+              to="manager/add/customer"
+              icon={<PersonAddIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+            <Item
+              title="Tạo Dịch Vụ"
               to="manager/add/service"
               icon={<BookmarkAddIcon />}
               selected={selected}
               setSelected={setSelected}
             />
             <Item
-              title="New CarVihecileOwner"
+              title="Tạo Chủ Xe Mới"
               to="manager/add/carVihecileOwner"
               icon={<PersonOutlinedIcon />}
               selected={selected}
@@ -380,7 +402,7 @@ const Sidebar = () => {
               setSelected={setSelected}
             />
             <Item
-              title="FAQ Page"
+              title="Câu hỏi thường gặp"
               to="manager/faq"
               icon={<HelpOutlineOutlinedIcon />}
               selected={selected}

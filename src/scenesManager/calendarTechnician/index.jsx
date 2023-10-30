@@ -1,5 +1,4 @@
-import React from 'react';
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
 import FullCalendar, { formatDate } from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -15,12 +14,22 @@ import {
 } from "@mui/material";
 import Header from "../../components/Header";
 import { tokens } from "../../theme";
+import { useDispatch, useSelector } from "react-redux";
+import { getScheduleOfTechinciansAWeek } from "../../redux/technicianSlice";
 
 const CalendarTechnician = () => {
+  const dispatch = useDispatch();
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const [currentEvents, setCurrentEvents] = useState([]);
-
+  const technicians = useSelector((state) => state.technician.technicians);
+  const [currentEvents, setCurrentEvents] = useState([]); // Initialize with an empty array
+  const convertToDateString = (date) => {
+    return formatDate(date, {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
   const handleDateClick = (selected) => {
     const title = prompt("Please enter a new title for your event");
     const calendarApi = selected.view.calendar;
@@ -47,9 +56,53 @@ const CalendarTechnician = () => {
     }
   };
 
+  useEffect(() => {
+    // Gửi yêu cầu API để lấy dữ liệu lịch
+    const fetchDataFromServer = async () => {
+      try {
+        const response = await dispatch(
+          getScheduleOfTechinciansAWeek({ year: 2023 })
+        );
+        const data = response.payload.data; // Log the data
+        console.log("test" + data);
+
+        if (Array.isArray(data) && data.length > 0) {
+          // Process and map the data
+          const events = data.map((event) => ({
+            id: event.id,
+            week: event.week,
+            year: event.year,
+            startDate: event.startDate,
+            endDate: event.endDate,
+          }));
+
+          // Log data from each event
+          events.forEach((event) => {
+            console.log("Event ID:", event.id);
+            console.log("Week:", event.week);
+            console.log("Year:", event.year);
+            console.log("Start Date:", event.startDate);
+            console.log("End Date:", event.endDate);
+          });
+
+          setCurrentEvents(events);
+        } else {
+          console.error("Data from the API is not an array or is empty.");
+        }
+      } catch (error) {
+        console.error("Error when fetching calendar data:", error);
+      }
+    };
+
+    fetchDataFromServer();
+  }, [dispatch]);
+
   return (
     <Box m="20px">
-      <Header title="Lịch Kỹ Thuật Viên" subtitle="Trang tương tác toàn bộ lịch" />
+      <Header
+        title="Lịch Kỹ Thuật Viên"
+        subtitle="Trang tương tác toàn bộ lịch"
+      />
 
       <Box display="flex" justifyContent="space-between">
         {/* CALENDAR SIDEBAR */}
@@ -71,10 +124,10 @@ const CalendarTechnician = () => {
                 }}
               >
                 <ListItemText
-                  primary={event.title}
+                  primary={event.startDate}
                   secondary={
                     <Typography>
-                      {formatDate(event.start, {
+                      {formatDate(event.startDate, {
                         year: "numeric",
                         month: "short",
                         day: "numeric",
@@ -82,6 +135,20 @@ const CalendarTechnician = () => {
                     </Typography>
                   }
                 />
+                <ListItemText
+                  primary={event.endDate}
+                  secondary={
+                    <Typography>
+                      {formatDate(event.endDate, {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      })}
+                    </Typography>
+                  }
+                />
+                {/* <Typography variant="body2">ID: {event.id}</Typography> */}
+                {/* <Typography variant="body2">Week: {event.week}</Typography> */}
               </ListItem>
             ))}
           </List>
@@ -91,37 +158,22 @@ const CalendarTechnician = () => {
         <Box flex="1 1 100%" ml="30px">
           <FullCalendar
             height="75vh"
-            plugins={[
-              dayGridPlugin,
-              timeGridPlugin,
-              interactionPlugin,
-              listPlugin,
-            ]}
+            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
             headerToolbar={{
               left: "prev,next today",
               center: "title",
-              right: "dayGridMonth,timeGridWeek,timeGridDay,listMonth",
+              right: "dayGridMonth,timeGridWeek,timeGridDay",
             }}
-            initialView="dayGridMonth"
             editable={true}
             selectable={true}
             selectMirror={true}
             dayMaxEvents={true}
             select={handleDateClick}
             eventClick={handleEventClick}
-            eventsSet={(events) => setCurrentEvents(events)}
-            initialEvents={[
-              {
-                id: "12315",
-                title: "All-day event",
-                date: "2022-09-14",
-              },
-              {
-                id: "5123",
-                title: "Timed event",
-                date: "2022-09-28",
-              },
-            ]}
+            eventSources={[currentEvents]}
+            eventColor={colors.greenAccent[500]}
+            eventTextColor="white"
+            weekends={false}
           />
         </Box>
       </Box>

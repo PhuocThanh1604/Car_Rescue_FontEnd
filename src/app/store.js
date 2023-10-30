@@ -22,7 +22,7 @@ export const store = configureStore({
     rescueVehicleOwner: rescueVehicleOwnerReducer,
     technician:technicianReducer,
     service: serviceReducer,
-    vihicle: vehicleReducer,
+    vehicle: vehicleReducer,
     // auth:authSlice
   },
   middleware: (getDefaultMiddleware) =>

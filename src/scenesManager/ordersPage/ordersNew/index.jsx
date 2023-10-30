@@ -23,8 +23,6 @@ import { Edit } from "@mui/icons-material";
 import ModalDetail from "./ModalComponentDetail";
 import ModalEdit from "./ModalComponentEdit";
 import CustomTablePagination from "./TablePagination";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import SearchIcon from "@mui/icons-material/Search";
 import InputBase from "@mui/material/InputBase";
 import moment from "moment";
@@ -34,6 +32,8 @@ import {
   fetchOrdersNew,
   getOrderId,
 } from "../../../redux/orderSlice";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { getCustomerIdFullName } from "../../../redux/customerSlice";
 import CreditScoreIcon from "@mui/icons-material/CreditScore";
 import AddCardIcon from "@mui/icons-material/AddCard";
@@ -42,6 +42,7 @@ import BuildIcon from "@mui/icons-material/Build";
 import SupportIcon from "@mui/icons-material/Support";
 import HandymanIcon from "@mui/icons-material/Handyman";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import AssignmentLateIcon from '@mui/icons-material/AssignmentLate';
 const Orders = (props) => {
   const dispatch = useDispatch();
   const orders = useSelector((state) => state.order.orders);
@@ -165,6 +166,7 @@ const Orders = (props) => {
         setOrderId(orderId);
         setOpenConfirmModal(false);
         setIsSuccess(true);
+        toast.success("Điều phối thành công");
         reloadOders();
       })
       .catch((error) => {
@@ -175,22 +177,7 @@ const Orders = (props) => {
       });
   };
 
-  const handleConfirm = (orderId) => {
-    try {
-      // Gửi orderId về máy chủ ở đây
-      console.log("Sending orderId to server: ", orderId);
 
-      // Thực hiện tải lại dữ liệu sau khi hoàn thành xử lý
-      // Tùy thuộc vào cách bạn tải lại dữ liệu
-      setOrderId(orderId);
-      // Đóng modal và đặt lại orderId
-      setOpenConfirmModal(true);
-    
-    } catch (error) {
-      // Xử lý lỗi (nếu có)
-      console.error("Lỗi khi xử lý:", error);
-    }
-  };
 
   const handleCancel = () => {
     // Đóng modal và đặt lại orderId
@@ -364,34 +351,20 @@ const Orders = (props) => {
     },
     {
       field: "update",
-      headerName: "Cập Nhật",
+      headerName: "Diều Phối",
       width: 60,
       renderCell: (params) => (
-        <IconButton
+        <AssignmentLateIcon
           variant="contained"
           color="error"
-          onClick={() => handleUpdateClick(params.row.id)}
+          style={{ color: "orange" }}
+          onClick={() => handleUpdateClick(params.row.id)}  
         >
-          <Edit style={{ color: "red" }} />
-        </IconButton>
+        </AssignmentLateIcon>
       ),
       key: "update",
     },
-    {
-      field: "acceptOrder",
-      headerName: "Trạng Thái Đơn",
-      width: 60,
-      renderCell: (params) => (
-        <CheckCircleOutlineIcon
-          variant="contained"
-          color="primary"
-          onClick={() => handleConfirm(params.row.id)}
-        >
-          <Edit style={{ color: "red" }} />
-        </CheckCircleOutlineIcon>
-      ),
-      key: "acceptOrder",
-    },
+   
   ];
 
   return (
