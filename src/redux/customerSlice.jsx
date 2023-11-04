@@ -69,7 +69,7 @@ export const getCustomerIdFullName = createAsyncThunk(
         `https://rescuecapstoneapi.azurewebsites.net/api/Customer/Get?id=${id}`
       );
       const data = response.data;
-      console.log(data);
+    
       return data;
     } catch (error) {
       console.error("Failed to get customer:", error.response);

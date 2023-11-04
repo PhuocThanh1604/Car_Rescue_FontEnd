@@ -316,14 +316,7 @@ const CreateBook = () => {
                 touched={touched.authorName}
                 error={errors.authorName}
               />
-              {/* <input
-                type="file"
-                multiple
-                onChange={(event) => {
-                  const files = event.target.files;
-                  setFieldValue('images', files);
-                }}
-              /> */}
+        
             </Box>
           </form>
         )}

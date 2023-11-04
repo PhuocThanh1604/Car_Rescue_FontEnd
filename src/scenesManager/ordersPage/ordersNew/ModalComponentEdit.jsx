@@ -19,7 +19,7 @@ import { Close } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
 
 import { ToastContainer, toast } from "react-toastify";
-import { createAcceptOrder, fetchOrdersNew } from "../../../redux/orderSlice";
+import { createAcceptOrder, fetchOrdersNew, sendNotification } from "../../../redux/orderSlice";
 import { fetchVehicle, getVehicleId } from "../../../redux/vehicleSlice";
 import { fetchTechnicians } from "../../../redux/technicianSlice";
 import QueryBuilderIcon from "@mui/icons-material/QueryBuilder";
@@ -28,6 +28,7 @@ import PlaceIcon from "@mui/icons-material/Place";
 import PaymentIcon from "@mui/icons-material/Payment";
 import SupportIcon from "@mui/icons-material/Support";
 import HandymanIcon from "@mui/icons-material/Handyman";
+import { sendNotificationToMobile } from "../../../firebase/firebase";
 const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
   const dispatch = useDispatch();
   const orders = useSelector((state) => state.order.orders);
@@ -72,6 +73,14 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
       console.error("Lỗi khi phân tích chuỗi JSON:", error);
     }
   }
+  // 1. Tạo hàm xử lý sự kiện cho TextField để cập nhật edit.id
+  const handleEditIdChange = (event) => {
+    const { value } = event.target;
+    setEdit((prevOrder) => ({
+      ...prevOrder,
+      id: value,
+    }));
+  };
   //lọc kéo và sửa cho tech và carowner
   useEffect(() => {
     // Filter and set the list of technicians or rescue vehicles based on the selected rescueType
@@ -131,13 +140,11 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
         if (vehicleData) {
           const activeManufacturers = vehicleData.filter(
             (item) => item.status === "ACTIVE"
-        
-            );
+          );
 
           setVehicleData(activeManufacturers);
 
           // Xác định selectedVehicle ban đầu
-     
         } else {
           console.error("Vehicle response does not contain 'data'.");
         }
@@ -225,17 +232,29 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
     }));
     console.log(setEdit);
   };
-
+const hanldeSenNoti =()=>{
+  const message = {
+    title: "Thông báo",
+    body: "Điều phối thành công",
+  };
+}
   const handleSaveClick = () => {
     if (!selectedEditOrder || !data) {
       toast.error("Không có thông tin khách hàng để cập nhật.");
       return;
     }
-
+    const orderId = edit.id;
     // Kiểm tra xem có sự thay đổi trong dữ liệu so với dữ liệu ban đầu
     const hasChanges =
       JSON.stringify(data) !== JSON.stringify(initialFormState);
-
+      const message = {
+        title: "Thông báo",
+        body: "Điều phối thành công",
+        
+      };
+    // Gửi thông báo sau khi xử lý thành công
+  
+    // Thay YOUR_FCM_SERVER_KEY bằng API key của bạn
     if (!hasChanges) {
       toast.info("Không có thay đổi để lưu.");
       handleClose();
@@ -250,6 +269,24 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
       dispatch(createAcceptOrder(requestData))
         .then(() => {
           toast.success("Gửi điều phối thành công.");
+          // Tạo đối tượng dữ liệu thông báo
+          const notificationData = {
+            // deviceId: "eZ3zGYZ-SU-rsFAjjsDLrS:APA91bH45eTlMbPI8GfqxllTtB4tzSgpB-9ppDGfJ4xv3FuxpbRqAj2RHcgZn-pj0JG9CGxGmi69HHTRkzNlSbOy5xuryR43BFIMtn9_l68ZfJRzfr8C55Yk2vP19Y5jjSiRHgKLMTTk", // Thay YOUR_DEVICE_ID bằng ID thiết bị cần gửi thông báo đến
+            deviceId: "fb7Ts8adTSeqW2D4jsgsEe:APA91bHS0xEkeHkeK58sL9a33CLxgm00KFIY6cHJokVA8R1JO_rrinjDDbvCSLsKo01M6IvJ88q5lOWJCpf0zAU1i75lGqVaSQDa4HBFGd7Du7XnJDgCsZZUJ-4WmH0yb5AsheUp9fzm", // Thay YOUR_DEVICE_ID bằng ID thiết bị cần gửi thông báo đến
+            isAndroiodDevice: true, // true nếu là thiết bị Android, false nếu là thiết bị khác
+            title:message.title,
+            body: message.body,
+          };
+
+          // Gửi thông báo bằng hàm sendNotification
+          dispatch(sendNotification(notificationData))
+            .then(() => {
+              console.log("Gửi thông báo thành công");
+            })
+            .catch((error) => {
+              console.error("Lỗi khi gửi thông báo:", error);
+            });
+
           handleClose();
           reloadOrders();
           setIsSuccess(true);
@@ -358,11 +395,7 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
                             name="id"
                             label="id"
                             value={edit.id || ""}
-                            onChange={(event) => {
-                              if (!selectedEditOrder) {
-                                handleInputChange(event);
-                              }
-                            }}
+                            onChange={handleEditIdChange}
                             style={{ display: "none" }}
                           />
                           <Box
@@ -571,9 +604,7 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
                           {vehicleDetails && (
                             <div>
                               <h2>Selected Vehicle Details</h2>
-                              <p>
-                                vinNumber: {vehicleDetails.vinNumber}
-                              </p>
+                              <p>vinNumber: {vehicleDetails.vinNumber}</p>
                               <p>
                                 License Plate: {vehicleDetails.licensePlate}
                               </p>

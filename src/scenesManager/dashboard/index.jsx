@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Box,
   Button,
@@ -6,27 +6,28 @@ import {
   Typography,
   useTheme,
   CircularProgress,
-} from '@mui/material';
-import { tokens } from '../../theme';
-import { mockTransactions } from '../../data/mockData';
-import DownloadOutlinedIcon from '@mui/icons-material/DownloadOutlined';
-import EmailIcon from '@mui/icons-material/Email';
-import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
-import PersonAddIcon from '@mui/icons-material/PersonAdd';
-import TrafficIcon from '@mui/icons-material/Traffic';
-import Header from '../../components/Header';
-import LineChart from '../../components/LineChart';
-import GeographyChart from '../../components/GeographyChart';
-import BarChart from '../../components/BarChart';
+} from "@mui/material";
+import { tokens } from "../../theme";
+import { mockTransactions } from "../../data/mockData";
+import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
+import EmailIcon from "@mui/icons-material/Email";
+import PointOfSaleIcon from "@mui/icons-material/PointOfSale";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import TrafficIcon from "@mui/icons-material/Traffic";
+import Header from "../../components/Header";
+import LineChart from "../../components/LineChart";
+import GeographyChart from "../../components/GeographyChart";
+import BarChart from "../../components/BarChart";
 // import ProgressCircle from "../../components/ProgressCircle";
 // import MainChart from '../../components/MainChart';
-import { useDispatch, useSelector } from 'react-redux';
-import { useEffect } from 'react';
-import { fetchAccounts } from '../../redux/accountSlice';
-import { toast } from 'react-toastify';
-import { useState } from 'react';
-import { fetchOrders } from '../../redux/orderSlice';
-import { fetchProducts } from '../../redux/productSlice';
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
+import { fetchAccounts } from "../../redux/accountSlice";
+import { toast } from "react-toastify";
+import { useState } from "react";
+import { fetchOrders } from "../../redux/orderSlice";
+import { fetchProducts } from "../../redux/productSlice";
+import ProgressCircle from "../../components/ProgressCircle";
 
 const Dashboard = () => {
   const dispatch = useDispatch();
@@ -93,8 +94,10 @@ const Dashboard = () => {
   useEffect(() => {
     // Lặp qua danh sách đơn hàng và gán accountName dựa trên accountId
     const ordersWithaccountNames = orders.map((order) => {
-      const account = accounts.find((account) => account.accountId === order.accountId);
-      const accountName = account ? account.accountName : 'Unknown account';
+      const account = accounts.find(
+        (account) => account.accountId === order.accountId
+      );
+      const accountName = account ? account.accountName : "Unknown account";
       return { ...order, accountName };
     });
 
@@ -116,11 +119,12 @@ const Dashboard = () => {
             sx={{
               backgroundColor: colors.blueAccent[700],
               color: colors.grey[100],
-              fontSize: '14px',
-              fontWeight: 'bold',
-              padding: '10px 20px',
-            }}>
-            <DownloadOutlinedIcon sx={{ mr: '10px' }} />
+              fontSize: "14px",
+              fontWeight: "bold",
+              padding: "10px 20px",
+            }}
+          >
+            <DownloadOutlinedIcon sx={{ mr: "10px" }} />
             Download Reports
           </Button>
         </Box>
@@ -131,24 +135,27 @@ const Dashboard = () => {
         display="grid"
         gridTemplateColumns="repeat(12, 1fr)"
         gridAutoRows="140px"
-        gap="20px">
+        gap="20px"
+      >
         {/* ROW 1 */}
         <Box
           gridColumn="span 3"
           backgroundColor={colors.primary[400]}
           display="flex"
           alignItems="center"
-          justifyContent="center">
+          justifyContent="center"
+        >
           <Box width="100%" m="0 30px">
             <Box display="flex" justifyContent="space-between">
               <Box>
                 <EmailIcon
-                  sx={{ color: colors.greenAccent[600], fontSize: '26px' }}
+                  sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
                 />
                 <Typography
                   variant="h4"
                   fontWeight="bold"
-                  sx={{ color: colors.grey[100] }}>
+                  sx={{ color: colors.grey[100] }}
+                >
                   123
                 </Typography>
               </Box>
@@ -167,7 +174,8 @@ const Dashboard = () => {
               <Typography
                 variant="h5"
                 fontStyle="italic"
-                sx={{ color: colors.greenAccent[600] }}>
+                sx={{ color: colors.greenAccent[600] }}
+              >
                 +14%
               </Typography>
             </Box>
@@ -178,17 +186,19 @@ const Dashboard = () => {
           backgroundColor={colors.primary[400]}
           display="flex"
           alignItems="center"
-          justifyContent="center">
+          justifyContent="center"
+        >
           <Box width="100%" m="0 30px">
             <Box display="flex" justifyContent="space-between">
               <Box>
                 <PointOfSaleIcon
-                  sx={{ color: colors.greenAccent[600], fontSize: '26px' }}
+                  sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
                 />
                 <Typography
                   variant="h4"
                   fontWeight="bold"
-                  sx={{ color: colors.grey[100] }}>
+                  sx={{ color: colors.grey[100] }}
+                >
                   {orders.length}
                 </Typography>
               </Box>
@@ -207,7 +217,8 @@ const Dashboard = () => {
               <Typography
                 variant="h5"
                 fontStyle="italic"
-                sx={{ color: colors.greenAccent[600] }}>
+                sx={{ color: colors.greenAccent[600] }}
+              >
                 {increasedOrders}%
               </Typography>
             </Box>
@@ -218,17 +229,19 @@ const Dashboard = () => {
           backgroundColor={colors.primary[400]}
           display="flex"
           alignItems="center"
-          justifyContent="center">
+          justifyContent="center"
+        >
           <Box width="100%" m="0 30px">
             <Box display="flex" justifyContent="space-between">
               <Box>
                 <PersonAddIcon
-                  sx={{ color: colors.greenAccent[600], fontSize: '26px' }}
+                  sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
                 />
                 <Typography
                   variant="h4"
                   fontWeight="bold"
-                  sx={{ color: colors.grey[100] }}>
+                  sx={{ color: colors.grey[100] }}
+                >
                   {accounts.length}
                 </Typography>
               </Box>
@@ -247,7 +260,8 @@ const Dashboard = () => {
               <Typography
                 variant="h5"
                 fontStyle="italic"
-                sx={{ color: colors.greenAccent[600] }}>
+                sx={{ color: colors.greenAccent[600] }}
+              >
                 {increasedaccounts}%
               </Typography>
             </Box>
@@ -258,17 +272,19 @@ const Dashboard = () => {
           backgroundColor={colors.primary[400]}
           display="flex"
           alignItems="center"
-          justifyContent="center">
+          justifyContent="center"
+        >
           <Box width="100%" m="0 30px">
             <Box display="flex" justifyContent="space-between">
               <Box>
                 <TrafficIcon
-                  sx={{ color: colors.greenAccent[600], fontSize: '26px' }}
+                  sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
                 />
                 <Typography
                   variant="h4"
                   fontWeight="bold"
-                  sx={{ color: colors.grey[100] }}>
+                  sx={{ color: colors.grey[100] }}
+                >
                   {products.length}
                 </Typography>
               </Box>
@@ -287,7 +303,8 @@ const Dashboard = () => {
               <Typography
                 variant="h5"
                 fontStyle="italic"
-                sx={{ color: colors.greenAccent[600] }}>
+                sx={{ color: colors.greenAccent[600] }}
+              >
                 {increasedProducts}%
               </Typography>
             </Box>
@@ -299,55 +316,62 @@ const Dashboard = () => {
         <Box
           gridColumn="span 8"
           gridRow="span 2"
-          backgroundColor={colors.primary[400]}>
+          backgroundColor={colors.primary[400]}
+        >
           <Box
             mt="25px"
             p="0 30px"
             display="flex "
             justifyContent="space-between"
-            alignItems="center">
+            alignItems="center"
+          >
             <Box>
               <Typography
                 variant="h5"
                 fontWeight="600"
-                color={colors.grey[100]}>
+                color={colors.grey[100]}
+              >
                 Revenue Generated
               </Typography>
               <Typography
                 variant="h3"
                 fontWeight="bold"
-                color={colors.greenAccent[500]}>
-                {total.toLocaleString('vi-VN', {
-                  style: 'currency',
-                  currency: 'VND',
-                })}
+                color={colors.greenAccent[500]}
+              >
+                {/* {total.toLocaleString("vi-VN", {
+                  style: "currency",
+                  currency: "VND",
+                })} */}
               </Typography>
             </Box>
             <Box>
               <IconButton>
                 <DownloadOutlinedIcon
-                  sx={{ fontSize: '26px', color: colors.greenAccent[500] }}
+                  sx={{ fontSize: "26px", color: colors.greenAccent[500] }}
                 />
               </IconButton>
             </Box>
           </Box>
           <Box height="230px" m="-20px 0 0 0">
-            <BarChart isDashboard={true} />
+            <LineChart isDashboard={true} />
           </Box>
         </Box>
+
 
         <Box
           gridColumn="span 4"
           gridRow="span 2"
           backgroundColor={colors.primary[400]}
-          overflow="auto">
+          overflow="auto"
+        >
           <Box
             display="flex"
             justifyContent="space-between"
             alignItems="center"
             borderBottom={`4px solid ${colors.primary[500]}`}
             colors={colors.grey[100]}
-            p="15px">
+            p="15px"
+          >
             <Typography color={colors.grey[100]} variant="h5" fontWeight="600">
               Giao dịch gần đây
             </Typography>
@@ -359,21 +383,25 @@ const Dashboard = () => {
               justifyContent="space-between"
               alignItems="center"
               borderBottom={`4px solid ${colors.primary[500]}`}
-              p="15px">
+              p="15px"
+            >
               <Box>
                 <Typography
                   color={colors.greenAccent[500]}
                   variant="h5"
-                  fontWeight="600">
+                  fontWeight="600"
+                >
                   {order.orderId}
                 </Typography>
 
                 {order.accountId && (
                   <Typography color={colors.grey[100]} key={order.orderId}>
                     {accounts
-                      .filter((account) => account.accountId === order.accountId)
+                      .filter(
+                        (account) => account.accountId === order.accountId
+                      )
                       .map((account) => account.accountName)
-                      .join(', ')}
+                      .join(", ")}
                   </Typography>
                 )}
               </Box>
@@ -385,10 +413,11 @@ const Dashboard = () => {
               <Box
                 backgroundColor={colors.greenAccent[500]}
                 p="5px 10px"
-                borderRadius="4px">
-                {new Intl.NumberFormat('vi-VN', {
-                  style: 'currency',
-                  currency: 'VND',
+                borderRadius="4px"
+              >
+                {new Intl.NumberFormat("vi-VN", {
+                  style: "currency",
+                  currency: "VND",
                 }).format(order.price)}
               </Box>
             </Box>
@@ -396,7 +425,7 @@ const Dashboard = () => {
         </Box>
 
         {/* ROW 3 */}
-        {/* <Box
+        <Box
           gridColumn="span 4"
           gridRow="span 2"
           backgroundColor={colors.primary[400]}
@@ -411,11 +440,7 @@ const Dashboard = () => {
             alignItems="center"
             mt="25px"
           >
-           <CircularProgress
-                variant="determinate"
-                value={125}
-                sx={{ color: colors.greenAccent[500] }}
-              />
+            <ProgressCircle size="125" />
             <Typography
               variant="h5"
               color={colors.greenAccent[500]}
@@ -426,6 +451,7 @@ const Dashboard = () => {
             <Typography>Includes extra misc expenditures and costs</Typography>
           </Box>
         </Box>
+
         <Box
           gridColumn="span 4"
           gridRow="span 2"
@@ -434,14 +460,15 @@ const Dashboard = () => {
           <Typography
             variant="h5"
             fontWeight="600"
-            sx={{ padding: "20px 20px 10px 20px" }}
+            sx={{ padding: "30px 30px 0 30px" }}
           >
             Sales Quantity
           </Typography>
-          <Box height="280px" mt="-20px">
-            <LineChart isDashboard={true} />
+          <Box height="250px" mt="-20px">
+            <BarChart isDashboard={true} />
           </Box>
         </Box>
+
         <Box
           gridColumn="span 4"
           gridRow="span 2"
@@ -458,7 +485,7 @@ const Dashboard = () => {
           <Box height="250px" mt="-20px">
             <GeographyChart />
           </Box>
-        </Box> */}
+        </Box>
       </Box>
     </Box>
   );

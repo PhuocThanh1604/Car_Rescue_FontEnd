@@ -128,8 +128,8 @@ const RescueVehicleOwners = (props) => {
             filterOption === "Status" ||
             (filterOption === "ACTIVE" &&
               rescueVehicleOwner.status === "ACTIVE") ||
-            (filterOption === "Unactive" &&
-              rescueVehicleOwner.status === "Unactive");
+            (filterOption === "INACTIVE" &&
+              rescueVehicleOwner.status === "INACTIVE");
           return nameMatch && filterMatch;
         })
       : [];
@@ -327,7 +327,7 @@ const RescueVehicleOwners = (props) => {
             checked={params.value === "ACTIVE"}
             onChange={() => {
               const newStatus =
-                params.value === "ACTIVE" ? "Unactive" : "ACTIVE"; // Toggle the status
+                params.value === "ACTIVE" ? "INACTIVE" : "ACTIVE"; // Toggle the status
 
               // Lấy ID, fullname và status từ dữ liệu cột
               const rescueVehicleOwnerId = params.row.id;
@@ -398,7 +398,7 @@ const RescueVehicleOwners = (props) => {
               <MenuItem key="status-active" value="ACTIVE">
                 Hoạt động
               </MenuItem>
-              <MenuItem key="status-unactive" value="Unactive">
+              <MenuItem key="status-INACTIVE" value="INACTIVE">
                 Không hoạt động
               </MenuItem>
             </Select>

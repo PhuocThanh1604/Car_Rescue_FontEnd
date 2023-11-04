@@ -8,6 +8,7 @@ import {
   Grid,
   InputLabel,
   MenuItem,
+  Modal,
   Select,
   TextField,
 } from "@mui/material";
@@ -22,32 +23,43 @@ import "react-toastify/dist/ReactToastify.css";
 import { createOrderOffline } from "../../redux/orderSlice";
 import { fetchServices } from "../../redux/serviceSlice";
 import { fetchCustomers } from "../../redux/customerSlice";
+import Map from "./google";
 const CreateOrderOffline = () => {
   const dispatch = useDispatch();
   const orders = useSelector((state) => state.order.orders);
   const isNonMobile = useMediaQuery("(min-width:600px)");
-
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [currentImageUrl, setCurrentImageUrl] = useState(data.avatar || "");
-  const [downloadUrl, setDownloadUrl] = useState("");
   const [selectedService, setSelectedService] = useState(null);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [servicesData, setServicesData] = useState([]);
   const [customersData, setCustomersData] = useState([]);
+  const [showMapModal, setShowMapModal] = useState(false);
+  const [address, setAddress] = useState(""); // Thêm trường address
+  const [departure, setDeparture] = useState("");
+  const [lat, setLat] = useState(null);
+  const [lng, setLng] = useState(null);
+  const [selectedMapAddress, setSelectedMapAddress] = useState("");
+  const [isMapModalOpen, setIsMapModalOpen] = useState(false);
 
-  const handleImageUploaded = (imageUrl) => {
-    setDownloadUrl(imageUrl);
-    // Set the avatar value to the uploaded image URL
-    formikRef.current.setFieldValue("avatar", imageUrl);
+  // Hàm xử lý khi bấm vào TextField "departure" để hiển thị modal
+  const handleOpenMapModal = () => {
+    setShowMapModal(true);
   };
 
-  const serviceData = data.map((item) => item.name); // Assuming "name" is the property you want to use
-  const urlData = data.map((item) => item.url); // Assuming "url" is the property you want to use
-
-  const initialServiceValues = serviceData.map((name) => ({
-    name: name || "Default Name",
-  }));
+  // Hàm xử lý khi địa chỉ được xác nhận và tọa độ lat và lng được chọn
+  const handleMapLocationSelected = (selectedLocation) => {
+    const { lat, lng, address } = selectedLocation;
+    const latLngString = `lat:${lat},lng:${lng}`; // Combine lat and lng values as a string
+    setLat(lat);
+    setLng(lng);
+    setSelectedMapAddress(address);
+    setIsMapModalOpen(false);
+    setDeparture(latLngString); // Set the formatted value as the 'departure' field
+    formikRef.current.setFieldValue('departure', latLngString);
+  };
+  
+  
 
   const checkoutSchema = yup.object().shape({
     customerNote: yup.string().required("Required"),
@@ -60,7 +72,6 @@ const CreateOrderOffline = () => {
     url: yup.string().required("Required"),
     service: yup.string().required("Required"),
   });
-  const statusOptions = ["ACTIVE", "Unactive"];
   const initialValues = {
     customerNote: "",
     departure: "",
@@ -163,7 +174,7 @@ const CreateOrderOffline = () => {
           <form onSubmit={handleSubmit}>
             <Box display="flex" justifyContent="left" mb="20px">
               <Button type="submit" color="secondary" variant="contained">
-                Tạo Dơn Hàng
+                Tạo Dơn Hàng Offline
               </Button>
             </Box>
             <Box
@@ -189,25 +200,7 @@ const CreateOrderOffline = () => {
                 helperText={touched.customerNote && errors.customerNote}
                 sx={{ gridColumn: "span 2" }}
               />
-              {/* <Grid container spacing={4} alignItems="center" marginBottom={2}>
-                <Grid item xs={6}>
-                  <Grid container spacing={1} alignItems="center">
-                    <Grid item>
-                      <Avatar
-                        alt="Avatar"
-                        src={values.avatar} // Bind the src to values.avatar
-                        sx={{ width: 50, height: 50 }}
-                      />
-                    </Grid>
-                    <Grid item>
-                      <UploadImageField
-                        onImageUploaded={handleImageUploaded}
-                        imageUrl={currentImageUrl}
-                      />
-                    </Grid>
-                  </Grid>
-                </Grid>
-              </Grid> */}
+
               <Autocomplete
                 id="service-select"
                 options={servicesData}
@@ -277,13 +270,32 @@ const CreateOrderOffline = () => {
                 type="text"
                 label="Địa Chỉ Xe Hư"
                 onBlur={handleBlur}
-                onChange={handleChange}
-                value={values.departure}
+                onChange={(e) => {
+                  if (!showMapModal) {
+                    setAddress(e.target.value);
+                  }
+                }}
+                value={departure} 
                 name="departure"
                 error={touched.departure && errors.departure ? true : false}
                 helperText={touched.departure && errors.departure}
                 sx={{ gridColumn: "span 2" }}
+                onClick={handleOpenMapModal}
               />
+
+              <Modal
+                style={{
+                  marginLeft: "200px",
+                  marginTop: "60px",
+                  width: "1200px",
+                  height: "600px",
+                }}
+                open={showMapModal}
+                onClose={() => setShowMapModal(false)}
+              >
+                <Map onLocationSelected={handleMapLocationSelected} />
+              </Modal>
+
               <TextField
                 fullWidth
                 variant="filled"

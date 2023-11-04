@@ -8,12 +8,7 @@ import {
   MenuItem,
   IconButton,
   FormControl,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
-  Button,
+
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { tokens } from "../../../theme";
@@ -30,6 +25,7 @@ import moment from "moment";
 import {
   createAcceptOrder,
   fetchOrdersNew,
+  getFormattedAddress,
   getOrderId,
 } from "../../../redux/orderSlice";
 import { ToastContainer, toast } from "react-toastify";
@@ -42,7 +38,7 @@ import BuildIcon from "@mui/icons-material/Build";
 import SupportIcon from "@mui/icons-material/Support";
 import HandymanIcon from "@mui/icons-material/Handyman";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
-import AssignmentLateIcon from '@mui/icons-material/AssignmentLate';
+import AssignmentLateIcon from "@mui/icons-material/AssignmentLate";
 const Orders = (props) => {
   const dispatch = useDispatch();
   const orders = useSelector((state) => state.order.orders);
@@ -61,6 +57,7 @@ const Orders = (props) => {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]);
   const [fullnameData, setFullnameData] = useState({});
+  const [formattedAddresses, setFormattedAddresses] = useState({});
   const [orderId, setOrderId] = useState(null);
   const [openConfirmModal, setOpenConfirmModal] = useState(false);
   const [rescueVehicles, setRescueVehicles] = useState([]); // Tạo một state mới cho danh sách xe cứu hộ
@@ -132,52 +129,73 @@ const Orders = (props) => {
           setFilteredOrders(data);
           setLoading(false); // Đặt trạng thái loading thành false sau khi xử lý dữ liệu
         }
+       
+    
+      
       })
       .finally(() => {
         setLoading(false);
       });
   }, [dispatch]);
 
+  useEffect(() => {
+    // Assuming you have an array of data, iterate through it and fetch addresses
+    data.forEach((row) => {
+      const departure = row.departure;
+      // Check if you have already fetched the address to avoid duplicate requests
+      if (!formattedAddresses[departure]) {
+        fetchAddress(departure);
+      }
+    }, [data, formattedAddresses]);
+  }, []);
+  const fetchAddress =(departure) => {
+    // You can use your existing code to fetch the fullname
+    data.forEach((order) => {
+      if (order && order.departure) {
+        // Extract just the latitude and longitude values from 'departure'
+        const matches = /lat:\s*([^,]+),\s*long:\s*([^,]+)/.exec(order.departure);
+
+        if (matches) {
+          const [, lat, lng] = matches;
+          if (lat && lng) {
+            // Dispatch 'getFormattedAddress' with the extracted lat and lng values
+            dispatch(getFormattedAddress({ lat, lng }))
+              .then((response) => {
+                const formattedAddress = response.payload.results[0].formatted_address;
+                console.log("formattedAddress:"+formattedAddress)
+                setFormattedAddresses((prevAddresses) => ({
+                  ...prevAddresses,
+                  [departure]: formattedAddress,
+                }));
+              })
+              .catch((error) => {
+                console.log("Response from API:", error.response);
+
+              });
+          }
+        }
+      }
+    });
+  };
+
   const handleUpdateClick = (orderId) => {
-    console.log(orderId)
+    console.log(orderId);
 
-     // Đặt trạng thái của danh sách xe cứu hộ về một mảng trống
-     setRescueVehicles(null);
+    // Đặt trạng thái của danh sách xe cứu hộ về một mảng trống
+    setRescueVehicles(null);
 
-      // Fetch the rescueVehicleOwnerId details based on the selected rescueVehicleOwnerId ID
+    // Fetch the rescueVehicleOwnerId details based on the selected rescueVehicleOwnerId ID
     dispatch(getOrderId({ id: orderId }))
       .then((response) => {
         const orderDetails = response.payload.data;
         setSelectedEditOrder(orderDetails);
         setOpenEditModal(true);
         setIsSuccess(true);
-        
       })
       .catch((error) => {
         console.error("Lỗi khi lấy thông tin đơn hàng mới:", error);
       });
   };
-
-  const handleAcceptOrderClick = (orderId) => {
-    console.log(orderId);
-    // Fetch the rescueVehicleOwnerId details based on the selected rescueVehicleOwnerId ID
-    dispatch(createAcceptOrder({ id: orderId }))
-      .then(() => {
-        setOrderId(orderId);
-        setOpenConfirmModal(false);
-        setIsSuccess(true);
-        toast.success("Điều phối thành công");
-        reloadOders();
-      })
-      .catch((error) => {
-        console.error(
-          "Lỗi khi lấy thông tin đơn hàng mới:",
-          error.status || error.message
-        );
-      });
-  };
-
-
 
   const handleCancel = () => {
     // Đóng modal và đặt lại orderId
@@ -204,37 +222,37 @@ const Orders = (props) => {
       });
   };
 
-  const fetchFullname = (customerId) => {
-    // You can use your existing code to fetch the fullname
-    dispatch(getCustomerIdFullName({ id: customerId }))
-      .then((response) => {
-        const data = response.payload.data;
-        if (data && data.fullname) {
-          // Update the state with the fetched fullname
-          setFullnameData((prevData) => ({
-            ...prevData,
-            [customerId]: data.fullname,
-          }));
-        } else {
-          console.error("Fullname not found in the API response.");
-        }
-      })
-      .catch((error) => {
-        console.error("Error while fetching customer data:", error);
-      });
-  };
+  // const fetchFullname = (customerId) => {
+  //   // You can use your existing code to fetch the fullname
+  //   dispatch(getCustomerIdFullName({ id: customerId }))
+  //     .then((response) => {
+  //       const data = response.payload.data;
+  //       if (data && data.fullname) {
+  //         // Update the state with the fetched fullname
+  //         setFullnameData((prevData) => ({
+  //           ...prevData,
+  //           [customerId]: data.fullname,
+  //         }));
+  //       } else {
+  //         console.error("Fullname not found in the API response.");
+  //       }
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error while fetching customer data:", error);
+  //     });
+  // };
 
   // Use an effect to fetch the fullname when the component mounts or customerId changes
-  useEffect(() => {
-    // Assuming you have an array of data, iterate through it and fetch fullnames
-    data.forEach((row) => {
-      const customerId = row.customerId;
-      // Check if you have already fetched the fullname to avoid duplicate requests
-      if (!fullnameData[customerId]) {
-        fetchFullname(customerId);
-      }
-    });
-  }, [data, fullnameData]);
+  // useEffect(() => {
+  //   // Assuming you have an array of data, iterate through it and fetch fullnames
+  //   data.forEach((row) => {
+  //     const customerId = row.customerId;
+  //     // Check if you have already fetched the fullname to avoid duplicate requests
+  //     if (!fullnameData[customerId]) {
+  //       fetchFullname(customerId);
+  //     }
+  //   });
+  // }, [data, fullnameData]);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -263,7 +281,15 @@ const Orders = (props) => {
         return fullnameData[params.value] || "";
       },
     },
-    { field: "departure", headerName: "Địa Chỉ", width: 140, key: "departure" },
+    {
+      field: "departure",
+      headerName: "Địa Chỉ",
+      width: 140,
+      valueGetter: (params) => {
+        // Get the fullname from the state based on customerId
+        return formattedAddresses[params.value] || "";
+      },
+    },
     {
       field: "customerNote",
       headerName: "Ghi Chú của Customer",
@@ -358,13 +384,11 @@ const Orders = (props) => {
           variant="contained"
           color="error"
           style={{ color: "orange" }}
-          onClick={() => handleUpdateClick(params.row.id)}  
-        >
-        </AssignmentLateIcon>
+          onClick={() => handleUpdateClick(params.row.id)}
+        ></AssignmentLateIcon>
       ),
       key: "update",
     },
-   
   ];
 
   return (
@@ -519,31 +543,6 @@ const Orders = (props) => {
         loading={loading}
       />
       <ToastContainer />
-      <Dialog
-        open={openConfirmModal}
-        onClose={handleCancel}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">Xác nhận</DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            Bạn có chắc chắn muốn chấp nhận đơn hàng?
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCancel} color="primary">
-            Hủy
-          </Button>
-          <Button
-            onClick={() => handleAcceptOrderClick(orderId)}
-            color="primary"
-            autoFocus
-          >
-            Xác nhận
-          </Button>
-        </DialogActions>
-      </Dialog>
     </Box>
   );
 };

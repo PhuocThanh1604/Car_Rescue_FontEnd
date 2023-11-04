@@ -37,6 +37,7 @@ import BuildIcon from "@mui/icons-material/Build";
 import SupportIcon from "@mui/icons-material/Support";
 import HandymanIcon from "@mui/icons-material/Handyman";
 import InfoIcon from "@mui/icons-material/Info";
+import TaskAltIcon from '@mui/icons-material/TaskAlt';
 const Orders = (props) => {
   const dispatch = useDispatch();
   const orders = useSelector((state) => state.order.orders);
@@ -314,7 +315,7 @@ const Orders = (props) => {
             }
           >
             {status === "NEW" && <AddCardIcon />}
-            {status === "COMPLETED" && <CreditScoreIcon />}
+            {status === "COMPLETED" && <TaskAltIcon />}
             {status === "ASSIGNED" && <RepeatOnIcon />}
             <Typography color={colors.grey[100]} sx={{ ml: "8px" }}>
               {status}
@@ -341,8 +342,6 @@ const Orders = (props) => {
       ),
       key: "bookDetail",
     }
-    
-    
     
   ];
 

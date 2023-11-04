@@ -493,7 +493,7 @@ const OrdersAssigning = (props) => {
         openModal={openModal}
         setOpenModal={setOpenModal}
         onClose={() => setOpenModal(false)}
-        selectedBook={selectedBook}
+           selectedEditOrder={selectedEditOrder}
         loading={loading}
       ></ModalDetail>
 

@@ -114,7 +114,7 @@ const Services = (props) => {
           const filterMatch =
             filterOption === "Status" ||
             (filterOption === "ACTIVE" && service.status === "ACTIVE") ||
-            (filterOption === "Unactive" && service.status === "Unactive");
+            (filterOption === "INACTIVE" && service.status === "INACTIVE");
           return nameMatch && filterMatch;
         })
       : [];
@@ -230,7 +230,7 @@ const Services = (props) => {
                 if (service.id === params.row.id) {
                   return {
                     ...service,
-                    status: value ? "ACTIVE" : "Unactive",
+                    status: value ? "ACTIVE" : "INACTIVE",
                   };
                 }
                 return service;
@@ -298,7 +298,7 @@ const Services = (props) => {
               <MenuItem key="status-active" value="ACTIVE">
                 Hoạt động
               </MenuItem>
-              <MenuItem key="status-unactive" value="Unactive">
+              <MenuItem key="status-INACTIVE" value="INACTIVE">
                 Không hoạt động
               </MenuItem>
             </Select>

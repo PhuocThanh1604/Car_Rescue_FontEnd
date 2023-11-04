@@ -135,10 +135,10 @@ export const deleteRescueVehicleOwner = createAsyncThunk(
 );
 export const createAcceptRegisterVehicle = createAsyncThunk(
   "vehicles/createAcceptRegisterVehicle",
-  async ({ id }) => {
+  async ({ id, isAccepted }) => {
     try {
       const response = await axios.post(
-        `https://rescuecapstoneapi.azurewebsites.net/api/Vehicle/ApproveVehicle?id=${id}`
+        `https://rescuecapstoneapi.azurewebsites.net/api/Vehicle/ApproveVehicle?id=${id}&boolean=${isAccepted}`,
       );
 
       const data = response.data;
@@ -146,13 +146,14 @@ export const createAcceptRegisterVehicle = createAsyncThunk(
       return data;
     } catch (error) {
       console.error(
-        "Failed to  create Accept Register Vehicle:",
+        "Failed to create Accept Register Vehicle:",
         error.response
       );
       throw error.response.data || error.message;
     }
   }
 );
+
 const rescueVehicleOwnerSlice = createSlice({
   name: "vehicle",
   initialState: {

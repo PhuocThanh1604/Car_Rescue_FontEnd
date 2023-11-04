@@ -178,3 +178,33 @@ body,
   justify-content: center;
   align-items: center;
 }
+
+
+/* CSS cho map trong create order offline */
+.modal-container {
+  width: 80%; /* Điều chỉnh kích thước modal */
+  max-width: 600px; /* Điều chỉnh kích thước modal tối đa */
+  margin: 0 auto; /* Căn giữa modal */
+}
+
+.map-container {
+  width: 100%; /* Kích thước bản đồ 100% của modal */
+  height: 300px; /* Điều chỉnh kích thước bản đồ */
+}
+.search_address {margin-bottom: 10px; }
+
+.close-button-map {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: red;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.card-vehicle-resgister{
+
+  width: 1000px;
+  height: 1000px;
+}

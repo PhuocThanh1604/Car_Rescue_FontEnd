@@ -109,21 +109,7 @@ const handleUpdateClick = (customerId) => {
 };
   
 
-  // const handleConfirmDelete = () => {
-  //   dispatch(deleteCustomer({ id: selectedcustomer.CustomerId }))
-  //     .then(() => {
-  //       toast.success("Delete Customer successfully");
-  //       setOpenDeleteModal(false);
-  //       // Cập nhật danh sách sản phẩm sau khi xóa thành công
-  //       const updatedcustomers = customers.filter(
-  //         (customer) => customer.CustomerId !== selectedcustomer.CustomerId
-  //       );
-  //       setFilteredCustomers(updatedcustomers);
-  //     })
-  //     .catch((error) => {
-  //       toast.error(error, "Error!!");
-  //     });
-  // };
+
 
   useEffect(() => {
     const filteredCustomers = customers
@@ -134,8 +120,8 @@ const handleUpdateClick = (customerId) => {
           const filterMatch =
             filterOption === "Status" ||
             (filterOption === "ACTIVE" && customer.status === "ACTIVE") ||
-            (filterOption === "Unactive" &&
-              customer.status === "Unactive");
+            (filterOption === "INACTIVE" &&
+              customer.status === "INACTIVE");
           return nameMatch && filterMatch;
         })
       : [];
@@ -236,7 +222,7 @@ const handleUpdateClick = (customerId) => {
                 if (customer.CustomerId === params.row.CustomerId) {
                   return {
                     ...customer,
-                    status: value ? "ACTIVE" : "Unactive",
+                    status: value ? "ACTIVE" : "INACTIVE",
                   };
                 }
                 return customer;
@@ -305,7 +291,7 @@ const handleUpdateClick = (customerId) => {
               <MenuItem key="status-active" value="ACTIVE">
                 Hoạt Động
               </MenuItem>
-              <MenuItem key="status-unavailable" value="Unactive">
+              <MenuItem key="status-unavailable" value="INACTIVE">
                 Không Hoạt Động
               </MenuItem>
             </Select>

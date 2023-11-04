@@ -2,35 +2,32 @@ import React, { useEffect, useState } from "react";
 import {
   Box,
   Button,
-  Typography,
   useTheme,
-  Modal,
   TextField,
   Select,
   MenuItem,
   IconButton,
-  Card,
-  CardContent,
-  CardActions,
   FormControl,
-  InputLabel,
-  CircularProgress,
-  Switch,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogContentText,
   DialogActions,
+  Typography,
+  Card,
+  CardMedia,
+  CardContent,
+  CardActions,
+  Divider,
+  Grid,
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import Header from "../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
-import { Edit} from "@mui/icons-material";
 import ModalDetail from "./ModalComponentDetail";
 import ModalEdit from "./ModalComponentEdit";
 import CustomTablePagination from "./TablePagination";
-
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import SearchIcon from "@mui/icons-material/Search";
@@ -40,8 +37,18 @@ import {
   fetchRescueVehicleOwners,
   getRescueVehicleOwnerId,
 } from "../../redux/rescueVehicleOwnerSlice";
-import { createAcceptRegisterVehicle, fetchVehicleWatting } from "../../redux/vehicleSlice";
+import {
+  createAcceptRegisterVehicle,
+  fetchVehicleWatting,
+} from "../../redux/vehicleSlice";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import Collapse from "@mui/material/Collapse";
+import HourglassTopIcon from "@mui/icons-material/HourglassTop";
+import TimerIcon from "@mui/icons-material/Timer";
+import "react-responsive-carousel/lib/styles/carousel.min.css"; // Import the carousel styles
+import { Carousel } from "react-responsive-carousel";
 const Vehicles = (props) => {
   const dispatch = useDispatch();
   const vehicles = useSelector((state) => state.vehicle.vehicles);
@@ -63,6 +70,14 @@ const Vehicles = (props) => {
   const [editStatus, setEditStatus] = useState({});
   const [vehicleId, setVehicleId] = useState(null);
   const [openConfirmModal, setOpenConfirmModal] = useState(false);
+  const [detailedData, setDetailedData] = useState(null);
+
+  const [collapse, setCollapse] = useState(false);
+  const [isAccepted, setIsAccepted] = useState(false);
+
+  const handleClick = () => {
+    setCollapse(!collapse);
+  };
 
   //hàm chấp nhận đaăn kí xe gọi modal
   const handleConfirm = (orderId) => {
@@ -80,7 +95,7 @@ const Vehicles = (props) => {
       console.error("Lỗi khi xử lý:", error);
     }
   };
-  //Hủy đăng kí xe 
+  //Hủy đăng kí xe
   const handleCancel = () => {
     // Đóng modal và đặt lại orderId
     setOpenConfirmModal(false);
@@ -89,26 +104,30 @@ const Vehicles = (props) => {
 
   //Reload data after accept resgistration vehicle
 
-const reloadVehicle = () => {
-  dispatch(fetchVehicleWatting())
-    .then((response) => {
-      const data = response.payload.data;
-      if (data) {
-        setFilteredVehicles(data);
-        // Đặt loading thành false sau khi tải lại dữ liệu
-        setLoading(false);
-        console.log("Services reloaded:", data);
-      }
-    })
-    .catch((error) => {
-      console.error("Lỗi khi tải lại danh sách xe cứu hộ:", error);
-    });
-};
-//Chấp nhận order 
-  const handleAcceptOrderClick = (vehicleId) => {
+  const reloadVehicle = () => {
+    dispatch(fetchVehicleWatting())
+      .then((response) => {
+        const data = response.payload.data;
+
+        if (data) {
+          setFilteredVehicles(data);
+
+          // Đặt loading thành false sau khi tải lại dữ liệu
+          setLoading(false);
+          console.log("Services reloaded:", data);
+        }
+      })
+      .catch((error) => {
+        console.error("Lỗi khi tải lại danh sách xe cứu hộ:", error);
+      });
+  };
+  //Chấp nhận order
+  const handleAcceptOrderClick = (vehicleId, accept) => {
     console.log(vehicleId);
+    setIsAccepted(accept);
+    console.log(accept);
     // Fetch the rescueVehicleOwnerId details based on the selected rescueVehicleOwnerId ID
-    dispatch(createAcceptRegisterVehicle({ id: vehicleId }))
+    dispatch(createAcceptRegisterVehicle({ id: vehicleId, accept }))
       .then(() => {
         setVehicleId(vehicleId);
         setOpenConfirmModal(false);
@@ -123,9 +142,6 @@ const reloadVehicle = () => {
         );
       });
   };
-
-
-
 
   useEffect(() => {
     if (isSuccess) {
@@ -159,8 +175,7 @@ const reloadVehicle = () => {
     } else {
       // Lọc sản phẩm dựa trên giá trị trạng thái
       const filteredrescueVehicleOwners = vehicles.filter(
-        (rescueVehicleOwner) =>
-          rescueVehicleOwner.type === selectedStatusOption
+        (rescueVehicleOwner) => rescueVehicleOwner.type === selectedStatusOption
       );
       setFilteredVehicles(filteredrescueVehicleOwners);
     }
@@ -190,10 +205,8 @@ const reloadVehicle = () => {
               .includes(searchText.toLowerCase());
           const filterMatch =
             filterOption === "type" ||
-            (filterOption === "Crane" &&
-              rescueVehicleOwner.type === "Crane") ||
-            (filterOption === "Towing" &&
-              rescueVehicleOwner.type === "Towing");
+            (filterOption === "Crane" && rescueVehicleOwner.type === "Crane") ||
+            (filterOption === "Towing" && rescueVehicleOwner.type === "Towing");
           return nameMatch && filterMatch;
         })
       : [];
@@ -215,7 +228,7 @@ const reloadVehicle = () => {
         if (data) {
           setData(data);
           setFilteredVehicles(data);
-
+          setDetailedData(data);
           setLoading(false); // Đặt trạng thái loading thành false sau khi xử lý dữ liệu
         }
       })
@@ -239,10 +252,6 @@ const reloadVehicle = () => {
       });
   };
 
-  const handleBookDetailClick = (book) => {
-    setSelectedBook(book);
-    setOpenModal(true);
-  };
   const reloadRescueVehicleOwners = () => {
     dispatch(fetchRescueVehicleOwners())
       .then((response) => {
@@ -258,7 +267,6 @@ const reloadVehicle = () => {
       });
   };
 
-
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -273,14 +281,6 @@ const reloadVehicle = () => {
     page * rowsPerPage + rowsPerPage
   );
 
-  function isAllCharactersSame(value) {
-    if (!value) {
-      return false;
-    }
-
-    const firstChar = value[0];
-    return value.split("").every((char) => char === firstChar);
-  }
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   // eslint-disable-next-line no-sparse-arrays
@@ -315,15 +315,9 @@ const reloadVehicle = () => {
       headerName: "Hình ảnh",
       width: 120,
       renderCell: (params) => {
-        const containsSpecialChars =
-          /[áàảãạâấầẩẫậăắằẳẵặéèẻẽẹêếềểễệíìỉĩịóòỏõọôốồổỗộơớờởỡợúùủũụưứừửữựýỳỷỹỵÁÀẢÃẠÂẤẦẨẪẬĂẮẰẲẴẶÉÈẺẼẸÊẾỀỂỄỆÍÌỈĨỊÓÒỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢÚÙỦŨỤƯỨỪỬỮỰÝỲỶỸỴ]/.test(
-            params.value
-          );
-        const isRandomChars = isAllCharactersSame(params.value);
         const avatarSrc =
-          params.value && !containsSpecialChars && !isRandomChars
-            ? params.value
-            : "https://cdn-icons-png.flaticon.com/512/6596/6596121.png"; // Đặt URL của hình mặc định ở đây
+          params.value ||
+          "https://cdn-icons-png.flaticon.com/512/6596/6596121.png"; // Đặt URL của hình mặc định ở đây
         return (
           <img
             src={avatarSrc}
@@ -337,7 +331,7 @@ const reloadVehicle = () => {
         );
       },
     },
-   
+
     {
       field: "acceptOrder",
       headerName: "Trạng Thái Đơn",
@@ -350,13 +344,15 @@ const reloadVehicle = () => {
         />
       ),
       key: "acceptOrder",
-    }
-    
+    },
   ];
 
   return (
     <Box m="5px">
-      <Header title="Danh Sách Xe Cứu Hộ" subtitle="Danh sách xe cứu hộ chờ duyệt" />
+      <Header
+        title="Danh Sách Xe Cứu Hộ"
+        subtitle="Danh sách xe cứu hộ chờ duyệt"
+      />
       <Box display="flex" className="box" left={0}>
         <Box
           display="flex"
@@ -391,12 +387,11 @@ const reloadVehicle = () => {
                 Loại Xe
               </MenuItem>
               <MenuItem key="type-crane" value="Crane">
-              Xe Cẩu
+                Xe Cẩu
               </MenuItem>
               <MenuItem key="type-towing" value="Towing">
-               Xe Kéo
+                Xe Kéo
               </MenuItem>
-              
             </Select>
           </FormControl>
         </Box>
@@ -504,23 +499,147 @@ const reloadVehicle = () => {
         onClose={handleCancel}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
+        PaperProps={{
+          style: {
+            width: "500px", // Set your desired maximum width
+            height: "500px", // Set your desired maximum height
+          },
+        }}
       >
         <DialogTitle id="alert-dialog-title">Xác nhận</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            Bạn có chắc chắn muốn chấp nhận xe cứu hộ vào hệ thống?
+            {detailedData !== null ? (
+              <div>
+                <Card>
+                  <CardMedia
+                    sx={{
+                      height: "20.5625rem", // Set the desired height for the CardMedia
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Carousel showArrows={true}>
+                      <div>
+                        <img
+                          src={detailedData[0].carRegistrationBack}
+                          alt="Car Back"
+                          style={{
+                            maxWidth: "100%",
+                            maxHeight: "100%",
+                            objectFit: "contain",
+                          }}
+                        />
+                      </div>
+                      <div>
+                        <img
+                          src={detailedData[0].carRegistrationFont}
+                          alt="Car Front"
+                          style={{
+                            maxWidth: "100%",
+                            maxHeight: "100%",
+                            objectFit: "contain",
+                          }}
+                        />
+                      </div>
+                      <div>
+                        <img
+                          src={detailedData[0].image}
+                          alt="Car Front"
+                          style={{
+                            maxWidth: "100%",
+                            maxHeight: "100%",
+                            objectFit: "contain",
+                          }}
+                        />
+                      </div>
+                    </Carousel>
+                  </CardMedia>
+                  <Grid container spacing={2}>
+                    <Grid item xs={6}>
+                      <CardContent>
+                        <Typography variant="h6" sx={{ marginBottom: 2 }}>
+                          Chủ Xe: {detailedData[0].rvoid}
+                        </Typography>
+                      </CardContent>
+                    </Grid>
+                    <Grid item xs={6}>
+                      <CardContent>
+                        <Typography variant="h6" sx={{ marginBottom: 2 }}>
+                          Chủ Xe: {detailedData[0].image}
+                        </Typography>
+                        <Typography variant="body2">
+                          <Box
+                            style={{
+                              display: "flex",
+                              alignItems: "center", // Center vertically
+                              background: "yellow",
+                              color: "black",
+                              width: "150px",
+                              borderRadius: "5px",
+                            }}
+                          >
+                            <TimerIcon />
+                            <span>{detailedData[0].status}</span>
+                          </Box>
+                        </Typography>
+                      </CardContent>
+                    </Grid>
+                  </Grid>
+                  <CardActions className="card-action-dense">
+                    <Box
+                      sx={{
+                        width: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <Button onClick={handleClick}>Thông Tin Chủ Xe</Button>
+                      <IconButton size="small" onClick={handleClick}>
+                        {collapse ? (
+                          <ArrowDropDownIcon sx={{ fontSize: "1.875rem" }} />
+                        ) : (
+                          <ArrowDropUpIcon sx={{ fontSize: "1.875rem" }} />
+                        )}
+                      </IconButton>
+                    </Box>
+                  </CardActions>
+                  <Collapse in={collapse}>
+                    <Divider sx={{ margin: 0 }} />
+                    <CardContent>
+                      <Typography variant="h6" sx={{ marginBottom: 2 }}>
+                        Chủ Xe: {detailedData[0].rvoid}
+                      </Typography>
+                      <Typography variant="body2">
+                        Status: {detailedData[0].status}
+                      </Typography>
+                    </CardContent>
+                  </Collapse>
+                </Card>
+              </div>
+            ) : (
+              "Loading..."
+            )}
           </DialogContentText>
         </DialogContent>
+
         <DialogActions>
           <Button onClick={handleCancel} color="primary">
             Hủy
           </Button>
           <Button
-            onClick={() => handleAcceptOrderClick(vehicleId)}
+            onClick={() => handleAcceptOrderClick(vehicleId, true)} // Pass true for "Đồng Ý"
             color="primary"
-            autoFocus
           >
             Đồng Ý
+          </Button>
+          <Button
+            onClick={() => handleAcceptOrderClick(vehicleId, false)} // Pass false for "Không Đồng Ý"
+            color="secondary"
+          >
+            Không Đồng Ý
           </Button>
         </DialogActions>
       </Dialog>

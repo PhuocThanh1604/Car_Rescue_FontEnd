@@ -1,97 +1,84 @@
-import React, { useState } from 'react';
-import Chart from 'react-apexcharts';
+import { useTheme } from "@mui/material";
+import { ResponsiveChoropleth } from "@nivo/geo";
+import { geoFeatures } from "../data/mockGeoFeatures";
+import { tokens } from "../theme";
+import { mockBarData as data } from "../../src/data/mockData";
 
-const GeographyChart = () => {
-  const [chartData, setChartData] = useState({
-    options: {
-      chart: {
-        type: 'bar',
-      },
-      xaxis: {
-        categories: ['Asia', 'Europe', 'North America', 'South America', 'Africa', 'Australia/Oceania'],
-        labels: {
-          style: {
-            colors: ['#f00', '#0f0', '#00f', '#f0f', '#ff0', '#0ff'], // Set category colors here
+const GeographyChart = ({ isDashboard = false }) => {
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
+  return (
+    <ResponsiveChoropleth
+      data={data}
+      theme={{
+        axis: {
+          domain: {
+            line: {
+              stroke: colors.grey[100],
+            },
           },
-        },
-      },
-      yaxis: {
-        labels: {
-          style: {
-            colors: ['#7FFFD4'], // Set y-axis label color here
+          legend: {
+            text: {
+              fill: colors.grey[100],
+            },
           },
-        },
-      },
-      plotOptions: {
-        bar: {
-          horizontal: false,
-          dataLabels: {
-            position: 'center',
-            style: {
-              colors: ['#333'], // Set data label color here
+          ticks: {
+            line: {
+              stroke: colors.grey[100],
+              strokeWidth: 1,
+            },
+            text: {
+              fill: colors.grey[100],
             },
           },
         },
-      },
-      colors: ['#7FFFD4'], // Set chart bar color here
-    },
-    series: [
-      {
-        name: 'Population (millions)',
-        data: [
-          Math.floor(Math.random() * 1000),
-          Math.floor(Math.random() * 1000),
-          Math.floor(Math.random() * 1000),
-          Math.floor(Math.random() * 1000),
-          Math.floor(Math.random() * 1000),
-          Math.floor(Math.random() * 1000),
-        ],
-      },
-    ],
-  });
-
-  const generateData = () => {
-    setChartData((prevState) => ({
-      options: {
-        ...prevState.options,
-      },
-      series: [
-        {
-          name: 'Population (millions)',
-          data: [
-            Math.floor(Math.random() * 1000),
-            Math.floor(Math.random() * 1000),
-            Math.floor(Math.random() * 1000),
-            Math.floor(Math.random() * 1000),
-            Math.floor(Math.random() * 1000),
-            Math.floor(Math.random() * 1000),
-          ],
+        legends: {
+          text: {
+            fill: colors.grey[100],
+          },
         },
-      ],
-    }));
-  };
-
-  return (
-    <div>
-      <h2>Random Geography Chart</h2>
-      <Chart options={chartData.options} series={chartData.series} type="bar" height={400} />
-      <button
-        onClick={generateData}
-        style={{
-          backgroundColor: '#7FFFD4',
-          color: '#000',
-          borderRadius: '8px',
-          padding: '12px 24px',
-          border: 'none',
-          cursor: 'pointer',
-          display: 'block',
-          margin: 'auto',
-          marginTop: '20px',
-        }}
-      >
-        Generate New Data
-      </button>
-    </div>
+      }}
+      features={geoFeatures.features}
+      margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
+      domain={[0, 1000000]}
+      unknownColor="#666666"
+      label="properties.name"
+      valueFormat=".2s"
+      projectionScale={isDashboard ? 40 : 150}
+      projectionTranslation={isDashboard ? [0.49, 0.6] : [0.5, 0.5]}
+      projectionRotation={[0, 0, 0]}
+      borderWidth={1.5}
+      borderColor="#ffffff"
+      legends={
+        !isDashboard
+          ? [
+              {
+                anchor: "bottom-left",
+                direction: "column",
+                justify: true,
+                translateX: 20,
+                translateY: -100,
+                itemsSpacing: 0,
+                itemWidth: 94,
+                itemHeight: 18,
+                itemDirection: "left-to-right",
+                itemTextColor: colors.grey[100],
+                itemOpacity: 0.85,
+                symbolSize: 18,
+                effects: [
+                  {
+                    on: "hover",
+                    style: {
+                      itemTextColor: "#ffffff",
+                      itemOpacity: 1,
+                    },
+                  },
+                ],
+              },
+            ]
+          : undefined
+      }
+    />
   );
 };
 

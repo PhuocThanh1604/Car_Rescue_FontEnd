@@ -11,7 +11,7 @@ import SignInSide from './features/auth/Singin';
 ReactDOM.render(
   <React.StrictMode>
     <Provider store={store}>
-      <Router> {/* Use Router instead of BrowserRouter */}
+      <Router> 
         <Routes>
           <Route path="/" element={<Navigate to="/singin" />} />
           <Route path="/singin" element={<SignInSide />} />

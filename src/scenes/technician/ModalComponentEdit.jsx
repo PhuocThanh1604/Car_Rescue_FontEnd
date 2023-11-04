@@ -322,7 +322,7 @@ const ModalEdit = ({
                       <MenuItem key="status-active" value="ACTIVE">
                         Hoạt Động
                       </MenuItem>
-                      <MenuItem key="status-unactive" value="Unactive">
+                      <MenuItem key="status-INACTIVE" value="INACTIVE">
                         Không Hoạt Động
                       </MenuItem>
                      

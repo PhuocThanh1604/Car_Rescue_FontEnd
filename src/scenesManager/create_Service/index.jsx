@@ -48,7 +48,7 @@ const AddService = () => {
     type: yup.string().required("Required"),
     createdBy: yup.string().required("Required"),
   });
-  const statusOptions = ["ACTIVE", "Unactive"];
+  const statusOptions = ["ACTIVE", "INACTIVE"];
   const initialValues = {
     name: "",
     price: 0,

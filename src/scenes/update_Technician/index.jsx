@@ -38,7 +38,7 @@ const UpdateTechnician = () => {
     accountId: yup.string().required("Required"),
     id: yup.string().required("Required"),
   });
-  const statusOptions = ["Active", "unactive"];
+  const statusOptions = ["Active", "INACTIVE"];
   const initialValues = {
     fullname: "",
     sex: "",

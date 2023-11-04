@@ -49,7 +49,7 @@ const AddRescueVehicleOwner = () => {
     birthdate: yup.date().required("Required"), // Date validation
     accountId: yup.string().required("Required"),
   });
-  const statusOptions = ["ACTIVE", "Unactive"];
+  const statusOptions = ["ACTIVE", "INACTIVE"];
   const initialValues = {
     fullname: "",
     sex: "",
