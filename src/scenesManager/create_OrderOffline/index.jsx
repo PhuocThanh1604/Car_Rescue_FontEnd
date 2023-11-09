@@ -1,11 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
   Autocomplete,
-  Avatar,
   Box,
   Button,
   FormControl,
-  Grid,
+  IconButton,
   InputLabel,
   MenuItem,
   Modal,
@@ -23,6 +22,13 @@ import "react-toastify/dist/ReactToastify.css";
 import { createOrderOffline } from "../../redux/orderSlice";
 import { fetchServices } from "../../redux/serviceSlice";
 import { fetchCustomers } from "../../redux/customerSlice";
+import EditLocationAltIcon from "@mui/icons-material/EditLocationAlt";
+import GoogleMapReact from "google-map-react";
+import PlacesAutocomplete, {
+  geocodeByAddress,
+  getLatLng,
+  geocodeByPlaceId,
+} from "react-places-autocomplete";
 import Map from "./google";
 const CreateOrderOffline = () => {
   const dispatch = useDispatch();
@@ -36,30 +42,145 @@ const CreateOrderOffline = () => {
   const [customersData, setCustomersData] = useState([]);
   const [showMapModal, setShowMapModal] = useState(false);
   const [address, setAddress] = useState(""); // Thêm trường address
+  const [addressDestination, setAddressDestination] = useState("");
   const [departure, setDeparture] = useState("");
+  const [destination, setDestination] = useState("");
   const [lat, setLat] = useState(null);
   const [lng, setLng] = useState(null);
   const [selectedMapAddress, setSelectedMapAddress] = useState("");
-  const [isMapModalOpen, setIsMapModalOpen] = useState(false);
-
   // Hàm xử lý khi bấm vào TextField "departure" để hiển thị modal
   const handleOpenMapModal = () => {
     setShowMapModal(true);
   };
 
-  // Hàm xử lý khi địa chỉ được xác nhận và tọa độ lat và lng được chọn
-  const handleMapLocationSelected = (selectedLocation) => {
-    const { lat, lng, address } = selectedLocation;
-    const latLngString = `lat:${lat},lng:${lng}`; // Combine lat and lng values as a string
-    setLat(lat);
-    setLng(lng);
-    setSelectedMapAddress(address);
-    setIsMapModalOpen(false);
-    setDeparture(latLngString); // Set the formatted value as the 'departure' field
-    formikRef.current.setFieldValue('departure', latLngString);
+  const handleMapLocationSelected = async (selectedAddress) => {
+    try {
+      const results = await geocodeByAddress(selectedAddress);
+      if (results && results.length > 0) {
+        const firstResult = results[0];
+        const latLng = await getLatLng(firstResult);
+        const selectedLocation = {
+          lat: latLng.lat,
+          lng: latLng.lng,
+          address: firstResult.formatted_address,
+        };
+        const latLngDeparture = `lat:${selectedLocation.lat},long:${selectedLocation.lng}`;
+        console.log(latLngDeparture);
+        setLat(selectedLocation.lat);
+        setLng(selectedLocation.lng);
+        setAddress(selectedLocation.address);
+        setSelectedMapAddress(selectedLocation.address);
+
+        formikRef.current.setFieldValue("departure", latLngDeparture);
+      } else {
+        console.error("No results found for this address.");
+      }
+    } catch (error) {
+      console.error(
+        "An error occurred while searching for the location.",
+        error
+      );
+    }
   };
-  
-  
+
+  // const handleMapLocationSelectedDestination = async (selectedAddress) => {
+  //   try {
+  //     const results = await geocodeByAddress(selectedAddress);
+  //     if (results && results.length > 0) {
+  //       const firstResult = results[0];
+  //       const latLng = await getLatLng(firstResult);
+  //       const selectedLocation = {
+  //         lat: latLng.lat,
+  //         lng: latLng.lng,
+  //         address: firstResult.formatted_address,
+  //       };
+  //       const latLngDestination = `lat:${selectedLocation.lat},long:${selectedLocation.lng}`;
+  //       console.log(latLngDestination);
+  //       setLat(selectedLocation.lat);
+  //       setLng(selectedLocation.lng);
+  //       setAddressDestination(selectedLocation.address);
+  //       setSelectedMapAddress(selectedLocation.address);
+
+  //       // Cập nhật trường "destination"
+  //       formikRef.current.setFieldValue("destination", latLngDestination);
+  //     } else {
+  //       console.error("No results found for this address.");
+  //     }
+  //   } catch (error) {
+  //     console.error(
+  //       "An error occurred while searching for the location.",
+  //       error
+  //     );
+  //   }
+  // };
+
+  const handleMapLocationSelectedDestination = async (selectedAddress) => {
+    try {
+      const results = await geocodeByAddress(selectedAddress);
+      if (results && results.length > 0) {
+        const firstResult = results[0];
+        const latLng = await getLatLng(firstResult);
+        const selectedLocation = {
+          lat: latLng.lat,
+          lng: latLng.lng,
+          address: firstResult.formatted_address,
+        };
+        const latLngDestination = `lat:${selectedLocation.lat},long:${selectedLocation.lng}`;
+        console.log(latLngDestination);
+
+        // Tính khoảng cách giữa departure và destination
+        if (
+          !isNaN(departure.lat) &&
+          !isNaN(departure.lng) &&
+          !isNaN(selectedLocation.lat) &&
+          !isNaN(selectedLocation.lng)
+        ) {
+          // Tính khoảng cách giữa departure và destination
+          const distance = calculateDistance(
+            departure.lat,
+            departure.lng,
+            selectedLocation.lat,
+            selectedLocation.lng
+          );
+          console.log(`Khoảng cách: ${distance} km`);
+
+          setLat(selectedLocation.lat);
+          setLng(selectedLocation.lng);
+          setAddressDestination(selectedLocation.address);
+          setSelectedMapAddress(selectedLocation.address);
+
+          // Cập nhật trường "destination"
+          formikRef.current.setFieldValue("destination", latLngDestination);
+          formikRef.current.setFieldValue("distance", `${distance} km`);
+        } else {
+          console.error("Invalid coordinates for departure or destination.");
+        }
+      } else {
+        console.error("No results found for this address.");
+      }
+    } catch (error) {
+      console.error(
+        "An error occurred while searching for the location.",
+        error
+      );
+    }
+  };
+
+  function calculateDistance(lat1, lon1, lat2, lon2) {
+    const radlat1 = (Math.PI * lat1) / 180;
+    const radlat2 = (Math.PI * lat2) / 180;
+    const theta = lon1 - lon2;
+    const radtheta = (Math.PI * theta) / 180;
+    let dist =
+      Math.sin(radlat1) * Math.sin(radlat2) +
+      Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
+    dist = Math.acos(dist);
+    dist = (dist * 180) / Math.PI;
+    dist = dist * 60 * 1.1515; // Khoảng cách đơn vị dưới dạng dặm (miles)
+    // Chuyển đổi sang kilômét
+    dist = dist * 1.609344;
+    return dist;
+  }
 
   const checkoutSchema = yup.object().shape({
     customerNote: yup.string().required("Required"),
@@ -69,7 +190,6 @@ const CreateOrderOffline = () => {
     paymentMethod: yup.string().required("Required"),
     area: yup.string().required("Required"),
     customerId: yup.string().required("Required"),
-    url: yup.string().required("Required"),
     service: yup.string().required("Required"),
   });
   const initialValues = {
@@ -80,7 +200,6 @@ const CreateOrderOffline = () => {
     paymentMethod: "",
     area: "",
     customerId: "",
-    url: [], // Wrap the string in an array
     service: [],
   };
 
@@ -88,10 +207,10 @@ const CreateOrderOffline = () => {
   const formikRef = useRef(null);
 
   const handleFormSubmit = (values, { resetForm }) => {
-    const selectedUrls = values.url.split(","); // Split URLs by comma or any other delimiter
+    // const selectedUrls = values.url.split(","); // Split URLs by comma or any other delimiter
 
     // Update the "url" field in the form values with the array
-    values.url = selectedUrls;
+    // values.url = selectedUrls;
 
     // Create a new array with the selected service names
     const selectedServices = selectedService ? [selectedService.name] : [];
@@ -102,6 +221,7 @@ const CreateOrderOffline = () => {
     resetForm({ values: initialValues });
     setSelectedService(null);
     setSelectedCustomer(null);
+    setAddress(null);
     // In ra tất cả dữ liệu đã nhập
     console.log("Dữ liệu đã nhập:", orders);
     dispatch(createOrderOffline(values))
@@ -132,7 +252,11 @@ const CreateOrderOffline = () => {
         const customers = customersResponse.payload.data;
 
         if (services) {
-          setServicesData(services);
+          //lọc dv status "ACTIVE"
+          const activeService = services.filter(
+            (service) => service.status === "ACTIVE"
+          );
+          setServicesData(activeService);
         }
 
         if (customers) {
@@ -250,65 +374,6 @@ const CreateOrderOffline = () => {
                 )}
               />
 
-              <TextField
-                fullWidth
-                variant="filled"
-                type="text"
-                label="Hình Ảnh"
-                onBlur={handleBlur}
-                onChange={handleChange}
-                value={values.url} // Join the array into a comma-separated string
-                name="url"
-                error={touched.url && errors.url ? true : false}
-                helperText={touched.url && errors.url}
-                sx={{ gridColumn: "span 2" }}
-              />
-
-              <TextField
-                fullWidth
-                variant="filled"
-                type="text"
-                label="Địa Chỉ Xe Hư"
-                onBlur={handleBlur}
-                onChange={(e) => {
-                  if (!showMapModal) {
-                    setAddress(e.target.value);
-                  }
-                }}
-                value={departure} 
-                name="departure"
-                error={touched.departure && errors.departure ? true : false}
-                helperText={touched.departure && errors.departure}
-                sx={{ gridColumn: "span 2" }}
-                onClick={handleOpenMapModal}
-              />
-
-              <Modal
-                style={{
-                  marginLeft: "200px",
-                  marginTop: "60px",
-                  width: "1200px",
-                  height: "600px",
-                }}
-                open={showMapModal}
-                onClose={() => setShowMapModal(false)}
-              >
-                <Map onLocationSelected={handleMapLocationSelected} />
-              </Modal>
-
-              <TextField
-                fullWidth
-                variant="filled"
-                type="text"
-                label="Địa Chỉ Kéo Đến"
-                onBlur={handleBlur}
-                onChange={handleChange}
-                value={values.destination}
-                name="destination"
-                error={touched.destination && errors.destination ? true : false}
-                helperText={touched.destination && errors.destination}
-                sx={{ gridColumn: "span 2" }}
-              />
               <FormControl fullWidth variant="filled">
                 <InputLabel id="rescueType-label">
                   Loại Hình Thức Cứu Hộ
@@ -326,6 +391,158 @@ const CreateOrderOffline = () => {
                   <MenuItem value="Fixing">Sửa Tại Chỗ Cơ Bản</MenuItem>
                 </Select>
               </FormControl>
+
+              <Modal
+                style={{
+                  marginLeft: "200px",
+                  marginTop: "60px",
+                  width: "1200px",
+                  height: "600px",
+                }}
+                open={showMapModal}
+                onClose={() => setShowMapModal(false)}
+              >
+                <Map onLocationSelected={handleMapLocationSelected} />
+              </Modal>
+
+              {/* <TextField
+                fullWidth
+                variant="filled"
+                type="text"
+                label="Địa Chỉ Kéo Đến"
+                onBlur={handleBlur}
+                onChange={handleChange}
+                value={values.destination}
+                name="destination"
+                error={touched.destination && errors.destination ? true : false}
+                helperText={touched.destination && errors.destination}
+                sx={{ gridColumn: "span 2" }}
+              /> */}
+              <div>
+                <PlacesAutocomplete
+                  value={address}
+                  onChange={setAddress}
+                  onSelect={handleMapLocationSelected}
+                >
+                  {({ getInputProps, suggestions, getSuggestionItemProps }) => (
+                    <div style={{ position: "relative" }}>
+                      <TextField
+                        {...getInputProps({
+                          placeholder: "Nhập địa chỉ xe hư",
+                          variant: "filled",
+                          fullWidth: true,
+                          InputProps: {
+                            endAdornment: (
+                              <IconButton onClick={handleOpenMapModal}>
+                                <EditLocationAltIcon />
+                              </IconButton>
+                            ),
+                          },
+                        })}
+                      />
+                      <div
+                        style={{
+                          position: "absolute",
+                          top: "100%",
+                          left: 0,
+                          right: 0,
+                          zIndex: 1,
+                          maxHeight: "200px",
+                          overflowY: "auto",
+                          backgroundColor: "white",
+                          border: "1px solid #ccc",
+                        }}
+                      >
+                        {suggestions.map((suggestion, index) => {
+                          const style = {
+                            backgroundColor: suggestion.active
+                              ? "#fafafa"
+                              : "#fff",
+                          };
+                          return (
+                            <div
+                              key={index}
+                              {...getSuggestionItemProps(suggestion, { style })}
+                            >
+                              {suggestion.description}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </PlacesAutocomplete>
+              </div>
+
+              <div>
+                <PlacesAutocomplete
+                  value={addressDestination}
+                  onChange={setAddressDestination}
+                  onSelect={handleMapLocationSelectedDestination}
+                >
+                  {({ getInputProps, suggestions, getSuggestionItemProps }) => (
+                    <div style={{ position: "relative" }}>
+                      <TextField
+                        {...getInputProps({
+                          placeholder: "Nhập địa chỉ kéo đến",
+                          variant: "filled",
+                          fullWidth: true,
+                          InputProps: {
+                            endAdornment: (
+                              <IconButton onClick={handleOpenMapModal}>
+                                <EditLocationAltIcon />
+                              </IconButton>
+                            ),
+                          },
+                        })}
+                      />
+                      <div
+                        style={{
+                          position: "absolute",
+                          top: "100%",
+                          left: 0,
+                          right: 0,
+                          zIndex: 1,
+                          maxHeight: "200px",
+                          overflowY: "auto",
+                          backgroundColor: "white",
+                          border: "1px solid #ccc",
+                        }}
+                      >
+                        {suggestions.map((suggestion, index) => {
+                          const style = {
+                            backgroundColor: suggestion.active
+                              ? "#fafafa"
+                              : "#fff",
+                          };
+                          return (
+                            <div
+                              key={index}
+                              {...getSuggestionItemProps(suggestion, { style })}
+                            >
+                              {suggestion.description}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </PlacesAutocomplete>
+              </div>
+              <TextField
+                fullWidth
+                variant="filled"
+                type="text"
+                label="Khoảng cách "
+                onBlur={handleBlur}
+                onChange={handleChange}
+                value={values.distance}
+                name="distance"
+                error={touched.distance && errors.distance ? true : false}
+                helperText={touched.distance && errors.distance}
+                sx={{ gridColumn: "span 2" }}
+              />
+
               <FormControl fullWidth variant="filled">
                 <InputLabel id="paymentMethod-label">
                   Phương Thức Thanh Toán

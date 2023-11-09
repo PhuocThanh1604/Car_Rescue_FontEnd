@@ -63,7 +63,6 @@ const OrdersAssigned = (props) => {
       const filterMatch =
         filterOption === "rescueType" ||
         (filterOption === "Fixing" && order.rescueType === "Fixing") ||
-        (filterOption === "repair" && order.rescueType === "repair") ||
         (filterOption === "Towing" && order.rescueType === "Towing");
       return nameMatch && filterMatch;
     });
@@ -257,7 +256,6 @@ const OrdersAssigned = (props) => {
                 : rescueType === "Towing"
             }
           >
-            {rescueType === "repair" && <BuildIcon />}
             {rescueType === "Towing" && <SupportIcon />}
             {rescueType === "Fixing" && <HandymanIcon />}
             <Typography color={colors.grey[100]} sx={{ ml: "8px" }}>
@@ -349,32 +347,27 @@ const OrdersAssigned = (props) => {
         </Box>
 
         <ToastContainer />  
-        <Box display="flex" alignItems="center" className="filter-box">
-          <FormControl >
-            <Select
-              labelId="demo-simple-select-label"
-              id="demo-simple-select"
-              value={filterOption}
-              onChange={handleFilterChange} // Use a different handler for this action
-              variant="outlined"
-              className="filter-select"
-              style={{ width: '150px' }}
-            >
-              <MenuItem key="rescueType-all" value="rescueType">
-                Hình Thức
-              </MenuItem>
-              <MenuItem key="rescueType-repair" value="repair">
-                Sửa Chữa Tại Chỗ
-              </MenuItem>
-              <MenuItem key="rescueType-towing" value="Towing">
-                Kéo Xe
-              </MenuItem>
-              <MenuItem key="rescueType-fixing" value="Fixing">
-                Sữa Chữa
-              </MenuItem>
-            </Select>
-          </FormControl>
-        </Box>
+        <FormControl>
+          <Select
+            labelId="demo-simple-select-label"
+            id="demo-simple-select"
+            value={filterOption}
+            onChange={handleFilterChange}
+            variant="outlined"
+            className="filter-select"
+            style={{ width: "150px" }}
+          >
+            <MenuItem key="rescueType-all" value="rescueType">
+              Hình Thức
+            </MenuItem>
+            <MenuItem key="rescueType-towing" value="Towing">
+              Kéo Xe
+            </MenuItem>
+            <MenuItem key="rescueType-fixing" value="Fixing">
+              Sửa Chữa Tại Chỗ
+            </MenuItem>
+          </Select>
+        </FormControl>
 
         <Box display="flex" alignItems="center" className="startDate-box">
           <TextField

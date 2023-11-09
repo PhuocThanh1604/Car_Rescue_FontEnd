@@ -323,13 +323,13 @@ const Sidebar = () => {
               selected={selected}
               setSelected={setSelected}
             />{" "}
-              <Item
+              {/* <Item
               title="FeedBack"
               to="manager/service"
               icon={<ListIcon />}
               selected={selected}
               setSelected={setSelected}
-            />{" "}
+            />{" "} */}
             <Item
               title="Contacts Info"
               to="manager/contacts"

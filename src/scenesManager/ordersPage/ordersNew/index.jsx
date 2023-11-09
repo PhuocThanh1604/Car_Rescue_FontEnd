@@ -8,13 +8,11 @@ import {
   MenuItem,
   IconButton,
   FormControl,
-
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { tokens } from "../../../theme";
 import Header from "../../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
-import { Edit } from "@mui/icons-material";
 import ModalDetail from "./ModalComponentDetail";
 import ModalEdit from "./ModalComponentEdit";
 import CustomTablePagination from "./TablePagination";
@@ -23,9 +21,8 @@ import InputBase from "@mui/material/InputBase";
 import moment from "moment";
 
 import {
-  createAcceptOrder,
   fetchOrdersNew,
-  getFormattedAddress,
+  getFormattedAddressGG,
   getOrderId,
 } from "../../../redux/orderSlice";
 import { ToastContainer, toast } from "react-toastify";
@@ -37,8 +34,8 @@ import RepeatOnIcon from "@mui/icons-material/RepeatOn";
 import BuildIcon from "@mui/icons-material/Build";
 import SupportIcon from "@mui/icons-material/Support";
 import HandymanIcon from "@mui/icons-material/Handyman";
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import AssignmentLateIcon from "@mui/icons-material/AssignmentLate";
+const apiKeyGG = 'YOUR_GOOGLE_MAPS_API_KEY';
 const Orders = (props) => {
   const dispatch = useDispatch();
   const orders = useSelector((state) => state.order.orders);
@@ -61,7 +58,8 @@ const Orders = (props) => {
   const [orderId, setOrderId] = useState(null);
   const [openConfirmModal, setOpenConfirmModal] = useState(false);
   const [rescueVehicles, setRescueVehicles] = useState([]); // Tạo một state mới cho danh sách xe cứu hộ
-
+  const [selectedOrderFormattedAddress, setSelectedOrderFormattedAddress] =
+    useState("");
   const handleSearchChange = (event) => {
     const value = event.target.value.toLowerCase();
     setSearchText(value);
@@ -74,14 +72,12 @@ const Orders = (props) => {
       const filterMatch =
         filterOption === "rescueType" ||
         (filterOption === "Fixing" && order.rescueType === "Fixing") ||
-        (filterOption === "repair" && order.rescueType === "repair") ||
         (filterOption === "Towing" && order.rescueType === "Towing");
       return nameMatch && filterMatch;
     });
 
     setFilteredOrders(filteredOrders);
   };
-
   const handleFilterChange = (event) => {
     const selectedStatusOption = event.target.value;
     setFilterOption(selectedStatusOption);
@@ -99,13 +95,13 @@ const Orders = (props) => {
   };
   const handleDateFilterChange = () => {
     if (startDate && endDate) {
-      const filteredrescueVehicleOwners = orders.filter((user) => {
+      const filteredOrders = orders.filter((user) => {
         const orderDate = moment(user.createAt).format("YYYY-MM-DD");
         const isAfterStartDate = moment(orderDate).isSameOrAfter(startDate);
         const isBeforeEndDate = moment(orderDate).isSameOrBefore(endDate);
         return isAfterStartDate && isBeforeEndDate;
       });
-      setFilteredOrders(filteredrescueVehicleOwners);
+      setFilteredOrders(filteredOrders);
       setFilterOption("Date");
     } else {
       setFilteredOrders(orders);
@@ -113,7 +109,7 @@ const Orders = (props) => {
   };
 
   if (orders) {
-    orders.forEach((rescueVehicleOwner) => {
+    orders.forEach((order) => {
       // Đây bạn có thể truy cập và xử lý dữ liệu từng đối tượng khách hàng ở đây
     });
   }
@@ -129,84 +125,47 @@ const Orders = (props) => {
           setFilteredOrders(data);
           setLoading(false); // Đặt trạng thái loading thành false sau khi xử lý dữ liệu
         }
-       
-    
-      
       })
       .finally(() => {
         setLoading(false);
       });
   }, [dispatch]);
 
-  useEffect(() => {
-    // Assuming you have an array of data, iterate through it and fetch addresses
-    data.forEach((row) => {
-      const departure = row.departure;
-      // Check if you have already fetched the address to avoid duplicate requests
-      if (!formattedAddresses[departure]) {
-        fetchAddress(departure);
-      }
-    }, [data, formattedAddresses]);
-  }, []);
-  const fetchAddress =(departure) => {
-    // You can use your existing code to fetch the fullname
-    data.forEach((order) => {
-      if (order && order.departure) {
-        // Extract just the latitude and longitude values from 'departure'
-        const matches = /lat:\s*([^,]+),\s*long:\s*([^,]+)/.exec(order.departure);
-
-        if (matches) {
-          const [, lat, lng] = matches;
-          if (lat && lng) {
-            // Dispatch 'getFormattedAddress' with the extracted lat and lng values
-            dispatch(getFormattedAddress({ lat, lng }))
-              .then((response) => {
-                const formattedAddress = response.payload.results[0].formatted_address;
-                console.log("formattedAddress:"+formattedAddress)
-                setFormattedAddresses((prevAddresses) => ({
-                  ...prevAddresses,
-                  [departure]: formattedAddress,
-                }));
-              })
-              .catch((error) => {
-                console.log("Response from API:", error.response);
-
-              });
-          }
-        }
-      }
-    });
-  };
-
-  const handleUpdateClick = (orderId) => {
+  const handleAssignClick = (orderId) => {
     console.log(orderId);
-
     // Đặt trạng thái của danh sách xe cứu hộ về một mảng trống
     setRescueVehicles(null);
-
-    // Fetch the rescueVehicleOwnerId details based on the selected rescueVehicleOwnerId ID
-    dispatch(getOrderId({ id: orderId }))
-      .then((response) => {
-        const orderDetails = response.payload.data;
-        setSelectedEditOrder(orderDetails);
-        setOpenEditModal(true);
-        setIsSuccess(true);
-      })
-      .catch((error) => {
-        console.error("Lỗi khi lấy thông tin đơn hàng mới:", error);
-      });
+  
+    // Lấy địa chỉ đã được định dạng từ state 'formattedAddresses' dựa trên 'departure'
+    const orderWithDeparture = data.find((order) => order.id === orderId);
+    if (orderWithDeparture) {
+      const formattedAddress = formattedAddresses[orderWithDeparture.departure];
+      console.log("formattedAddress: " + formattedAddress);
+  
+      // Kiểm tra xem có formattedAddress hay không
+      if (formattedAddress) {
+        setSelectedOrderFormattedAddress(formattedAddress);
+      } else {
+        console.error("Không tìm thấy địa chỉ đã định dạng cho đơn hàng này.");
+        // Xử lý lỗi nếu không tìm thấy formattedAddress
+      }
+  
+      // Fetch the orderid details based on the selected order ID
+      dispatch(getOrderId({ id: orderId }))
+        .then((response) => {
+          const orderDetails = response.payload.data;
+          setSelectedEditOrder(orderDetails);
+          setSelectedOrderFormattedAddress(formattedAddress);
+          setOpenEditModal(true);
+          setIsSuccess(true);
+          reloadOders();
+        })
+        .catch((error) => {
+          console.error("Lỗi khi lấy thông tin đơn hàng mới:", error);
+        });
+    }
   };
-
-  const handleCancel = () => {
-    // Đóng modal và đặt lại orderId
-    setOpenConfirmModal(false);
-    setOrderId(null);
-  };
-
-  const handleBookDetailClick = (book) => {
-    setSelectedBook(book);
-    setOpenModal(true);
-  };
+  
   const reloadOders = () => {
     dispatch(fetchOrdersNew())
       .then((response) => {
@@ -222,37 +181,145 @@ const Orders = (props) => {
       });
   };
 
-  // const fetchFullname = (customerId) => {
-  //   // You can use your existing code to fetch the fullname
-  //   dispatch(getCustomerIdFullName({ id: customerId }))
-  //     .then((response) => {
-  //       const data = response.payload.data;
-  //       if (data && data.fullname) {
-  //         // Update the state with the fetched fullname
-  //         setFullnameData((prevData) => ({
-  //           ...prevData,
-  //           [customerId]: data.fullname,
-  //         }));
-  //       } else {
-  //         console.error("Fullname not found in the API response.");
-  //       }
-  //     })
-  //     .catch((error) => {
-  //       console.error("Error while fetching customer data:", error);
-  //     });
-  // };
+  useEffect(() => {
+    // Extract unique customer IDs and departure values
+    const uniqueCustomerIds = [...new Set(data.map((row) => row.customerId))];
+    const uniqueDepartures = [...new Set(data.map((row) => row.departure))];
 
-  // Use an effect to fetch the fullname when the component mounts or customerId changes
+    const fetchFullNames = async (customerIds) => {
+      const uniqueCustomerIdsToFetch = customerIds.filter(
+        (customerId) => !fullnameData[customerId]
+      );
+
+      const fetchPromises = uniqueCustomerIdsToFetch.map((customerId) =>
+        fetchFullname(customerId)
+      );
+
+      await Promise.all(fetchPromises);
+    };
+
+    const debouncedFetchAddresses = debounce(async (departures) => {
+      const uniqueDeparturesToFetch = departures.filter(
+        (departure) => !formattedAddresses[departure]
+      );
+
+      const fetchPromises = uniqueDeparturesToFetch.map((departure) =>
+        fetchAddress(data.find((order) => order.departure === departure))
+      );
+
+      await Promise.all(fetchPromises);
+    }, 500); // Adjust the debounce time as needed
+
+    // Fetch fullnames and addresses for unique customer IDs and departures
+    fetchFullNames(uniqueCustomerIds);
+    debouncedFetchAddresses(uniqueDepartures);
+
+  }, [data, formattedAddresses, fullnameData]);
+  function debounce(func, wait) {
+    let timeout;
+    return function () {
+      const context = this;
+      const args = arguments;
+      const later = function () {
+        timeout = null;
+        func.apply(context, args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
+  }
+  const fetchAddress = (order) => {
+    if (!order) {
+      return; // Add a check for a valid order
+    }
+  
+    const departure = order.departure;
+  
+    if (!formattedAddresses[departure]) {
+      // Extract latitude and longitude values from 'departure'
+      const matches = /lat:\s*([^,]+),\s*long:\s*([^,]+)/.exec(departure);
+  
+      if (matches && matches.length === 3) {
+        const [, lat, lng] = matches;
+  
+        // Check if lat and lng are valid numbers
+        if (!isNaN(lat) && !isNaN(lng)) {
+          // Check if the address is already in the cache
+          if (formattedAddresses[departure]) {
+            setSelectedOrderFormattedAddress(formattedAddresses[departure]);
+          } else {
+            // Dispatch 'getFormattedAddress' with the extracted lat and lng values
+            dispatch(getFormattedAddressGG({ lat, lng }))
+              .then((response) => {
+                const formattedAddress = response.payload.results[0].formatted_address;
+                // Update the state with the fetched formatted address
+                setFormattedAddresses((prevAddresses) => ({
+                  ...prevAddresses,
+                  [departure]: formattedAddress,
+                }));
+                setSelectedOrderFormattedAddress(formattedAddress);
+              })
+              .catch((error) => {
+                console.error("Error fetching address:", error.response);
+              });
+          }
+        }
+      }
+    } else {
+      // Use cached address data
+      setSelectedOrderFormattedAddress(formattedAddresses[departure]);
+    }
+  };
+  
+  
+
   // useEffect(() => {
-  //   // Assuming you have an array of data, iterate through it and fetch fullnames
-  //   data.forEach((row) => {
-  //     const customerId = row.customerId;
-  //     // Check if you have already fetched the fullname to avoid duplicate requests
+  //   // Extract unique customer IDs and departure values
+  //   const uniqueCustomerIds = [...new Set(data.map((row) => row.customerId))];
+  //   const uniqueDepartures = [...new Set(data.map((row) => row.departure))];
+  //   // Fetch fullnames and addresses for unique customer IDs and departures
+  //   uniqueCustomerIds.forEach((customerId) => {
   //     if (!fullnameData[customerId]) {
   //       fetchFullname(customerId);
+        
   //     }
   //   });
-  // }, [data, fullnameData]);
+
+  //   uniqueDepartures.forEach((departure) => {
+  //     if (!formattedAddresses[departure]) {
+  //       const orderWithDeparture = data.find(
+  //         (order) => order.departure === departure
+  //       );
+  //       if (orderWithDeparture) {
+  //         fetchAddress(orderWithDeparture);
+       
+  //       }
+  //     }
+  //   });
+  // }, [data, formattedAddresses, fullnameData]);
+
+
+  const fetchFullname = (customerId) => {
+    if (!fullnameData[customerId]) {
+      dispatch(getCustomerIdFullName({ id: customerId }))
+        .then((response) => {
+          const data = response.payload.data;
+          if (data && data.fullname) {
+            // Update the state with the fetched fullname
+            setFullnameData((prevData) => ({
+              ...prevData,
+              [customerId]: data.fullname,
+            }));
+          } else {
+            console.error("Fullname not found in the API response.");
+          }
+        })
+        .catch((error) => {
+          console.error("Error while fetching customer data:", error);
+        });
+    }
+    // You can use your existing code to fetch the fullname
+  };
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -275,7 +342,7 @@ const Orders = (props) => {
     {
       field: "customerId",
       headerName: "Tên Khách Hàng",
-      width: 100,
+      width: 140,
       valueGetter: (params) => {
         // Get the fullname from the state based on customerId
         return fullnameData[params.value] || "";
@@ -284,7 +351,7 @@ const Orders = (props) => {
     {
       field: "departure",
       headerName: "Địa Chỉ",
-      width: 140,
+      width: 240,
       valueGetter: (params) => {
         // Get the fullname from the state based on customerId
         return formattedAddresses[params.value] || "";
@@ -322,14 +389,11 @@ const Orders = (props) => {
             backgroundColor={
               rescueType === "Fixing"
                 ? colors.greenAccent[700]
-                : rescueType === "repair"
-                ? colors.grey[800]
                 : colors.grey[800]
                 ? colors.redAccent[700]
                 : rescueType === "Towing"
             }
           >
-            {rescueType === "repair" && <BuildIcon />}
             {rescueType === "Towing" && <SupportIcon />}
             {rescueType === "Fixing" && <HandymanIcon />}
             <Typography color={colors.grey[100]} sx={{ ml: "8px" }}>
@@ -380,12 +444,18 @@ const Orders = (props) => {
       headerName: "Diều Phối",
       width: 60,
       renderCell: (params) => (
+        <IconButton
+        variant="contained"
+        color="error"
+      >
         <AssignmentLateIcon
           variant="contained"
           color="error"
           style={{ color: "orange" }}
-          onClick={() => handleUpdateClick(params.row.id)}
+          onClick={() => handleAssignClick(params.row.id)}
         ></AssignmentLateIcon>
+      </IconButton>
+        
       ),
       key: "update",
     },
@@ -417,32 +487,27 @@ const Orders = (props) => {
         </Box>
 
         <ToastContainer />
-        <Box display="flex" alignItems="center" className="filter-box">
-          <FormControl>
-            <Select
-              labelId="demo-simple-select-label"
-              id="demo-simple-select"
-              value={filterOption}
-              onChange={handleFilterChange} // Use a different handler for this action
-              variant="outlined"
-              className="filter-select"
-              style={{ width: "150px" }}
-            >
-              <MenuItem key="rescueType-all" value="rescueType">
-                Hình Thức
-              </MenuItem>
-              <MenuItem key="rescueType-repair" value="repair">
-                Sửa Chữa Tại Chỗ
-              </MenuItem>
-              <MenuItem key="rescueType-towing" value="Towing">
-                Kéo Xe
-              </MenuItem>
-              <MenuItem key="rescueType-fixing" value="Fixing">
-                Sữa Chữa
-              </MenuItem>
-            </Select>
-          </FormControl>
-        </Box>
+        <FormControl>
+          <Select
+            labelId="demo-simple-select-label"
+            id="demo-simple-select"
+            value={filterOption}
+            onChange={handleFilterChange}
+            variant="outlined"
+            className="filter-select"
+            style={{ width: "150px" }}
+          >
+            <MenuItem key="rescueType-all" value="rescueType">
+              Hình Thức
+            </MenuItem>
+            <MenuItem key="rescueType-towing" value="Towing">
+              Kéo Xe
+            </MenuItem>
+            <MenuItem key="rescueType-fixing" value="Fixing">
+              Sửa Chữa Tại Chỗ
+            </MenuItem>
+          </Select>
+        </FormControl>
 
         <Box display="flex" alignItems="center" className="startDate-box">
           <TextField
@@ -539,6 +604,7 @@ const Orders = (props) => {
         openEditModal={openEditModal}
         setOpenEditModal={setOpenEditModal}
         selectedEditOrder={selectedEditOrder}
+        selectedOrderFormattedAddress={selectedOrderFormattedAddress}
         onClose={() => setOpenEditModal(false)}
         loading={loading}
       />

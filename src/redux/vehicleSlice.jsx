@@ -135,10 +135,11 @@ export const deleteRescueVehicleOwner = createAsyncThunk(
 );
 export const createAcceptRegisterVehicle = createAsyncThunk(
   "vehicles/createAcceptRegisterVehicle",
-  async ({ id, isAccepted }) => {
+  async ({ id, boolean }) => {
     try {
+      console.log(id, boolean);
       const response = await axios.post(
-        `https://rescuecapstoneapi.azurewebsites.net/api/Vehicle/ApproveVehicle?id=${id}&boolean=${isAccepted}`,
+        `https://rescuecapstoneapi.azurewebsites.net/api/Vehicle/ApproveVehicle?id=${id}&boolean=${boolean}`,
       );
 
       const data = response.data;

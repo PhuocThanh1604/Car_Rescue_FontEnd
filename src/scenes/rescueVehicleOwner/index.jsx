@@ -35,6 +35,7 @@ import {
   updateStatusRescueVehicleOwner,
 } from "../../redux/rescueVehicleOwnerSlice";
 import InfoIcon from '@mui/icons-material/Info';
+import EditIcon from '@mui/icons-material/Edit';
 const RescueVehicleOwners = (props) => {
   const dispatch = useDispatch();
   const rescueVehicleOwners = useSelector(
@@ -346,14 +347,14 @@ const RescueVehicleOwners = (props) => {
       headerName: "Cập Nhật",
       width: 60,
       renderCell: (params) => (
-        <InfoIcon
+        <EditIcon
           variant="contained"
           color="error"
           
           onClick={() => handleUpdateClick(params.row.id)}
         >
-          <Edit style={{ color: "red" }} />
-        </InfoIcon>
+          <EditIcon style={{ color: "green" }} />
+        </EditIcon>
       ),
       key: "update",
     },

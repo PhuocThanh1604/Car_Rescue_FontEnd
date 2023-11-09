@@ -222,6 +222,17 @@ const ModalEdit = ({
                       fullWidth
                       margin="normal"
                     />
+                        <TextField
+                      name="fullname"
+                      label="Họ Và Tên"
+                      type="text"
+                      value={edit.fullname || ""}
+                      onChange={handleInputChange}
+                      // disabled // Disable the TextField
+                      fullWidth
+                      margin="normal"
+                    />
+                    
 
                     <TextField
                       name="accountId"

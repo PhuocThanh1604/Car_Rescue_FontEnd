@@ -22,6 +22,7 @@ import {
   Grid,
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
+
 import { tokens } from "../../theme";
 import Header from "../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
@@ -33,12 +34,10 @@ import "react-toastify/dist/ReactToastify.css";
 import SearchIcon from "@mui/icons-material/Search";
 import InputBase from "@mui/material/InputBase";
 import moment from "moment";
-import {
-  fetchRescueVehicleOwners,
-  getRescueVehicleOwnerId,
-} from "../../redux/rescueVehicleOwnerSlice";
+
 import {
   createAcceptRegisterVehicle,
+  fetchVehicle,
   fetchVehicleWatting,
 } from "../../redux/vehicleSlice";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
@@ -49,6 +48,12 @@ import HourglassTopIcon from "@mui/icons-material/HourglassTop";
 import TimerIcon from "@mui/icons-material/Timer";
 import "react-responsive-carousel/lib/styles/carousel.min.css"; // Import the carousel styles
 import { Carousel } from "react-responsive-carousel";
+import MobileStepper from "@mui/material/MobileStepper";
+import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft";
+import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
+import SwipeableViews from "react-swipeable-views";
+import { autoPlay } from "react-swipeable-views-utils";
+const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
 const Vehicles = (props) => {
   const dispatch = useDispatch();
   const vehicles = useSelector((state) => state.vehicle.vehicles);
@@ -75,6 +80,16 @@ const Vehicles = (props) => {
   const [collapse, setCollapse] = useState(false);
   const [isAccepted, setIsAccepted] = useState(false);
 
+  
+  //img
+  const imageWidth = "400px";
+  const imageHeight = "300px";
+
+  const [activeStep, setActiveStep] = React.useState(0);
+  // const maxSteps = images.length;
+  const handleStepChange = (step) => {
+    setActiveStep(step);
+  };
   const handleClick = () => {
     setCollapse(!collapse);
   };
@@ -126,14 +141,14 @@ const Vehicles = (props) => {
     console.log(vehicleId);
     setIsAccepted(accept);
     console.log(accept);
-    // Fetch the rescueVehicleOwnerId details based on the selected rescueVehicleOwnerId ID
-    dispatch(createAcceptRegisterVehicle({ id: vehicleId, accept }))
+    // Fetch the VehicleId details based on the selected Vehicle ID
+    dispatch(createAcceptRegisterVehicle({ id: vehicleId,boolean: accept }))
       .then(() => {
         setVehicleId(vehicleId);
         setOpenConfirmModal(false);
         setIsSuccess(true);
-        toast.success("Chấp nhận thành công.");
         reloadVehicle();
+        toast.success("Chấp nhận thành công.");
       })
       .catch((error) => {
         console.error(
@@ -153,13 +168,13 @@ const Vehicles = (props) => {
   };
   const handleDateFilterChange = () => {
     if (startDate && endDate) {
-      const filteredrescueVehicleOwners = vehicles.filter((user) => {
+      const filteredVehicles = vehicles.filter((user) => {
         const orderDate = moment(user.createAt).format("YYYY-MM-DD");
         const isAfterStartDate = moment(orderDate).isSameOrAfter(startDate);
         const isBeforeEndDate = moment(orderDate).isSameOrBefore(endDate);
         return isAfterStartDate && isBeforeEndDate;
       });
-      setFilteredVehicles(filteredrescueVehicleOwners);
+      setFilteredVehicles(filteredVehicles);
       setFilterOption("Date");
     } else {
       setFilteredVehicles(vehicles);
@@ -174,50 +189,42 @@ const Vehicles = (props) => {
       setFilteredVehicles(vehicles);
     } else {
       // Lọc sản phẩm dựa trên giá trị trạng thái
-      const filteredrescueVehicleOwners = vehicles.filter(
-        (rescueVehicleOwner) => rescueVehicleOwner.type === selectedStatusOption
+      const filteredVehicles = vehicles.filter(
+        (vehicle) => vehicle.type === selectedStatusOption
       );
-      setFilteredVehicles(filteredrescueVehicleOwners);
+      setFilteredVehicles(filteredVehicles);
     }
   };
 
   useEffect(() => {
     if (vehicles) {
       if (vehicles.id) {
-        const RescuseVehicleOwnerToEditToEdit = vehicles.find(
-          (rescuseVehicleOwner) => rescuseVehicleOwner.id === vehicles.id
+        const vehicleToEdit = vehicles.find(
+          (vehicle) => vehicle.id === vehicles.id
         );
-        if (RescuseVehicleOwnerToEditToEdit) {
-          setEditStatus(RescuseVehicleOwnerToEditToEdit);
-          setInitialFormState(RescuseVehicleOwnerToEditToEdit);
+        if (vehicleToEdit) {
+          setEditStatus(vehicleToEdit);
+          setInitialFormState(vehicleToEdit);
         }
       }
     }
   }, [vehicles]);
 
   useEffect(() => {
-    const filteredRescueVehicleOwners = vehicles
-      ? vehicles.filter((rescueVehicleOwner) => {
+    const filteredVehicles = vehicles
+      ? vehicles.filter((vehicle) => {
           const nameMatch =
-            rescueVehicleOwner.fullname &&
-            rescueVehicleOwner.fullname
-              .toLowerCase()
-              .includes(searchText.toLowerCase());
+            vehicle.fullname &&
+            vehicle.fullname.toLowerCase().includes(searchText.toLowerCase());
           const filterMatch =
             filterOption === "type" ||
-            (filterOption === "Crane" && rescueVehicleOwner.type === "Crane") ||
-            (filterOption === "Towing" && rescueVehicleOwner.type === "Towing");
+            (filterOption === "Crane" && vehicle.type === "Crane") ||
+            (filterOption === "Towing" && vehicle.type === "Towing");
           return nameMatch && filterMatch;
         })
       : [];
-    setFilteredVehicles(filteredRescueVehicleOwners);
+    setFilteredVehicles(filteredVehicles);
   }, [vehicles, searchText, filterOption]);
-
-  if (vehicles) {
-    vehicles.forEach((rescueVehicleOwner) => {
-      // Đây bạn có thể truy cập và xử lý dữ liệu từng đối tượng khách hàng ở đây
-    });
-  }
 
   useEffect(() => {
     setLoading(true);
@@ -237,36 +244,6 @@ const Vehicles = (props) => {
       });
   }, [dispatch]);
 
-  const handleUpdateClick = (rescueVehicleOwnerId) => {
-    console.log(rescueVehicleOwnerId);
-    // Fetch the rescueVehicleOwnerId details based on the selected rescueVehicleOwnerId ID
-    dispatch(getRescueVehicleOwnerId({ id: rescueVehicleOwnerId }))
-      .then((response) => {
-        const rescueVehicleOwnerDetails = response.payload.data;
-        setFilteredVehicles(rescueVehicleOwnerDetails);
-        setOpenEditModal(true);
-        setIsSuccess(true);
-      })
-      .catch((error) => {
-        console.error("Lỗi khi lấy thông tin xe cứu hộ:", error);
-      });
-  };
-
-  const reloadRescueVehicleOwners = () => {
-    dispatch(fetchRescueVehicleOwners())
-      .then((response) => {
-        const data = response.payload.data;
-        if (data) {
-          setFilteredVehicles(data);
-          // Đặt loading thành false sau khi tải lại dữ liệu
-          setLoading(false);
-        }
-      })
-      .catch((error) => {
-        console.error("Lỗi khi tải lại danh sách chủ xe cứu hộ:", error);
-      });
-  };
-
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -276,7 +253,7 @@ const Vehicles = (props) => {
     setPage(0);
   };
 
-  const filteredrescueVehicleOwnersPagination = filteredVehicles.slice(
+  const filteredVehiclePagination = filteredVehicles.slice(
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
   );
@@ -337,11 +314,18 @@ const Vehicles = (props) => {
       headerName: "Trạng Thái Đơn",
       width: 60,
       renderCell: (params) => (
-        <CheckCircleOutlineIcon
+        <IconButton
+        variant="contained"
+        color="error"
+        onClick={() => handleConfirm(params.row.id)}
+
+      >
+          <CheckCircleOutlineIcon
           variant="contained"
           style={{ color: "green" }} // Set the color to green
-          onClick={() => handleConfirm(params.row.id)}
         />
+      </IconButton>
+     
       ),
       key: "acceptOrder",
     },
@@ -461,7 +445,7 @@ const Vehicles = (props) => {
         }}
       >
         <DataGrid
-          rows={filteredrescueVehicleOwnersPagination} // Thêm id nếu không có
+          rows={filteredVehiclePagination} // Thêm id nếu không có
           columns={columns}
           getRowId={(row) => row.id}
           autoHeight
@@ -506,57 +490,57 @@ const Vehicles = (props) => {
           },
         }}
       >
-        <DialogTitle id="alert-dialog-title">Xác nhận</DialogTitle>
+        <DialogTitle id="alert-dialog-title" sx={{ color: 'indigo' , fontSize: '24px'}}>Xác nhận đăng kí vào hệ hống</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
             {detailedData !== null ? (
               <div>
                 <Card>
-                  <CardMedia
-                    sx={{
-                      height: "20.5625rem", // Set the desired height for the CardMedia
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
-                  >
-                    <Carousel showArrows={true}>
-                      <div>
+                  <CardMedia>
+                    <AutoPlaySwipeableViews
+                      axis={theme.direction === "rtl" ? "x-reverse" : "x"}
+                      index={activeStep}
+                      onChangeIndex={handleStepChange}
+                      enableMouseEvents
+                    >
+                     <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
                         <img
                           src={detailedData[0].carRegistrationBack}
                           alt="Car Back"
                           style={{
-                            maxWidth: "100%",
-                            maxHeight: "100%",
+                            width: imageWidth,
+                            height: imageHeight,
                             objectFit: "contain",
                           }}
                         />
                       </div>
-                      <div>
+                      <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
                         <img
                           src={detailedData[0].carRegistrationFont}
                           alt="Car Front"
                           style={{
-                            maxWidth: "100%",
-                            maxHeight: "100%",
+                            width: imageWidth,
+                            height: imageHeight,
                             objectFit: "contain",
                           }}
                         />
                       </div>
-                      <div>
+                      <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
                         <img
                           src={detailedData[0].image}
                           alt="Car Front"
                           style={{
-                            maxWidth: "100%",
-                            maxHeight: "100%",
+                            width: imageWidth,
+                            height: imageHeight,
                             objectFit: "contain",
                           }}
                         />
                       </div>
-                    </Carousel>
+                    </AutoPlaySwipeableViews>
                   </CardMedia>
-                  <Grid container spacing={2}>
+
+                  <Divider light />
+                  <Grid container spacing={4} sx={{ marginTop: 2 }}>
                     <Grid item xs={6}>
                       <CardContent>
                         <Typography variant="h6" sx={{ marginBottom: 2 }}>
@@ -566,10 +550,25 @@ const Vehicles = (props) => {
                     </Grid>
                     <Grid item xs={6}>
                       <CardContent>
-                        <Typography variant="h6" sx={{ marginBottom: 2 }}>
-                          Chủ Xe: {detailedData[0].image}
+                        <Typography variant="h6">
+                          <span>Biển số xe:</span>{" "}
+                          {detailedData[0].licensePlate}
                         </Typography>
-                        <Typography variant="body2">
+                        <Typography variant="h6">
+                          <span>Loại xe:</span> {detailedData[0].type}
+                        </Typography>
+                        <Typography variant="h6">
+                          <span>Đời xe:</span>{" "}
+                          {detailedData[0].manufacturingYear}
+                        </Typography>
+                        <Typography variant="h6">
+                          <span>Mã xe:</span> {detailedData[0].manufacturer}
+                        </Typography>
+                        <Typography variant="h6">
+                          <span>Số khung xe:</span> {detailedData[0].vinNumber}
+                        </Typography>
+                        <Typography variant="h6">
+                          <span>Trạng Thái:</span>
                           <Box
                             style={{
                               display: "flex",
@@ -581,7 +580,7 @@ const Vehicles = (props) => {
                             }}
                           >
                             <TimerIcon />
-                            <span>{detailedData[0].status}</span>
+                            {detailedData[0].status}
                           </Box>
                         </Typography>
                       </CardContent>
@@ -612,6 +611,7 @@ const Vehicles = (props) => {
                       <Typography variant="h6" sx={{ marginBottom: 2 }}>
                         Chủ Xe: {detailedData[0].rvoid}
                       </Typography>
+
                       <Typography variant="body2">
                         Status: {detailedData[0].status}
                       </Typography>
@@ -626,18 +626,21 @@ const Vehicles = (props) => {
         </DialogContent>
 
         <DialogActions>
-          <Button onClick={handleCancel} color="primary">
+          <Button onClick={handleCancel} color="primary"variant="contained">
             Hủy
           </Button>
           <Button
             onClick={() => handleAcceptOrderClick(vehicleId, true)} // Pass true for "Đồng Ý"
-            color="primary"
+            color="secondary"
+            variant="contained"
           >
             Đồng Ý
           </Button>
           <Button
             onClick={() => handleAcceptOrderClick(vehicleId, false)} // Pass false for "Không Đồng Ý"
-            color="secondary"
+         
+            color="primary"
+            variant="contained"
           >
             Không Đồng Ý
           </Button>

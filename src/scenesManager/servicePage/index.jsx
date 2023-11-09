@@ -181,7 +181,7 @@ const Services = (props) => {
     {
       field: "type",
       headerName: "Loại Dịch Vụ",
-      width: 30,
+      width: 80,
       key: "type",
     },
     {

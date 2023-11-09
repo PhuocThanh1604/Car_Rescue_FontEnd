@@ -23,7 +23,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import InputBase from "@mui/material/InputBase";
 import moment from "moment";
 
-import { fetchOrdersInprogress, fetchOrdersNew, getOrderId } from "../../../redux/orderSlice";
+import { fetchOrdersInprogress, fetchOrdersNew, getOrderDetailId, getOrderId } from "../../../redux/orderSlice";
 import { getCustomerIdFullName } from "../../../redux/customerSlice";
 import CreditScoreIcon from "@mui/icons-material/CreditScore";
 import AddCardIcon from "@mui/icons-material/AddCard";
@@ -31,6 +31,7 @@ import RepeatOnIcon from "@mui/icons-material/RepeatOn";
 import BuildIcon from "@mui/icons-material/Build";
 import SupportIcon from "@mui/icons-material/Support";
 import HandymanIcon from "@mui/icons-material/Handyman";
+import AddchartIcon from '@mui/icons-material/Addchart';
 const OrdersInprogress = (props) => {
   const dispatch = useDispatch();
   const orders = useSelector((state) => state.order.orders);
@@ -62,14 +63,12 @@ const OrdersInprogress = (props) => {
       const filterMatch =
         filterOption === "rescueType" ||
         (filterOption === "Fixing" && order.rescueType === "Fixing") ||
-        (filterOption === "repair" && order.rescueType === "repair") ||
         (filterOption === "Towing" && order.rescueType === "Towing");
       return nameMatch && filterMatch;
     });
 
     setFilteredOrders(filteredOrders);
   };
-  
   const handleFilterChange = (event) => {
     const selectedStatusOption = event.target.value;
     setFilterOption(selectedStatusOption);
@@ -100,11 +99,6 @@ const OrdersInprogress = (props) => {
     }
   };
 
-  if (orders) {
-    orders.forEach((rescueVehicleOwner) => {
-      // Đây bạn có thể truy cập và xử lý dữ liệu từng đối tượng khách hàng ở đây
-    });
-  }
 
   useEffect(() => {
     setLoading(true);
@@ -123,27 +117,26 @@ const OrdersInprogress = (props) => {
       });
   }, [dispatch]);
 
-  const handleUpdateClick = (orderId) => {
+  const handleAddServiceClick = (orderId) => {
     console.log(orderId);
     // Fetch the rescueVehicleOwnerId details based on the selected rescueVehicleOwnerId ID
-    dispatch(getOrderId({ id: orderId }))
+    dispatch(getOrderDetailId({ id: orderId }))
       .then((response) => {
         const orderDetails = response.payload.data;
         setSelectedEditOrder(orderDetails);
         setOpenEditModal(true);
         setIsSuccess(true);
+        reloadOdersInprogress()
       })
       .catch((error) => {
         console.error("Lỗi khi lấy thông tin đơn hàng đang thực hiện:", error);
       });
   };
 
-  const handleBookDetailClick = (book) => {
-    setSelectedBook(book);
-    setOpenModal(true);
-  };
-  const reloadOders = () => {
-    dispatch(fetchOrdersNew())
+
+
+  const reloadOdersInprogress = () => {
+    dispatch(fetchOrdersInprogress())
       .then((response) => {
         const data = response.payload.data;
         if (data) {
@@ -256,7 +249,6 @@ const OrdersInprogress = (props) => {
                 : rescueType === "Towing"
             }
           >
-            {rescueType === "repair" && <BuildIcon />}
             {rescueType === "Towing" && <SupportIcon />}
             {rescueType === "Fixing" && <HandymanIcon />}
             <Typography color={colors.grey[100]} sx={{ ml: "8px" }}>
@@ -305,16 +297,16 @@ const OrdersInprogress = (props) => {
     },
 
     {
-      field: "update",
+      field: "add",
       headerName: "Cập Nhật",
       width: 60,
       renderCell: (params) => (
         <IconButton
           variant="contained"
           color="error"
-          onClick={() => handleUpdateClick(params.row.id)}
+          onClick={() => handleAddServiceClick(params.row.id)}
         >
-          <Edit style={{ color: "red" }} />
+          <AddchartIcon style={{ color: "green" }} />
         </IconButton>
       ),
       key: "update",
@@ -347,7 +339,7 @@ const OrdersInprogress = (props) => {
         </Box>
 
         <ToastContainer />  
-        <Box display="flex" alignItems="center" className="filter-box">
+     
           <FormControl >
             <Select
               labelId="demo-simple-select-label"
@@ -361,9 +353,7 @@ const OrdersInprogress = (props) => {
               <MenuItem key="rescueType-all" value="rescueType">
                 Hình Thức
               </MenuItem>
-              <MenuItem key="rescueType-repair" value="repair">
-                Sửa Chữa Tại Chỗ
-              </MenuItem>
+             
               <MenuItem key="rescueType-towing" value="Towing">
                 Kéo Xe
               </MenuItem>
@@ -372,7 +362,7 @@ const OrdersInprogress = (props) => {
               </MenuItem>
             </Select>
           </FormControl>
-        </Box>
+  
 
         <Box display="flex" alignItems="center" className="startDate-box">
           <TextField
@@ -468,7 +458,7 @@ const OrdersInprogress = (props) => {
       <ModalEdit
         openEditModal={openEditModal}
         setOpenEditModal={setOpenEditModal}
-        selectedEditRescuseVehicleOwner={selectedEditOrder}
+        selectedEditOrder={selectedEditOrder}
         onClose={() => setOpenEditModal(false)}
         loading={loading}
       />

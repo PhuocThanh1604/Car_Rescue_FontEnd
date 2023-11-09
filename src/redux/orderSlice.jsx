@@ -1,5 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+const apiKeyGG = 'AIzaSyBD-XWuT_W1Mx98xPV7hQEjSSeGHGnm2mY';
+// const apiKey = '';
 
 export const fetchOrders = createAsyncThunk("orders/fetchOrders", async () => {
   try {
@@ -65,7 +67,6 @@ export const fetchOrdersInprogress = createAsyncThunk(
         "https://rescuecapstoneapi.azurewebsites.net/api/Order/GetAllOrderInprogress"
       );
       const data = response.data;
-      console.log(response.data);
       return data;
     } catch (response) {
       console.error(
@@ -170,19 +171,34 @@ export const getOrderId = createAsyncThunk(
     }
   }
 );
-
-export const getFormattedAddress = createAsyncThunk(
-  "orders/getFormattedAddress",
-  async ({ lat, lng }) => {
+export const getOrderDetailId = createAsyncThunk(
+  "orders/getOrderDetailId",
+  async ({ id }) => {
     try {
       const response = await axios.get(
-        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=AIzaSyDrTImABwbBjNXxLSMMZm_LE0JZqeJYRkY`
+        `https://rescuecapstoneapi.azurewebsites.net/api/OrderDetail/GetDetailsOfOrder?id=${id}`
       );
       const data = response.data;
       console.log(data);
       return data;
     } catch (error) {
-      console.error("Failed to get Address ", error.response);
+      console.error("Failed to get  get Order Detail Id ", error.response);
+      throw error.response.data || error.message;
+    }
+  }
+);
+
+export const getFormattedAddressGG = createAsyncThunk(
+  "orders/getFormattedAddress",
+  async ({ lat, lng }) => {
+    try {
+      const response = await axios.get(
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKeyGG}`
+      );
+      const data = response.data;
+      return data;
+    } catch (error) {
+      console.error("Failed to get Address ", error.error_message);
       throw error.response.data || error.message;
     }
   }
@@ -192,9 +208,6 @@ export const createAcceptOrder = createAsyncThunk(
   "orders/createAcceptOrder",
   async (data) => {
     try {
-      // const orderData = {
-      //   ...data,
-      // };
       const res = await axios.post(
         "https://rescuecapstoneapi.azurewebsites.net/api/Order/ManagerAssignOrder",
         data,
@@ -233,7 +246,28 @@ export const createOrderOffline = createAsyncThunk(
     }
   }
 );
-
+export const updateServiceForTechnicians = createAsyncThunk(
+  "orders/updateServiceForTechnicians",
+  async (data) => {
+    try {
+      console.log(data)
+      const res = await axios.post(
+        "https://rescuecapstoneapi.azurewebsites.net/api/Order/ManagerAddService",
+        data,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log(data);
+      return res.data;
+    } catch (error) {
+      console.error("Failed to create Accept Order:", error.response);
+      throw error.response.data || error.message;
+    }
+  }
+);
 export const sendNotification = createAsyncThunk(
   "orders/sendNotification",
   async (notificationData) => {
@@ -320,8 +354,11 @@ const orderSlice = createSlice({
       .addCase(fetchOrdersDetail.pending, (state, action) => {
         state.status = "loading";
       })
-
       .addCase(getOrderId.fulfilled, (state, action) => {
+        state.orderData = action.payload.data;
+      }
+      )
+      .addCase(getOrderDetailId.fulfilled, (state, action) => {
         state.orderData = action.payload.data;
       })
       .addCase(createAcceptOrder.fulfilled, (state, action) => {
@@ -351,13 +388,21 @@ const orderSlice = createSlice({
       .addCase(sendNotification.rejected, (state, action) => {
         state.status = "error";
       })
-      .addCase(getFormattedAddress.fulfilled, (state, action) => {
+      .addCase(getFormattedAddressGG.fulfilled, (state, action) => {
         // Store the formatted address in the Redux store
         state.formattedAddress = action.payload;
       })
-      .addCase(getFormattedAddress.pending, (state, action) => {
+      .addCase(getFormattedAddressGG.pending, (state, action) => {
         state.status = "loading";
-      });
+      }).addCase(updateServiceForTechnicians.fulfilled, (state, action) => {
+        state.orders = action.payload.data;
+      })
+      .addCase(updateServiceForTechnicians.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(updateServiceForTechnicians.rejected, (state, action) => {
+        state.status = "error";
+      })
   },
 });
 export const { setorders } = orderSlice.actions;

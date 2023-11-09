@@ -7,18 +7,33 @@ import PlacesAutocomplete, {
   getLatLng,
   geocodeByPlaceId,
 } from "react-places-autocomplete";
-
+import TextField from "@mui/material/TextField";
+import { Box, CircularProgress, FormControl, IconButton, InputAdornment } from "@mui/material";
+import SearchIcon from '@mui/icons-material/Search';
+import CloseIcon from '@mui/icons-material/Close';
 const Map = ({ onLocationSelected }) => {
   const [coords, setCoords] = useState(null);
   const [address, setAddress] = useState("");
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
   const [geocodeResult, setGeocodeResult] = useState([]);
-  const Position = ({ text, icon }) => (
-    <div>
-      <FaMapMarkerAlt color="red" size={24} />
-      {text}
-    </div>
-  );
+  const [loading, setLoading] = useState(false);
+  const [defaultCenter, setDefaultCenter] = useState({
+    lat: 10.8591597,
+    lng: 106.8095694,
+  });
+  const [defaultZoom, setDefaultZoom] = useState(11);  const Position = ({ lat, lng, text, icon }) => {
+    if (lat && lng) {
+      // Render the marker only if valid coordinates are available
+      return (
+        <div>
+          <FaMapMarkerAlt color="red" size={24} />
+          {text}
+        </div>
+      );
+    } else {
+      return null; // Don't render the marker if coordinates are not available
+    }
+  };
 
   const defaultProps = {
     center: {
@@ -28,6 +43,8 @@ const Map = ({ onLocationSelected }) => {
     zoom: 11,
   };
 
+
+//Google mapps
   const handleAddressSelected = async (selectedAddress) => {
     try {
       // Sử dụng Places Autocomplete để lấy thông tin chi tiết về địa chỉ
@@ -44,14 +61,25 @@ const Map = ({ onLocationSelected }) => {
         setAddress(selectedLocation.address);
         setIsMapModalOpen(true);
         onLocationSelected(selectedLocation );
+
+        const newCenter = {
+          lat: selectedLocation.lat,
+          lng: selectedLocation.lng,
+        };
+        const newZoom = 15; // You can adjust the zoom level as needed
+
+        setDefaultCenter(newCenter);
+        setDefaultZoom(newZoom);
       } else {
         console.error("Không tìm thấy kết quả cho địa chỉ này.");
       }
+      setLoading(false);
     } catch (error) {
       console.error("Đã xảy ra lỗi trong quá trình tìm kiếm vị trí.", error);
+      setLoading(false);
     }
   };
-  const handleSearch = async () => {
+  const handleSearchIcon = async () => {
     try {
       const results = await geocodeByAddress(address);
       if (results && results.length > 0) {
@@ -63,8 +91,16 @@ const Map = ({ onLocationSelected }) => {
           address: firstResult.formatted_address,
         };
         setCoords({ lat: selectedAddress.lat, lng: selectedAddress.lng });
-        setIsMapModalOpen(true);
-        onLocationSelected(selectedAddress);
+        // onLocationSelected(selectedAddress);
+
+        const newCenter = {
+          lat: selectedAddress.lat,
+          lng: selectedAddress.lng,
+        };
+        const newZoom = 15; // You can adjust the zoom level as needed
+
+        setDefaultCenter(newCenter);
+        setDefaultZoom(newZoom);
       } else {
         console.error("Không tìm thấy kết quả cho địa chỉ này.");
       }
@@ -72,80 +108,117 @@ const Map = ({ onLocationSelected }) => {
       console.error("Đã xảy ra lỗi trong quá trình tìm kiếm vị trí.", error);
     }
   };
-  // const handleSearch = async () => {
-  //   try {
-  //     const results = await geocodeByAddress(address);
-  //     if (results && results.length > 0) {
-  //       const firstResult = results[0];
-  //       const latLng = await getLatLng(firstResult);
-  //       setGeocodeResult(results);
-  //       setCoords(latLng);
-  //       setAddress()
-  //       // Gọi hàm callback để truyền địa chỉ đã chọn
-  //       handleAddressSelected(address);
-  //     } else {
-  //       console.error("Không tìm thấy kết quả cho địa chỉ này.");
-  //     }
-  //   } catch (error) {
-  //     console.error("Đã xảy ra lỗi trong quá trình tìm kiếm vị trí.", error);
-  //   }
-  // };
+
+  const handleClearAddress = () => {
+    setAddress("");
+  };
+  
   return (
     <div style={{ height: "100%", width: "100%" }}>
-      <div className="search_address">
-        <PlacesAutocomplete
-          value={address}
-          onChange={setAddress}
-          onSelect={handleAddressSelected}
-        >
-          {({ getInputProps, suggestions, getSuggestionItemProps, loading }) => (
-            <div>
-              <input
-                {...getInputProps({
-                  placeholder: "Nhập địa chỉ",
-                  style: {
-                    height: "50px",
-                    width: "400px",
-                    marginRight: "5px",
-                    borderRadius: "10px",
-                  },
-                })}
-              />
-              <div>
-                {suggestions.map((suggestion) => {
-                  const style = {
-                    backgroundColor: suggestion.active ? "#41b6e6" : "#fff",
-                  };
-                  return (
-                    <div
-                      {...getSuggestionItemProps(suggestion, {
-                        style,
-                      })}
-                    >
-                      {suggestion.description}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-        </PlacesAutocomplete>
-        <button
-          style={{ height: "50px", borderRadius: "10px" }}
-          onClick={handleSearch}
-        >
-          Tìm vị trí
-        </button>
-      </div>
-
-      <GoogleMapReact
-        bootstrapURLKeys={{ key: "AIzaSyCwBQ0eI1YsUlOC9nQ2ty1AZFzn4MZmr0o" }}
-        defaultCenter={coords ?? defaultProps.center}
-        defaultZoom={11}
-        center={coords ?? defaultProps.center}
+        <GoogleMapReact
+        bootstrapURLKeys={{
+          key: "AIzaSyBSLmhb6vCHhrZxMh3lmUI-CICfzhiMakk",
+        }}
+        defaultCenter={defaultCenter}
+        defaultZoom={defaultZoom}
+        center={coords ?? defaultCenter}
+        zoom={defaultZoom}
       >
         <Position lat={coords?.lat} lng={coords?.lng} />
       </GoogleMapReact>
+    <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleSearchIcon();
+        }}
+      >
+        <Box
+          display="flex"
+          flexDirection="row"
+          justifyContent="center"
+          alignItems="center"
+          p={2}
+          position="absolute"
+          top={0}
+          left={0}
+          width="100%"
+          zIndex="1"
+
+        >
+          <PlacesAutocomplete
+            value={address}
+            onChange={setAddress}
+            onSelect={handleAddressSelected}
+          >
+            {({
+              getInputProps,
+              suggestions,
+              getSuggestionItemProps,
+              loading,
+            }) => (
+              <div style={{ display: "flex", flexDirection: "column",  borderRadius: "10px", }}>
+                <FormControl>
+                  <TextField
+                    {...getInputProps({
+                      placeholder: "Nhập địa chỉ",
+                      style: {
+                        height: "50px",
+                        width: "400px",
+                        marginRight: "5px",
+                        borderRadius: "10px",
+                        backgroundColor:"white"
+                      },
+                    })}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                             <SearchIcon/>
+                          {/* <IconButton
+                            type="submit"
+                            // onClick={handleSearchIcon}
+                          >
+                         
+                          </IconButton> */}
+                          <IconButton onClick={handleClearAddress}>
+                            {loading ? (
+                              <CircularProgress size={20} />
+                            ) : (
+                              <CloseIcon />
+                            )}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                </FormControl>
+                <div>
+                  {suggestions.map((suggestion) => {
+                    const style = {
+                      backgroundColor: suggestion.active ? "#41b6e6" : "#fff",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      maxWidth: "400px",
+                    };
+
+                    return (
+                      <div
+                        {...getSuggestionItemProps(suggestion, {
+                          style,
+                        })}
+                      >
+                           <FaMapMarkerAlt style={{ marginRight: "5px" }} />
+                        {suggestion.description}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </PlacesAutocomplete>
+        </Box>
+      </form>
+
     </div>
   );
 };
