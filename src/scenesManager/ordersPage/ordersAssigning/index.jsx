@@ -358,15 +358,14 @@ const OrdersAssigning = (props) => {
         subtitle="Danh sách chi tiết đơn hàng mới"
       />
       <Box display="flex" className="box" left={0}>
-        <Box
+      <Box
           display="flex"
           borderRadius="5px"
-          className="search-box"
           border={1}
-          marginRight={2}
+          marginRight={2} 
         >
           <InputBase
-            sx={{ ml: 4, flex: 1, padding: 1.3 }}
+            sx={{ ml: 4, flex: 1 }}
             placeholder="Tìm kiếm"
             onChange={handleSearchChange}
             className="search-input"

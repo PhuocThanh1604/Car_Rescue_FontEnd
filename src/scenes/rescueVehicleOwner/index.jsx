@@ -1,16 +1,13 @@
 import React, { useEffect, useState } from "react";
 import {
   Box,
-
   useTheme,
   Modal,
   TextField,
   Select,
   MenuItem,
   IconButton,
-
   FormControl,
-
   Switch,
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
@@ -34,8 +31,8 @@ import {
   getRescueVehicleOwnerId,
   updateStatusRescueVehicleOwner,
 } from "../../redux/rescueVehicleOwnerSlice";
-import InfoIcon from '@mui/icons-material/Info';
-import EditIcon from '@mui/icons-material/Edit';
+import InfoIcon from "@mui/icons-material/Info";
+import EditIcon from "@mui/icons-material/Edit";
 const RescueVehicleOwners = (props) => {
   const dispatch = useDispatch();
   const rescueVehicleOwners = useSelector(
@@ -206,13 +203,13 @@ const RescueVehicleOwners = (props) => {
     const updateData = {
       id: rescueVehicleOwnerId,
       fullname: fullname,
-      sex:"",
-      phone:"",
-      avatar:"",
-      address:"",
-      createAt:"",
-      updateAt:"",
-      area:"",
+      sex: "",
+      phone: "",
+      avatar: "",
+      address: "",
+      createAt: "",
+      updateAt: "",
+      area: "",
       status: newStatus,
     };
     const updateDataJson = JSON.stringify(updateData);
@@ -350,7 +347,6 @@ const RescueVehicleOwners = (props) => {
         <EditIcon
           variant="contained"
           color="error"
-          
           onClick={() => handleUpdateClick(params.row.id)}
         >
           <EditIcon style={{ color: "green" }} />
@@ -367,12 +363,11 @@ const RescueVehicleOwners = (props) => {
         <Box
           display="flex"
           borderRadius="5px"
-          className="search-box"
           border={1}
-          marginRight={2}
+          marginRight={2} 
         >
           <InputBase
-            sx={{ ml: 4, flex: 1, padding: 1.3 }}
+            sx={{ ml: 4, flex: 1 }}
             placeholder="Tìm kiếm"
             onChange={handleSearchChange}
             className="search-input"
@@ -381,6 +376,7 @@ const RescueVehicleOwners = (props) => {
             <SearchIcon />
           </IconButton>
         </Box>
+
 
         <ToastContainer />
         <Box display="flex" alignItems="center" className="filter-box">
