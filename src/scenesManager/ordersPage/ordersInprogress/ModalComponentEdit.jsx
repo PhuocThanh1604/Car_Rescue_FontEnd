@@ -13,21 +13,27 @@ import {
   CardActions,
   Collapse,
   Divider,
+  useMediaQuery,
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
 import {
   fetchOrdersInprogress,
+  getOrderDetailId,
   updateServiceForTechnicians,
 } from "../../../redux/orderSlice";
 import { fetchServices, getServiceId } from "../../../redux/serviceSlice";
 import AddIcon from "@mui/icons-material/Add";
 import InputAdornment from "@mui/material/InputAdornment";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
+import { Formik } from "formik";
+import * as yup from "yup";
+import ProductionQuantityLimitsIcon from "@mui/icons-material/ProductionQuantityLimits";
 const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
   const dispatch = useDispatch();
   const orders = useSelector((state) => state.order.orders);
+  const isNonMobile = useMediaQuery("(min-width:600px)");
   const [edit, setEdit] = useState({});
   const [isSuccess, setIsSuccess] = useState(false);
   const [initialFormState, setInitialFormState] = useState({});
@@ -41,7 +47,17 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
   const [nameService, setNameService] = useState({});
   const [selectedServiceOrder, setSelectedServiceOrder] = useState(null);
   const [serviceId, setServiceId] = useState([]);
-
+  const [quantity, setQuantity] = useState("");
+  const [serviceQuantities, setServiceQuantities] = useState({});
+  const checkoutSchema = yup.object().shape({
+    quantity: yup.number().required("Required"),
+    service: yup.string().required("Required"),
+  });
+  const initialValues = {
+    orderId: selectedEditOrder?.[0]?.orderId || "",
+    quantity: "",
+    service: [],
+  };
   const reloadOrderInprogress = () => {
     dispatch(fetchOrdersInprogress())
       .then((response) => {
@@ -59,6 +75,8 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
         );
       });
   };
+
+
 
   useEffect(() => {
     if (selectedEditOrder && orders) {
@@ -113,27 +131,33 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
   };
 
   const handleSaveClick = () => {
+ // Lấy giá trị quantity từ values
+    console.log(quantity);
     if (!selectedEditOrder || !edit) {
       toast.error("Không có cập nhật dịch vụ");
       return;
     }
-
     // Check if a service is selected
     if (!selectedService) {
       toast.error("Vui lòng chọn một dịch vụ");
       return;
     }
-
     // Lấy tên dịch vụ đã chọn
     const selectedServiceName = selectedService.name;
+    const selectedOrderId = selectedEditOrder[0].orderId;
     console.log(selectedServiceName);
+
+    if (!selectedOrderId) {
+      console.error("No orderId to reload details for.");
+      toast.error("No valid order ID found.");
+      return;
+    }
     // Tạo một bản sao của đối tượng `edit` với tên dịch vụ
     const updatedEdit = {
-      orderId: edit.id, // Lấy id của đơn hàng
+      orderId: selectedOrderId, // Lấy id của đơn hàng
       service: selectedServiceName, // Lưu tên dịch vụ vào thuộc tính `service` hoặc tùy chỉnh tên thuộc tính tương ứng trong đối tượng `edit`
-      quantity: edit.quantity, // Lấy số lượng
+      quantity: quantity, // Lấy số lượng
     };
-    console.log(updatedEdit);
     // Kiểm tra xem có sự thay đổi trong dữ liệu so với dữ liệu ban đầu
     const hasChanges =
       JSON.stringify(updatedEdit) !== JSON.stringify(initialFormState);
@@ -146,9 +170,10 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
       dispatch(updateServiceForTechnicians(updatedEdit))
         .then(() => {
           toast.success("Cập nhật dịch vụ thành công");
-          handleClose();
 
           setIsSuccess(true);
+          reloadOrderDetail(selectedOrderId)
+          handleClose()
           reloadOrderInprogress();
         })
         .catch((error) => {
@@ -171,7 +196,28 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
         });
     }
   };
-
+  const reloadOrderDetail = (orderId) => {
+    console.log(orderId);
+    if (!orderId) {
+      console.error("No orderId provided for reloading order details.");
+      return;
+    }
+    dispatch(getOrderDetailId({ id: orderId }))
+      .then((response) => {
+        const data = response.payload.data;
+        if (data) {
+          setFilteredOrders(data);
+          // Đặt loading thành false sau khi tải lại dữ liệu
+          setLoading(false);
+        }
+      })
+      .catch((error) => {
+        console.error(
+          "Lỗi khi tải lại chi tiết đơn:",
+          error
+        );
+      });
+  };
   const handleClose = () => {
     setOpenEditModal(false);
   };
@@ -179,19 +225,46 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
   //search service
 
 
+  // useEffect(() => {
+  //   if (Array.isArray(selectedEditOrder) && selectedEditOrder.length > 0) {
+  //     // Initialize an object to collect quantities for each serviceId
+  //     const quantities = selectedEditOrder.reduce((acc, current) => {
+  //       const { serviceId, quantity, total } = current;
   
+  //       // Initialize the total quantity and total amount if this serviceId hasn't been seen before
+  //       if (!acc[serviceId]) {
+  //         acc[serviceId] = { quantity: 0, total: 0 };
+  //       }
+  
+  //       // Add the current quantity and total to the accumulator
+  //       acc[serviceId].quantity += Number(quantity);
+  //       acc[serviceId].total += Number(total);
+  
+  //       return acc;
+  //     }, {});
+  
+  //     // Set the state with the accumulated quantities
+  //     setServiceQuantities(quantities);
+  //   }
+  // }, [selectedEditOrder]);
   
   useEffect(() => {
-// Ensure selectedEditOrder is not null and is an array
-if (Array.isArray(selectedEditOrder) && selectedEditOrder.length > 0) {
-  // Extract unique service IDs
-  const uniqueServiceIds = [...new Set(selectedEditOrder.map(order => order.serviceId))];
+    // Ensure selectedEditOrder is not null and is an array
+    if (Array.isArray(selectedEditOrder) && selectedEditOrder.length > 0) {
+        // Group services and set them in state or use them directly
+      // Extract service IDs, removing duplicates based on custom criteria
+      const serviceIdsSeen = new Set(); // To keep track of serviceIds we have seen
+      const uniqueServiceIds = selectedEditOrder
+        .map((order) => order.serviceId)
+        .filter((serviceId) => {
+          const isDuplicate = serviceIdsSeen.has(serviceId);
+          serviceIdsSeen.add(serviceId); // Add the current serviceId to the set
+          return !isDuplicate && serviceId && !nameService[serviceId]; // Return true if it's not a duplicate and not already fetched
+        });
 
-  // Fetch service names for unique service IDs
-  uniqueServiceIds.forEach((serviceId) => {
-    fetchServiceName(serviceId);
-  });
-}
+      // Fetch service names for unique service IDs
+      uniqueServiceIds.forEach(fetchServiceName);
+    }
   }, [selectedEditOrder]);
 
   const fetchServiceName = (serviceId) => {
@@ -215,23 +288,7 @@ if (Array.isArray(selectedEditOrder) && selectedEditOrder.length > 0) {
         });
     }
   };
-  
-  const handleServiceIdChange = (event, index) => {
-    const newServiceId = event.target.value;
-  
-    // Update the serviceIds state with the new serviceId
-    setServiceId(prevServiceIds => ({
-      ...prevServiceIds,
-      [index]: newServiceId
-    }));
-  
-    // If you want to automatically call the API when the serviceId changes
-    // getServiceId(newServiceId);
-  };
-  
-  
-  
-  
+
 
   return (
     <>
@@ -329,7 +386,7 @@ if (Array.isArray(selectedEditOrder) && selectedEditOrder.length > 0) {
                     selectedEditOrder.length > 0 &&
                     selectedEditOrder.map((order, index) => (
                       <CardContent key={order.id || index}>
-                        {/* <TextField
+                        <TextField
                           name="id"
                           label="id"
                           value={edit.id}
@@ -339,9 +396,8 @@ if (Array.isArray(selectedEditOrder) && selectedEditOrder.length > 0) {
                               handleInputChange(event);
                             }
                           }}
-                        
                           style={{ display: "none" }}
-                        /> */}
+                        />
                         <div
                           style={{
                             display: "flex",
@@ -349,16 +405,17 @@ if (Array.isArray(selectedEditOrder) && selectedEditOrder.length > 0) {
                             justifyContent: "space-between", // This will add space between the children
                           }}
                         >
-                            <TextField
-                              variant="outlined"
-                              label="Tên dịch vụ"
-                              value={order.serviceId || ""}
-                              fullWidth
-                              margin="normal"
-                              style={{ marginRight: "10px", flex: "1" }}
-                            />
-                           
-
+                          <TextField
+                            variant="outlined"
+                            label="Tên dịch vụ"
+                            value={nameService[order.serviceId] || ""}
+                            fullWidth
+                            margin="normal"
+                            style={{ marginRight: "10px", flex: "1" }}
+                            InputProps={{
+                              readOnly: true, // If you don't want it to be editable, make it read-only
+                            }}
+                          />
 
                           <TextField
                             variant="outlined"
@@ -378,12 +435,7 @@ if (Array.isArray(selectedEditOrder) && selectedEditOrder.length > 0) {
                             InputProps={{
                               startAdornment: (
                                 <InputAdornment position="start">
-                                  <AccountBalanceWalletIcon />
-                                </InputAdornment>
-                              ),
-                              endAdornment: (
-                                <InputAdornment position="end">
-                                  VNĐ
+                                  <ProductionQuantityLimitsIcon />
                                 </InputAdornment>
                               ),
                             }}
@@ -435,27 +487,98 @@ if (Array.isArray(selectedEditOrder) && selectedEditOrder.length > 0) {
                         </div>
                       </CardContent>
                     ))}
-                  <Button
-                    onClick={handleSaveClick}
-                    startIcon={<AddIcon />}
-                    sx={{
-                      color: "green", // This will set the text color to green
-                      marginLeft: "16px",
-                      fontWeight: "bold",
-                      "& .MuiButton-startIcon": {
-                        // This targets the start icon specifically
-                        color: "green", // This will set the icon color to green
-                      },
-                      "&:hover": {
-                        backgroundColor: "rgba(0, 128, 0, 0.1)", // Light green background on hover
-                        // If you want to change the icon color on hover as well, uncomment the following line:
-                        // '& .MuiButton-startIcon': { color: 'darkgreen' },
-                      },
-                    }}
-                  >
-                    Thêm dịch vụ
-                  </Button>
 
+                    
+                  <Formik
+                    onSubmit={handleSaveClick}
+                    initialValues={initialValues}
+                    validationSchema={checkoutSchema}
+                  >
+                    {(formikProps) => {
+                      // Log current form values
+
+                      return (
+                        // Your form JSX goes here
+                        <form onSubmit={formikProps.handleSubmit}>
+                          <Box
+                            display="grid"
+                            gap="30px"
+                            gridTemplateColumns="repeat(4, minmax(0, 1fr))"
+                            sx={{
+                              "& > div": {
+                                gridColumn: isNonMobile ? undefined : "span 4",
+                              },
+                            }}
+                          >
+                            <Autocomplete
+                              id="service-select"
+                              options={servicesData}
+                              getOptionLabel={(option) =>
+                                option.name || "Default Name"
+                              }
+                              value={selectedService}
+                              onChange={(_, newValue) => {
+                                setSelectedService(newValue);
+                                const selectedServiceName = newValue
+                                  ? newValue.name
+                                  : "";
+                                // handleChange("service")(selectedServiceName);
+                              }}
+                              renderInput={(params) => (
+                                <TextField
+                                  {...params}
+                                  label="Danh Sách Dịch Vụ"
+                                  variant="filled"
+                                />
+                              )}
+                            />
+                            <TextField
+                              name="quantity"
+                              label="Số lượng"
+                              type="number"
+                              onChange={(e) => {
+                                formikProps.handleChange(e); // Update Formik's internal state
+                                setQuantity(e.target.value); // Update component's state
+                              }}
+                              onBlur={formikProps.handleBlur}
+                              value={formikProps.values.quantity}
+                              fullWidth
+                              variant="filled"
+                              error={
+                                formikProps.touched.quantity &&
+                                Boolean(formikProps.errors.quantity)
+                              }
+                              helperText={
+                                formikProps.touched.quantity &&
+                                formikProps.errors.quantity
+                              }
+                              sx={{ gridColumn: "span 2" }}
+                            />
+                          </Box>
+                          <Button
+                            onClick={handleSaveClick}
+                            startIcon={<AddIcon />}
+                            sx={{
+                              color: "green", // This will set the text color to green
+                              marginLeft: "16px",
+                              fontWeight: "bold",
+                              "& .MuiButton-startIcon": {
+                                // This targets the start icon specifically
+                                color: "green", // This will set the icon color to green
+                              },
+                              "&:hover": {
+                                backgroundColor: "rgba(0, 128, 0, 0.1)", // Light green background on hover
+                                // If you want to change the icon color on hover as well, uncomment the following line:
+                                // '& .MuiButton-startIcon': { color: 'darkgreen' },
+                              },
+                            }}
+                          >
+                            Thêm dịch vụ
+                          </Button>
+                        </form>
+                      );
+                    }}
+                  </Formik>
                   <Box
                     sx={{
                       display: "flex",

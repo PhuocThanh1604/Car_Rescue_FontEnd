@@ -45,6 +45,8 @@ const CreateOrderOffline = () => {
   const [addressDestination, setAddressDestination] = useState("");
   const [departure, setDeparture] = useState("");
   const [destination, setDestination] = useState("");
+  const [latDestination, setLatDestination] = useState(null);
+  const [lngDestination, setLngDestination] = useState(null);
   const [lat, setLat] = useState(null);
   const [lng, setLng] = useState(null);
   const [selectedMapAddress, setSelectedMapAddress] = useState("");
@@ -83,37 +85,6 @@ const CreateOrderOffline = () => {
     }
   };
 
-  // const handleMapLocationSelectedDestination = async (selectedAddress) => {
-  //   try {
-  //     const results = await geocodeByAddress(selectedAddress);
-  //     if (results && results.length > 0) {
-  //       const firstResult = results[0];
-  //       const latLng = await getLatLng(firstResult);
-  //       const selectedLocation = {
-  //         lat: latLng.lat,
-  //         lng: latLng.lng,
-  //         address: firstResult.formatted_address,
-  //       };
-  //       const latLngDestination = `lat:${selectedLocation.lat},long:${selectedLocation.lng}`;
-  //       console.log(latLngDestination);
-  //       setLat(selectedLocation.lat);
-  //       setLng(selectedLocation.lng);
-  //       setAddressDestination(selectedLocation.address);
-  //       setSelectedMapAddress(selectedLocation.address);
-
-  //       // Cập nhật trường "destination"
-  //       formikRef.current.setFieldValue("destination", latLngDestination);
-  //     } else {
-  //       console.error("No results found for this address.");
-  //     }
-  //   } catch (error) {
-  //     console.error(
-  //       "An error occurred while searching for the location.",
-  //       error
-  //     );
-  //   }
-  // };
-
   const handleMapLocationSelectedDestination = async (selectedAddress) => {
     try {
       const results = await geocodeByAddress(selectedAddress);
@@ -127,34 +98,13 @@ const CreateOrderOffline = () => {
         };
         const latLngDestination = `lat:${selectedLocation.lat},long:${selectedLocation.lng}`;
         console.log(latLngDestination);
+        setLatDestination(selectedLocation.lat);
+        setLngDestination(selectedLocation.lng);
+        setAddressDestination(selectedLocation.address);
+        setSelectedMapAddress(selectedLocation.address);
 
-        // Tính khoảng cách giữa departure và destination
-        if (
-          !isNaN(departure.lat) &&
-          !isNaN(departure.lng) &&
-          !isNaN(selectedLocation.lat) &&
-          !isNaN(selectedLocation.lng)
-        ) {
-          // Tính khoảng cách giữa departure và destination
-          const distance = calculateDistance(
-            departure.lat,
-            departure.lng,
-            selectedLocation.lat,
-            selectedLocation.lng
-          );
-          console.log(`Khoảng cách: ${distance} km`);
-
-          setLat(selectedLocation.lat);
-          setLng(selectedLocation.lng);
-          setAddressDestination(selectedLocation.address);
-          setSelectedMapAddress(selectedLocation.address);
-
-          // Cập nhật trường "destination"
-          formikRef.current.setFieldValue("destination", latLngDestination);
-          formikRef.current.setFieldValue("distance", `${distance} km`);
-        } else {
-          console.error("Invalid coordinates for departure or destination.");
-        }
+        // Cập nhật trường "destination"
+        formikRef.current.setFieldValue("destination", latLngDestination);
       } else {
         console.error("No results found for this address.");
       }
@@ -165,22 +115,45 @@ const CreateOrderOffline = () => {
       );
     }
   };
+  useEffect(() => {
+    // Ensure both sets of coordinates are present
+    if (lat != null && lng != null && latDestination != null && lngDestination != null) {
+      const distance = calculateDistance(lat, lng, latDestination, lngDestination);
+      console.log(`Distance: ${distance.toFixed(2)} km`);
+      // Here you could set the distance in state or in a form field
+      formikRef.current.setFieldValue("distance", distance.toFixed(2));
+    }
+  }, [lat, lng, latDestination, lngDestination]); // Dependencies array for useEffect
+  
+  // Rest of your component
+  
+
 
   function calculateDistance(lat1, lon1, lat2, lon2) {
-    const radlat1 = (Math.PI * lat1) / 180;
-    const radlat2 = (Math.PI * lat2) / 180;
-    const theta = lon1 - lon2;
-    const radtheta = (Math.PI * theta) / 180;
-    let dist =
-      Math.sin(radlat1) * Math.sin(radlat2) +
-      Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
-    dist = Math.acos(dist);
-    dist = (dist * 180) / Math.PI;
-    dist = dist * 60 * 1.1515; // Khoảng cách đơn vị dưới dạng dặm (miles)
-    // Chuyển đổi sang kilômét
-    dist = dist * 1.609344;
-    return dist;
+    const R = 6371; // Earth's radius in kilometers
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * 
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const distance = R * c; // Distance in kilometers
+    return distance;
   }
+  
+  function toRad(value) {
+    return value * Math.PI / 180;
+  }
+  
+
+    // Example usage:
+    // const point1 = { lat: 10.7756587, lng: 106.7004238 };
+    // const point2 = { lat: 10.7935216, lng: 106.73081950 };
+    
+    // const distanceKm = calculateDistance(point1.lat, point1.lng, point2.lat, point2.lng);
+    // console.log(`The distance is ${distanceKm.toFixed(2)} km`);
+    
 
   const checkoutSchema = yup.object().shape({
     customerNote: yup.string().required("Required"),
@@ -418,6 +391,56 @@ const CreateOrderOffline = () => {
                 helperText={touched.destination && errors.destination}
                 sx={{ gridColumn: "span 2" }}
               /> */}
+
+              <TextField
+                fullWidth
+                variant="filled"
+                type="text"
+                label="Khoảng cách "
+                onBlur={handleBlur}
+                onChange={handleChange}
+                value={values.distance}
+                name="distance"
+                error={touched.distance && errors.distance ? true : false}
+                helperText={touched.distance && errors.distance}
+                sx={{ gridColumn: "span 2" }}
+              />
+
+              <FormControl fullWidth variant="filled">
+                <InputLabel id="paymentMethod-label">
+                  Phương Thức Thanh Toán
+                </InputLabel>
+                <Select
+                  labelId="paymentMethod-label"
+                  id="paymentMethod"
+                  name="paymentMethod"
+                  value={values.paymentMethod}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  error={
+                    touched.paymentMethod && errors.paymentMethod ? true : false
+                  }
+                >
+                  <MenuItem value="Cast">Tiền Mặt</MenuItem>
+                  <MenuItem value="Bank">Chuyển Khoản</MenuItem>
+                  <MenuItem value="Momo">Momo</MenuItem>
+                </Select>
+              </FormControl>
+              <FormControl fullWidth variant="filled">
+                <InputLabel id="area-label">Khu Vực</InputLabel>
+                <Select
+                  labelId="area-label"
+                  id="area"
+                  name="area"
+                  value={values.area}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  error={touched.area && errors.area ? true : false}
+                >
+                  <MenuItem value="1">1</MenuItem>
+                  <MenuItem value="2">2</MenuItem>
+                </Select>
+              </FormControl>
               <div>
                 <PlacesAutocomplete
                   value={address}
@@ -529,55 +552,6 @@ const CreateOrderOffline = () => {
                   )}
                 </PlacesAutocomplete>
               </div>
-              <TextField
-                fullWidth
-                variant="filled"
-                type="text"
-                label="Khoảng cách "
-                onBlur={handleBlur}
-                onChange={handleChange}
-                value={values.distance}
-                name="distance"
-                error={touched.distance && errors.distance ? true : false}
-                helperText={touched.distance && errors.distance}
-                sx={{ gridColumn: "span 2" }}
-              />
-
-              <FormControl fullWidth variant="filled">
-                <InputLabel id="paymentMethod-label">
-                  Phương Thức Thanh Toán
-                </InputLabel>
-                <Select
-                  labelId="paymentMethod-label"
-                  id="paymentMethod"
-                  name="paymentMethod"
-                  value={values.paymentMethod}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  error={
-                    touched.paymentMethod && errors.paymentMethod ? true : false
-                  }
-                >
-                  <MenuItem value="Cast">Tiền Mặt</MenuItem>
-                  <MenuItem value="Bank">Chuyển Khoản</MenuItem>
-                  <MenuItem value="Momo">Momo</MenuItem>
-                </Select>
-              </FormControl>
-              <FormControl fullWidth variant="filled">
-                <InputLabel id="area-label">Khu Vực</InputLabel>
-                <Select
-                  labelId="area-label"
-                  id="area"
-                  name="area"
-                  value={values.area}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  error={touched.area && errors.area ? true : false}
-                >
-                  <MenuItem value="1">1</MenuItem>
-                  <MenuItem value="2">2</MenuItem>
-                </Select>
-              </FormControl>
             </Box>
           </form>
         )}

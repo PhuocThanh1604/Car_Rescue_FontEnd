@@ -230,7 +230,7 @@ export const createOrderOffline = createAsyncThunk(
   async (data) => {
     try {
       const res = await axios.post(
-        "https://rescuecapstoneapi.azurewebsites.net/api/Order/CreateFixingOrderForCustomer",
+        "https://rescuecapstoneapi.azurewebsites.net/api/Order/CreateTowingOrderForCustomer",
         data,
         {
           headers: {
