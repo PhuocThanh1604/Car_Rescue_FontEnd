@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-const apiKeyGG = 'AIzaSyBD-XWuT_W1Mx98xPV7hQEjSSeGHGnm2mY';
+const apiKeyGG = 'AIzaSyDtQ6f3BA48dZxUbT6NhN94Byw1wfFJBKM';
 // const apiKey = '';
 
 export const fetchOrders = createAsyncThunk("orders/fetchOrders", async () => {
