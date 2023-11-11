@@ -202,11 +202,11 @@ const Orders = (props) => {
         (departure) => !formattedAddresses[departure]
       );
 
-      const fetchPromises = uniqueDeparturesToFetch.map((departure) =>
-        fetchAddress(data.find((order) => order.departure === departure))
-      );
+      // const fetchPromises = uniqueDeparturesToFetch.map((departure) =>
+      //   fetchAddress(data.find((order) => order.departure === departure))
+      // );
 
-      await Promise.all(fetchPromises);
+      // await Promise.all(fetchPromises);
     }, 500); // Adjust the debounce time as needed
 
     // Fetch fullnames and addresses for unique customer IDs and departures
@@ -391,9 +391,9 @@ const Orders = (props) => {
             borderRadius={8} // Corrected prop name from "buserRadius" to "borderRadius"
             backgroundColor={
               rescueType === "Fixing"
-                ? colors.greenAccent[700]
+                ? colors.yellowAccent[400]
                 : colors.grey[800]
-                ? colors.redAccent[700]
+                ? colors.redAccent[600]
                 : rescueType === "Towing"
             }
           >
