@@ -4,6 +4,19 @@ const apiKeyGG = 'AIzaSyDtQ6f3BA48dZxUbT6NhN94Byw1wfFJBKM';
 // const apiKeyGG = process.env.API_KEY_GG;
 const mapboxToken = 'pk.eyJ1IjoidGhhbmgyazEiLCJhIjoiY2xvZjMxcWppMG5oejJqcnI2M2ZleTJtZiJ9.yvWTA-yYNqTdr2OstpB7bw';
 // const apiKey = '';
+// Hàm lưu dữ liệu vào storage
+const saveToStorage = (key, data) => {
+  const jsonData = JSON.stringify(data);
+  localStorage.setItem(key, jsonData); // Dùng Local Storage
+  // sessionStorage.setItem(key, jsonData); // Hoặc dùng Session Storage
+};
+
+// Hàm lấy dữ liệu từ storage
+const getFromStorage = (key) => {
+  const jsonData = localStorage.getItem(key); // Dùng Local Storage
+  // const jsonData = sessionStorage.getItem(key); // Hoặc dùng Session Storage
+  return jsonData ? JSON.parse(jsonData) : null;
+};
 
 export const fetchOrders = createAsyncThunk("orders/fetchOrders", async () => {
   try {
@@ -189,15 +202,22 @@ export const getOrderDetailId = createAsyncThunk(
     }
   }
 );
-
 export const getFormattedAddressGG = createAsyncThunk(
   "orders/getFormattedAddress",
   async ({ lat, lng }) => {
+    const key = `formattedAddress_${lat}_${lng}`;
+    const storedData = getFromStorage(key);
+
+    if (storedData) {
+      return storedData; // Trả về dữ liệu đã lưu nếu có
+    }
+
     try {
       const response = await axios.get(
         `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKeyGG}`
       );
       const data = response.data;
+      saveToStorage(key, data); // Lưu dữ liệu mới vào storage
       return data;
     } catch (error) {
       console.error("Failed to get Address ", error.error_message);
@@ -205,6 +225,23 @@ export const getFormattedAddressGG = createAsyncThunk(
     }
   }
 );
+
+
+// export const getFormattedAddressGG = createAsyncThunk(
+//   "orders/getFormattedAddress",
+//   async ({ lat, lng }) => {
+//     try {
+//       const response = await axios.get(
+//         `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKeyGG}`
+//       );
+//       const data = response.data;
+//       return data;
+//     } catch (error) {
+//       console.error("Failed to get Address ", error.error_message);
+//       throw error.response.data || error.message;
+//     }
+//   }
+// );
 
 export const getFormattedAddressMapbox = createAsyncThunk(
   "orders/getFormattedAddress",

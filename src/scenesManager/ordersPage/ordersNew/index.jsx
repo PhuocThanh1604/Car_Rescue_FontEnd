@@ -185,7 +185,14 @@ const Orders = (props) => {
         console.error("Lỗi khi tải lại danh sách đơn hàng mới:", error);
       });
   };
-
+  useEffect(() => {
+    if (!data || data.length === 0) {
+      fetchOrdersNew();
+    }
+  }, [data]); // Chỉ gọi API nếu 'data' rỗng hoặc chưa được tải
+  
+  // ...
+  
   useEffect(() => {
     const uniqueCustomerIds = [...new Set(data.map((row) => row.customerId))];
     const uniqueDepartures = [...new Set(data.map((row) => row.departure))];
