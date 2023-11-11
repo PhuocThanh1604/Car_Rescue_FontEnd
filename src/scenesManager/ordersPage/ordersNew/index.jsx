@@ -181,11 +181,10 @@ const Orders = (props) => {
   };
 
   useEffect(() => {
-    // Extract unique customer IDs and departure values
     const uniqueCustomerIds = [...new Set(data.map((row) => row.customerId))];
     const uniqueDepartures = [...new Set(data.map((row) => row.departure))];
-
-    const fetchFullNames = async (customerIds) => {
+  
+  const fetchFullNames = async (customerIds) => {
       const uniqueCustomerIdsToFetch = customerIds.filter(
         (customerId) => !fullnameData[customerId]
       );
@@ -197,22 +196,23 @@ const Orders = (props) => {
       await Promise.all(fetchPromises);
     };
 
+  
     const debouncedFetchAddresses = debounce(async (departures) => {
       const uniqueDeparturesToFetch = departures.filter(
         (departure) => !formattedAddresses[departure]
       );
-
-      // const fetchPromises = uniqueDeparturesToFetch.map((departure) =>
-      //   fetchAddress(data.find((order) => order.departure === departure))
-      // );
-
-      // await Promise.all(fetchPromises);
-    }, 500); // Adjust the debounce time as needed
-
-    // Fetch fullnames and addresses for unique customer IDs and departures
+  
+      const fetchPromises = uniqueDeparturesToFetch.map((departure) => {
+        const order = data.find((order) => order.departure === departure);
+        return fetchAddress(order);
+      });
+  
+      await Promise.all(fetchPromises);
+    }, 500);
+  
     fetchFullNames(uniqueCustomerIds);
     debouncedFetchAddresses(uniqueDepartures);
-
+  
   }, [data, formattedAddresses, fullnameData]);
   function debounce(func, wait) {
     let timeout;
@@ -227,50 +227,30 @@ const Orders = (props) => {
       timeout = setTimeout(later, wait);
     };
   }
-  const fetchAddress = (order) => {
-    if (!order) {
-      return; // Add a check for a valid order
+  const fetchAddress = async (order) => {
+    if (!order || formattedAddresses[order.departure]) {
+      return; // Trả về nếu order không tồn tại hoặc địa chỉ đã được lưu trữ
     }
   
     const departure = order.departure;
+    const matches = /lat:\s*([^,]+),\s*long:\s*([^,]+)/.exec(departure);
   
-    if (!formattedAddresses[departure]) {
-      // Extract latitude and longitude values from 'departure'
-      const matches = /lat:\s*([^,]+),\s*long:\s*([^,]+)/.exec(departure);
+    if (matches && matches.length === 3) {
+      const [, lat, lng] = matches;
   
-      if (matches && matches.length === 3) {
-        const [, lat, lng] = matches;
-  
-        // Check if lat and lng are valid numbers
-        if (!isNaN(lat) && !isNaN(lng)) {
-          // Check if the address is already in the cache
-          if (formattedAddresses[departure]) {
-            setSelectedOrderFormattedAddress(formattedAddresses[departure]);
-          } else {
-            // Dispatch 'getFormattedAddress' with the extracted lat and lng values
-            dispatch(getFormattedAddressGG({ lat, lng }))
-              .then((response) => {
-                // const formattedAddress = response.features[0].place_name;
-                // const formattedAddress = response.features.id;
-                const formattedAddress = response.payload.results[0].formatted_address;
-                console.log("index"+formattedAddress)
-                // Update the state with the fetched formatted address
-                setFormattedAddresses((prevAddresses) => ({
-                  ...prevAddresses,
-                  [departure]: formattedAddress,
-                }));
-                setSelectedOrderFormattedAddress(formattedAddress);
-              })
-              .catch((error) => {
-                console.error("Error fetching address:", error.response ? error.response : error);
-              });
-              
-          }
+      if (!isNaN(lat) && !isNaN(lng)) {
+        try {
+          const response = await dispatch(getFormattedAddressGG({ lat, lng }));
+          const formattedAddress = response.payload.results[0].formatted_address;
+          setFormattedAddresses(prevAddresses => ({
+            ...prevAddresses,
+            [departure]: formattedAddress,
+          }));
+          setSelectedOrderFormattedAddress(formattedAddress);
+        } catch (error) {
+          console.error("Error fetching address:", error.response ? error.response : error);
         }
       }
-    } else {
-      // Use cached address data
-      setSelectedOrderFormattedAddress(formattedAddresses[departure]);
     }
   };
   
@@ -351,15 +331,15 @@ const Orders = (props) => {
         return fullnameData[params.value] || "";
       },
     },
-    // {
-    //   field: "departure",
-    //   headerName: "Địa Chỉ",
-    //   width: 240,
-    //   valueGetter: (params) => {
-    //     // Get the fullname from the state based on customerId
-    //     return formattedAddresses[params.value] || "";
-    //   },
-    // },
+    {
+      field: "departure",
+      headerName: "Địa Chỉ",
+      width: 240,
+      valueGetter: (params) => {
+        // Get the fullname from the state based on customerId
+        return formattedAddresses[params.value] || "";
+      },
+    },
     {
       field: "customerNote",
       headerName: "Ghi Chú của Customer",
