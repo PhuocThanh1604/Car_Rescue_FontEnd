@@ -35,9 +35,11 @@ import RepeatOnIcon from "@mui/icons-material/RepeatOn";
 import SupportIcon from "@mui/icons-material/Support";
 import HandymanIcon from "@mui/icons-material/Handyman";
 import AssignmentLateIcon from "@mui/icons-material/AssignmentLate";
+import { useLocation } from "react-router-dom";
 const Orders = (props) => {
   const dispatch = useDispatch();
   const orders = useSelector((state) => state.order.orders);
+  const location = useLocation();
   const [openEditModal, setOpenEditModal] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [filterOption, setFilterOption] = useState("rescueType");
@@ -59,6 +61,8 @@ const Orders = (props) => {
   const [rescueVehicles, setRescueVehicles] = useState([]); // Tạo một state mới cho danh sách xe cứu hộ
   const [selectedOrderFormattedAddress, setSelectedOrderFormattedAddress] =
     useState("");
+
+  
   const handleSearchChange = (event) => {
     const value = event.target.value.toLowerCase();
     setSearchText(value);
@@ -107,12 +111,6 @@ const Orders = (props) => {
     }
   };
 
-  if (orders) {
-    orders.forEach((order) => {
-      // Đây bạn có thể truy cập và xử lý dữ liệu từng đối tượng khách hàng ở đây
-    });
-  }
-
   useEffect(() => {
     setLoading(true);
     dispatch(fetchOrdersNew())
@@ -128,7 +126,7 @@ const Orders = (props) => {
       .finally(() => {
         setLoading(false);
       });
-  }, [dispatch]);
+  }, [dispatch,location.pathname] );
 
   const handleAssignClick = (orderId) => {
     console.log(orderId);
@@ -158,6 +156,7 @@ const Orders = (props) => {
           setOpenEditModal(true);
           setIsSuccess(true);
           reloadOders();
+         
         })
         .catch((error) => {
           console.error("Lỗi khi lấy thông tin đơn hàng mới:", error);
@@ -176,7 +175,7 @@ const Orders = (props) => {
         }
       })
       .catch((error) => {
-        console.error("Lỗi khi tải lại danh sách đơn hàng:", error);
+        console.error("Lỗi khi tải lại danh sách đơn hàng mới:", error);
       });
   };
 
@@ -249,39 +248,13 @@ const Orders = (props) => {
           setSelectedOrderFormattedAddress(formattedAddress);
         } catch (error) {
           console.error("Error fetching address:", error.response ? error.response : error);
+        }finally {
+          setLoading(false); // Đảm bảo loading được đặt lại thành false dù có lỗi
         }
       }
     }
   };
   
-  
-
-  // useEffect(() => {
-  //   // Extract unique customer IDs and departure values
-  //   const uniqueCustomerIds = [...new Set(data.map((row) => row.customerId))];
-  //   const uniqueDepartures = [...new Set(data.map((row) => row.departure))];
-  //   // Fetch fullnames and addresses for unique customer IDs and departures
-  //   uniqueCustomerIds.forEach((customerId) => {
-  //     if (!fullnameData[customerId]) {
-  //       fetchFullname(customerId);
-        
-  //     }
-  //   });
-
-  //   uniqueDepartures.forEach((departure) => {
-  //     if (!formattedAddresses[departure]) {
-  //       const orderWithDeparture = data.find(
-  //         (order) => order.departure === departure
-  //       );
-  //       if (orderWithDeparture) {
-  //         fetchAddress(orderWithDeparture);
-       
-  //       }
-  //     }
-  //   });
-  // }, [data, formattedAddresses, fullnameData]);
-
-
   const fetchFullname = (customerId) => {
     if (!fullnameData[customerId]) {
       dispatch(getCustomerIdFullName({ id: customerId }))
@@ -299,7 +272,9 @@ const Orders = (props) => {
         })
         .catch((error) => {
           console.error("Error while fetching customer data:", error);
-        });
+        }
+        
+        )
     }
     // You can use your existing code to fetch the fullname
   };

@@ -32,8 +32,10 @@ import BuildIcon from "@mui/icons-material/Build";
 import SupportIcon from "@mui/icons-material/Support";
 import HandymanIcon from "@mui/icons-material/Handyman";
 import AddchartIcon from '@mui/icons-material/Addchart';
+import { useLocation } from "react-router-dom";
 const OrdersInprogress = (props) => {
   const dispatch = useDispatch();
+  const location = useLocation();
   const orders = useSelector((state) => state.order.orders);
   const [openEditModal, setOpenEditModal] = useState(false);
   const [searchText, setSearchText] = useState("");
@@ -115,7 +117,7 @@ const OrdersInprogress = (props) => {
       .finally(() => {
         setLoading(false);
       });
-  }, [dispatch]);
+  }, [dispatch,location.pathname]);
 
   const handleAddServiceClick = (orderId) => {
     console.log(orderId);

@@ -38,8 +38,10 @@ import SupportIcon from "@mui/icons-material/Support";
 import HandymanIcon from "@mui/icons-material/Handyman";
 import InfoIcon from "@mui/icons-material/Info";
 import TaskAltIcon from "@mui/icons-material/TaskAlt";
+import { useLocation } from "react-router-dom";
 const Orders = (props) => {
   const dispatch = useDispatch();
+  const location = useLocation();
   const orders = useSelector((state) => state.order.orders);
   const [openEditModal, setOpenEditModal] = useState(false);
   const [searchText, setSearchText] = useState("");
@@ -129,7 +131,7 @@ const Orders = (props) => {
       .finally(() => {
         setLoading(false);
       });
-  }, [dispatch]);
+  }, [dispatch,location.pathname]);
 
   const handleUpdateClick = (orderId) => {
     console.log(orderId);
@@ -165,7 +167,7 @@ const Orders = (props) => {
     setOpenModal(true);
   };
   const reloadOders = () => {
-    dispatch(fetchOrdersNew())
+    dispatch(fetchOrdersCompleted())
       .then((response) => {
         const data = response.payload.data;
         if (data) {

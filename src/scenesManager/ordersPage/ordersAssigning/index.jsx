@@ -32,8 +32,10 @@ import BuildIcon from "@mui/icons-material/Build";
 import SupportIcon from "@mui/icons-material/Support";
 import HandymanIcon from "@mui/icons-material/Handyman";
 import InfoIcon from "@mui/icons-material/Info";
+import { useLocation } from "react-router-dom";
 const OrdersAssigning = (props) => {
   const dispatch = useDispatch();
+  const location = useLocation();
   const orders = useSelector((state) => state.order.orders);
   const [openEditModal, setOpenEditModal] = useState(false);
   const [searchText, setSearchText] = useState("");
@@ -113,13 +115,7 @@ const OrdersAssigning = (props) => {
       setFilteredOrders(orders);
     }
   };
-
-  if (orders) {
-    orders.forEach((rescueVehicleOwner) => {
-      // Đây bạn có thể truy cập và xử lý dữ liệu từng đối tượng khách hàng ở đây
-    });
-  }
-
+  
   useEffect(() => {
     setLoading(true);
     dispatch(fetchOrdersAssigning())
@@ -135,7 +131,7 @@ const OrdersAssigning = (props) => {
       .finally(() => {
         setLoading(false);
       });
-  }, [dispatch]);
+  }, [dispatch,location.pathname]);
 
   const handleUpdateClick = (orderId) => {
     console.log(orderId);

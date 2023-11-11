@@ -33,8 +33,10 @@ import BuildIcon from "@mui/icons-material/Build";
 import SupportIcon from "@mui/icons-material/Support";
 import HandymanIcon from "@mui/icons-material/Handyman";
 import InfoIcon from "@mui/icons-material/Info";
+import { useLocation } from "react-router-dom";
 const OrdersCancelled = (props) => {
   const dispatch = useDispatch();
+  const location = useLocation();
   const orders = useSelector((state) => state.order.orders);
   const [openEditModal, setOpenEditModal] = useState(false);
   const [searchText, setSearchText] = useState("");
@@ -136,7 +138,7 @@ const handleDetailClick = (orderId) => {
       .finally(() => {
         setLoading(false);
       });
-  }, [dispatch]);
+  }, [dispatch,location.pathname]);
 
   const handleUpdateClick = (orderId) => {
     console.log(orderId);

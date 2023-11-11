@@ -42,13 +42,26 @@ import CalendarTechnician from "../../scenesManager/calendarTechnician";
 import Map from "../../scenesManager/map/google";
 import Vehicles from "../../scenesManager/vehicle";
 import CreateOrderOffline from "../../scenesManager/create_OrderOffline";
+import { useLocation } from 'react-router-dom';
+import { useEffect } from "react";
 
 const Manager = () => {
   const user = useSelector(selectCurrentUser);
   const token = useSelector(selectCurrentToken);
-
+  const location = useLocation();
   const [theme, colorMode] = useMode();
   const [isSidebar, setIsSidebar] = useState(true);
+  useEffect(() => {
+    // Hàm để tải lại dữ liệu
+    const reloadData = async () => {
+      // Tạo các hành động để tải lại dữ liệu ở đây
+      console.log('Reloading data for new route:', location.pathname);
+      // Ví dụ: dispatch(fetchOrdersNew()), fetchProducts(), v.v...
+    };
+
+    // Gọi hàm tải lại dữ liệu
+    reloadData();
+  }, [location.pathname]); 
 
   return (
     <ColorModeContext.Provider value={colorMode}>
