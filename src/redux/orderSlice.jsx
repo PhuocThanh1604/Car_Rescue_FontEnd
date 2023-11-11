@@ -1,6 +1,8 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 const apiKeyGG = 'AIzaSyDtQ6f3BA48dZxUbT6NhN94Byw1wfFJBKM';
+// const apiKeyGG = process.env.API_KEY_GG;
+const mapboxToken = 'pk.eyJ1IjoidGhhbmgyazEiLCJhIjoiY2xvZjMxcWppMG5oejJqcnI2M2ZleTJtZiJ9.yvWTA-yYNqTdr2OstpB7bw';
 // const apiKey = '';
 
 export const fetchOrders = createAsyncThunk("orders/fetchOrders", async () => {
@@ -204,6 +206,24 @@ export const getFormattedAddressGG = createAsyncThunk(
   }
 );
 
+export const getFormattedAddressMapbox = createAsyncThunk(
+  "orders/getFormattedAddress",
+  async ({ lat, lng }, { rejectWithValue }) => {
+    try {
+      const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${mapboxToken}`;
+
+      const response = await axios.get(url);
+      const data = response.data;
+      const formattedAddress = data.features[0].place_name;
+      console.log(formattedAddress)
+ 
+    } catch (error) {
+      console.error("Failed to get Address ", error.message);
+      return rejectWithValue(error.response.data || error.message);
+    }
+  }
+);
+
 export const createAcceptOrder = createAsyncThunk(
   "orders/createAcceptOrder",
   async (data) => {
@@ -388,11 +408,11 @@ const orderSlice = createSlice({
       .addCase(sendNotification.rejected, (state, action) => {
         state.status = "error";
       })
-      .addCase(getFormattedAddressGG.fulfilled, (state, action) => {
+      .addCase(getFormattedAddressMapbox.fulfilled, (state, action) => {
         // Store the formatted address in the Redux store
         state.formattedAddress = action.payload;
       })
-      .addCase(getFormattedAddressGG.pending, (state, action) => {
+      .addCase(getFormattedAddressMapbox.pending, (state, action) => {
         state.status = "loading";
       }).addCase(updateServiceForTechnicians.fulfilled, (state, action) => {
         state.orders = action.payload.data;

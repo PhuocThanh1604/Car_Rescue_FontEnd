@@ -86,7 +86,7 @@ const Sidebar = () => {
   const storedRole = localStorage.getItem("role_user");
   const [userRole, setUserRole] = useState(storedRole || "");
   const [shouldShowItem, setShouldShowItem] = useState(false);
-
+  const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 768);
   useEffect(() => {
     if (user && user.role) {
       setUserRole(user.role);
@@ -95,6 +95,20 @@ const Sidebar = () => {
       setUserRole(storedRole);
     }
   }, [user, storedRole]);
+
+
+useEffect(() => {
+  const handleResize = () => {
+    setIsSmallScreen(window.innerWidth < 768);
+  };
+
+  window.addEventListener('resize', handleResize);
+
+  return () => {
+    window.removeEventListener('resize', handleResize);
+  };
+}, []);
+
 
   const [showSubItems, setShowSubItems] = useState(false);
   const [showSubItemsRescue, setShowSubItemsRescue] = useState(false);
@@ -118,6 +132,7 @@ const Sidebar = () => {
       sx={{
         ...sidebarStyles, // Apply the sidebar styles
         display: "flex",
+        height: isSmallScreen ? '100vh' : (userRole === 'manager' ? '100%' : 'auto'),
         "& .pro-sidebar-inner": {
           background: `${colors.primary[400]} !important`,
         },
@@ -408,7 +423,7 @@ const Sidebar = () => {
               selected={selected}
               setSelected={setSelected}
             />
-            <Typography
+            {/* <Typography
               variant="h6"
               color={colors.grey[300]}
               sx={{ m: "15px 0 5px 20px" }}
@@ -442,7 +457,7 @@ const Sidebar = () => {
               icon={<MapOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}
-            />
+            /> */}
           </Box>
         </Menu>
       </ProSidebar>

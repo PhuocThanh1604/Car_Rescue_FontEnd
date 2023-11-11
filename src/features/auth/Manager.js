@@ -57,8 +57,8 @@ const Manager = () => {
         <div className="app">
           <ToastContainer />
           <Topbar setIsSidebar={setIsSidebar} />
-          <main className="content" style={{ display: "flex" }}>
-            {isSidebar && <Sidebar isSidebar={isSidebar} />}
+          <main className="content" style={{ display: "flex", height: '100vh' }}>
+            {isSidebar && <Sidebar isSidebar={isSidebar}  />}
             <Box flexGrow={2}>
               {/* <AuthProvider> */}
               <Routes>

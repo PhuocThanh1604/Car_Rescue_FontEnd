@@ -106,12 +106,12 @@ const Dashboard = () => {
   }, [orders, accounts]);
 
   return (
-    <Box m="20px">
+    <Box marginLeft={2} marginRight={1}>
       {/* HEADER */}
       <Box display="flex" justifyContent="space-between" alignItems="center">
         <Header
-          title="Bảng Điều Khiển Của Hệ Thống Cứu Hộ Ô Tô"
-          subtitle="Chào mừng bạn đến với Bảng điều khiển của hệ thống cứu hộ ô tô này"
+          title="Dasboard Của Hệ Thống Cứu Hộ Ô Tô"
+          subtitle="Chào mừng bạn đến với Dasboard của hệ thống cứu hộ ô tô này"
         />
 
         <Box>
@@ -328,7 +328,7 @@ const Dashboard = () => {
             <Box>
               <Typography
                 variant="h5"
-                fontWeight="600"
+                fontWeight="500"
                 color={colors.grey[100]}
               >
                 Revenue Generated

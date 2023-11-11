@@ -15,6 +15,7 @@ import PlacesAutocomplete, {
   geocodeByAddress,
   getLatLng,
 } from "react-places-autocomplete";
+import MapboxMap from "./mapbox";
 
 const Map = () => {
   const [coords, setCoords] = useState(null);
@@ -109,7 +110,7 @@ const Map = () => {
   return (
     <div style={{ height: "100%", width: "100%", position: "relative" }}>
  
-      <GoogleMapReact
+      {/* <GoogleMapReact
         bootstrapURLKeys={{
           key: "AIzaSyBSLmhb6vCHhrZxMh3lmUI-CICfzhiMakk",
         }}
@@ -212,7 +213,9 @@ const Map = () => {
             )}
           </PlacesAutocomplete>
         </Box>
-      </form>
+      </form> */}
+
+      <MapboxMap/>
     </div>
   );
 };

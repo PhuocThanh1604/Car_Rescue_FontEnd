@@ -23,6 +23,7 @@ import moment from "moment";
 import {
   fetchOrdersNew,
   getFormattedAddressGG,
+  getFormattedAddressMapbox,
   getOrderId,
 } from "../../../redux/orderSlice";
 import { ToastContainer, toast } from "react-toastify";
@@ -31,11 +32,9 @@ import { getCustomerIdFullName } from "../../../redux/customerSlice";
 import CreditScoreIcon from "@mui/icons-material/CreditScore";
 import AddCardIcon from "@mui/icons-material/AddCard";
 import RepeatOnIcon from "@mui/icons-material/RepeatOn";
-import BuildIcon from "@mui/icons-material/Build";
 import SupportIcon from "@mui/icons-material/Support";
 import HandymanIcon from "@mui/icons-material/Handyman";
 import AssignmentLateIcon from "@mui/icons-material/AssignmentLate";
-const apiKeyGG = 'YOUR_GOOGLE_MAPS_API_KEY';
 const Orders = (props) => {
   const dispatch = useDispatch();
   const orders = useSelector((state) => state.order.orders);
@@ -251,7 +250,10 @@ const Orders = (props) => {
             // Dispatch 'getFormattedAddress' with the extracted lat and lng values
             dispatch(getFormattedAddressGG({ lat, lng }))
               .then((response) => {
+                // const formattedAddress = response.features[0].place_name;
+                // const formattedAddress = response.features.id;
                 const formattedAddress = response.payload.results[0].formatted_address;
+                console.log("index"+formattedAddress)
                 // Update the state with the fetched formatted address
                 setFormattedAddresses((prevAddresses) => ({
                   ...prevAddresses,
@@ -260,8 +262,9 @@ const Orders = (props) => {
                 setSelectedOrderFormattedAddress(formattedAddress);
               })
               .catch((error) => {
-                console.error("Error fetching address:", error.response);
+                console.error("Error fetching address:", error.response ? error.response : error);
               });
+              
           }
         }
       }
@@ -348,15 +351,15 @@ const Orders = (props) => {
         return fullnameData[params.value] || "";
       },
     },
-    {
-      field: "departure",
-      headerName: "Địa Chỉ",
-      width: 240,
-      valueGetter: (params) => {
-        // Get the fullname from the state based on customerId
-        return formattedAddresses[params.value] || "";
-      },
-    },
+    // {
+    //   field: "departure",
+    //   headerName: "Địa Chỉ",
+    //   width: 240,
+    //   valueGetter: (params) => {
+    //     // Get the fullname from the state based on customerId
+    //     return formattedAddresses[params.value] || "";
+    //   },
+    // },
     {
       field: "customerNote",
       headerName: "Ghi Chú của Customer",

@@ -77,6 +77,7 @@ const Sidebar = () => {
       sx={{
         ...sidebarStyles,  // Apply the sidebar styles
         display: 'flex',
+        height: userRole === 'admin' ? '100%' : 'auto',
         '& .pro-sidebar-inner': {
           background: `${colors.primary[400]} !important`,
         },
