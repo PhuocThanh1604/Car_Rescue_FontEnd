@@ -99,7 +99,7 @@ const Orders = (props) => {
   const handleDateFilterChange = () => {
     if (startDate && endDate) {
       const filteredOrders = orders.filter((user) => {
-        const orderDate = moment(user.createAt).format("YYYY-MM-DD");
+        const orderDate = moment(orders.createdAt).format("YYYY-MM-DD");
         const isAfterStartDate = moment(orderDate).isSameOrAfter(startDate);
         const isBeforeEndDate = moment(orderDate).isSameOrBefore(endDate);
         return isAfterStartDate && isBeforeEndDate;
@@ -483,6 +483,12 @@ const Orders = (props) => {
                 </MenuItem>
                 <MenuItem key="rescueType-fixing" value="Fixing">
                   Sửa Chữa Tại Chỗ
+                </MenuItem>
+                <MenuItem key="rescueType-fixing" value="Fixing">
+                 Lái Xe Về 
+                </MenuItem>
+                <MenuItem key="rescueType-fixing" value="Fixing">
+                 Chở Xe 
                 </MenuItem>
               </Select>
             </FormControl>
