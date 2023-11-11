@@ -8,6 +8,7 @@ import {
   MenuItem,
   IconButton,
   FormControl,
+  CircularProgress,
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { tokens } from "../../../theme";
@@ -62,7 +63,6 @@ const Orders = (props) => {
   const [selectedOrderFormattedAddress, setSelectedOrderFormattedAddress] =
     useState("");
 
-  
   const handleSearchChange = (event) => {
     const value = event.target.value.toLowerCase();
     setSearchText(value);
@@ -128,24 +128,32 @@ const Orders = (props) => {
         setLoading(false);
       });
   };
-  
+
   useEffect(() => {
     loadOrdersData(); // Gọi hàm mới này thay vì gọi đệ quy
   }, [dispatch, location.pathname]);
-  
-  
+
+  useEffect(() => {
+    setLoading(true); // Bắt đầu với trạng thái loading
+
+    const timer = setTimeout(() => {
+      setLoading(false); // Kết thúc trạng thái loading sau một khoảng thời gian
+    }, 3000); // Thời gian loading là 3000ms (3 giây)
+
+    return () => clearTimeout(timer); // Dọn dẹp khi component unmount
+  }, []);
 
   const handleAssignClick = (orderId) => {
     console.log(orderId);
     // Đặt trạng thái của danh sách xe cứu hộ về một mảng trống
     setRescueVehicles(null);
-  
+
     // Lấy địa chỉ đã được định dạng từ state 'formattedAddresses' dựa trên 'departure'
     const orderWithDeparture = data.find((order) => order.id === orderId);
     if (orderWithDeparture) {
       const formattedAddress = formattedAddresses[orderWithDeparture.departure];
       console.log("formattedAddress: " + formattedAddress);
-  
+
       // Kiểm tra xem có formattedAddress hay không
       if (formattedAddress) {
         setSelectedOrderFormattedAddress(formattedAddress);
@@ -153,7 +161,7 @@ const Orders = (props) => {
         console.error("Không tìm thấy địa chỉ đã định dạng cho đơn hàng này.");
         // Xử lý lỗi nếu không tìm thấy formattedAddress
       }
-  
+
       // Fetch the orderid details based on the selected order ID
       dispatch(getOrderId({ id: orderId }))
         .then((response) => {
@@ -163,14 +171,13 @@ const Orders = (props) => {
           setOpenEditModal(true);
           setIsSuccess(true);
           reloadOders();
-         
         })
         .catch((error) => {
           console.error("Lỗi khi lấy thông tin đơn hàng mới:", error);
         });
     }
   };
-  
+
   const reloadOders = () => {
     dispatch(fetchOrdersNew())
       .then((response) => {
@@ -190,14 +197,14 @@ const Orders = (props) => {
       fetchOrdersNew();
     }
   }, [data]); // Chỉ gọi API nếu 'data' rỗng hoặc chưa được tải
-  
+
   // ...
-  
+
   useEffect(() => {
     const uniqueCustomerIds = [...new Set(data.map((row) => row.customerId))];
     const uniqueDepartures = [...new Set(data.map((row) => row.departure))];
-  
-  const fetchFullNames = async (customerIds) => {
+
+    const fetchFullNames = async (customerIds) => {
       const uniqueCustomerIdsToFetch = customerIds.filter(
         (customerId) => !fullnameData[customerId]
       );
@@ -209,23 +216,21 @@ const Orders = (props) => {
       await Promise.all(fetchPromises);
     };
 
-  
     const debouncedFetchAddresses = debounce(async (departures) => {
       const uniqueDeparturesToFetch = departures.filter(
         (departure) => !formattedAddresses[departure]
       );
-  
+
       const fetchPromises = uniqueDeparturesToFetch.map((departure) => {
         const order = data.find((order) => order.departure === departure);
         return fetchAddress(order);
       });
-  
+
       await Promise.all(fetchPromises);
     }, 500);
-  
+
     fetchFullNames(uniqueCustomerIds);
     debouncedFetchAddresses(uniqueDepartures);
-  
   }, [data, formattedAddresses, fullnameData]);
   function debounce(func, wait) {
     let timeout;
@@ -244,31 +249,35 @@ const Orders = (props) => {
     if (!order || formattedAddresses[order.departure]) {
       return; // Trả về nếu order không tồn tại hoặc địa chỉ đã được lưu trữ
     }
-  
+
     const departure = order.departure;
     const matches = /lat:\s*([^,]+),\s*long:\s*([^,]+)/.exec(departure);
-  
+
     if (matches && matches.length === 3) {
       const [, lat, lng] = matches;
-  
+
       if (!isNaN(lat) && !isNaN(lng)) {
         try {
           const response = await dispatch(getFormattedAddressGG({ lat, lng }));
-          const formattedAddress = response.payload.results[0].formatted_address;
-          setFormattedAddresses(prevAddresses => ({
+          const formattedAddress =
+            response.payload.results[0].formatted_address;
+          setFormattedAddresses((prevAddresses) => ({
             ...prevAddresses,
             [departure]: formattedAddress,
           }));
           setSelectedOrderFormattedAddress(formattedAddress);
         } catch (error) {
-          console.error("Error fetching address:", error.response ? error.response : error);
-        }finally {
+          console.error(
+            "Error fetching address:",
+            error.response ? error.response : error
+          );
+        } finally {
           setLoading(false); // Đảm bảo loading được đặt lại thành false dù có lỗi
         }
       }
     }
   };
-  
+
   const fetchFullname = (customerId) => {
     if (!fullnameData[customerId]) {
       dispatch(getCustomerIdFullName({ id: customerId }))
@@ -286,9 +295,7 @@ const Orders = (props) => {
         })
         .catch((error) => {
           console.error("Error while fetching customer data:", error);
-        }
-        
-        )
+        });
     }
     // You can use your existing code to fetch the fullname
   };
@@ -315,18 +322,23 @@ const Orders = (props) => {
       field: "customerId",
       headerName: "Tên Khách Hàng",
       width: 140,
-      valueGetter: (params) => {
-        // Get the fullname from the state based on customerId
-        return fullnameData[params.value] || "";
+      renderCell: (params) => {
+        return fullnameData[params.value]
+          ? fullnameData[params.value]
+          : <CircularProgress size={20} />;
       },
     },
     {
       field: "departure",
       headerName: "Địa Chỉ",
       width: 240,
-      valueGetter: (params) => {
-        // Get the fullname from the state based on customerId
-        return formattedAddresses[params.value] || "";
+      renderCell: (params) => {
+        if (params.value) {
+          return formattedAddresses[params.value]
+            ? formattedAddresses[params.value]
+            : <CircularProgress size={20} />;
+        }
+        return ""; // Trả về chuỗi rỗng nếu không có địa chỉ
       },
     },
     {
@@ -416,18 +428,14 @@ const Orders = (props) => {
       headerName: "Diều Phối",
       width: 60,
       renderCell: (params) => (
-        <IconButton
-        variant="contained"
-        color="error"
-      >
-        <AssignmentLateIcon
-          variant="contained"
-          color="error"
-          style={{ color: "orange" }}
-          onClick={() => handleAssignClick(params.row.id)}
-        ></AssignmentLateIcon>
-      </IconButton>
-        
+        <IconButton variant="contained" color="error">
+          <AssignmentLateIcon
+            variant="contained"
+            color="error"
+            style={{ color: "orange" }}
+            onClick={() => handleAssignClick(params.row.id)}
+          ></AssignmentLateIcon>
+        </IconButton>
       ),
       key: "update",
     },
@@ -435,151 +443,152 @@ const Orders = (props) => {
 
   return (
     <Box m="5px">
-      <Header
-        title="Danh Sách Đơn Hàng Mới"
-        subtitle="Danh sách chi tiết đơn hàng mới"
-      />
-      <Box display="flex" className="box" left={0}>
-      <Box
-          display="flex"
-          borderRadius="5px"
-          border={1}
-          marginRight={2} 
-        >
-          <InputBase
-            sx={{ ml: 4, flex: 1 }}
-            placeholder="Tìm kiếm"
-            onChange={handleSearchChange}
-            className="search-input"
+      {loading ? (
+        <Typography>Loading...</Typography> // Hiển thị thông báo loading
+      ) : (
+        <>
+          <Header
+            title="Danh Sách Đơn Hàng Mới"
+            subtitle="Danh sách chi tiết đơn hàng mới"
           />
-          <IconButton type="button" sx={{ p: 1 }}>
-            <SearchIcon />
-          </IconButton>
-        </Box>
+          <Box display="flex" className="box" left={0}>
+            <Box display="flex" borderRadius="5px" border={1} marginRight={2}>
+              <InputBase
+                sx={{ ml: 4, flex: 1 }}
+                placeholder="Tìm kiếm"
+                onChange={handleSearchChange}
+                className="search-input"
+              />
+              <IconButton type="button" sx={{ p: 1 }}>
+                <SearchIcon />
+              </IconButton>
+            </Box>
 
-        <ToastContainer />
-        <FormControl>
-          <Select
-            labelId="demo-simple-select-label"
-            id="demo-simple-select"
-            value={filterOption}
-            onChange={handleFilterChange}
-            variant="outlined"
-            className="filter-select"
-            style={{ width: "150px" }}
+            <ToastContainer />
+            <FormControl>
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                value={filterOption}
+                onChange={handleFilterChange}
+                variant="outlined"
+                className="filter-select"
+                style={{ width: "150px" }}
+              >
+                <MenuItem key="rescueType-all" value="rescueType">
+                  Hình Thức
+                </MenuItem>
+                <MenuItem key="rescueType-towing" value="Towing">
+                  Kéo Xe
+                </MenuItem>
+                <MenuItem key="rescueType-fixing" value="Fixing">
+                  Sửa Chữa Tại Chỗ
+                </MenuItem>
+              </Select>
+            </FormControl>
+
+            <Box display="flex" alignItems="center" className="startDate-box">
+              <TextField
+                label="Từ ngày"
+                type="date"
+                value={startDate || ""}
+                onChange={(event) => setStartDate(event.target.value)}
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                onBlur={handleDateFilterChange}
+                inputProps={{
+                  max: moment().format("YYYY-MM-DD"), // Set the maximum selectable date as today
+                }}
+                sx={{ ml: 4, mr: 2 }}
+              />
+            </Box>
+
+            <Box display="flex" alignItems="center" className="endtDate-box">
+              <TextField
+                label="Đến ngày"
+                type="date"
+                value={endDate || ""}
+                onChange={(event) => setEndDate(event.target.value)}
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                onBlur={handleDateFilterChange}
+                inputProps={{
+                  max: moment().format("YYYY-MM-DD"), // Set the maximum selectable date as today
+                }}
+              />
+            </Box>
+          </Box>
+
+          <Box
+            m="10px 0 0 0"
+            height="75vh"
+            sx={{
+              "& .MuiDataGrid-root": {
+                border: "none",
+              },
+              "& .MuiDataGrid-cell": {
+                borderBottom: "none",
+              },
+              "& .name-column--cell": {
+                color: colors.greenAccent[300],
+              },
+              "& .MuiDataGrid-columnHeaders": {
+                backgroundColor: colors.blueAccent[700],
+                borderBottom: "none",
+              },
+              "& .MuiDataGrid-virtualScroller": {
+                backgroundColor: colors.primary[400],
+              },
+              "& .MuiDataGrid-footerContainer": {
+                display: "none",
+              },
+              "& .MuiCheckbox-root": {
+                color: `${colors.greenAccent[200]} !important`,
+              },
+              "& .MuiDataGrid-row": {
+                borderBottom: "none",
+              },
+            }}
           >
-            <MenuItem key="rescueType-all" value="rescueType">
-              Hình Thức
-            </MenuItem>
-            <MenuItem key="rescueType-towing" value="Towing">
-              Kéo Xe
-            </MenuItem>
-            <MenuItem key="rescueType-fixing" value="Fixing">
-              Sửa Chữa Tại Chỗ
-            </MenuItem>
-          </Select>
-        </FormControl>
+            <DataGrid
+              rows={filteredOrdersPagination} // Thêm id nếu không có
+              columns={columns}
+              getRowId={(row) => row.id}
+              autoHeight
+              checkboxSelection
+              loading={loading}
+            />
 
-        <Box display="flex" alignItems="center" className="startDate-box">
-          <TextField
-            label="Từ ngày"
-            type="date"
-            value={startDate || ""}
-            onChange={(event) => setStartDate(event.target.value)}
-            InputLabelProps={{
-              shrink: true,
-            }}
-            onBlur={handleDateFilterChange}
-            inputProps={{
-              max: moment().format("YYYY-MM-DD"), // Set the maximum selectable date as today
-            }}
-            sx={{ ml: 4, mr: 2 }}
+            <CustomTablePagination
+              count={filteredOrders.length}
+              page={page}
+              rowsPerPage={rowsPerPage}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+              loading={loading}
+            />
+          </Box>
+          <ModalDetail
+            openModal={openModal}
+            setOpenModal={setOpenModal}
+            onClose={() => setOpenModal(false)}
+            selectedBook={selectedBook}
+            loading={loading}
+          ></ModalDetail>
+
+          <ModalEdit
+            openEditModal={openEditModal}
+            setOpenEditModal={setOpenEditModal}
+            selectedEditOrder={selectedEditOrder}
+            selectedOrderFormattedAddress={selectedOrderFormattedAddress}
+            onClose={() => setOpenEditModal(false)}
+            loading={loading}
           />
-        </Box>
-
-        <Box display="flex" alignItems="center" className="endtDate-box">
-          <TextField
-            label="Đến ngày"
-            type="date"
-            value={endDate || ""}
-            onChange={(event) => setEndDate(event.target.value)}
-            InputLabelProps={{
-              shrink: true,
-            }}
-            onBlur={handleDateFilterChange}
-            inputProps={{
-              max: moment().format("YYYY-MM-DD"), // Set the maximum selectable date as today
-            }}
-          />
-        </Box>
-      </Box>
-
-      <Box
-        m="10px 0 0 0"
-        height="75vh"
-        sx={{
-          "& .MuiDataGrid-root": {
-            border: "none",
-          },
-          "& .MuiDataGrid-cell": {
-            borderBottom: "none",
-          },
-          "& .name-column--cell": {
-            color: colors.greenAccent[300],
-          },
-          "& .MuiDataGrid-columnHeaders": {
-            backgroundColor: colors.blueAccent[700],
-            borderBottom: "none",
-          },
-          "& .MuiDataGrid-virtualScroller": {
-            backgroundColor: colors.primary[400],
-          },
-          "& .MuiDataGrid-footerContainer": {
-            display: "none",
-          },
-          "& .MuiCheckbox-root": {
-            color: `${colors.greenAccent[200]} !important`,
-          },
-          "& .MuiDataGrid-row": {
-            borderBottom: "none",
-          },
-        }}
-      >
-        <DataGrid
-          rows={filteredOrdersPagination} // Thêm id nếu không có
-          columns={columns}
-          getRowId={(row) => row.id}
-          autoHeight
-          checkboxSelection
-          loading={loading}
-        />
-
-        <CustomTablePagination
-          count={filteredOrders.length}
-          page={page}
-          rowsPerPage={rowsPerPage}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-          loading={loading}
-        />
-      </Box>
-      <ModalDetail
-        openModal={openModal}
-        setOpenModal={setOpenModal}
-        onClose={() => setOpenModal(false)}
-        selectedBook={selectedBook}
-        loading={loading}
-      ></ModalDetail>
-
-      <ModalEdit
-        openEditModal={openEditModal}
-        setOpenEditModal={setOpenEditModal}
-        selectedEditOrder={selectedEditOrder}
-        selectedOrderFormattedAddress={selectedOrderFormattedAddress}
-        onClose={() => setOpenEditModal(false)}
-        loading={loading}
-      />
-      <ToastContainer />
+          <ToastContainer />
+        </>
+      )}
     </Box>
   );
 };
