@@ -38,11 +38,19 @@ export const fetchOrders = createAsyncThunk("orders/fetchOrders", async () => {
 export const fetchOrdersNew = createAsyncThunk(
   "orders/fetchOrdersNew",
   async () => {
+    const storageKey = "ordersNew";
+    const storedData = getFromStorage(storageKey);
+
+    if (storedData) {
+      return storedData;
+    }
+
     try {
       const response = await axios.get(
         "https://rescuecapstoneapi.azurewebsites.net/api/Order/GetAllOrderNew"
       );
       const data = response.data;
+      saveToStorage(storageKey, data); // Lưu dữ liệu mới vào Local Storage
       return data;
     } catch (response) {
       console.error(
@@ -54,6 +62,7 @@ export const fetchOrdersNew = createAsyncThunk(
     }
   }
 );
+
 export const fetchOrdersCompleted = createAsyncThunk(
   "orders/fetchOrdersCompleted",
   async () => {
