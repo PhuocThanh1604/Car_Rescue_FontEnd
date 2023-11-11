@@ -111,22 +111,29 @@ const Orders = (props) => {
     }
   };
 
-  useEffect(() => {
+  const loadOrdersData = () => {
     setLoading(true);
-    dispatch(fetchOrdersNew())
+    dispatch(fetchOrdersNew()) // Gọi hành động Redux
       .then((response) => {
-        // Đã lấy dữ liệu thành công
         const data = response.payload.data;
         if (data) {
           setData(data);
           setFilteredOrders(data);
           setLoading(false); // Đặt trạng thái loading thành false sau khi xử lý dữ liệu
         }
+        // Xử lý dữ liệu ở đây
       })
-      .finally(() => {
+      .catch((error) => {
+        console.error("Error fetching orders:", error);
         setLoading(false);
       });
-  }, [dispatch,location.pathname] );
+  };
+  
+  useEffect(() => {
+    loadOrdersData(); // Gọi hàm mới này thay vì gọi đệ quy
+  }, [dispatch, location.pathname]);
+  
+  
 
   const handleAssignClick = (orderId) => {
     console.log(orderId);
