@@ -451,6 +451,10 @@ const MyModal = (props) => {
                                 marginLeft: "10px",
                               }}
                             >
+                                
+                             Tên Chủ Xe:{" "}
+                          
+                        
                                {dataRescueVehicleOwner[vehicleRvoidId]?.fullname}
                             </Typography>
                           </Box>
