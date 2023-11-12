@@ -608,7 +608,11 @@ const ModalEdit = ({
                             >
                               {formattedDate}
                             </Typography>
+
+
                           </Typography>
+
+                          
                           <Typography
                             variant="body1"
                             component="p"
@@ -681,6 +685,7 @@ const ModalEdit = ({
                               {edit.area}
                             </Typography>
                           </Typography>
+
                           <Typography
                             variant="body1"
                             component="p"
@@ -706,6 +711,9 @@ const ModalEdit = ({
                               {edit.customerNote}
                             </Typography>
                           </Typography>
+
+
+
                           <Typography
                             variant="body1"
                             component="p"
@@ -889,7 +897,7 @@ const ModalEdit = ({
                                     />
                                   ) : (
                                     <img
-                                      src="https://png.pngtree.com/png-vector/20190820/ourmid/pngtree-no-avatar-vector-isolated-on-white-background-png-image_1694546.jpg"
+                                      src="https://t4.ftcdn.net/jpg/04/70/29/97/360_F_470299797_UD0eoVMMSUbHCcNJCdv2t8B2g1GVqYgs.jpg"
                                       alt="Hình Ảnh Mặc Định"
                                       style={{
                                         width: "80%",
@@ -1011,7 +1019,7 @@ const ModalEdit = ({
 
                         
                                 <Box sx={{ flex: 1, marginTop: "10px" }}>
-                                  {vehicleDetails.avatar ? (
+                                  {vehicleDetails.image ? (
                                     <img
                                     src={vehicleDetails.image}
                                       alt="Hình Ảnh Của Xe"
