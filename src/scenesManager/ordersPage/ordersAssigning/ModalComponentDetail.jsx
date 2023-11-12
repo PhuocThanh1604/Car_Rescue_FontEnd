@@ -40,137 +40,57 @@ const MyModal = (props) => {
   const { openModal, setOpenModal, selectedEditOrder } = props;
   const dispatch = useDispatch();
   const [collapse, setCollapse] = useState(false);
+  const [data, setData] = useState({
+    customer: {},
+    technician: {},
+    vehicle: {},
+  });
   // const [customerId, setCustomerId] = useState({});
   // const [technicianId, setTechnicianId] = useState({});
   // const [dataTechnician, setDataTechnician] = useState({});
   // const [vehicleId, setVehicleId] = useState({});
   // const [dataVehicle, setDataVehicle] = useState({});
   // const [dataCustomer, setDataCustomer] = useState({});
-  // const [dataRescueVehicleOwner, setDataRescueVehicleOwner] = useState({});
-  // const [rescueVehicleOwnerId, setRescueVehicleOwnerId] = useState({});
+  const [dataRescueVehicleOwner, setDataRescueVehicleOwner] = useState({});
+  const [rescueVehicleOwnerId, setRescueVehicleOwnerId] = useState({});
+  // Lưu giá trị vào một biến
+  useEffect(() => {
+    if (selectedEditOrder && selectedEditOrder.vehicleId) {
+      const vehicleRvoidId = data.vehicle[selectedEditOrder.vehicleId]?.rvoid;
+      if (vehicleRvoidId) {
+        fetchRescueVehicleOwner(vehicleRvoidId);
+      }
+    }
+  }, [selectedEditOrder, data.vehicle, rescueVehicleOwnerId]);
 
-  // useEffect(() => {
-  //   if (
-  //     selectedEditOrder &&
-  //     selectedEditOrder.customerId &&
-  //     selectedEditOrder.customerId !== customerId &&
-  //     selectedEditOrder.technicianId &&
-  //     selectedEditOrder.technicianId !== technicianId &&
-  //     selectedEditOrder.vehicleId &&
-  //     selectedEditOrder.vehicleId !== vehicleId
-  //     // selectedEditOrder.rescueVehicleOwnerId &&
-  //     // selectedEditOrder.rescueVehicleOwnerId !== rescueVehicleOwnerId
-  //   ) {
-  //     setCustomerId(selectedEditOrder.customerId);
-  //     fetchCustomer(selectedEditOrder.customerId);
-  //     setTechnicianId(selectedEditOrder.technicianId);
-  //     fetchTechnicians(selectedEditOrder.technicianId);
-  //     setVehicleId(selectedEditOrder.vehicleId);
-  //     fetchVehicle(selectedEditOrder.vehicleId);
-  //     // setRescueVehicleOwnerId(selectedEditOrder.rescueVehicleOwnerId);
-  //     // fetchRescueVehicleOwner(selectedEditOrder.rescueVehicleOwnerId);
-  //   }
-  // }, [selectedEditOrder, customerId, technicianId]);
-
-  // const fetchCustomer = (customerId) => {
-  //   console.log(customerId);
-  //   // Make sure you have a check to prevent unnecessary API calls
-  //   if (customerId) {
-  //     dispatch(getCustomerId({ id: customerId }))
-  //       .then((response) => {
-  //         const data = response.payload.data;
-  //         console.log(data);
-  //         if (data) {
-  //           setDataCustomer((prevData) => ({
-  //             ...prevData,
-  //             [customerId]: data,
-  //           }));
-  //         } else {
-  //           console.error("Service name not found in the API response.");
-  //         }
-  //       })
-  //       .catch((error) => {
-  //         console.error("Error while fetching service data:", error);
-  //       });
-  //   }
-  // };
-  // const fetchTechnicians = (technicianId) => {
-  //   console.log(technicianId);
-  //   // Make sure you have a check to prevent unnecessary API calls
-  //   if (technicianId) {
-  //     dispatch(getTechnicianId({ id: technicianId }))
-  //       .then((response) => {
-  //         const data = response.payload.data;
-  //         console.log(data);
-  //         if (data) {
-  //           setDataTechnician((prevData) => ({
-  //             ...prevData,
-  //             [technicianId]: data,
-  //           }));
-  //         } else {
-  //           console.error("Service name not found in the API response.");
-  //         }
-  //       })
-  //       .catch((error) => {
-  //         console.error("Error while fetching technician data:", error);
-  //       });
-  //   }
-  // };
-  // const fetchVehicle = (vehicleId) => {
-  //   console.log(vehicleId);
-
-  //   if (vehicleId) {
-  //     dispatch(getVehicleId({ id: vehicleId }))
-  //       .then((response) => {
-  //         const data = response.payload.data;
-  //         console.log(data);
-  //         if (data) {
-  //           setDataVehicle((prevData) => ({
-  //             ...prevData,
-  //             [vehicleId]: data,
-  //           }));
-  //         } else {
-  //           console.error("Service name not found in the API response.");
-  //         }
-  //       })
-  //       .catch((error) => {
-  //         console.error("Error while fetching vehicle data:", error);
-  //       });
-  //   }
-  // };
-  // const fetchRescueVehicleOwner = (rescueVehicleOwnerId) => {
-  //   console.log(rescueVehicleOwnerId);
-
-  //   if (rescueVehicleOwnerId) {
-  //     dispatch(getVehicleId({ id: rescueVehicleOwnerId }))
-  //       .then((response) => {
-  //         const data = response.payload.data;
-  //         console.log(data);
-  //         if (data) {
-  //           setDataRescueVehicleOwner((prevData) => ({
-  //             ...prevData,
-  //             [rescueVehicleOwnerId]: data,
-  //           }));
-  //         } else {
-  //           console.error("Service name not found in the API response.");
-  //         }
-  //       })
-  //       .catch((error) => {
-  //         console.error("Error while fetching Rescue Vehicle Owner data:", error);
-  //       });
-  //   }
-  // };
-
-  const [data, setData] = useState({
-    customer: {},
-    technician: {},
-    vehicle: {},
-  });
+  const fetchRescueVehicleOwner = (vehicleRvoidId) => {
+    console.log(vehicleRvoidId);
+    // Make sure you have a check to prevent unnecessary API calls
+    if (vehicleRvoidId) {
+      dispatch(getRescueVehicleOwnerId({ id: vehicleRvoidId }))
+        .then((response) => {
+          const data = response.payload.data;
+          console.log(data);
+          if (data) {
+            setDataRescueVehicleOwner((prevData) => ({
+              ...prevData,
+              [vehicleRvoidId]: data,
+            }));
+          } else {
+            console.error("Service name not found in the API response.");
+          }
+        })
+        .catch((error) => {
+          console.error("Error while fetching service data:", error);
+        });
+    }
+  };
+   // Lấy vehicleRvoidId từ selectedEditOrder và data.vehicle
+   const vehicleRvoidId = data.vehicle[selectedEditOrder.vehicleId]?.rvoid;
 
   useEffect(() => {
     if (selectedEditOrder) {
-      const { customerId, technicianId, vehicleId } =
-        selectedEditOrder;
+      const { customerId, technicianId, vehicleId } = selectedEditOrder;
       fetchData("customer", customerId);
       fetchData("technician", technicianId);
       fetchData("vehicle", vehicleId);
@@ -191,7 +111,7 @@ const MyModal = (props) => {
           case "vehicle":
             action = getVehicleId;
             break;
-      
+
           default:
             return;
         }
@@ -516,10 +436,7 @@ const MyModal = (props) => {
                           >
                             <Avatar
                               alt="Avatar"
-                              src={
-                                data.technician[selectedEditOrder.technicianId]
-                                  ?.avatar || "URL mặc định của avatar"
-                              }
+                              src={dataRescueVehicleOwner[vehicleRvoidId]?.avatar || "URL mặc định của avatar"}
                               sx={{
                                 width: 44,
                                 height: 44,
@@ -534,8 +451,7 @@ const MyModal = (props) => {
                                 marginLeft: "10px",
                               }}
                             >
-                              {data.technician[selectedEditOrder.technicianId]
-                                ?.fullname || "Đang tải..."}
+                               {dataRescueVehicleOwner[vehicleRvoidId]?.fullname}
                             </Typography>
                           </Box>
                           <Box
