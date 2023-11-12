@@ -86,59 +86,64 @@ const MyModal = (props) => {
     }
   };
    // Lấy vehicleRvoidId từ selectedEditOrder và data.vehicle
-   const vehicleRvoidId = data.vehicle[selectedEditOrder.vehicleId]?.rvoid;
+  
 
-  useEffect(() => {
+   useEffect(() => {
     if (selectedEditOrder) {
-      const { customerId, technicianId, vehicleId } = selectedEditOrder;
-      fetchData("customer", customerId);
-      fetchData("technician", technicianId);
-      fetchData("vehicle", vehicleId);
+      // Gọi API chỉ khi cần thiết
+      fetchDataIfNeeded("customer", selectedEditOrder.customerId);
+      fetchDataIfNeeded("technician", selectedEditOrder.technicianId);
+      fetchDataIfNeeded("vehicle", selectedEditOrder.vehicleId);
     }
   }, [selectedEditOrder]);
 
-  const fetchData = useCallback(
+  const fetchDataIfNeeded = useCallback(
     (type, id) => {
       if (id && !data[type][id]) {
-        let action;
-        switch (type) {
-          case "customer":
-            action = getCustomerId;
-            break;
-          case "technician":
-            action = getTechnicianId;
-            break;
-          case "vehicle":
-            action = getVehicleId;
-            break;
-
-          default:
-            return;
-        }
-
-        dispatch(action({ id }))
-          .then((response) => {
-            const newData = response.payload.data;
-            if (newData) {
-              setData((prevData) => ({
-                ...prevData,
-                [type]: { ...prevData[type], [id]: newData },
-              }));
-            } else {
-              console.error(`${type} data not found in the API response.`);
-            }
-          })
-          .catch((error) => {
-            console.error(`Error while fetching ${type} data:`, error);
-          });
+        // Chỉ gọi API nếu dữ liệu chưa có trong state
+        fetchData(type, id);
       }
     },
-    [data, dispatch]
+    [data]
   );
+  const fetchData = (type, id) => {
+    let action;
+    switch (type) {
+      case "customer":
+        action = getCustomerId;
+        break;
+      case "technician":
+        action = getTechnicianId;
+        break;
+      case "vehicle":
+        action = getVehicleId;
+        break;
+      // không cần 'default' vì tất cả các trường hợp đã được xử lý
+    }
+
+    dispatch(action({ id }))
+      .then((response) => {
+        const newData = response.payload.data;
+        if (newData) {
+          setData((prevData) => ({
+            ...prevData,
+            [type]: { ...prevData[type], [id]: newData },
+          }));
+        } else {
+          console.error(`${type} data not found in the API response.`);
+        }
+      })
+      .catch((error) => {
+        console.error(`Error while fetching ${type} data:`, error);
+      });
+  };
   const handleClick = () => {
     setCollapse(!collapse);
   };
 
+  const vehicleRvoidId = selectedEditOrder && selectedEditOrder.vehicleId
+    ? data.vehicle[selectedEditOrder.vehicleId]?.rvoid
+    : null;
   // const date = new Date(selectedEditOrder.createdAt);
   // const formattedDate = `${date.getDate()}/${
   //   date.getMonth() + 1
@@ -189,7 +194,7 @@ const MyModal = (props) => {
               Thông Tin Chi Tiết Đơn Hàng Đang Điều Phối
             </Typography>
 
-            {selectedEditOrder && (
+            {selectedEditOrder  &&  (
               <Card>
                 <CardContent>
                   <Typography variant="h6" sx={{ display: "none" }}>
