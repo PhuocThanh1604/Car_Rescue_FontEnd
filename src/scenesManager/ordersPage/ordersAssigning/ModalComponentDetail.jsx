@@ -97,15 +97,14 @@ const MyModal = (props) => {
               //   </CardContent>
               // </Card>
               <Card>
-                {/* <CardMedia
-                  sx={{ height: "14.5625rem" }}
-                  image="/images/cards/paper-boat.png"
-                /> */}
                 <CardContent>
-                  <Typography variant="h6" sx={{ marginBottom: 2 }}>
+                  <Typography variant="h6" >
                     id: {selectedEditOrder.id}
                   </Typography>
-                  <Typography variant="body2">
+                  <Typography variant="h6">
+                    Tên khách hàng: {selectedEditOrder.customerId}
+                  </Typography>
+                  <Typography variant="h6">
                     customerNote: {selectedEditOrder.customerNote}
                   </Typography>
                 </CardContent>

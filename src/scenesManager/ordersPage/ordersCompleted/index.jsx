@@ -47,7 +47,6 @@ const Orders = (props) => {
   const [searchText, setSearchText] = useState("");
   const [filterOption, setFilterOption] = useState("rescueType");
   const [openModal, setOpenModal] = useState(false);
-  const [selectedBook, setSelectedBook] = useState(null);
   const [selectedEditOrder, setSelectedEditOrder] = useState(null);
   const [filteredOrders, setFilteredOrders] = useState([]);
   const [page, setPage] = useState(0);

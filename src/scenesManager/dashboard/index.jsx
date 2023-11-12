@@ -25,15 +25,16 @@ import { useEffect } from "react";
 import { fetchAccounts } from "../../redux/accountSlice";
 import { toast } from "react-toastify";
 import { useState } from "react";
-import { fetchOrders } from "../../redux/orderSlice";
-import { fetchProducts } from "../../redux/productSlice";
+import { fetchOrders, fetchOrdersCompleted } from "../../redux/orderSlice";
 import ProgressCircle from "../../components/ProgressCircle";
+import { fetchServices } from "../../redux/serviceSlice";
+import { fetchCustomers } from "../../redux/customerSlice";
 
 const Dashboard = () => {
   const dispatch = useDispatch();
-  const accounts = useSelector((state) => state.account.accounts);
+  const customer = useSelector((state) => state.customer.customers);
   const orders = useSelector((state) => state.order.orders);
-  const products = useSelector((state) => state.product.products);
+  const services = useSelector((state) => state.service.services);
   const [loading, setLoading] = useState(false);
   const [filteredOrders, setFilteredOrders] = useState([]);
   const theme = useTheme();
@@ -41,7 +42,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     setLoading(true);
-    dispatch(fetchOrders())
+    dispatch(fetchOrdersCompleted())
       .then(() => {
         // Không cần setFilteredaccountsStatus vì đã sử dụng useSelector để lấy danh sách sản phẩm
       })
@@ -54,7 +55,7 @@ const Dashboard = () => {
   }, [dispatch]);
   useEffect(() => {
     setLoading(true);
-    dispatch(fetchProducts())
+    dispatch(fetchServices())
       .then(() => {
         // Không cần setFilteredaccountsStatus vì đã sử dụng useSelector để lấy danh sách sản phẩm
       })
@@ -67,7 +68,7 @@ const Dashboard = () => {
   }, [dispatch]);
   useEffect(() => {
     setLoading(true);
-    dispatch(fetchAccounts())
+    dispatch(fetchCustomers())
       .then(() => {
         // Không cần setFilteredaccountsStatus vì đã sử dụng useSelector để lấy danh sách sản phẩm
       })
@@ -83,9 +84,9 @@ const Dashboard = () => {
     return currentValue + Math.round((percentIncrease / 100) * currentValue);
   };
 
-  const increasedaccounts = calculateIncrease(accounts.length, 5);
+  const increasedCustomer = calculateIncrease(customer.length, 5);
   const increasedOrders = calculateIncrease(orders.length, 5);
-  const increasedProducts = calculateIncrease(products.length, 5);
+  const increasedServices = calculateIncrease(services.length, 5);
   const total = orders.reduce(
     (accumulator, order) => accumulator + order.price,
     0
@@ -94,7 +95,7 @@ const Dashboard = () => {
   useEffect(() => {
     // Lặp qua danh sách đơn hàng và gán accountName dựa trên accountId
     const ordersWithaccountNames = orders.map((order) => {
-      const account = accounts.find(
+      const account = customer.find(
         (account) => account.accountId === order.accountId
       );
       const accountName = account ? account.accountName : "Unknown account";
@@ -103,7 +104,7 @@ const Dashboard = () => {
 
     // Cập nhật danh sách đơn hàng đã được gán accountName
     setFilteredOrders(ordersWithaccountNames);
-  }, [orders, accounts]);
+  }, [orders, customer]);
 
   return (
     <Box marginLeft={2} marginRight={1}>
@@ -156,7 +157,7 @@ const Dashboard = () => {
                   fontWeight="bold"
                   sx={{ color: colors.grey[100] }}
                 >
-                  123
+                  {orders.length}
                 </Typography>
               </Box>
               <Box>
@@ -242,13 +243,13 @@ const Dashboard = () => {
                   fontWeight="bold"
                   sx={{ color: colors.grey[100] }}
                 >
-                  {accounts.length}
+                  {customer.length}
                 </Typography>
               </Box>
               <Box>
                 <CircularProgress
                   variant="determinate"
-                  value={accounts.length}
+                  value={customer.length}
                   sx={{ color: colors.greenAccent[500] }}
                 />
               </Box>
@@ -262,7 +263,7 @@ const Dashboard = () => {
                 fontStyle="italic"
                 sx={{ color: colors.greenAccent[600] }}
               >
-                {increasedaccounts}%
+                {increasedCustomer}%
               </Typography>
             </Box>
           </Box>
@@ -285,27 +286,27 @@ const Dashboard = () => {
                   fontWeight="bold"
                   sx={{ color: colors.grey[100] }}
                 >
-                  {products.length}
+                  {services.length}
                 </Typography>
               </Box>
               <Box>
                 <CircularProgress
                   variant="determinate"
-                  value={products.length}
+                  value={services.length}
                   sx={{ color: colors.greenAccent[500] }}
                 />
               </Box>
             </Box>
             <Box display="flex" justifyContent="space-between" mt="2px">
               <Typography variant="h5" sx={{ color: colors.greenAccent[500] }}>
-                Products increased
+                Service increased
               </Typography>
               <Typography
                 variant="h5"
                 fontStyle="italic"
                 sx={{ color: colors.greenAccent[600] }}
               >
-                {increasedProducts}%
+                {increasedServices}%
               </Typography>
             </Box>
           </Box>
@@ -338,10 +339,10 @@ const Dashboard = () => {
                 fontWeight="bold"
                 color={colors.greenAccent[500]}
               >
-                {/* {total.toLocaleString("vi-VN", {
+                {total.toLocaleString("vi-VN", {
                   style: "currency",
                   currency: "VND",
-                })} */}
+                })}
               </Typography>
             </Box>
             <Box>
@@ -356,7 +357,6 @@ const Dashboard = () => {
             <LineChart isDashboard={true} />
           </Box>
         </Box>
-
 
         <Box
           gridColumn="span 4"
@@ -391,23 +391,23 @@ const Dashboard = () => {
                   variant="h5"
                   fontWeight="600"
                 >
-                  {order.orderId}
+                  {order.id}
                 </Typography>
 
-                {order.accountId && (
-                  <Typography color={colors.grey[100]} key={order.orderId}>
-                    {accounts
+                {order.customerId && (
+                  <Typography color={colors.grey[100]} key={order.id}>
+                    {customer
                       .filter(
-                        (account) => account.accountId === order.accountId
+                        (account) => account.customerId === order.customerId
                       )
-                      .map((account) => account.accountName)
+                      .map((account) => account.fullname)
                       .join(", ")}
                   </Typography>
                 )}
               </Box>
 
               <Box color={colors.grey[100]}>
-                {new Date(order.createAt).toLocaleDateString()}
+                {new Date(order.createdAt).toLocaleDateString()}
               </Box>
 
               <Box

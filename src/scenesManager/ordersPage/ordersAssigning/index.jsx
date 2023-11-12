@@ -60,7 +60,7 @@ const OrdersAssigning = (props) => {
     dispatch(getOrderId({ id: orderId }))
       .then((response) => {
         const orderDetails = response.payload.data;
-        setSelectedEditOrder(orderDetails[0]);
+        setSelectedEditOrder(orderDetails);
         setOpenModal(true);
       })
       .catch((error) => {
@@ -481,7 +481,7 @@ const OrdersAssigning = (props) => {
         openModal={openModal}
         setOpenModal={setOpenModal}
         onClose={() => setOpenModal(false)}
-           selectedEditOrder={selectedEditOrder}
+        selectedEditOrder={selectedEditOrder}
         loading={loading}
       ></ModalDetail>
 

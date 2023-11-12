@@ -358,6 +358,29 @@ export const sendNotification = createAsyncThunk(
     }
   }
 );
+
+
+export const getPaymentId = createAsyncThunk(
+  "orders/getPaymentId",
+  async ({id}) => {
+    
+    try {
+      const response = await axios.get(
+        `https://rescuecapstoneapi.azurewebsites.net/api/Payment/GetPaymentOfOrder?id=${id}`
+      );
+      const data = response.data;
+      console.log(data)
+      return data;
+    } catch (response) {
+      console.error(
+        "Failed to retrieve customer:",
+        response.status,
+        response.message
+      );
+      throw response.status || response.message;
+    }
+  }
+);
 const orderSlice = createSlice({
   name: "order",
   initialState: {
@@ -422,10 +445,12 @@ const orderSlice = createSlice({
       })
       .addCase(getOrderId.fulfilled, (state, action) => {
         state.orderData = action.payload.data;
-      }
-      )
+      })
       .addCase(getOrderDetailId.fulfilled, (state, action) => {
         state.orderData = action.payload.data;
+      })
+      .addCase(getPaymentId.fulfilled, (state, action) => {
+        state.orders = action.payload.data;
       })
       .addCase(createAcceptOrder.fulfilled, (state, action) => {
         state.orders.push(action.payload);

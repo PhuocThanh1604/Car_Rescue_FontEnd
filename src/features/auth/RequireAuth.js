@@ -1,13 +1,14 @@
 import { useLocation, Navigate, Outlet } from "react-router-dom";
 import { useSelector } from "react-redux";
 import {
-  selectCurrentRole,
-  selectCurrentToken,
+
   selectCurrentUser,
 } from "./authSlice";
 import jwt_decode from "jwt-decode";
 import ManagerContent from "./Manager";
 const RequireAuth = () => {
+
+  
   // Sử dụng useSelector để truy cập giá trị token từ Redux store
   const data = useSelector(selectCurrentUser);
   if (data) {
