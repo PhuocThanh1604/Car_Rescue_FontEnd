@@ -1,6 +1,19 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
+
+const saveToStorage = (key, data) => {
+  const jsonData = JSON.stringify(data);
+  localStorage.setItem(key, jsonData); // Dùng Local Storage
+  // sessionStorage.setItem(key, jsonData); // Hoặc dùng Session Storage
+};
+
+// Hàm lấy dữ liệu từ storage
+const getFromStorage = (key) => {
+  const jsonData = localStorage.getItem(key); // Dùng Local Storage
+  // const jsonData = sessionStorage.getItem(key); // Hoặc dùng Session Storage
+  return jsonData ? JSON.parse(jsonData) : null;
+};
 export const createRescueVehicleOwner = createAsyncThunk(
   "rescueVehicleOwners/createRescueVehicleOwners",
   async (rescueVehicleOwner) => {
@@ -46,11 +59,17 @@ export const fetchRescueVehicleOwners = createAsyncThunk(
 export const getRescueVehicleOwnerId = createAsyncThunk(
   "rescueVehicleOwner/getRescueVehicleOwnerId",
   async ({ id }) => {
+    const storageKey = "getRescueVehicleOwnerId_" + id;;
+    const storedData = getFromStorage(storageKey);
+    if (storedData) {
+      return storedData;
+    }
     try {
       const response = await axios.get(
         `https://rescuecapstoneapi.azurewebsites.net/api/RescueVehicleOwner/Get?id=${id}`
       );
       const data = response.data;
+      saveToStorage(storageKey, data);
       console.log(data);
       return data;
     } catch (error) {

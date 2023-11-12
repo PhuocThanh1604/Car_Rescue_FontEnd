@@ -90,7 +90,7 @@ export const getCustomerId = createAsyncThunk(
         `https://rescuecapstoneapi.azurewebsites.net/api/Customer/Get?id=${id}`
       );
       const data = response.data;
-      // saveToStorage(storageKey, data); // Lưu dữ liệu mới vào Local Storage
+      saveToStorage(storageKey, data); // Lưu dữ liệu mới vào Local Storage
       console.log(data)
       return data;
     } catch (response) {
