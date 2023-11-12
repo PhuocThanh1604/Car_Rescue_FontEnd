@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Modal from "@mui/material/Modal";
 import Fade from "@mui/material/Fade";
 import Box from "@mui/material/Box";
@@ -35,46 +35,49 @@ import { getVehicleId } from "../../../redux/vehicleSlice";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import ReceiptRoundedIcon from "@mui/icons-material/ReceiptRounded";
 import { CategoryRounded } from "@mui/icons-material";
-import { getRescueVehicleOwnerId } from "../../../redux/rescueVehicleOwnerSlice";
 const MyModal = (props) => {
   const { openModal, setOpenModal, selectedEditOrder } = props;
   const dispatch = useDispatch();
   const [collapse, setCollapse] = useState(false);
-  const [data, setData] = useState({
-    customer: {},
-    technician: {},
-    vehicle: {},
-  });
-  // const [customerId, setCustomerId] = useState({});
-  // const [technicianId, setTechnicianId] = useState({});
-  // const [dataTechnician, setDataTechnician] = useState({});
-  // const [vehicleId, setVehicleId] = useState({});
-  // const [dataVehicle, setDataVehicle] = useState({});
-  // const [dataCustomer, setDataCustomer] = useState({});
-  const [dataRescueVehicleOwner, setDataRescueVehicleOwner] = useState({});
-  const [rescueVehicleOwnerId, setRescueVehicleOwnerId] = useState({});
-  // Lưu giá trị vào một biến
-  useEffect(() => {
-    if (selectedEditOrder && selectedEditOrder.vehicleId) {
-      const vehicleRvoidId = data.vehicle[selectedEditOrder.vehicleId]?.rvoid;
-      if (vehicleRvoidId) {
-        fetchRescueVehicleOwner(vehicleRvoidId);
-      }
-    }
-  }, [selectedEditOrder, data.vehicle, rescueVehicleOwnerId]);
+  const [customerId, setCustomerId] = useState({});
+  const [technicianId, setTechnicianId] = useState({});
+  const [dataTechnician, setDataTechnician] = useState({});
+  const [vehicleId, setVehicleId] = useState({});
+  const [dataVehicle, setDataVehicle] = useState({});
+  const [dataCustomer, setDataCustomer] = useState({});
+  // const [rescueId, setTechnicianId] = useState({});
 
-  const fetchRescueVehicleOwner = (vehicleRvoidId) => {
-    console.log(vehicleRvoidId);
+  useEffect(() => {
+    if (
+      selectedEditOrder &&
+      selectedEditOrder.customerId &&
+      selectedEditOrder.customerId !== customerId &&
+      selectedEditOrder.technicianId &&
+      selectedEditOrder.technicianId !== technicianId &&
+      selectedEditOrder.vehicleId &&
+      selectedEditOrder.vehicleId !== vehicleId
+    ) {
+      setCustomerId(selectedEditOrder.customerId);
+      fetchCustomer(selectedEditOrder.customerId);
+      setTechnicianId(selectedEditOrder.technicianId);
+      fetchTechnicians(selectedEditOrder.technicianId);
+      setVehicleId(selectedEditOrder.vehicleId);
+      fetchVehicle(selectedEditOrder.vehicleId);
+    }
+  }, [selectedEditOrder, customerId, technicianId]);
+
+  const fetchCustomer = (customerId) => {
+    console.log(customerId);
     // Make sure you have a check to prevent unnecessary API calls
-    if (vehicleRvoidId) {
-      dispatch(getRescueVehicleOwnerId({ id: vehicleRvoidId }))
+    if (customerId) {
+      dispatch(getCustomerId({ id: customerId }))
         .then((response) => {
           const data = response.payload.data;
           console.log(data);
           if (data) {
-            setDataRescueVehicleOwner((prevData) => ({
+            setDataCustomer((prevData) => ({
               ...prevData,
-              [vehicleRvoidId]: data,
+              [customerId]: data,
             }));
           } else {
             console.error("Service name not found in the API response.");
@@ -85,65 +88,54 @@ const MyModal = (props) => {
         });
     }
   };
-   // Lấy vehicleRvoidId từ selectedEditOrder và data.vehicle
-  
-
-   useEffect(() => {
-    if (selectedEditOrder) {
-      // Gọi API chỉ khi cần thiết
-      fetchDataIfNeeded("customer", selectedEditOrder.customerId);
-      fetchDataIfNeeded("technician", selectedEditOrder.technicianId);
-      fetchDataIfNeeded("vehicle", selectedEditOrder.vehicleId);
+  const fetchTechnicians = (technicianId) => {
+    console.log(technicianId);
+    // Make sure you have a check to prevent unnecessary API calls
+    if (technicianId) {
+      dispatch(getTechnicianId({ id: technicianId }))
+        .then((response) => {
+          const data = response.payload.data;
+          console.log(data);
+          if (data) {
+            setDataTechnician((prevData) => ({
+              ...prevData,
+              [technicianId]: data,
+            }));
+          } else {
+            console.error("Service name not found in the API response.");
+          }
+        })
+        .catch((error) => {
+          console.error("Error while fetching technician data:", error);
+        });
     }
-  }, [selectedEditOrder]);
-
-  const fetchDataIfNeeded = useCallback(
-    (type, id) => {
-      if (id && !data[type][id]) {
-        // Chỉ gọi API nếu dữ liệu chưa có trong state
-        fetchData(type, id);
-      }
-    },
-    [data]
-  );
-  const fetchData = (type, id) => {
-    let action;
-    switch (type) {
-      case "customer":
-        action = getCustomerId;
-        break;
-      case "technician":
-        action = getTechnicianId;
-        break;
-      case "vehicle":
-        action = getVehicleId;
-        break;
-      // không cần 'default' vì tất cả các trường hợp đã được xử lý
+  };
+  const fetchVehicle = (vehicleId) => {
+    console.log(vehicleId);
+   
+    if (vehicleId) {
+      dispatch(getVehicleId({ id: vehicleId }))
+        .then((response) => {
+          const data = response.payload.data;
+          console.log(data);
+          if (data) {
+            setDataVehicle((prevData) => ({
+              ...prevData,
+              [vehicleId]: data,
+            }));
+          } else {
+            console.error("Service name not found in the API response.");
+          }
+        })
+        .catch((error) => {
+          console.error("Error while fetching vehicle data:", error);
+        });
     }
-
-    dispatch(action({ id }))
-      .then((response) => {
-        const newData = response.payload.data;
-        if (newData) {
-          setData((prevData) => ({
-            ...prevData,
-            [type]: { ...prevData[type], [id]: newData },
-          }));
-        } else {
-          console.error(`${type} data not found in the API response.`);
-        }
-      })
-      .catch((error) => {
-        console.error(`Error while fetching ${type} data:`, error);
-      });
   };
   const handleClick = () => {
     setCollapse(!collapse);
   };
 
-  const vehicleRvoidId = selectedEditOrder && selectedEditOrder.vehicleId
-    ? data.vehicle[selectedEditOrder.vehicleId]?.rvoid
-    : null;
   // const date = new Date(selectedEditOrder.createdAt);
   // const formattedDate = `${date.getDate()}/${
   //   date.getMonth() + 1
@@ -194,7 +186,7 @@ const MyModal = (props) => {
               Thông Tin Chi Tiết Đơn Hàng Đang Điều Phối
             </Typography>
 
-            {selectedEditOrder  &&  (
+            {selectedEditOrder && (
               <Card>
                 <CardContent>
                   <Typography variant="h6" sx={{ display: "none" }}>
@@ -218,13 +210,13 @@ const MyModal = (props) => {
                         marginLeft: "10px",
                       }}
                     >
-                      {data.customer[selectedEditOrder.customerId]?.fullname ||
+                      {dataCustomer[selectedEditOrder.customerId]?.fullname ||
                         "Đang tải..."}
                     </Typography>
                     <Avatar
                       alt="Avatar"
                       src={
-                        data.customer[selectedEditOrder.customerId]?.avatar ||
+                        dataCustomer[selectedEditOrder.customerId]?.avatar ||
                         "URL mặc định của avatar"
                       }
                       sx={{
@@ -337,7 +329,7 @@ const MyModal = (props) => {
                             <Avatar
                               alt="Avatar"
                               src={
-                                data.technician[selectedEditOrder.technicianId]
+                                dataTechnician[selectedEditOrder.technicianId]
                                   ?.avatar || "URL mặc định của avatar"
                               }
                               sx={{
@@ -354,7 +346,7 @@ const MyModal = (props) => {
                                 marginLeft: "10px",
                               }}
                             >
-                              {data.technician[selectedEditOrder.technicianId]
+                              {dataTechnician[selectedEditOrder.technicianId]
                                 ?.fullname || "Đang tải..."}
                             </Typography>
                           </Box>
@@ -368,7 +360,7 @@ const MyModal = (props) => {
                             <PeopleAltRoundedIcon />
                             <Typography variant="h6">
                               Giới Tính:{" "}
-                              {data.technician[selectedEditOrder.technicianId]
+                              {dataTechnician[selectedEditOrder.technicianId]
                                 ?.sex || "Đang tải..."}
                             </Typography>
                           </Box>
@@ -382,7 +374,7 @@ const MyModal = (props) => {
                             <PhoneRoundedIcon />
                             <Typography variant="h6">
                               SĐT:{" "}
-                              {data.technician[selectedEditOrder.technicianId]
+                              {dataTechnician[selectedEditOrder.technicianId]
                                 ?.phone || "Đang tải..."}
                             </Typography>
                           </Box>
@@ -396,7 +388,7 @@ const MyModal = (props) => {
                             <PlaceIcon />
                             <Typography variant="h6">
                               Địa Chỉ:{" "}
-                              {data.technician[selectedEditOrder.technicianId]
+                              {dataTechnician[selectedEditOrder.technicianId]
                                 ?.address || "Đang tải..."}
                             </Typography>
                           </Box>
@@ -411,7 +403,7 @@ const MyModal = (props) => {
                             <MapRoundedIcon />
                             <Typography variant="h6">
                               Khu vực:{" "}
-                              {data.technician[selectedEditOrder.technicianId]
+                              {dataTechnician[selectedEditOrder.technicianId]
                                 ?.area || "Đang tải..."}
                             </Typography>
                           </Box>
@@ -441,7 +433,10 @@ const MyModal = (props) => {
                           >
                             <Avatar
                               alt="Avatar"
-                              src={dataRescueVehicleOwner[vehicleRvoidId]?.avatar || "URL mặc định của avatar"}
+                              src={
+                                dataTechnician[selectedEditOrder.technicianId]
+                                  ?.avatar || "URL mặc định của avatar"
+                              }
                               sx={{
                                 width: 44,
                                 height: 44,
@@ -456,11 +451,8 @@ const MyModal = (props) => {
                                 marginLeft: "10px",
                               }}
                             >
-                                
-                             Tên Chủ Xe:{" "}
-                          
-                        
-                               {dataRescueVehicleOwner[vehicleRvoidId]?.fullname}
+                              {dataTechnician[selectedEditOrder.technicianId]
+                                ?.fullname || "Đang tải..."}
                             </Typography>
                           </Box>
                           <Box
@@ -473,7 +465,7 @@ const MyModal = (props) => {
                             <ReceiptRoundedIcon />
                             <Typography variant="h6">
                               Biển Số:{" "}
-                              {data.vehicle[selectedEditOrder.vehicleId]
+                              {dataVehicle[selectedEditOrder.vehicleId]
                                 ?.licensePlate || "Đang tải..."}
                             </Typography>
                           </Box>
@@ -487,7 +479,7 @@ const MyModal = (props) => {
                             <TimeToLeaveIcon />
                             <Typography variant="h6">
                               Hãng Xe:{" "}
-                              {data.vehicle[selectedEditOrder.vehicleId]
+                              {dataVehicle[selectedEditOrder.vehicleId]
                                 ?.manufacturer || "Đang tải..."}
                             </Typography>
                           </Box>
@@ -501,7 +493,7 @@ const MyModal = (props) => {
                             <CategoryRounded />
                             <Typography variant="h6">
                               Loại Xe:{" "}
-                              {data.vehicle[selectedEditOrder.vehicleId]
+                              {dataVehicle[selectedEditOrder.vehicleId]
                                 ?.type || "Đang tải..."}
                             </Typography>
                           </Box>
@@ -516,7 +508,7 @@ const MyModal = (props) => {
                             <CalendarTodayIcon />
                             <Typography variant="h6">
                               Năm:{" "}
-                              {data.vehicle[selectedEditOrder.vehicleId]
+                              {dataVehicle[selectedEditOrder.vehicleId]
                                 ?.manufacturingYear || "Đang tải..."}
                             </Typography>
                           </Box>
