@@ -132,20 +132,7 @@ const Orders = (props) => {
       });
   }, [dispatch,location.pathname]);
 
-  const handleUpdateClick = (orderId) => {
-    console.log(orderId);
-    // Fetch the rescueVehicleOwnerId details based on the selected rescueVehicleOwnerId ID
-    dispatch(getOrderId({ id: orderId }))
-      .then((response) => {
-        const orderDetails = response.payload.data;
-        setSelectedEditOrder(orderDetails);
-        setOpenEditModal(true);
-        setIsSuccess(true);
-      })
-      .catch((error) => {
-        console.error("Lỗi khi lấy thông tin đơn hàng mới:", error);
-      });
-  };
+
 
   const handleDetailClickDetail = (orderId) => {
     console.log(orderId);
@@ -161,24 +148,6 @@ const Orders = (props) => {
       });
   };
 
-  const handleBookDetailClick = (book) => {
-    setSelectedEditOrder(book);
-    setOpenModal(true);
-  };
-  const reloadOders = () => {
-    dispatch(fetchOrdersCompleted())
-      .then((response) => {
-        const data = response.payload.data;
-        if (data) {
-          setFilteredOrders(data);
-          // Đặt loading thành false sau khi tải lại dữ liệu
-          setLoading(false);
-        }
-      })
-      .catch((error) => {
-        console.error("Lỗi khi tải lại danh sách đơn hàng:", error);
-      });
-  };
 
   const fetchFullname = (customerId) => {
     // You can use your existing code to fetch the fullname

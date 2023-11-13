@@ -17,9 +17,10 @@ import {
   Card,
   CardMedia,
   CardContent,
-  CardActions,
+
   Divider,
   Grid,
+
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 
@@ -34,25 +35,28 @@ import "react-toastify/dist/ReactToastify.css";
 import SearchIcon from "@mui/icons-material/Search";
 import InputBase from "@mui/material/InputBase";
 import moment from "moment";
-
+import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
+import { CategoryRounded } from "@mui/icons-material";
 import {
   createAcceptRegisterVehicle,
-  fetchVehicle,
   fetchVehicleWatting,
 } from "../../redux/vehicleSlice";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
 import Collapse from "@mui/material/Collapse";
-import HourglassTopIcon from "@mui/icons-material/HourglassTop";
 import TimerIcon from "@mui/icons-material/Timer";
 import "react-responsive-carousel/lib/styles/carousel.min.css"; // Import the carousel styles
-import { Carousel } from "react-responsive-carousel";
-import MobileStepper from "@mui/material/MobileStepper";
-import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft";
-import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
+import ReceiptRoundedIcon from "@mui/icons-material/ReceiptRounded";
 import SwipeableViews from "react-swipeable-views";
 import { autoPlay } from "react-swipeable-views-utils";
+import { getCustomerId } from "../../redux/customerSlice";
+import { getRescueVehicleOwnerId } from "../../redux/rescueVehicleOwnerSlice";
+import MapRoundedIcon from "@mui/icons-material/MapRounded";
+import PhoneRoundedIcon from "@mui/icons-material/PhoneRounded";
+import PeopleAltRoundedIcon from "@mui/icons-material/PeopleAltRounded";
+import PlaceIcon from "@mui/icons-material/Place";
 const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
 const Vehicles = (props) => {
   const dispatch = useDispatch();
@@ -80,7 +84,45 @@ const Vehicles = (props) => {
   const [collapse, setCollapse] = useState(false);
   const [isAccepted, setIsAccepted] = useState(false);
 
-  
+  const [dataRescueVehicleOwner, setDataRescueVehicleOwner] = useState({});
+  const [rescueVehicleOwnerId, setRescueVehicleOwnerId] = useState({});
+
+  //GetdadaRescueVehicleOwner
+
+  useEffect(() => {
+    // Kiểm tra xem detailedData có phải là mảng và có phần tử đầu tiên hay không
+    if (
+      Array.isArray(detailedData) &&
+      detailedData.length > 0 &&
+      detailedData[0].rvoid
+    ) {
+      fetchRescueVehicleOwner(detailedData[0].rvoid);
+    }
+  }, [detailedData]);
+
+  //GetdadaCustomer
+  const fetchRescueVehicleOwner = (vehicleRvoidId) => {
+    console.log(vehicleRvoidId);
+    // Make sure you have a check to prevent unnecessary API calls
+    if (vehicleRvoidId) {
+      dispatch(getRescueVehicleOwnerId({ id: vehicleRvoidId }))
+        .then((response) => {
+          const data = response.payload.data;
+          console.log(data);
+          if (data) {
+            setDataRescueVehicleOwner((prevData) => ({
+              ...prevData,
+              [vehicleRvoidId]: data,
+            }));
+          } else {
+            console.error("Service name not found in the API response.");
+          }
+        })
+        .catch((error) => {
+          console.error("Error while fetching service data:", error);
+        });
+    }
+  };
   //img
   const imageWidth = "400px";
   const imageHeight = "300px";
@@ -142,7 +184,7 @@ const Vehicles = (props) => {
     setIsAccepted(accept);
     console.log(accept);
     // Fetch the VehicleId details based on the selected Vehicle ID
-    dispatch(createAcceptRegisterVehicle({ id: vehicleId,boolean: accept }))
+    dispatch(createAcceptRegisterVehicle({ id: vehicleId, boolean: accept }))
       .then(() => {
         setVehicleId(vehicleId);
         setOpenConfirmModal(false);
@@ -197,34 +239,33 @@ const Vehicles = (props) => {
   };
 
   useEffect(() => {
-    if (vehicles) {
-      if (vehicles.id) {
-        const vehicleToEdit = vehicles.find(
-          (vehicle) => vehicle.id === vehicles.id
-        );
-        if (vehicleToEdit) {
-          setEditStatus(vehicleToEdit);
-          setInitialFormState(vehicleToEdit);
-        }
+    if (Array.isArray(vehicles)) {
+      const vehicleId = vehicles.id; // Xem xét lại điều này, có vẻ như vehicles.id không đúng
+      const vehicleToEdit = vehicles.find(vehicle => vehicle.id === vehicleId);
+  
+      if (vehicleToEdit) {
+        setEditStatus(vehicleToEdit);
+        setInitialFormState(vehicleToEdit);
       }
     }
   }, [vehicles]);
+  
 
   useEffect(() => {
-    const filteredVehicles = vehicles
-      ? vehicles.filter((vehicle) => {
-          const nameMatch =
-            vehicle.fullname &&
-            vehicle.fullname.toLowerCase().includes(searchText.toLowerCase());
-          const filterMatch =
-            filterOption === "type" ||
-            (filterOption === "Crane" && vehicle.type === "Crane") ||
-            (filterOption === "Towing" && vehicle.type === "Towing");
-          return nameMatch && filterMatch;
-        })
-      : [];
-    setFilteredVehicles(filteredVehicles);
-  }, [vehicles, searchText, filterOption]);
+    if (Array.isArray(vehicles)) {
+      const filteredVehicles = vehicles.filter(vehicle => {
+        const nameMatch = vehicle.fullname && vehicle.fullname.toLowerCase().includes(searchText.toLowerCase());
+        const filterMatch = filterOption === "type" ||
+          (filterOption === "Crane" && vehicle.type === "Crane") ||
+          (filterOption === "Towing" && vehicle.type === "Towing");
+        return nameMatch && filterMatch;
+      });
+      setFilteredVehicles(filteredVehicles);
+    } else {
+      setFilteredVehicles([]);
+    }
+  }, [vehicles, searchText, filterOption])
+  
 
   useEffect(() => {
     setLoading(true);
@@ -315,17 +356,15 @@ const Vehicles = (props) => {
       width: 60,
       renderCell: (params) => (
         <IconButton
-        variant="contained"
-        color="error"
-        onClick={() => handleConfirm(params.row.id)}
-
-      >
-          <CheckCircleOutlineIcon
           variant="contained"
-          style={{ color: "green" }} // Set the color to green
-        />
-      </IconButton>
-     
+          color="error"
+          onClick={() => handleConfirm(params.row.id)}
+        >
+          <CheckCircleOutlineIcon
+            variant="contained"
+            style={{ color: "green" }} // Set the color to green
+          />
+        </IconButton>
       ),
       key: "acceptOrder",
     },
@@ -338,12 +377,7 @@ const Vehicles = (props) => {
         subtitle="Danh sách xe cứu hộ chờ duyệt"
       />
       <Box display="flex" className="box" left={0}>
-      <Box
-          display="flex"
-          borderRadius="5px"
-          border={1}
-          marginRight={2} 
-        >
+        <Box display="flex" borderRadius="5px" border={1} marginRight={2}>
           <InputBase
             sx={{ ml: 4, flex: 1 }}
             placeholder="Tìm kiếm"
@@ -354,8 +388,6 @@ const Vehicles = (props) => {
             <SearchIcon />
           </IconButton>
         </Box>
-
-     
 
         <ToastContainer />
         <Box display="flex" alignItems="center" className="filter-box">
@@ -486,12 +518,17 @@ const Vehicles = (props) => {
         aria-describedby="alert-dialog-description"
         PaperProps={{
           style: {
-            width: "500px", // Set your desired maximum width
+            width: "600px", // Set your desired maximum width
             height: "500px", // Set your desired maximum height
           },
         }}
       >
-        <DialogTitle id="alert-dialog-title" sx={{ color: 'indigo' , fontSize: '24px'}}>Xác nhận đăng kí vào hệ hống</DialogTitle>
+        <DialogTitle
+          id="alert-dialog-title"
+          sx={{ color: "indigo", fontSize: "24px" }}
+        >
+          Xác nhận đăng kí vào hệ hống
+        </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
             {detailedData !== null ? (
@@ -504,7 +541,14 @@ const Vehicles = (props) => {
                       onChangeIndex={handleStepChange}
                       enableMouseEvents
                     >
-                     <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          marginBottom: "5px",
+                        }}
+                      >
                         <img
                           src={detailedData[0].carRegistrationBack}
                           alt="Car Back"
@@ -515,7 +559,13 @@ const Vehicles = (props) => {
                           }}
                         />
                       </div>
-                      <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                      >
                         <img
                           src={detailedData[0].carRegistrationFont}
                           alt="Car Front"
@@ -526,7 +576,13 @@ const Vehicles = (props) => {
                           }}
                         />
                       </div>
-                      <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                      >
                         <img
                           src={detailedData[0].image}
                           alt="Car Front"
@@ -541,53 +597,203 @@ const Vehicles = (props) => {
                   </CardMedia>
 
                   <Divider light />
-                  <Grid container spacing={4} sx={{ marginTop: 2 }}>
-                    <Grid item xs={6}>
+                  <Grid container spacing={2} alignItems="stretch">
+                    <Grid item xs={5} alignItems="center">
                       <CardContent>
-                        <Typography variant="h6" sx={{ marginBottom: 2 }}>
-                          Chủ Xe: {detailedData[0].rvoid}
+                        <Typography
+                          variant="h5"
+                          sx={{ marginBottom: "4px", textAlign: "center" }}
+                        >
+                          Thông tin chủ xe
                         </Typography>
+                    
+
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1, // Khoảng cách giữa icon và văn bản
+                          }}
+                        >
+                           <PersonRoundedIcon />
+                          <Typography variant="h6">
+                          <strong>Chủ xe: </strong>{" "}
+                            {dataRescueVehicleOwner[detailedData[0]?.rvoid]
+                              ?.fullname || "Không có thông tin"}
+                          </Typography>
+                        </Box>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1, // Khoảng cách giữa icon và văn bản
+                          }}
+                        >
+                           <PhoneRoundedIcon />
+                          <Typography variant="h6">
+                          <strong>SĐT: </strong>{" "}
+                          {dataRescueVehicleOwner[detailedData[0]?.rvoid]
+                              ?.phone || "Không có thông tin"}
+                          </Typography>
+                        </Box>
+                   
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1, // Khoảng cách giữa icon và văn bản
+                          }}
+                        >
+                           <PeopleAltRoundedIcon />
+                          <Typography variant="h6">
+                          <strong>Giới tính: </strong>{" "}
+                          {dataRescueVehicleOwner[detailedData[0]?.rvoid]
+                              ?.sex || "Không có thông tin"}
+                          </Typography>
+                        </Box>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1, // Khoảng cách giữa icon và văn bản
+                          }}
+                        >
+                           <PlaceIcon />
+                          <Typography variant="h6">
+                          <strong>Địa chỉ: </strong>{" "}
+                         
+                          {dataRescueVehicleOwner[detailedData[0]?.rvoid]
+                              ?.address || "Không có thông tin"}
+                          </Typography>
+                        </Box>
+
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1, // Khoảng cách giữa icon và văn bản
+                          }}
+                        >
+                           <MapRoundedIcon />
+                          <Typography variant="h6">
+                          <strong>Khu vực: </strong>{" "}
+                         
+                          {dataRescueVehicleOwner[detailedData[0]?.rvoid]
+                              ?.area || "Chưa cập nhật"}
+                          </Typography>
+                        </Box>
+                  
                       </CardContent>
                     </Grid>
-                    <Grid item xs={6}>
+                    <Grid item xs={1}>
+                      <Divider orientation="vertical" sx={{ height: "100%" }} />
+                    </Grid>
+                    <Grid item xs={5} alignItems="center">
                       <CardContent>
-                        <Typography variant="h6">
-                          <span>Biển số xe:</span>{" "}
-                          {detailedData[0].licensePlate}
+                        <Typography
+                          variant="h5"
+                          sx={{ marginBottom: "4px", textAlign: "center" }}
+                        >
+                          Thông tin xe
                         </Typography>
-                        <Typography variant="h6">
-                          <span>Loại xe:</span> {detailedData[0].type}
-                        </Typography>
-                        <Typography variant="h6">
-                          <span>Đời xe:</span>{" "}
-                          {detailedData[0].manufacturingYear}
-                        </Typography>
-                        <Typography variant="h6">
-                          <span>Mã xe:</span> {detailedData[0].manufacturer}
-                        </Typography>
-                        <Typography variant="h6">
-                          <span>Số khung xe:</span> {detailedData[0].vinNumber}
-                        </Typography>
-                        <Typography variant="h6">
-                          <span>Trạng Thái:</span>
+
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1, // Khoảng cách giữa icon và văn bản
+                          }}
+                        >
+                          <ReceiptRoundedIcon />
+                          <Typography variant="h6">
+                            Biển Số:{" "}
+                            {detailedData[0].licensePlate ||
+                              "Không có thông tin"}
+                          </Typography>
+                        </Box>
+
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1, // Khoảng cách giữa icon và văn bản
+                          }}
+                        >
+                          <CategoryRounded />
+                          <Typography variant="h6">
+                            Loại Xe:{" "}
+                            {detailedData[0].type || "Không có thông tin"}
+                          </Typography>
+                        </Box>
+
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1, // Khoảng cách giữa icon và văn bản
+                          }}
+                        >
+                          <CalendarTodayIcon />
+                          <Typography variant="h6">
+                            Đời xe:{" "}
+                            {detailedData[0].manufacturingYear ||
+                              "Không có thông tin"}
+                          </Typography>
+                        </Box>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1, // Khoảng cách giữa icon và văn bản
+                          }}
+                        >
+                          <ReceiptRoundedIcon />
+                          <Typography variant="h6">
+                            Hãng xe:{" "}
+                            {detailedData[0].manufacturer ||
+                              "Không có thông tin"}
+                          </Typography>
+                        </Box>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1, // Khoảng cách giữa icon và văn bản
+                          }}
+                        >
+                          <ReceiptRoundedIcon />
+                          <Typography variant="h6">
+                            Số khung xe:{" "}
+                            {detailedData[0].vinNumber || "Không có thông tin"}
+                          </Typography>
+                        </Box>
+
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1, // Khoảng cách giữa các phần tử
+                          }}
+                        >
+                          <TimerIcon />
+                          <Typography variant="h6">Trạng Thái: </Typography>
                           <Box
                             style={{
                               display: "flex",
-                              alignItems: "center", // Center vertically
+                              alignItems: "center", // Canh giữa theo chiều dọc
                               background: "yellow",
                               color: "black",
                               width: "150px",
                               borderRadius: "5px",
                             }}
                           >
-                            <TimerIcon />
-                            {detailedData[0].status}
+                            {detailedData[0].status || "Không có thông tin"}
                           </Box>
-                        </Typography>
+                        </Box>
                       </CardContent>
                     </Grid>
                   </Grid>
-                  <CardActions className="card-action-dense">
+                  {/* <CardActions className="card-action-dense">
                     <Box
                       sx={{
                         width: "100%",
@@ -605,8 +811,8 @@ const Vehicles = (props) => {
                         )}
                       </IconButton>
                     </Box>
-                  </CardActions>
-                  <Collapse in={collapse}>
+                  </CardActions> */}
+                  {/* <Collapse in={collapse}>
                     <Divider sx={{ margin: 0 }} />
                     <CardContent>
                       <Typography variant="h6" sx={{ marginBottom: 2 }}>
@@ -617,7 +823,7 @@ const Vehicles = (props) => {
                         Status: {detailedData[0].status}
                       </Typography>
                     </CardContent>
-                  </Collapse>
+                  </Collapse> */}
                 </Card>
               </div>
             ) : (
@@ -627,7 +833,7 @@ const Vehicles = (props) => {
         </DialogContent>
 
         <DialogActions>
-          <Button onClick={handleCancel} color="primary"variant="contained">
+          <Button onClick={handleCancel} color="primary" variant="contained">
             Hủy
           </Button>
           <Button
@@ -639,7 +845,6 @@ const Vehicles = (props) => {
           </Button>
           <Button
             onClick={() => handleAcceptOrderClick(vehicleId, false)} // Pass false for "Không Đồng Ý"
-         
             color="primary"
             variant="contained"
           >

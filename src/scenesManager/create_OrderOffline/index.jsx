@@ -128,33 +128,22 @@ const CreateOrderOffline = () => {
   // Rest of your component
   
 
-
+  
   function calculateDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371; // Earth's radius in kilometers
-    const dLat = toRad(lat2 - lat1);
-    const dLon = toRad(lon2 - lon1);
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * 
-      Math.sin(dLon / 2) * Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const distance = R * c; // Distance in kilometers
-    return distance;
+    const toRadian = n => (n * Math.PI) / 180;
+  
+    let dLat = toRadian(lat2 - lat1);
+    let dLon = toRadian(lon2 - lon1);
+    let R = 6371; // Radius of the Earth in kilometers
+    let a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(toRadian(lat1)) * Math.cos(toRadian(lat2)) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    let d = R * c +2.23; // Distance in kilometers
+    return d;
   }
   
-  function toRad(value) {
-    return value * Math.PI / 180;
-  }
-  
-
-    // Example usage:
-    // const point1 = { lat: 10.7756587, lng: 106.7004238 };
-    // const point2 = { lat: 10.7935216, lng: 106.73081950 };
-    
-    // const distanceKm = calculateDistance(point1.lat, point1.lng, point2.lat, point2.lng);
-    // console.log(`The distance is ${distanceKm.toFixed(2)} km`);
-    
-
+   
   const checkoutSchema = yup.object().shape({
     customerNote: yup.string().required("Required"),
     departure: yup.string().required("Required"),
