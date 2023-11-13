@@ -41,6 +41,7 @@ const MyModal = (props) => {
   const dispatch = useDispatch();
   const { openModal, setOpenModal, selectedEditOrder } = props;
   const [collapse, setCollapse] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   const [data, setData] = useState({
     customer: {},
@@ -141,7 +142,7 @@ const MyModal = (props) => {
     selectedEditOrder && selectedEditOrder.vehicleId
       ? data.vehicle[selectedEditOrder.vehicleId]?.rvoid
       : null;
-  let formattedDate = "Không rõ ngày tạo";
+  let formattedDate = "Không có thông tin";
   if (selectedEditOrder && selectedEditOrder.birthdate) {
     const date = new Date(selectedEditOrder.birthdate);
     formattedDate = `${date.getDate()}/${
@@ -231,9 +232,9 @@ const MyModal = (props) => {
                       justifyContent: "space-between",
                     }}
                   >
-                    <Grid container spacing={2} alignItems="stretch">
-                      <Grid item xs={5} alignItems="center">
-                        <Typography variant="h6" sx={{ marginBottom: 2 }}>
+                    <Grid container spacing={1} alignItems="stretch">
+                      <Grid item xs={6} alignItems="center">
+                        <Typography variant="h5" sx={{ marginBottom: 2 }}>
                           Thông Tin Khách Hàng
                         </Typography>
                         <Box
@@ -246,7 +247,7 @@ const MyModal = (props) => {
                           <PersonRoundedIcon />
                           <strong>Khách Hàng: </strong>{" "}
                           <Typography
-                            variant="body1"
+                            variant="h6"
                             sx={{
                               display: "flex",
                               alignItems: "center",
@@ -280,9 +281,10 @@ const MyModal = (props) => {
                             marginRight: "2px",
                           }}
                         >
-                          <PeopleAltRoundedIcon /> <strong>Giới Tính:</strong>
+                          <PeopleAltRoundedIcon />
+                          <strong>Giới Tính:</strong>
                           <Typography
-                            variant="h5"
+                            variant="h6"
                             sx={{
                               display: "flex",
                               alignItems: "center",
@@ -308,7 +310,7 @@ const MyModal = (props) => {
                         >
                           <PhoneRoundedIcon /> <strong>SĐT:</strong>
                           <Typography
-                            variant="h5"
+                            variant="h6"
                             sx={{
                               display: "flex",
                               alignItems: "center",
@@ -334,7 +336,7 @@ const MyModal = (props) => {
                         >
                           <PlaceIcon /> <strong>Địa chỉ:</strong>
                           <Typography
-                            variant="h5"
+                            variant="h6"
                             sx={{
                               display: "flex",
                               alignItems: "center",
@@ -359,7 +361,7 @@ const MyModal = (props) => {
                         >
                           <WatchLaterRoundedIcon /> <strong>Ngày sinh: </strong>
                           <Typography
-                            variant="h5"
+                            variant="h6"
                             sx={{
                               display: "flex",
                               alignItems: "center",
@@ -371,44 +373,40 @@ const MyModal = (props) => {
                         </Typography>
                       </Grid>
                       <Grid item xs={1}>
-                          <Divider
-                            orientation="vertical"
-                            sx={{ height: "100%" }}
-                          />
-                        </Grid>
+                        <Divider
+                          orientation="vertical"
+                          sx={{ height: "100%" }}
+                        />
+                      </Grid>
 
                       <Grid item xs={5} alignItems="center">
                         <StyledGrid1 item xs={12} md={6} lg={7}>
-                       
-                            <Typography variant="h6" sx={{ marginBottom: 2 }}>
-                              FeedBack của đơn hàng
+                          <Typography variant="h5" sx={{ marginBottom: 2 }}>
+                            FeedBack của đơn hàng
+                          </Typography>
+                          <Box
+                            sx={{
+                              mb: 4.75,
+                              display: "flex",
+                              flexWrap: "wrap",
+                              alignItems: "center",
+                            }}
+                          >
+                            <Rating
+                              readOnly
+                              value={5}
+                              name="read-only"
+                              sx={{ marginRight: 2 }}
+                            />
+                            <Typography variant="body2">
+                              5 Star | 98 reviews
                             </Typography>
-                            <Box
-                              sx={{
-                                mb: 4.75,
-                                display: "flex",
-                                flexWrap: "wrap",
-                                alignItems: "center",
-                              }}
-                            >
-                              <Rating
-                                readOnly
-                                value={5}
-                                name="read-only"
-                                sx={{ marginRight: 2 }}
-                              />
-                              <Typography variant="body2">
-                                5 Star | 98 reviews
-                              </Typography>
-                            </Box>
-                            <Typography
-                              variant="body2"
-                              sx={{ marginBottom: 4 }}
-                            >
-                              Before there was a United States of America, there
-                              were coffee houses, because how are you supposed
-                              to build.
-                            </Typography>
+                          </Box>
+                          <Typography variant="body2" sx={{ marginBottom: 4 }}>
+                            Before there was a United States of America, there
+                            were coffee houses, because how are you supposed to
+                            build.
+                          </Typography>
                         </StyledGrid1>
                       </Grid>
                     </Grid>
@@ -554,132 +552,177 @@ const MyModal = (props) => {
                           />
                         </Grid>
 
-                        <Grid item xs={5}>
+                        {/*CarOWnẻ*/}
+                        <Grid item xs={5} alignItems="center">
                           <Typography
                             variant="h6"
                             sx={{ marginBottom: 2, textAlign: "center" }}
                           >
                             Xe Cứu Hộ Nhận Đơn
                           </Typography>
-                          <Box
-                            sx={{
-                              mr: 2,
-                              display: "flex",
-                              alignItems: "center",
-                              marginBottom: "10px",
-                            }}
-                          >
-                            <Avatar
-                              alt="Avatar"
-                              src={dataRescueVehicleOwner[vehicleRvoidId]?.avatar || "https://t4.ftcdn.net/jpg/03/59/58/91/360_F_359589186_JDLl8dIWoBNf1iqEkHxhUeeOulx0wOC5.jpg"}
+                          <Grid container>
+                            <Box
                               sx={{
-                                width: 44,
-                                height: 44,
-                                marginLeft: 1.75,
-                              }}
-                            />
-                            <Typography
-                              variant="h6"
-                              sx={{
+                                mr: 2,
                                 display: "flex",
                                 alignItems: "center",
-                                marginLeft: "10px",
+                                marginBottom: "10px",
                               }}
                             >
-                                
-                             Tên Chủ Xe:{" "}
-                               {dataRescueVehicleOwner[vehicleRvoidId]?.fullname ||"Không có thông tin"}
-                            </Typography>
-                          </Box>
-                          <Box
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 1, // Khoảng cách giữa icon và văn bản
-                            }}
-                          >
-                            <ReceiptRoundedIcon />
-                            <Typography variant="h6">
-                              Biển Số:{" "}
-                              {data.vehicle[selectedEditOrder.vehicleId]
-                                ?.licensePlate || "Không có thông tin"}
-                            </Typography>
-                          </Box>
-
-                          <Box
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 1, // Khoảng cách giữa icon và văn bản
-                            }}
-                          >
-                            <TimeToLeaveIcon />
-                            <Typography variant="h6">
-                              Hãng Xe:{" "}
-                              {data.vehicle[selectedEditOrder.vehicleId]
-                                ?.manufacturer || "Không có thông tin"}
-                            </Typography>
-                          </Box>
-                          <Box
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 1, // Khoảng cách giữa icon và văn bản
-                            }}
-                          >
-                            <CategoryRounded />
-                            <Typography variant="h6">
-                              Loại Xe:{" "}
-                              {data.vehicle[selectedEditOrder.vehicleId]
-                                ?.type || "Không có thông tin"}
-                            </Typography>
-                          </Box>
-
-                          <Box
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 1, // Khoảng cách giữa icon và văn bản
-                            }}
-                          >
-                            <CalendarTodayIcon />
-                            <Typography variant="h6">
-                              Năm:{" "}
-                              {data.vehicle[selectedEditOrder.vehicleId]
-                                ?.manufacturingYear || "Không có thông tin"}
-                            </Typography>
-
-                            <Box sx={{ flex: 1, marginTop: "10px" }}>
+                              <Avatar
+                                alt="Avatar"
+                                src={
+                                  dataRescueVehicleOwner[vehicleRvoidId]
+                                    ?.avatar ||
+                                  "https://t4.ftcdn.net/jpg/03/59/58/91/360_F_359589186_JDLl8dIWoBNf1iqEkHxhUeeOulx0wOC5.jpg"
+                                }
+                                sx={{
+                                  width: 44,
+                                  height: 44,
+                                  marginLeft: 1.75,
+                                }}
+                              />
+                              <Typography
+                                variant="h6"
+                                sx={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  marginLeft: "10px",
+                                }}
+                              >
+                                Tên Chủ Xe:{" "}
+                                {dataRescueVehicleOwner[vehicleRvoidId]
+                                  ?.fullname || "Không có thông tin"}
+                              </Typography>
+                            </Box>
+                            <Grid item xs={6}>
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 1, // Khoảng cách giữa icon và văn bản
+                                }}
+                              >
+                                <ReceiptRoundedIcon />
+                                <Typography variant="h6">
+                                  Biển Số:{" "}
                                   {data.vehicle[selectedEditOrder.vehicleId]
-                                ?.image ? (
+                                    ?.licensePlate || "Không có thông tin"}
+                                </Typography>
+                              </Box>
+
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 1, // Khoảng cách giữa icon và văn bản
+                                }}
+                              >
+                                <TimeToLeaveIcon />
+                                <Typography variant="h6">
+                                  Hãng Xe:{" "}
+                                  {data.vehicle[selectedEditOrder.vehicleId]
+                                    ?.manufacturer || "Không có thông tin"}
+                                </Typography>
+                              </Box>
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 1, // Khoảng cách giữa icon và văn bản
+                                }}
+                              >
+                                <CategoryRounded />
+                                <Typography variant="h6">
+                                  Loại Xe:{" "}
+                                  {data.vehicle[selectedEditOrder.vehicleId]
+                                    ?.type || "Không có thông tin"}
+                                </Typography>
+                              </Box>
+
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 1, // Khoảng cách giữa icon và văn bản
+                                }}
+                              >
+                                <CalendarTodayIcon />
+                                <Typography variant="h6">
+                                  Năm:{" "}
+                                  {data.vehicle[selectedEditOrder.vehicleId]
+                                    ?.manufacturingYear || "Không có thông tin"}
+                                </Typography>
+                              </Box>
+                            </Grid>
+
+                            <Grid item xs={4}>
+                              <Box sx={{ marginTop: "0px" }}>
+                                {data.vehicle[selectedEditOrder.vehicleId]
+                                  ?.image ? (
+                                  <img
+                                    src={
+                                      data.vehicle[selectedEditOrder.vehicleId]
+                                        ?.image
+                                    }
+                                    alt="Hình Ảnh Của Xe"
+                                    style={{
+                                      width: "160px",
+                                      height: "100px",
+                                      border: "2px solid #000",
+                                      objectFit: "cover",
+                                    }}
+                                    onClick={() => setShowModal(true)}
+                                    title="Nhấp để xem ảnh rõ hơn" 
+                                  />
+                                ) : (
+                                  <img
+                                    src="https://t4.ftcdn.net/jpg/04/70/29/97/360_F_470299797_UD0eoVMMSUbHCcNJCdv2t8B2g1GVqYgs.jpg"
+                                    alt="Hình Ảnh Mặc Định"
+                                    style={{
+                                      width: "100%",
+                                      height: "auto",
+                                      border: "2px solid #000",
+                                      objectFit: "cover",
+                                    }}
+                                  />
+                                )}
+                                {showModal && (
+                                  <div
+                                    style={{
+                                      position: "fixed",
+                                      top: 0,
+                                      left: 0,
+                                      width: "100%",
+                                      height: "100%",
+                                      backgroundColor: "rgba(0, 0, 0, 0.7)",
+                                      display: "flex",
+                                      justifyContent: "center",
+                                      alignItems: "center",
+                                    }}
+                                    onClick={() => setShowModal(false)}
+                                  >
                                     <img
-                                    src={data.vehicle[selectedEditOrder.vehicleId]
-                                      ?.image}
+                                      src={
+                                        data.vehicle[
+                                          selectedEditOrder.vehicleId
+                                        ]?.image
+                                      }
                                       alt="Hình Ảnh Của Xe"
                                       style={{
-                                        width: "100%",
-                                        height: "auto",
-                                        border: "2px solid #000",
-                                        objectFit: "cover",
+                                        maxWidth: "80%",
+                                        maxHeight: "80%",
+                                        objectFit: "contain",
                                       }}
                                     />
-                                  ) : (
-                                    <img
-                                      src="https://t4.ftcdn.net/jpg/04/70/29/97/360_F_470299797_UD0eoVMMSUbHCcNJCdv2t8B2g1GVqYgs.jpg"
-                                      alt="Hình Ảnh Mặc Định"
-                                      style={{
-                                        width: "100%",
-                                        height: "auto",
-                                        border: "2px solid #000",
-                                        objectFit: "cover",
-                                      }}
-                                    />
-                                  )}
-                                </Box>
-                          </Box>
-
-
+                                  </div>
+                                )}
+                              </Box>
+                            </Grid>
+                          </Grid>
                         </Grid>
+
+                        {/*iMAGE*/}
                       </Grid>
                     </Box>
                   </CardContent>

@@ -83,7 +83,7 @@ const Vehicles = (props) => {
 
   const [collapse, setCollapse] = useState(false);
   const [isAccepted, setIsAccepted] = useState(false);
-
+  const [selectedImage, setSelectedImage] = useState(null);
   const [dataRescueVehicleOwner, setDataRescueVehicleOwner] = useState({});
   const [rescueVehicleOwnerId, setRescueVehicleOwnerId] = useState({});
 
@@ -288,7 +288,10 @@ const Vehicles = (props) => {
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
-
+  const handleImageClick = (image) => {
+    setSelectedImage(image);
+    // Hiển thị hình ảnh đã chọn hoặc thực hiện một hành động khác ở đây
+  };
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
@@ -548,6 +551,7 @@ const Vehicles = (props) => {
                           alignItems: "center",
                           marginBottom: "5px",
                         }}
+                        onClick={() => handleImageClick(data.carRegistrationBack)}
                       >
                         <img
                           src={detailedData[0].carRegistrationBack}
