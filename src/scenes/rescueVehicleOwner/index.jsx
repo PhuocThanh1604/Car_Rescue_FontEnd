@@ -149,7 +149,6 @@ const RescueVehicleOwners = (props) => {
         if (data) {
           setData(data);
           setFilteredRescueVehicleOwners(data);
-
           setLoading(false); // Đặt trạng thái loading thành false sau khi xử lý dữ liệu
         }
       })
@@ -516,29 +515,7 @@ const RescueVehicleOwners = (props) => {
               borderRadius: 16,
             }}
           >
-            {/* <Card>
-              <CardContent>
-                <Typography variant="h3">Confirm Delete</Typography>
-                <Typography>
-                  Are you sure you want to delete this book?
-                </Typography>
-              </CardContent>
-              <CardActions>
-                <Button
-                  onClick={handleConfirmDelete}
-                  variant="contained"
-                  color="error"
-                >
-                  Delete
-                </Button>
-                <Button
-                  onClick={() => setOpenDeleteModal(false)}
-                  variant="contained"
-                >
-                  Cancel
-                </Button>
-              </CardActions>
-            </Card> */}
+           
           </Box>
         </Fade>
       </Modal>

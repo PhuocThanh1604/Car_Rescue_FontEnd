@@ -39,8 +39,8 @@ import TimeToLeaveIcon from "@mui/icons-material/TimeToLeave";
 import { CategoryRounded } from "@mui/icons-material";
 import ReceiptRoundedIcon from "@mui/icons-material/ReceiptRounded";
 import MapIcon from '@mui/icons-material/Map';
-import { getFeedbackOfOrderId } from "../../../redux/orderSlice";
-import CreditScoreIcon from '@mui/icons-material/CreditScore';
+import CakeIcon from "@mui/icons-material/Cake"
+import TimerIcon from "@mui/icons-material/Timer";
 import AssignmentIcon from '@mui/icons-material/Assignment';
 const MyModal = (props) => {
   const dispatch = useDispatch();
@@ -153,14 +153,30 @@ const MyModal = (props) => {
     selectedEditOrder && selectedEditOrder.vehicleId
       ? data.vehicle[selectedEditOrder.vehicleId]?.rvoid
       : null;
-  let formattedDate = "Không có thông tin";
-  if (selectedEditOrder && selectedEditOrder.birthdate) {
-    const date = new Date(selectedEditOrder.birthdate);
-    formattedDate = `${date.getDate()}/${
-      date.getMonth() + 1
-    }/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`;
-  }
-
+      let formattedDateStart = "Không có thông tin";
+      let formattedDateEnd = "Không có thông tin";
+      if (
+        selectedEditOrder &&
+        selectedEditOrder.startTime &&
+        selectedEditOrder.endTime
+      ) {
+        const dateStart = new Date(selectedEditOrder.startTime);
+        const dateEnd = new Date(selectedEditOrder.startTime);
+        formattedDateStart = `${dateStart.getDate()}/${
+          dateStart.getMonth() + 1
+        }/${dateStart.getFullYear()} ${dateStart.getHours()}:${dateStart.getMinutes()}`;
+        formattedDateEnd = `${dateEnd.getDate()}/${
+          dateEnd.getMonth() + 1
+        }/${dateEnd.getFullYear()} ${dateEnd.getHours()}:${dateEnd.getMinutes()}`;
+      }
+      function formatDate(dateString) {
+        const date = new Date(dateString);
+        const day = date.getDate().toString().padStart(2, "0");
+        const month = (date.getMonth() + 1).toString().padStart(2, "0"); // +1 because months start at 0
+        const year = date.getFullYear();
+    
+        return `${day}/${month}/${year}`; // Formats to dd/mm/yyyy
+      }
   const StyledGrid1 = styled(Grid)(({ theme }) => ({
     display: "flex",
     flexDirection: "column",
@@ -359,6 +375,7 @@ const MyModal = (props) => {
                           </Typography>
                         </Typography>
 
+                      
                         <Typography
                           variant="body1"
                           component="p"
@@ -369,7 +386,7 @@ const MyModal = (props) => {
                             fontSize: "1rem",
                           }}
                         >
-                          <WatchLaterRoundedIcon /> <strong>Ngày sinh: </strong>
+                          <CakeIcon /> <strong>Ngày sinh: </strong>
                           <Typography
                             variant="h6"
                             sx={{
@@ -378,7 +395,13 @@ const MyModal = (props) => {
                               marginLeft: "10px",
                             }}
                           >
-                            {formattedDate}
+                            {data.customer[selectedEditOrder.customerId]
+                              ?.birthdate
+                              ? formatDate(
+                                  data.customer[selectedEditOrder.customerId]
+                                    .birthdate
+                                )
+                              : "Không có thông tin"}
                           </Typography>
                         </Typography>
                       </Grid>
@@ -466,7 +489,7 @@ const MyModal = (props) => {
                               fontSize: "1rem",
                             }}
                           >
-                            <CommentIcon />
+                            <TimerIcon />
                             <strong>Thời gian bắt đầu: </strong>
                             <Typography
                               variant="h6"
@@ -482,7 +505,7 @@ const MyModal = (props) => {
                                 flex: 1,
                               }}
                             >
-                              {selectedEditOrder.startTime ||"Chưa bắt đầu làm"}
+                              {formattedDateStart ||"Chưa bắt đầu làm"}
                  
                             </Typography>
                           </Typography>
@@ -544,7 +567,7 @@ const MyModal = (props) => {
                       variant="h4"
                       sx={{ marginBottom: 2, textAlign: "center" }}
                     >
-                      Thông Tin Nhân Sự Đã Thực Hiên Đơn
+                      Thông Tin Nhân Sự Đã Nhận Đơn
                     </Typography>
 
                     <Box

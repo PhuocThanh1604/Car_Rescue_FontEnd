@@ -100,10 +100,7 @@ const Services = (props) => {
       });
   };
 
-  const handleBookDetailClick = (book) => {
-    setSelectedBook(book);
-    setOpenModal(true);
-  };
+
 
   useEffect(() => {
     const filteredServices = services

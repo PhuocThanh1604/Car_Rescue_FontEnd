@@ -45,7 +45,6 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
   const [servicesData, setServicesData] = useState([]);
   const [selectedService, setSelectedService] = useState(null);
   const [nameService, setNameService] = useState({});
-  const [selectedServiceOrder, setSelectedServiceOrder] = useState(null);
   const [serviceId, setServiceId] = useState([]);
   const [quantity, setQuantity] = useState("");
   const [serviceQuantities, setServiceQuantities] = useState({});

@@ -124,27 +124,7 @@ const OrdersAssigned = (props) => {
         setLoading(false);
       });
   }, [dispatch,location.pathname]);
-
-  const handleUpdateClick = (orderId) => {
-    console.log(orderId);
-    // Fetch the rescueVehicleOwnerId details based on the selected rescueVehicleOwnerId ID
-    dispatch(getOrderId({ id: orderId }))
-      .then((response) => {
-        const orderDetails = response.payload.data;
-        setSelectedEditOrder(orderDetails);
-        setOpenEditModal(true);
-        setIsSuccess(true);
-      })
-      .catch((error) => {
-        console.error("Lỗi khi lấy thông tin đơn hàng đã được điều phối:", error);
-      });
-  };
-
-  const handleBookDetailClick = (book) => {
-    setSelectedBook(book);
-    setOpenModal(true);
-  };
-  const reloadOders = () => {
+  const reloadOrderAssigned = () => {
     dispatch(fetchOrdersAssigned())
       .then((response) => {
         const data = response.payload.data;
@@ -155,9 +135,27 @@ const OrdersAssigned = (props) => {
         }
       })
       .catch((error) => {
-        console.error("Lỗi khi tải lại danh sách đơn hàng đã được điều phối:", error);
+        console.error("Lỗi khi tải lại danh sách khách hàng:", error);
       });
   };
+
+  const handleUpdateClick = (orderId) => {
+    console.log(orderId);
+    // Fetch the rescueVehicleOwnerId details based on the selected rescueVehicleOwnerId ID
+    dispatch(getOrderId({ id: orderId }))
+      .then((response) => {
+        const orderDetails = response.payload.data;
+        setSelectedEditOrder(orderDetails);
+        setOpenEditModal(true);
+        reloadOrderAssigned()
+        setIsSuccess(true);
+
+      })
+      .catch((error) => {
+        console.error("Lỗi khi lấy thông tin đơn hàng đã được điều phối:", error);
+      });
+  };
+
 
   const fetchFullname = (customerId) => {
     // You can use your existing code to fetch the fullname
@@ -464,7 +462,7 @@ const OrdersAssigned = (props) => {
       <ModalEdit
         openEditModal={openEditModal}
         setOpenEditModal={setOpenEditModal}
-        selectedEditRescuseVehicleOwner={selectedEditOrder}
+        selectedEditOrder={selectedEditOrder}
         onClose={() => setOpenEditModal(false)}
         loading={loading}
       />

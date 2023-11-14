@@ -309,6 +309,28 @@ export const createAcceptOrder = createAsyncThunk(
     }
   }
 );
+export const createCancelOrder = createAsyncThunk(
+  "orders/createCancelOrder",
+  async (data) => {
+    console.log(data);
+    try {
+      const res = await axios.post(
+        "https://rescuecapstoneapi.azurewebsites.net/api/Order/CustomerCancelOrder",
+        data,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log(data);
+      return res.data;
+    } catch (error) {
+      console.error("Failed to create Cancel Order:", error.response);
+      throw error.response.data || error.message;
+    }
+  }
+);
 export const createOrderOffline = createAsyncThunk(
   "orders/createOrderOffline",
   async (data) => {
@@ -480,6 +502,15 @@ const orderSlice = createSlice({
         state.status = "loading";
       })
       .addCase(createAcceptOrder.rejected, (state, action) => {
+        state.status = "error";
+      })
+       .addCase(createCancelOrder.fulfilled, (state, action) => {
+        state.orders.push(action.payload);
+      })
+      .addCase(createCancelOrder.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(createCancelOrder.rejected, (state, action) => {
         state.status = "error";
       })
       .addCase(createOrderOffline.fulfilled, (state, action) => {

@@ -9,63 +9,51 @@ import {
   TextField,
   Button,
   IconButton,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Avatar,
-  Grid,
+
 } from "@mui/material";
 import { Close} from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  editRescueVehicleOwner,
-  fetchRescueVehicleOwners,
-} from "../../../redux/rescueVehicleOwnerSlice";
 import { ToastContainer, toast } from "react-toastify";
-import UploadImageField from "../../../components/uploadImage";
+import { createCancelOrder, fetchOrdersAssigned } from "../../../redux/orderSlice";
 
 const ModalEdit = ({
   openEditModal,
   setOpenEditModal,
-  selectedEditRescuseVehicleOwner,
+  selectedEditOrder,
 }) => {
   const dispatch = useDispatch();
-  const rescueVehicleOwners = useSelector(
-    (state) => state.rescueVehicleOwner.rescueVehicleOwners
-  );
+  const orders = useSelector((state) => state.order.orders);
   const [edit, setEdit] = useState({});
   const [isSuccess, setIsSuccess] = useState(false);
   const [initialFormState, setInitialFormState] = useState({});
   const [fullnameValue, setFullnameValue] = useState("");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [filtereRescueVehicleOwners, setFilteredRescueVehicleOwners] = useState([]);
-  const [currentImageUrl, setCurrentImageUrl] = useState(edit.avatar || "");
-  const [downloadUrl, setDownloadUrl] = useState("");
-  const [serverError, setServerError] = useState(null);
+  const [filteredOrders, setFilteredOrders] = useState([]);
+  const [cancellationReason, setCancellationReason] = useState("");
 
-  const reloadRescueVehicleOwners = () => {
-    dispatch(fetchRescueVehicleOwners())
+  const reloadOrderAssigned = () => {
+    dispatch(fetchOrdersAssigned())
+    
       .then((response) => {
         const data = response.payload.data;
+        console.log(data)
         if (data) {
-          setFilteredRescueVehicleOwners(data);
+          setFilteredOrders(data);
           // Đặt loading thành false sau khi tải lại dữ liệu
           setLoading(false);
         }
       })
       .catch((error) => {
-        console.error("Lỗi khi tải lại danh sách khách hàng:", error);
+        console.error("Lỗi khi tải lại danh sách đơn hàng:", error);
       });
   };
-
   useEffect(() => {
-    if (selectedEditRescuseVehicleOwner && rescueVehicleOwners) {
-      if (selectedEditRescuseVehicleOwner.id) {
-        const RescuseVehicleOwnerToEditToEdit = rescueVehicleOwners.find(
+    if (selectedEditOrder && orders) {
+      if (selectedEditOrder.id) {
+        const RescuseVehicleOwnerToEditToEdit = orders.find(
           (rescuseVehicleOwner) =>
-            rescuseVehicleOwner.id === selectedEditRescuseVehicleOwner.id
+            rescuseVehicleOwner.id === selectedEditOrder.id
         );
         if (RescuseVehicleOwnerToEditToEdit) {
           console.log(RescuseVehicleOwnerToEditToEdit);
@@ -75,72 +63,79 @@ const ModalEdit = ({
         }
       }
     }
-  }, [selectedEditRescuseVehicleOwner, rescueVehicleOwners]);
+  }, [selectedEditOrder, orders]);
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
-
-    setEdit((prevRescuseVehicleOwner) => ({
-      ...prevRescuseVehicleOwner,
-      [name]: value,
+    setEdit((prevEdit) => ({
+      ...prevEdit,
+      [name]: value
     }));
-    console.log(setEdit);
   };
+  useEffect(() => {
+    if (orders) {
+      setFilteredOrders(orders); // Update the local state when the Redux state changes
+    }
+  }, [orders]);
   
+
   const handleSaveClick = () => {
-    if (!selectedEditRescuseVehicleOwner || !edit) {
+    console.log(setEdit);
+    if (!selectedEditOrder || !edit) {
       toast.error("Không có thông tin khách hàng để cập nhật.");
       return;
     }
+
+     // Lấy tên dịch vụ đã chọn
+     const selectedCancellationReason = cancellationReason;
+     const selectedOrderId = edit.id;
+     console.log(selectedCancellationReason);
+ 
+     if (!selectedOrderId) {
+       console.error("No orderId to reload details for.");
+       toast.error("No valid order ID found.");
+       return;
+     }
+     // Tạo một bản sao của đối tượng `edit` với tên dịch vụ
+     const updatedEdit = {
+      orderID: selectedOrderId, // Lấy id của đơn hàng
+      cancellationReason: selectedCancellationReason, // Lưu tên dịch vụ vào thuộc tính `service` hoặc tùy chỉnh tên thuộc tính tương ứng trong đối tượng `edit`
+     };
   
     // Kiểm tra xem có sự thay đổi trong dữ liệu so với dữ liệu ban đầu
     const hasChanges =
-      JSON.stringify(edit) !== JSON.stringify(initialFormState);
+      JSON.stringify(updatedEdit) !== JSON.stringify(initialFormState);
     console.log(edit)
     if (!hasChanges) {
       toast.info("Không có thay đổi để lưu.");
       handleClose();
     } else {
       // Gửi yêu cầu cập nhật lên máy chủ
-      dispatch(editRescueVehicleOwner({ data: edit }))
+      dispatch(createCancelOrder(updatedEdit))
         .then(() => {
-          toast.success("Cập nhật thành công.");
+          toast.success("Hủy đơn thành công.");
           handleClose();
-          reloadRescueVehicleOwners();
+          reloadOrderAssigned();
           setIsSuccess(true);
+         
         })
         .catch((error) => {
           if (error.response && error.response.data) {
-            toast.error(`Lỗi khi cập nhật khách hàng: ${error.response.data.message}`);
+            toast.error(`Lỗi khi hủy đơn thành công: ${error.response.data.message}`);
           } else if (error.message) {
-            toast.error(`Lỗi khi cập nhật khách hàng: ${error.message}`);
+            toast.error(`Lỗi khi hủy đơn thành công: ${error.message}`);
           } else {
-            toast.error("Lỗi khi cập nhật khách hàng.");
+            toast.error("Lỗi khi hủy đơn thành công.");
           }
         });
     }
   };
   
-
-
   const handleClose = () => {
     setOpenEditModal(false);
-  };
-
-  if (!rescueVehicleOwners) {
-    return null;
-  }
-  // Hàm kiểm tra URL hợp lệ
-  const isValidUrl = (url) => {
-    const regex = /^(ftp|http|https):\/\/[^ "]+$/;
-    return regex.test(url);
-  };
-  const handleImageUploaded = (imageUrl) => {
-    setDownloadUrl(imageUrl); // Set the download URL in the state
-    setEdit((prevRescuseVehicleOwner) => ({
-      ...prevRescuseVehicleOwner,
-      avatar: imageUrl,
-    }));
+    if (isSuccess) {
+      reloadOrderAssigned(); // Reload orders when the modal is closed after a successful update
+    }
   };
 
   return (
@@ -187,16 +182,17 @@ const ModalEdit = ({
                 <Close />
               </IconButton>
               <Typography
-                variant="h6"
+                variant="h4"
                 component="h2"
                 id="RescuseVehicleOwner-detail-modal"
+                sx={{textAlign:"center"}}
               >
-                {selectedEditRescuseVehicleOwner
-                  ? "Sửa Thông Tin Chủ Xe cứu hÔ"
+                {selectedEditOrder
+                  ? "Hủy Đơn Hàng"
                   : "RescuseVehicleOwner Detail"}
               </Typography>
 
-              {selectedEditRescuseVehicleOwner && (
+              {selectedEditOrder && (
                 <Card>
                   <CardContent>
                     <TextField
@@ -205,126 +201,27 @@ const ModalEdit = ({
                       value={edit.id}
                       onChange={(event) => {
                         // Check if it's coming from selectedEditRescuseVehicleOwner and prevent changes
-                        if (!selectedEditRescuseVehicleOwner) {
+                        if (!selectedEditOrder) {
                           handleInputChange(event);
                         }
                       }}
                       fullWidth
                       margin="normal"
-                      style={{ display: "none" }}
+                      // style={{ display: "none" }}
                     />
-                    <TextField
-                      name="fullname"
-                      label="Họ Và Tên"
-                      value={fullnameValue}
-                      disabled // Disable the TextField
-                      fullWidth
-                      margin="normal"
-                    />
+                 
+
 
                     <TextField
-                      name="accountId"
-                      label="AccountId"
-                      value={edit.accountId}
+                      name="cancellationReason"
+                      label="Lý do hủy đơn"
+                      value={cancellationReason}
                       onChange={(event) => {
-                        // Check if it's coming from selectedEditRescuseVehicleOwner and prevent changes
-                        if (!selectedEditRescuseVehicleOwner) {
-                          handleInputChange(event);
-                        }
+                        setCancellationReason(event.target.value);
                       }}
                       fullWidth
                       margin="normal"
-                      style={{ display: "none" }}
                     />
-                    <Grid container spacing={4} alignItems="center" marginBottom={2}>
-                      <Grid item>
-                        <Avatar
-                          alt="Avatar"
-                          src={edit.avatar} // Set the src attribute to the image URL
-                          sx={{ width: 50, height: 50 }}
-                        />
-                      </Grid>
-                      <Grid item>
-                        <UploadImageField
-                          onImageUploaded={handleImageUploaded}
-                          imageUrl={currentImageUrl}
-                        />
-                      </Grid>
-                    </Grid>
-
-                    <TextField
-                      label="Download URL"
-                      type="text"
-                      value={downloadUrl}
-                      fullWidth
-                      margin="normal"
-                      disabled
-                      style={{ display: "none" }}
-                    />
-               
-                    <FormControl fullWidth sx={{ marginTop: 1 }}>
-                      <InputLabel id="demo-simple-select-label">
-                        Giới Tính
-                      </InputLabel>
-                      <Select
-                        labelId="demo-simple-select-label"
-                        id="demo-simple-select"
-                        value={edit.sex || ""}
-                        onChange={handleInputChange}
-                        variant="outlined"
-                        className="filter-select"
-                        name="sex"
-                        label="Giới Tính"
-                      >
-                        <MenuItem key="status-nam" value="Nam">
-                          Nam
-                        </MenuItem>
-                        <MenuItem key="status-nu" value="Nu">
-                          Nữ
-                        </MenuItem>
-                      </Select>
-                    </FormControl>
-
-                    <TextField
-                      name="phone"
-                      label="Số Điện Thoại"
-                      type="text"
-                      value={edit.phone || ""}
-                      onChange={handleInputChange}
-                      fullWidth
-                      margin="normal"
-                    />
-                    <TextField
-                      name="address"
-                      label="Địa Chỉ"
-                      value={edit.address || ""}
-                      onChange={handleInputChange}
-                      fullWidth
-                      margin="normal"
-                    />
-                    <FormControl fullWidth sx={{ marginTop: 1 }}>
-                      <InputLabel id="demo-simple-select-label">
-                        Trạng Thái
-                      </InputLabel>
-                      <Select
-                        labelId="demo-simple-select-label"
-                        id="demo-simple-select"
-                        value={edit.status || ""}
-                        onChange={handleInputChange}
-                        variant="outlined"
-                        className="filter-select"
-                        name="status"
-                        label="Status"
-                      >
-                        <MenuItem key="status-active" value="ACTIVE">
-                          Hoạt Động
-                        </MenuItem>
-                        <MenuItem key="status-outofstock" value="INACTIVE">
-                         Không Hoạt Động
-                        </MenuItem>
-                     
-                      </Select>
-                    </FormControl>
                   </CardContent>
 
                   <Box sx={{ display: "flex", justifyContent: "center" ,marginBottom:"5px"}}>
@@ -342,11 +239,7 @@ const ModalEdit = ({
           </Box>
         </Fade>
       </Modal>
-      {serverError && (
-        <Typography color="error">
-          {serverError}
-        </Typography>
-      )}
+     
     </>
   );
 };
