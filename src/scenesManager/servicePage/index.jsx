@@ -21,7 +21,6 @@ import { Delete } from "@mui/icons-material";
 import ModalEdit from "./ModalComponentEdit";
 import CustomTablePagination from "./TablePagination";
 import ToggleButton from "./ToggleButton";
-import { DeleteOutline } from "@mui/icons-material";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Fade from "@mui/material/Fade";
@@ -36,8 +35,6 @@ const Services = (props) => {
   const [openEditModal, setOpenEditModal] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [filterOption, setFilterOption] = useState("Status");
-  const [openModal, setOpenModal] = useState(false);
-  const [selectedBook, setSelectedBook] = useState(null);
   const [selectedEditSevice, setSelectedEditSevice] = useState(null);
   const [filteredSerivces, setFilteredSerivces] = useState([]);
   const [page, setPage] = useState(0);

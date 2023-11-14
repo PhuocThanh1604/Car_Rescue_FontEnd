@@ -40,9 +40,12 @@ const ModalEdit = ({
   );
 
   const reloadServices = () => {
+    
     dispatch(fetchServices())
+    
       .then((response) => {
         const data = response.payload.data;
+        console.log(data)
         if (data) {
           setFilteredServices(data);
           // Đặt loading thành false sau khi tải lại dữ liệu

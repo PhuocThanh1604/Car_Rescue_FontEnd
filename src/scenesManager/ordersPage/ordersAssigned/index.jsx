@@ -207,15 +207,15 @@ const OrdersAssigned = (props) => {
   const colors = tokens(theme.palette.mode);
   // eslint-disable-next-line no-sparse-arrays
   const columns = [
-    {
-      field: "customerId",
-      headerName: "Tên Khách Hàng",
-      width: 100,
-      valueGetter: (params) => {
-        // Get the fullname from the state based on customerId
-        return fullnameData[params.value] || "";
-      },
-    },
+    // {
+    //   field: "customerId",
+    //   headerName: "Tên Khách Hàng",
+    //   width: 100,
+    //   valueGetter: (params) => {
+    //     // Get the fullname from the state based on customerId
+    //     return fullnameData[params.value] || "";
+    //   },
+    // },
     { field: "departure", headerName: "Địa Chỉ", width: 140, key: "departure" },
     {
       field: "customerNote",
