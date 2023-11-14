@@ -28,6 +28,7 @@ import WatchLaterRoundedIcon from "@mui/icons-material/WatchLaterRounded";
 import PeopleAltRoundedIcon from "@mui/icons-material/PeopleAltRounded";
 import PhoneRoundedIcon from "@mui/icons-material/PhoneRounded";
 import MapRoundedIcon from "@mui/icons-material/MapRounded";
+import CommentIcon from "@mui/icons-material/Comment";
 import { useDispatch } from "react-redux";
 import { getRescueVehicleOwnerId } from "../../../redux/rescueVehicleOwnerSlice";
 import { getCustomerId } from "../../../redux/customerSlice";
@@ -37,32 +38,47 @@ import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import TimeToLeaveIcon from "@mui/icons-material/TimeToLeave";
 import { CategoryRounded } from "@mui/icons-material";
 import ReceiptRoundedIcon from "@mui/icons-material/ReceiptRounded";
+import { getFeedbackOfOrderId } from "../../../redux/orderSlice";
+import CreditScoreIcon from "@mui/icons-material/CreditScore";
+import AssignmentIcon from "@mui/icons-material/Assignment";
+import TimerIcon from "@mui/icons-material/Timer";
+import CakeIcon from "@mui/icons-material/Cake";
+import MapIcon from '@mui/icons-material/Map';
 const MyModal = (props) => {
   const dispatch = useDispatch();
   const { openModal, setOpenModal, selectedEditOrder } = props;
   const [collapse, setCollapse] = useState(false);
   const [showModal, setShowModal] = useState(false);
-
   const [data, setData] = useState({
     customer: {},
     technician: {},
     vehicle: {},
   });
-
   const [dataRescueVehicleOwner, setDataRescueVehicleOwner] = useState({});
+  const [dataFeedBack, setDataFeedBack] = useState({});
   const [rescueVehicleOwnerId, setRescueVehicleOwnerId] = useState({});
+  const [orderId, setOrderId] = useState(null);
+  const [rating, setRating] = useState(0); // Initialize with a default rating, e.g., 0
+
   // Lưu giá trị vào một biến
   useEffect(() => {
     if (selectedEditOrder && selectedEditOrder.vehicleId) {
       const vehicleRvoidId = data.vehicle[selectedEditOrder.vehicleId]?.rvoid;
+      const orderId = selectedEditOrder.id;
+      console.log("orderId: " + orderId);
       if (vehicleRvoidId) {
+        setRescueVehicleOwnerId(vehicleRvoidId);
         fetchRescueVehicleOwner(vehicleRvoidId);
       }
+
+      if (orderId) {
+        setOrderId(orderId);
+        fetchFeedBackOfOrder(orderId);
+      }
     }
-  }, [selectedEditOrder, data.vehicle, rescueVehicleOwnerId]);
+  }, [selectedEditOrder, data.vehicle]);
 
   const fetchRescueVehicleOwner = (vehicleRvoidId) => {
-    console.log(vehicleRvoidId);
     // Make sure you have a check to prevent unnecessary API calls
     if (vehicleRvoidId) {
       dispatch(getRescueVehicleOwnerId({ id: vehicleRvoidId }))
@@ -83,6 +99,31 @@ const MyModal = (props) => {
         });
     }
   };
+  const fetchFeedBackOfOrder = (orderId) => {
+    console.log(orderId);
+    // Make sure you have a check to prevent unnecessary API calls
+    if (orderId) {
+      console.log(orderId);
+      dispatch(getFeedbackOfOrderId({ id: orderId }))
+        .then((response) => {
+          const data = response.payload.data;
+
+          if (data) {
+            setDataFeedBack(data);
+            setDataFeedBack((prevData) => ({
+              ...prevData,
+              [orderId]: data,
+            }));
+          } else {
+            console.error("Feedback of order not found in the API response.");
+          }
+        })
+        .catch((error) => {
+          console.error("Error while fetching feedback data:", error);
+        });
+    }
+  };
+
   // Lấy vehicleRvoidId từ selectedEditOrder và data.vehicle
 
   useEffect(() => {
@@ -142,12 +183,29 @@ const MyModal = (props) => {
     selectedEditOrder && selectedEditOrder.vehicleId
       ? data.vehicle[selectedEditOrder.vehicleId]?.rvoid
       : null;
-  let formattedDate = "Không có thông tin";
-  if (selectedEditOrder && selectedEditOrder.birthdate) {
-    const date = new Date(selectedEditOrder.birthdate);
-    formattedDate = `${date.getDate()}/${
-      date.getMonth() + 1
-    }/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`;
+  let formattedDateStart = "Không có thông tin";
+  let formattedDateEnd = "Không có thông tin";
+  if (
+    selectedEditOrder &&
+    selectedEditOrder.startTime &&
+    selectedEditOrder.endTime
+  ) {
+    const dateStart = new Date(selectedEditOrder.startTime);
+    const dateEnd = new Date(selectedEditOrder.startTime);
+    formattedDateStart = `${dateStart.getDate()}/${
+      dateStart.getMonth() + 1
+    }/${dateStart.getFullYear()} ${dateStart.getHours()}:${dateStart.getMinutes()}`;
+    formattedDateEnd = `${dateEnd.getDate()}/${
+      dateEnd.getMonth() + 1
+    }/${dateEnd.getFullYear()} ${dateEnd.getHours()}:${dateEnd.getMinutes()}`;
+  }
+  function formatDate(dateString) {
+    const date = new Date(dateString);
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0"); // +1 because months start at 0
+    const year = date.getFullYear();
+
+    return `${day}/${month}/${year}`; // Formats to dd/mm/yyyy
   }
 
   const StyledGrid1 = styled(Grid)(({ theme }) => ({
@@ -162,17 +220,6 @@ const MyModal = (props) => {
       [theme.breakpoints.down("md")]: {
         paddingTop: 0,
       },
-    },
-  }));
-  const StyledGrid2 = styled(Grid)(({ theme }) => ({
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    [theme.breakpoints.up("md")]: {
-      paddingLeft: "0 !important",
-    },
-    [theme.breakpoints.down("md")]: {
-      order: -1,
     },
   }));
   return (
@@ -217,7 +264,11 @@ const MyModal = (props) => {
               <Close />
             </IconButton>
 
-            <Typography variant="h6" component="h2" id="book-detail-modal">
+            <Typography
+              variant="h4"
+              id="book-detail-modal"
+              sx={{ marginBottom: "4px", textAlign: "center" }}
+            >
               Chi tiết đơn hàng hoàn thành
             </Typography>
 
@@ -233,19 +284,24 @@ const MyModal = (props) => {
                     }}
                   >
                     <Grid container spacing={1} alignItems="stretch">
-                      <Grid item xs={6} alignItems="center">
+                      <Grid item xs={5} alignItems="center">
                         <Typography variant="h5" sx={{ marginBottom: 2 }}>
                           Thông Tin Khách Hàng
                         </Typography>
-                        <Box
+
+                        <Typography
+                          variant="body1"
+                          component="p"
                           sx={{
-                            mr: 2,
                             display: "flex",
                             alignItems: "center",
+                            marginBottom: "8px", // Thêm khoảng cách dưới cùng của dòng
+                            fontSize: "1rem",
+                            marginRight: "2px",
                           }}
                         >
                           <PersonRoundedIcon />
-                          <strong>Khách Hàng: </strong>{" "}
+                          <strong>Tên:</strong>
                           <Typography
                             variant="h6"
                             sx={{
@@ -254,22 +310,12 @@ const MyModal = (props) => {
                               marginLeft: "10px",
                             }}
                           >
+                            {" "}
                             {data.customer[selectedEditOrder.customerId]
                               ?.fullname || "Không có thông tin"}
                           </Typography>
-                          <Avatar
-                            alt="Avatar"
-                            src={
-                              data.customer[selectedEditOrder.customerId]
-                                ?.avatar || "URL mặc định của avatar"
-                            }
-                            sx={{
-                              width: 44,
-                              height: 44,
-                              marginLeft: 1.75,
-                            }}
-                          />
-                        </Box>
+                        </Typography>
+
                         <Typography
                           variant="body1"
                           component="p"
@@ -359,7 +405,7 @@ const MyModal = (props) => {
                             fontSize: "1rem",
                           }}
                         >
-                          <WatchLaterRoundedIcon /> <strong>Ngày sinh: </strong>
+                          <CakeIcon /> <strong>Ngày sinh: </strong>
                           <Typography
                             variant="h6"
                             sx={{
@@ -368,7 +414,13 @@ const MyModal = (props) => {
                               marginLeft: "10px",
                             }}
                           >
-                            {formattedDate}
+                            {data.customer[selectedEditOrder.customerId]
+                              ?.birthdate
+                              ? formatDate(
+                                  data.customer[selectedEditOrder.customerId]
+                                    .birthdate
+                                )
+                              : "Không có thông tin"}
                           </Typography>
                         </Typography>
                       </Grid>
@@ -379,14 +431,14 @@ const MyModal = (props) => {
                         />
                       </Grid>
 
-                      <Grid item xs={5} alignItems="center">
-                        <StyledGrid1 item xs={12} md={6} lg={7}>
+                      <Grid item xs={6}>
+                        <StyledGrid1>
                           <Typography variant="h5" sx={{ marginBottom: 2 }}>
                             FeedBack của đơn hàng
                           </Typography>
                           <Box
                             sx={{
-                              mb: 4.75,
+                              mb: 2.75,
                               display: "flex",
                               flexWrap: "wrap",
                               alignItems: "center",
@@ -394,18 +446,172 @@ const MyModal = (props) => {
                           >
                             <Rating
                               readOnly
-                              value={5}
+                              value={dataFeedBack.rating}
                               name="read-only"
                               sx={{ marginRight: 2 }}
                             />
                             <Typography variant="body2">
-                              5 Star | 98 reviews
+                              {dataFeedBack.rating} Star || 98 viewer
                             </Typography>
                           </Box>
-                          <Typography variant="body2" sx={{ marginBottom: 4 }}>
-                            Before there was a United States of America, there
-                            were coffee houses, because how are you supposed to
-                            build.
+                          <Typography
+                            variant="body1"
+                            component="p"
+                            sx={{
+                              marginBottom: "8px",
+                              fontSize: "1rem",
+                            }}
+                          >
+                            <TimerIcon />
+                            <strong>Thời gian bắt đầu: </strong>
+                            <Typography
+                              variant="h6"
+                              component="span"
+                              sx={{
+                                padding: "8px",
+                                borderRadius: "4px",
+                                marginLeft: "4px",
+                                wordWrap: "break-word",
+                                overflowWrap: "break-word",
+                                whiteSpace: "normal",
+                                flex: 1,
+                              }}
+                            >
+                              {formattedDateStart || "Đang cập nhật"}
+                            </Typography>
+                          </Typography>
+                          <Typography
+                            variant="body1"
+                            component="p"
+                            sx={{
+                              marginBottom: "8px",
+                              fontSize: "1rem",
+                            }}
+                          >
+                            <TimerIcon />
+                            <strong>Thời gian kết thúc: </strong>
+                            <Typography
+                              variant="h6"
+                              component="span"
+                              sx={{
+                                padding: "8px",
+                                borderRadius: "4px",
+                                marginLeft: "4px",
+                                wordWrap: "break-word",
+                                overflowWrap: "break-word",
+                                whiteSpace: "normal",
+                                flex: 1,
+                              }}
+                            >
+                              {formattedDateEnd || "Đang cập nhật"}
+                            </Typography>
+                          </Typography>
+
+                          <Typography
+                            variant="body1"
+                            component="p"
+                            sx={{
+                              marginBottom: "8px",
+                              fontSize: "1rem",
+                            }}
+                          >
+                            <MapIcon />
+                            <strong>Khu vực: </strong>
+                            <Typography
+                              variant="h6"
+                              component="span"
+                              sx={{
+                                padding: "8px",
+                                borderRadius: "4px",
+                                marginLeft: "4px",
+                                wordWrap: "break-word",
+                                overflowWrap: "break-word",
+                                whiteSpace: "normal",
+                                flex: 1,
+                              }}
+                            >
+                              {selectedEditOrder.area||"khu vực 1"}
+                            </Typography>
+                          </Typography>
+                          <Typography
+                            variant="body1"
+                            component="p"
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              marginBottom: "8px", // Thêm khoảng cách dưới cùng của dòng
+                              fontSize: "1rem",
+                              marginRight: "2px",
+                            }}
+                          >
+                            <AssignmentIcon />{" "}
+                            <strong>Dịch vụ đã sử dụng:</strong>
+                            <Typography
+                              variant="h6"
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                marginLeft: "10px",
+                              }}
+                            >
+                              {" "}
+                              {data.customer[selectedEditOrder.customerId]
+                                ?.address || "Không có thông tin"}
+                            </Typography>
+                          </Typography>
+
+                          <Typography
+                            variant="body1"
+                            component="p"
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              marginBottom: "8px", // Thêm khoảng cách dưới cùng của dòng
+                              fontSize: "1rem",
+                              marginRight: "2px",
+                            }}
+                          >
+                            <CreditScoreIcon />{" "}
+                            <strong>Tổng tiền đã thanh toán:</strong>
+                            <Typography
+                              variant="h6"
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                marginLeft: "10px",
+                              }}
+                            >
+                              {" "}
+                              {data.customer[selectedEditOrder.customerId]
+                                ?.address || "Không có thông tin"}
+                            </Typography>
+                          </Typography>
+
+                          <Typography
+                            variant="body1"
+                            component="p"
+                            sx={{
+                              marginBottom: "8px",
+                              fontSize: "1rem",
+                            }}
+                          >
+                            <CommentIcon />
+                            <strong>Ghi chú: </strong>
+                            <Typography
+                              variant="h6"
+                              component="span"
+                              sx={{
+                                padding: "8px",
+                                borderRadius: "4px",
+                                marginLeft: "4px",
+                                wordWrap: "break-word",
+                                overflowWrap: "break-word",
+                                whiteSpace: "normal",
+                                flex: 1,
+                              }}
+                            >
+                              {dataFeedBack.note}
+                            </Typography>
                           </Typography>
                         </StyledGrid1>
                       </Grid>
@@ -434,8 +640,11 @@ const MyModal = (props) => {
                 <Collapse in={collapse}>
                   <Divider sx={{ margin: 0 }} />
                   <CardContent>
-                    <Typography variant="h4" sx={{ marginBottom: 2 }}>
-                      Thông Tin Nhân Sự Đang Điều Phối
+                    <Typography
+                      variant="h4"
+                      sx={{ marginBottom: 2, textAlign: "center" }}
+                    >
+                      Thông Tin Nhân Sự Đã Thực Hiên Đơn
                     </Typography>
 
                     <Box
@@ -482,6 +691,7 @@ const MyModal = (props) => {
                                 marginLeft: "10px",
                               }}
                             >
+                              <strong> Tên: </strong>{" "}
                               {data.technician[selectedEditOrder.technicianId]
                                 ?.fullname || "Không có thông tin"}
                             </Typography>
@@ -553,14 +763,14 @@ const MyModal = (props) => {
                         </Grid>
 
                         {/*CarOWnẻ*/}
-                        <Grid item xs={5} alignItems="center">
+                        <Grid item xs={6} >
                           <Typography
                             variant="h6"
                             sx={{ marginBottom: 2, textAlign: "center" }}
                           >
                             Xe Cứu Hộ Nhận Đơn
                           </Typography>
-                          <Grid container>
+                          <Grid container spacing={2}>
                             <Box
                               sx={{
                                 mr: 2,
@@ -590,7 +800,7 @@ const MyModal = (props) => {
                                   marginLeft: "10px",
                                 }}
                               >
-                                Tên Chủ Xe:{" "}
+                                <strong> Tên Chủ Xe: </strong>{" "}
                                 {dataRescueVehicleOwner[vehicleRvoidId]
                                   ?.fullname || "Không có thông tin"}
                               </Typography>
@@ -657,7 +867,7 @@ const MyModal = (props) => {
                             </Grid>
 
                             <Grid item xs={4}>
-                              <Box sx={{ marginTop: "0px" }}>
+                              <Box sx={{ marginLeft: "0px" }}>
                                 {data.vehicle[selectedEditOrder.vehicleId]
                                   ?.image ? (
                                   <img
@@ -673,7 +883,7 @@ const MyModal = (props) => {
                                       objectFit: "cover",
                                     }}
                                     onClick={() => setShowModal(true)}
-                                    title="Nhấp để xem ảnh rõ hơn" 
+                                    title="Nhấp để xem ảnh rõ hơn"
                                   />
                                 ) : (
                                   <img

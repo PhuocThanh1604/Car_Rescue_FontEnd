@@ -195,6 +195,24 @@ export const getOrderId = createAsyncThunk(
     }
   }
 );
+
+export const getFeedbackOfOrderId = createAsyncThunk(
+  "orders/getFeedbackOfOrderId",
+  async ({ id }) => {
+    try {
+      console.log("id:"+id)
+      const response = await axios.get(
+        `https://rescuecapstoneapi.azurewebsites.net/api/Feedback/GetFeedbackOfOrder?id=${id}`
+      );
+      const data = response.data;
+      console.log("data of feedback"+data);
+      return data;
+    } catch (error) {
+      console.error("Failed to get Feedback Of Order  Id ", error.response);
+      throw error.response.data || error.message;
+    }
+  }
+);
 export const getOrderDetailId = createAsyncThunk(
   "orders/getOrderDetailId",
   async ({ id }) => {
@@ -452,6 +470,9 @@ const orderSlice = createSlice({
       .addCase(getPaymentId.fulfilled, (state, action) => {
         state.orders = action.payload.data;
       })
+      .addCase(getFeedbackOfOrderId.fulfilled, (state, action) => {
+        state.orderData = action.payload.data;
+      })
       .addCase(createAcceptOrder.fulfilled, (state, action) => {
         state.orders.push(action.payload);
       })
@@ -480,7 +501,6 @@ const orderSlice = createSlice({
         state.status = "error";
       })
       .addCase(getFormattedAddressMapbox.fulfilled, (state, action) => {
-        // Store the formatted address in the Redux store
         state.formattedAddress = action.payload;
       })
       .addCase(getFormattedAddressMapbox.pending, (state, action) => {
