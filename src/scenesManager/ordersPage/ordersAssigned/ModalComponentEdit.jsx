@@ -120,6 +120,7 @@ const ModalEdit = ({
             onDataUpdated(); // Call the callback function after successful update
           }
           setIsSuccess(true);
+          setCancellationReason(null)
         })
         .catch((error) => {
           if (error.response && error.response.data) {

@@ -40,6 +40,18 @@ const ModalEdit = ({
   const [filteredOrders, setFilteredOrders] = useState([]);
   const [typeRescue, setTypeRescue] = useState("");
 
+  //check value rescue type
+  const checkRescueTypeChange = (event) => {
+    const newRescueType = event.target.value;
+
+    if (newRescueType === selectedEditOrder.rescueType) {
+      toast.error("Vui lòng chọn một loại hình cứu hộ khác.");
+      return;
+    }
+
+    setTypeRescue(newRescueType);
+  };
+
   const reloadOrderAssigned = () => {
     dispatch(fetchOrdersAssigned())
       .then((response) => {
@@ -89,6 +101,10 @@ const ModalEdit = ({
       toast.error("Không có thông tin khách hàng để cập nhật.");
       return;
     }
+    if (typeRescue === selectedEditOrder.rescueType) {
+      toast.error("Vui lòng chọn một loại hình cứu hộ khác trước khi lưu.");
+      return;
+    }
     const selectedType = typeRescue;
     const selectedOrderId = edit.id;
     console.log(selectedType);
@@ -121,6 +137,7 @@ const ModalEdit = ({
             onDataUpdated(); // Call the callback function after successful update
           }
           setIsSuccess(true);
+          setTypeRescue(null);
         })
         .catch((error) => {
           if (error.response && error.response.data) {
@@ -193,9 +210,7 @@ const ModalEdit = ({
                 id="Order-detail-modal"
                 sx={{ textAlign: "center" }}
               >
-                {selectedEditOrder
-                  ? "Hủy Đơn Hàng"
-                  : "Order Detail"}
+                {selectedEditOrder ? "Thay Đổi Loại Hình Cứu Hộ" : "Order Detail"}
               </Typography>
 
               {selectedEditOrder && (
@@ -216,6 +231,8 @@ const ModalEdit = ({
                       style={{ display: "none" }}
                     />
 
+                    <Typography sx={{display:"none"}}>{selectedEditOrder.rescueType}</Typography>
+
                     <FormControl fullWidth variant="filled">
                       <InputLabel id="rescueType-label">
                         Loại Hình Thức Cứu Hộ
@@ -225,25 +242,12 @@ const ModalEdit = ({
                         id="rescueType"
                         name="rescueType"
                         value={typeRescue}
-                        onChange={(event) => {
-                          setTypeRescue(event.target.value);
-                        }}
-                    
+                        onChange={checkRescueTypeChange}
                       >
                         <MenuItem value="Towing">Xe Kéo</MenuItem>
                         <MenuItem value="Fixing">Sửa Tại Chỗ Cơ Bản</MenuItem>
                       </Select>
                     </FormControl>
-                    {/* <TextField
-                      name="cancellationReason"
-                      label="Lý do hủy đơn"
-                      value={typeRescue}
-                      onChange={(event) => {
-                        setTypeRescue(event.target.value);
-                      }}
-                      fullWidth
-                      margin="normal"
-                    /> */}
                   </CardContent>
 
                   <Box
