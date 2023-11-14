@@ -86,7 +86,6 @@ const ModalEdit = ({
       toast.error("Không có thông tin dịch vụ để cập nhật.");
       return;
     }
-
     // Kiểm tra xem có sự thay đổi trong dữ liệu so với dữ liệu ban đầu
     const hasChanges =
       JSON.stringify(edit) !== JSON.stringify(initialFormState);

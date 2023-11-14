@@ -133,7 +133,6 @@ const Services = (props) => {
         if (data) {
           setData(data);
           setFilteredSerivces(data);
-
           setLoading(false); // Đặt trạng thái loading thành false sau khi xử lý dữ liệu
         }
       })
