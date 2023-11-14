@@ -20,6 +20,7 @@ const ModalEdit = ({
   openEditModal,
   setOpenEditModal,
   selectedEditOrder,
+  onDataUpdated
 }) => {
   const dispatch = useDispatch();
   const orders = useSelector((state) => state.order.orders);
@@ -31,7 +32,8 @@ const ModalEdit = ({
   const [loading, setLoading] = useState(false);
   const [filteredOrders, setFilteredOrders] = useState([]);
   const [cancellationReason, setCancellationReason] = useState("");
-
+  const [shouldReload, setShouldReload] = useState(false); 
+  
   const reloadOrderAssigned = () => {
     dispatch(fetchOrdersAssigned())
     
@@ -115,9 +117,10 @@ const ModalEdit = ({
         .then(() => {
           toast.success("Hủy đơn thành công.");
           handleClose();
-          reloadOrderAssigned();
+          if (onDataUpdated) {
+            onDataUpdated(); // Call the callback function after successful update
+          }
           setIsSuccess(true);
-         
         })
         .catch((error) => {
           if (error.response && error.response.data) {
@@ -134,6 +137,7 @@ const ModalEdit = ({
   const handleClose = () => {
     setOpenEditModal(false);
     if (isSuccess) {
+      console.log("success"+isSuccess);
       reloadOrderAssigned(); // Reload orders when the modal is closed after a successful update
     }
   };

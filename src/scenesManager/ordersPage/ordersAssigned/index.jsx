@@ -29,7 +29,6 @@ import { getCustomerIdFullName } from "../../../redux/customerSlice";
 import CreditScoreIcon from "@mui/icons-material/CreditScore";
 import AddCardIcon from "@mui/icons-material/AddCard";
 import RepeatOnIcon from "@mui/icons-material/RepeatOn";
-import BuildIcon from "@mui/icons-material/Build";
 import SupportIcon from "@mui/icons-material/Support";
 import HandymanIcon from "@mui/icons-material/Handyman";
 import { useLocation } from "react-router-dom";
@@ -52,7 +51,9 @@ const OrdersAssigned = (props) => {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]);
   const [fullnameData, setFullnameData] = useState({});
-
+  const handleDataUpdated = () => {
+    reloadOrderAssigned();
+  };
   const handleSearchChange = (event) => {
     const value = event.target.value.toLowerCase();
     setSearchText(value);
@@ -72,6 +73,21 @@ const OrdersAssigned = (props) => {
     setFilteredOrders(filteredOrders);
   };
   
+
+  const reloadOrderAssigned = () => {
+    dispatch(fetchOrdersAssigned())
+      .then((response) => {
+        const data = response.payload.data;
+        if (data) {
+          setFilteredOrders(data);
+          // Đặt loading thành false sau khi tải lại dữ liệu
+          setLoading(false);
+        }
+      })
+      .catch((error) => {
+        console.error("Lỗi khi tải lại danh sách khách hàng:", error);
+      });
+  };
   const handleFilterChange = (event) => {
     const selectedStatusOption = event.target.value;
     setFilterOption(selectedStatusOption);
@@ -124,20 +140,8 @@ const OrdersAssigned = (props) => {
         setLoading(false);
       });
   }, [dispatch,location.pathname]);
-  const reloadOrderAssigned = () => {
-    dispatch(fetchOrdersAssigned())
-      .then((response) => {
-        const data = response.payload.data;
-        if (data) {
-          setFilteredOrders(data);
-          // Đặt loading thành false sau khi tải lại dữ liệu
-          setLoading(false);
-        }
-      })
-      .catch((error) => {
-        console.error("Lỗi khi tải lại danh sách khách hàng:", error);
-      });
-  };
+
+ 
 
   const handleUpdateClick = (orderId) => {
     console.log(orderId);
@@ -207,15 +211,15 @@ const OrdersAssigned = (props) => {
   const colors = tokens(theme.palette.mode);
   // eslint-disable-next-line no-sparse-arrays
   const columns = [
-    // {
-    //   field: "customerId",
-    //   headerName: "Tên Khách Hàng",
-    //   width: 100,
-    //   valueGetter: (params) => {
-    //     // Get the fullname from the state based on customerId
-    //     return fullnameData[params.value] || "";
-    //   },
-    // },
+    {
+      field: "customerId",
+      headerName: "Tên Khách Hàng",
+      width: 100,
+      valueGetter: (params) => {
+        // Get the fullname from the state based on customerId
+        return fullnameData[params.value] || "";
+      },
+    },
     { field: "departure", headerName: "Địa Chỉ", width: 140, key: "departure" },
     {
       field: "customerNote",
@@ -463,7 +467,8 @@ const OrdersAssigned = (props) => {
         openEditModal={openEditModal}
         setOpenEditModal={setOpenEditModal}
         selectedEditOrder={selectedEditOrder}
-        onClose={() => setOpenEditModal(false)}
+        // onClose={() => setOpenEditModal(false)}
+        onDataUpdated={handleDataUpdated} 
         loading={loading}
       />
       <ToastContainer />
