@@ -331,6 +331,28 @@ export const createCancelOrder = createAsyncThunk(
     }
   }
 );
+export const createChangeTypeRescue = createAsyncThunk(
+  "orders/createChangeTypeRescue",
+  async (data) => {
+    console.log(data);
+    try {
+      const res = await axios.post(
+        "https://rescuecapstoneapi.azurewebsites.net/api/Order/ChangeRescueType",
+        data,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log(data);
+      return res.data;
+    } catch (error) {
+      console.error("Failed to create Change Type Rescue:", error.response);
+      throw error.response.data || error.message;
+    }
+  }
+);
 export const createOrderOffline = createAsyncThunk(
   "orders/createOrderOffline",
   async (data) => {
@@ -511,6 +533,15 @@ const orderSlice = createSlice({
         state.status = "loading";
       })
       .addCase(createCancelOrder.rejected, (state, action) => {
+        state.status = "error";
+      })
+      .addCase(createChangeTypeRescue.fulfilled, (state, action) => {
+        state.orders.push(action.payload);
+      })
+      .addCase(createChangeTypeRescue.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(createChangeTypeRescue.rejected, (state, action) => {
         state.status = "error";
       })
       .addCase(createOrderOffline.fulfilled, (state, action) => {

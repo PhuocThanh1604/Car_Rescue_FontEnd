@@ -32,7 +32,6 @@ const ModalEdit = ({
   const [loading, setLoading] = useState(false);
   const [filteredOrders, setFilteredOrders] = useState([]);
   const [cancellationReason, setCancellationReason] = useState("");
-  const [shouldReload, setShouldReload] = useState(false); 
   
   const reloadOrderAssigned = () => {
     dispatch(fetchOrdersAssigned())
@@ -53,15 +52,15 @@ const ModalEdit = ({
   useEffect(() => {
     if (selectedEditOrder && orders) {
       if (selectedEditOrder.id) {
-        const RescuseVehicleOwnerToEditToEdit = orders.find(
-          (rescuseVehicleOwner) =>
-            rescuseVehicleOwner.id === selectedEditOrder.id
+        const OrderToEditToEdit = orders.find(
+          (Order) =>
+            Order.id === selectedEditOrder.id
         );
-        if (RescuseVehicleOwnerToEditToEdit) {
-          console.log(RescuseVehicleOwnerToEditToEdit);
-          setFullnameValue(RescuseVehicleOwnerToEditToEdit.fullname);
-          setEdit(RescuseVehicleOwnerToEditToEdit);
-          setInitialFormState(RescuseVehicleOwnerToEditToEdit);
+        if (OrderToEditToEdit) {
+          console.log(OrderToEditToEdit);
+          setFullnameValue(OrderToEditToEdit.fullname);
+          setEdit(OrderToEditToEdit);
+          setInitialFormState(OrderToEditToEdit);
         }
       }
     }
@@ -124,11 +123,11 @@ const ModalEdit = ({
         })
         .catch((error) => {
           if (error.response && error.response.data) {
-            toast.error(`Lỗi khi hủy đơn thành công: ${error.response.data.message}`);
+            toast.error(`Lỗi khi hủy đơn : ${error.response.data.message}`);
           } else if (error.message) {
-            toast.error(`Lỗi khi hủy đơn thành công: ${error.message}`);
+            toast.error(`Lỗi khi hủy đơn: ${error.message}`);
           } else {
-            toast.error("Lỗi khi hủy đơn thành công.");
+            toast.error("Lỗi khi hủy đơn");
           }
         });
     }
@@ -148,8 +147,8 @@ const ModalEdit = ({
       <Modal
         open={openEditModal}
         onClose={handleClose}
-        aria-labelledby="RescuseVehicleOwner-detail-modal"
-        aria-describedby="RescuseVehicleOwner-detail-modal-description"
+        aria-labelledby="Order-detail-modal"
+        aria-describedby="Order-detail-modal-description"
         closeAfterTransition
       >
         <Fade in={openEditModal}>
@@ -188,12 +187,12 @@ const ModalEdit = ({
               <Typography
                 variant="h4"
                 component="h2"
-                id="RescuseVehicleOwner-detail-modal"
+                id="Order-detail-modal"
                 sx={{textAlign:"center"}}
               >
                 {selectedEditOrder
                   ? "Hủy Đơn Hàng"
-                  : "RescuseVehicleOwner Detail"}
+                  : "Order Detail"}
               </Typography>
 
               {selectedEditOrder && (
@@ -204,7 +203,7 @@ const ModalEdit = ({
                       label="id"
                       value={edit.id}
                       onChange={(event) => {
-                        // Check if it's coming from selectedEditRescuseVehicleOwner and prevent changes
+                        // Check if it's coming from selectedEditOrder and prevent changes
                         if (!selectedEditOrder) {
                           handleInputChange(event);
                         }

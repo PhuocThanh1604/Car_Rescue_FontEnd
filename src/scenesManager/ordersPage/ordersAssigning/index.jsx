@@ -14,7 +14,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import { tokens } from "../../../theme";
 import Header from "../../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
-import { Edit} from "@mui/icons-material";
+import { Edit } from "@mui/icons-material";
 import ModalDetail from "./ModalComponentDetail";
 import ModalEdit from "./ModalComponentEdit";
 import CustomTablePagination from "./TablePagination";
@@ -52,7 +52,24 @@ const OrdersAssigning = (props) => {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]);
   const [fullnameData, setFullnameData] = useState({});
+  const handleDataUpdated = () => {
+    reloadOrdersAssigning();
+  };
 
+  const reloadOrdersAssigning = () => {
+    dispatch(fetchOrdersAssigning())
+      .then((response) => {
+        const data = response.payload.data;
+        if (data) {
+          setFilteredOrders(data);
+          // Đặt loading thành false sau khi tải lại dữ liệu
+          setLoading(false);
+        }
+      })
+      .catch((error) => {
+        console.error("Lỗi khi tải lại danh sách đơn hàng:", error);
+      });
+  };
 
   const handleDetailClickDetail = (orderId) => {
     console.log(orderId);
@@ -85,12 +102,12 @@ const OrdersAssigning = (props) => {
 
     setFilteredOrders(filteredOrders);
   };
-  
+
   const handleFilterChange = (event) => {
     const selectedStatusOption = event.target.value;
     setFilterOption(selectedStatusOption);
 
-    if (selectedStatusOption === 'rescueType') {
+    if (selectedStatusOption === "rescueType") {
       // Hiển thị tất cả các trạng thái
       setFilteredOrders(orders);
     } else {
@@ -115,7 +132,7 @@ const OrdersAssigning = (props) => {
       setFilteredOrders(orders);
     }
   };
-  
+
   useEffect(() => {
     setLoading(true);
     dispatch(fetchOrdersAssigning())
@@ -131,7 +148,7 @@ const OrdersAssigning = (props) => {
       .finally(() => {
         setLoading(false);
       });
-  }, [dispatch,location.pathname]);
+  }, [dispatch, location.pathname]);
 
   const handleUpdateClick = (orderId) => {
     console.log(orderId);
@@ -344,22 +361,17 @@ const OrdersAssigning = (props) => {
         </Grid>
       ),
       key: "bookDetail",
-    }
+    },
   ];
 
   return (
     <Box m="5px">
       <Header
-        title="Danh Sách Đơn Hàng Mới"
-        subtitle="Danh sách chi tiết đơn hàng mới"
+        title="Danh Sách Đơn Hàng Đang Được Điều Phối"
+        subtitle="Danh sách chi tiết đơn hàng"
       />
       <Box display="flex" className="box" left={0}>
-      <Box
-          display="flex"
-          borderRadius="5px"
-          border={1}
-          marginRight={2} 
-        >
+        <Box display="flex" borderRadius="5px" border={1} marginRight={2}>
           <InputBase
             sx={{ ml: 4, flex: 1 }}
             placeholder="Tìm kiếm"
@@ -371,7 +383,7 @@ const OrdersAssigning = (props) => {
           </IconButton>
         </Box>
 
-        <ToastContainer />  
+        <ToastContainer />
         <FormControl>
           <Select
             labelId="demo-simple-select-label"
@@ -488,8 +500,9 @@ const OrdersAssigning = (props) => {
       <ModalEdit
         openEditModal={openEditModal}
         setOpenEditModal={setOpenEditModal}
-        selectedEditRescuseVehicleOwner={selectedEditOrder}
-        onClose={() => setOpenEditModal(false)}
+        selectedEditOrder={selectedEditOrder}
+        // onClose={() => setOpenEditModal(false)}
+        onDataUpdated={handleDataUpdated}
         loading={loading}
       />
       <ToastContainer />
