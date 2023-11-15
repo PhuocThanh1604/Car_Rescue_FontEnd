@@ -213,7 +213,7 @@ const Dashboard = () => {
             </Box>
             <Box display="flex" justifyContent="space-between" mt="2px">
               <Typography variant="h5" sx={{ color: colors.greenAccent[500] }}>
-                Sales Obtained
+                Đơn Hoàn Thành
               </Typography>
               <Typography
                 variant="h5"
@@ -256,7 +256,7 @@ const Dashboard = () => {
             </Box>
             <Box display="flex" justifyContent="space-between" mt="2px">
               <Typography variant="h5" sx={{ color: colors.greenAccent[500] }}>
-                New Clients
+               Khách Hàng
               </Typography>
               <Typography
                 variant="h5"
@@ -299,7 +299,7 @@ const Dashboard = () => {
             </Box>
             <Box display="flex" justifyContent="space-between" mt="2px">
               <Typography variant="h5" sx={{ color: colors.greenAccent[500] }}>
-                Service increased
+               Dịch Vụ
               </Typography>
               <Typography
                 variant="h5"

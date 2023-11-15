@@ -318,7 +318,7 @@ useEffect(() => {
               />
             )}
             <Item
-              title="Kỹ Thuận Viên "
+              title="Kỹ Thuật Viên "
               to="manager/techinian"
               icon={<PeopleOutlinedIcon />}
               selected={selected}
@@ -353,7 +353,7 @@ useEffect(() => {
               setSelected={setSelected}
             />
             <Item
-              title="Transacions"
+              title="Giao Dịch"
               to="manager/invoices"
               icon={<ReceiptOutlinedIcon />}
               selected={selected}
