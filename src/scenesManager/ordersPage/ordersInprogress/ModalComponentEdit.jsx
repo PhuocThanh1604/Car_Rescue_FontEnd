@@ -17,6 +17,7 @@ import { Close } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
 import {
+  addServiceForTechnicians,
   fetchOrdersInprogress,
   getOrderDetailId,
   updateServiceForTechnicians,
@@ -27,7 +28,6 @@ import InputAdornment from "@mui/material/InputAdornment";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import { Formik } from "formik";
 import * as yup from "yup";
-import ProductionQuantityLimitsIcon from "@mui/icons-material/ProductionQuantityLimits";
 const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
   const dispatch = useDispatch();
   const orders = useSelector((state) => state.order.orders);
@@ -39,6 +39,8 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
     quantity: null, // Giá trị ban đầu của quantity từ order
     // Các thuộc tính khác của order
   });
+  const [orderDetailIdService, setOrderDetailIdService] = useState([]);
+  const [orderDetailId, setOrderDetailId] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
   const [initialFormState, setInitialFormState] = useState({});
   const [fullnameValue, setFullnameValue] = useState("");
@@ -51,10 +53,7 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
   const [nameService, setNameService] = useState({});
   const [serviceId, setServiceId] = useState([]);
   const [quantity, setQuantity] = useState("");
-  const [quantityUpdateService, setQuantityUpdateService] = useState("");
-  const [quantityValues, setQuantityValues] = useState({});
   const [isEditing, setIsEditing] = useState(false);
-  
   const checkoutSchema = yup.object().shape({
     quantity: yup.number().required("Required"),
     service: yup.string().required("Required"),
@@ -66,7 +65,6 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
   };
   const [orderQuantities, setOrderQuantities] = useState({});
 
-  const [selectedEditOrderUpdate, setSelectedEditOrderUpdate] = useState([]);
   // //hanldeQuantityupdate
   //CHECK DUPLICATE NAME SERVICE
   const checkDuplicateSerivce = (newValue) => {
@@ -99,10 +97,9 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
         );
       });
   };
-
   useEffect(() => {
-    if (selectedEditOrder && orders) {
-      if (selectedEditOrder.id) {
+    const setSelectedOrderDetails = () => {
+      if (selectedEditOrder?.id) {
         const OrderToEdit = orders.find(
           (order) => order.id === selectedEditOrder.id
         );
@@ -113,16 +110,23 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
           setInitialFormState(OrderToEdit);
         }
       }
-    }
-    if (selectedEditOrder && selectedEditOrder.length > 0) {
-      const newOrderQuantities = {};
-      selectedEditOrder.forEach((order) => {
-        newOrderQuantities[order.id] = order.quantity !== null ? order.quantity.toString() : '';
-      });
-      setOrderQuantities(newOrderQuantities);
-    }
-  }, [selectedEditOrder, orders]);
+    };
 
+    const setOrderQuantitiesForEdit = () => {
+      if (selectedEditOrder && selectedEditOrder.length > 0) {
+        const newOrderQuantities = {};
+        selectedEditOrder.forEach((order) => {
+          newOrderQuantities[order.id] =
+            order.quantity !== null ? order.quantity.toString() : "";
+        });
+        setOrderQuantities(newOrderQuantities);
+      }
+    };
+
+    setSelectedOrderDetails();
+    setOrderQuantitiesForEdit();
+  }, [selectedEditOrder, orders]);
+  
   //hàm lấy select service
   useEffect(() => {
     const getServices = async () => {
@@ -156,20 +160,37 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
       [orderId]: value,
     }));
     setIsEditing(true);
+    setOrderDetailIdService((prevOrderDetailIdService) => {
+      const updatedIds = [...prevOrderDetailIdService];
+      const index = updatedIds.findIndex((id) => id === orderId);
+      if (index !== -1) {
+        // Nếu đã tồn tại orderId trong mảng, cập nhật giá trị mới
+        updatedIds[index] = orderId;
+      } else {
+        // Nếu chưa tồn tại orderId trong mảng, thêm vào mảng
+        updatedIds.push(orderId);
+      }
+      return updatedIds;
+    });
+    console.log(`Quantity người dùng đã nhập cho orderId ${orderId}:`, value);
   };
-  
-  
 
-
+  
   useEffect(() => {
     if (!isEditing) {
       setEdit((prevEdit) => ({
         ...prevEdit,
-        quantity: order.quantity !== null ? order.quantity.toString() : '',
+        quantity: order.quantity !== null ? order.quantity.toString() : "",
       }));
     }
+    if (!isEditing) {
+      setEdit((prevEdit) => ({
+        ...prevEdit,
+        quantity: order.quantity !== null ? order.quantity.toString() : "",
+      }));
+    }
+    // handleUpdateService(isEditing)
   }, [order.quantity, isEditing]);
-
 
   const handleAddService = () => {
     // Lấy giá trị quantity từ values
@@ -207,8 +228,7 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
       toast.info("Không có thay đổi để lưu.");
       handleClose();
     } else {
-      // Gửi yêu cầu cập nhật lên máy chủ
-      dispatch(updateServiceForTechnicians(updatedEdit))
+      dispatch(addServiceForTechnicians(updatedEdit))
         .then(() => {
           toast.success("Cập nhật dịch vụ thành công");
           setIsSuccess(true);
@@ -239,71 +259,66 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
     }
   };
   const handleUpdateService = () => {
-    // Lấy giá trị quantity từ values
-    console.log(quantity);
     if (!selectedEditOrder || !edit) {
-      toast.error("Không có cập nhật dịch vụ");
+      toast.error("Không có thêm nhật dịch vụ");
       return;
     }
-    // Check if a service is selected
-    if (!selectedService) {
-      toast.error("Vui lòng chọn một dịch vụ");
-      return;
-    }
-    // Lấy tên dịch vụ đã chọn
-    const selectedServiceName = selectedService.name;
-    const selectedOrderId = selectedEditOrder[0].orderId;
-    console.log(selectedServiceName);
-
-    if (!selectedOrderId) {
-      console.error("No orderId to reload details for.");
-      toast.error("No valid order ID found.");
-      return;
-    }
-    // Tạo một bản sao của đối tượng `edit` với tên dịch vụ
-    const updatedEdit = {
-      orderId: selectedOrderId, // Lấy id của đơn hàng
-      service: selectedServiceName, // Lưu tên dịch vụ vào thuộc tính `service` hoặc tùy chỉnh tên thuộc tính tương ứng trong đối tượng `edit`
-      quantity: quantity, // Lấy số lượng
-    };
-    // Kiểm tra xem có sự thay đổi trong dữ liệu so với dữ liệu ban đầu
-    const hasChanges =
-      JSON.stringify(updatedEdit) !== JSON.stringify(initialFormState);
-    console.log(hasChanges);
-    if (!hasChanges) {
-      toast.info("Không có thay đổi để lưu.");
-      handleClose();
-    } else {
-      // Gửi yêu cầu cập nhật lên máy chủ
-      dispatch(updateServiceForTechnicians(updatedEdit))
-        .then(() => {
-          toast.success("Cập nhật dịch vụ thành công");
-          setIsSuccess(true);
-          reloadOrderDetail(selectedOrderId);
-          handleClose();
-          reloadOrderInprogress();
-          setQuantity(null);
-        })
-        .catch((error) => {
-          if (
-            error.response &&
-            error.response.data &&
-            error.response.data.errors
-          ) {
-            // Lấy thông báo lỗi từ phản hồi máy chủ
-            const serviceErrors = error.response.data.errors.Service;
-            if (serviceErrors && serviceErrors.length > 0) {
-              // In ra thông báo lỗi (hoặc xử lý theo cách bạn muốn)
-              console.log(serviceErrors);
+  
+    const updatedEdits = orderDetailIdService.map((orderDetailId) => {
+      const updatedOrder = selectedEditOrder.find((order) => order.id === orderDetailId);
+  
+      if (!updatedOrder) {
+        return null; // Trường hợp không tìm thấy orderDetailId trong selectedEditOrder
+      }
+  
+      const updatedQuantity = orderQuantities[updatedOrder.id] !== undefined ? orderQuantities[updatedOrder.id] : updatedOrder.quantity;
+      const { serviceId } = updatedOrder;
+      const selectedServiceName = nameService[serviceId]; // Lấy tên dịch vụ từ serviceId
+  
+      const updatedEdit = {
+        orderDetailId: orderDetailId,
+        service: selectedServiceName,
+        quantity: updatedQuantity,
+      };
+  
+      return updatedEdit;
+    }).filter((updatedEdit) => updatedEdit !== null); // Lọc bỏ các phần tử null trong mảng
+  
+    // Tiến hành dispatch update cho từng updatedEdit trong mảng updatedEdits
+    updatedEdits.forEach((updatedEdit) => {
+      const hasChanges = JSON.stringify(updatedEdit) !== JSON.stringify(initialFormState);
+      console.log(hasChanges);
+  
+      if (hasChanges) {
+        dispatch(updateServiceForTechnicians(updatedEdit))
+          .then(() => {
+            toast.success("Cập nhật dịch vụ thành công");
+            setIsSuccess(true);
+            handleClose();
+            setQuantity(null);
+            setSelectedService(null);
+            reloadOrderInprogress();
+          })
+          .catch((error) => {
+            if (error.response && error.response.data && error.response.data.errors) {
+              const serviceErrors = error.response.data.errors.Service;
+              if (serviceErrors && serviceErrors.length > 0) {
+                console.log(serviceErrors);
+              }
+            } else if (error.message) {
+              toast.error(`Lỗi khi thêm dịch vụ: ${error.message}`);
+            } else {
+              toast.error("Lỗi khi thêm dịch vụ.");
             }
-          } else if (error.message) {
-            toast.error(`Lỗi khi thêm dịch vụ: ${error.message}`);
-          } else {
-            toast.error("Lỗi khi thêm dịch vụ.");
-          }
-        });
-    }
+          });
+      } else {
+        toast.info("Không có thay đổi để lưu.");
+        handleClose();
+      }
+    });
   };
+  
+
   const reloadOrderDetail = (orderId) => {
     console.log(orderId);
     if (!orderId) {
@@ -326,8 +341,6 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
   const handleClose = () => {
     setOpenEditModal(false);
   };
-
-
 
   useEffect(() => {
     // Ensure selectedEditOrder is not null and is an array
@@ -375,8 +388,8 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
       <Modal
         open={openEditModal}
         onClose={handleClose}
-        aria-labelledby="RescuseVehicleOwner-detail-modal"
-        aria-describedby="RescuseVehicleOwner-detail-modal-description"
+        aria-labelledby="Order-detail-modal"
+        aria-describedby="Order-detail-modal-description"
         closeAfterTransition
       >
         <Fade in={openEditModal}>
@@ -427,7 +440,7 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
                   <CardContent>
                     <CardContent>
                       <Typography variant="h6" sx={{ marginBottom: 2 }}>
-                        id: {selectedEditOrder[0].id}
+                        orderDetailId: {selectedEditOrder[0].id}
                       </Typography>
                       <Typography variant="body2">
                         orderId:{selectedEditOrder[0].orderId}
@@ -466,13 +479,12 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
                         <TextField
                           name="id"
                           label="id"
-                          value={edit.id}
-                          onChange={(event) => {
-                            // Check if it's coming from selectedEditRescuseVehicleOwner and prevent changes
-                            if (!selectedEditOrder) {
-                              handleInputChange(event);
-                            }
-                          }}
+                          value={order.id}
+                          // onChange={(event) => {
+                          //   const updatedOrderId = event.target.value;
+                          //   // Cập nhật giá trị orderId vào orderDetailIdService
+                          //   setOrderDetailIdSerivce(updatedOrderId);
+                          // }}
                           style={{ display: "none" }}
                         />
                         <div
@@ -499,9 +511,15 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
                           <TextField
                             name="quantity"
                             label="Số lượng"
-                            type="text"
-                            value={orderQuantities[order.id] !== undefined ? orderQuantities[order.id] : ''}
-                            onChange={(event) => handleInputChange(event, order.id)}
+                            type="number"
+                            value={
+                              orderQuantities[order.id] !== undefined
+                                ? orderQuantities[order.id]
+                                : ""
+                            }
+                            onChange={(event) =>
+                              handleInputChange(event, order.id)
+                            }
                             fullWidth
                             margin="normal"
                             style={{ marginLeft: "10px", flex: "1" }}

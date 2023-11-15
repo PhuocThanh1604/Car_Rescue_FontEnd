@@ -402,7 +402,7 @@ export const updateServiceForTechnicians = createAsyncThunk(
     try {
       console.log(data)
       const res = await axios.post(
-        "https://rescuecapstoneapi.azurewebsites.net/api/Order/ManagerAddService",
+        "https://rescuecapstoneapi.azurewebsites.net/api/Order/ManagerUpdateService",
         data,
         {
           headers: {
@@ -413,7 +413,7 @@ export const updateServiceForTechnicians = createAsyncThunk(
       console.log(data);
       return res.data;
     } catch (error) {
-      console.error("Failed to create Accept Order:", error.response);
+      console.error("Failed to update Service For Technicians:", error.response);
       throw error.response.data || error.message;
     }
   }
