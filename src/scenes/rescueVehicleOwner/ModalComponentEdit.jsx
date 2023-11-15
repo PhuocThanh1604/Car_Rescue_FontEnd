@@ -191,7 +191,7 @@ const ModalEdit = ({
                 id="RescuseVehicleOwner-detail-modal"
               >
                 {selectedEditRescuseVehicleOwner
-                  ? "Sửa Thông Tin Chủ Xe cứu hÔ"
+                  ? "Sửa Thông Tin Chủ Xe Cứu Hộ"
                   : "RescuseVehicleOwner Detail"}
               </Typography>
 

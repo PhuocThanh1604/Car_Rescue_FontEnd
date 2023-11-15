@@ -53,7 +53,7 @@ const ModalEdit = ({
         }
       })
       .catch((error) => {
-        console.error("Lỗi khi tải lại danh sách khách hàng:", error);
+        console.error("Lỗi khi tải lại danh sách dịch vụ:", error);
       });
   };
 
@@ -100,7 +100,7 @@ const ModalEdit = ({
       // Gửi yêu cầu cập nhật lên máy chủ
       dispatch(editService({ data: edit }))
         .then(() => {
-          toast.success("Cập nhật thành công.");
+          toast.success("Cập nhật dịch vụ thành công.");
           handleClose();
           reloadServices();
           setIsSuccess(true);

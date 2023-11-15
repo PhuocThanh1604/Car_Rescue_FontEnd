@@ -374,6 +374,28 @@ export const createOrderOffline = createAsyncThunk(
     }
   }
 );
+export const addServiceForTechnicians = createAsyncThunk(
+  "orders/addServiceForTechnicians",
+  async (data) => {
+    try {
+      console.log(data)
+      const res = await axios.post(
+        "https://rescuecapstoneapi.azurewebsites.net/api/Order/ManagerAddService",
+        data,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log(data);
+      return res.data;
+    } catch (error) {
+      console.error("Failed to add Service For Technicians:", error.response);
+      throw error.response.data || error.message;
+    }
+  }
+);
 export const updateServiceForTechnicians = createAsyncThunk(
   "orders/updateServiceForTechnicians",
   async (data) => {
@@ -574,6 +596,15 @@ const orderSlice = createSlice({
         state.status = "loading";
       })
       .addCase(updateServiceForTechnicians.rejected, (state, action) => {
+        state.status = "error";
+      })
+      .addCase(addServiceForTechnicians.fulfilled, (state, action) => {
+        state.orders = action.payload.data;
+      })
+      .addCase(addServiceForTechnicians.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(addServiceForTechnicians.rejected, (state, action) => {
         state.status = "error";
       })
   },

@@ -10,8 +10,6 @@ import {
   Button,
   IconButton,
   Autocomplete,
-  CardActions,
-  Collapse,
   Divider,
   useMediaQuery,
 } from "@mui/material";
@@ -34,7 +32,13 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
   const dispatch = useDispatch();
   const orders = useSelector((state) => state.order.orders);
   const isNonMobile = useMediaQuery("(min-width:600px)");
-  const [edit, setEdit] = useState({});
+  const [edit, setEdit] = useState({
+    quantity: "",
+  });
+  const [order, setOrder] = useState({
+    quantity: null, // Giá trị ban đầu của quantity từ order
+    // Các thuộc tính khác của order
+  });
   const [isSuccess, setIsSuccess] = useState(false);
   const [initialFormState, setInitialFormState] = useState({});
   const [fullnameValue, setFullnameValue] = useState("");
@@ -47,7 +51,10 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
   const [nameService, setNameService] = useState({});
   const [serviceId, setServiceId] = useState([]);
   const [quantity, setQuantity] = useState("");
-  const [serviceQuantities, setServiceQuantities] = useState({});
+  const [quantityUpdateService, setQuantityUpdateService] = useState("");
+  const [quantityValues, setQuantityValues] = useState({});
+  const [isEditing, setIsEditing] = useState(false);
+  
   const checkoutSchema = yup.object().shape({
     quantity: yup.number().required("Required"),
     service: yup.string().required("Required"),
@@ -57,6 +64,24 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
     quantity: "",
     service: [],
   };
+  const [orderQuantities, setOrderQuantities] = useState({});
+
+  const [selectedEditOrderUpdate, setSelectedEditOrderUpdate] = useState([]);
+  // //hanldeQuantityupdate
+  //CHECK DUPLICATE NAME SERVICE
+  const checkDuplicateSerivce = (newValue) => {
+    const newRescueType = newValue ? newValue.name : "";
+
+    selectedEditOrder.forEach((order) => {
+      if (newRescueType === nameService[order.serviceId]) {
+        toast.error("Dịch vụ đã có, vui lòng chọn loại khác");
+        return null; // Ngăn chặn việc chọn giá trị này
+      }
+    });
+
+    setSelectedService(newValue);
+  };
+
   const reloadOrderInprogress = () => {
     dispatch(fetchOrdersInprogress())
       .then((response) => {
@@ -75,8 +100,6 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
       });
   };
 
-
-
   useEffect(() => {
     if (selectedEditOrder && orders) {
       if (selectedEditOrder.id) {
@@ -90,6 +113,13 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
           setInitialFormState(OrderToEdit);
         }
       }
+    }
+    if (selectedEditOrder && selectedEditOrder.length > 0) {
+      const newOrderQuantities = {};
+      selectedEditOrder.forEach((order) => {
+        newOrderQuantities[order.id] = order.quantity !== null ? order.quantity.toString() : '';
+      });
+      setOrderQuantities(newOrderQuantities);
     }
   }, [selectedEditOrder, orders]);
 
@@ -119,18 +149,97 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
     getServices();
   }, [dispatch]);
 
-  const handleInputChange = (event) => {
-    const { name, value } = event.target;
-
-    setEdit((prevOrder) => ({
-      ...prevOrder,
-      [name]: value,
+  const handleInputChange = (event, orderId) => {
+    const { value } = event.target;
+    setOrderQuantities((prevOrderQuantities) => ({
+      ...prevOrderQuantities,
+      [orderId]: value,
     }));
-    console.log(setEdit);
+    setIsEditing(true);
   };
+  
+  
 
-  const handleSaveClick = () => {
- // Lấy giá trị quantity từ values
+
+  useEffect(() => {
+    if (!isEditing) {
+      setEdit((prevEdit) => ({
+        ...prevEdit,
+        quantity: order.quantity !== null ? order.quantity.toString() : '',
+      }));
+    }
+  }, [order.quantity, isEditing]);
+
+
+  const handleAddService = () => {
+    // Lấy giá trị quantity từ values
+    console.log(quantity);
+    if (!selectedEditOrder || !edit) {
+      toast.error("Không có thêm nhật dịch vụ");
+      return;
+    }
+    // Check if a service is selected
+    if (!selectedService) {
+      toast.error("Vui lòng chọn một dịch vụ");
+      return;
+    }
+    // Lấy tên dịch vụ đã chọn
+    const selectedServiceName = selectedService.name;
+    const selectedOrderId = selectedEditOrder[0].orderId;
+    console.log(selectedServiceName);
+
+    if (!selectedOrderId) {
+      console.error("No orderId to reload details for.");
+      toast.error("No valid order ID found.");
+      return;
+    }
+    // Tạo một bản sao của đối tượng `edit` với tên dịch vụ
+    const updatedEdit = {
+      orderId: selectedOrderId, // Lấy id của đơn hàng
+      service: selectedServiceName, // Lưu tên dịch vụ vào thuộc tính `service` hoặc tùy chỉnh tên thuộc tính tương ứng trong đối tượng `edit`
+      quantity: quantity, // Lấy số lượng
+    };
+    // Kiểm tra xem có sự thay đổi trong dữ liệu so với dữ liệu ban đầu
+    const hasChanges =
+      JSON.stringify(updatedEdit) !== JSON.stringify(initialFormState);
+    console.log(hasChanges);
+    if (!hasChanges) {
+      toast.info("Không có thay đổi để lưu.");
+      handleClose();
+    } else {
+      // Gửi yêu cầu cập nhật lên máy chủ
+      dispatch(updateServiceForTechnicians(updatedEdit))
+        .then(() => {
+          toast.success("Cập nhật dịch vụ thành công");
+          setIsSuccess(true);
+          reloadOrderDetail(selectedOrderId);
+          handleClose();
+          setQuantity(null);
+          setSelectedService(null);
+          reloadOrderInprogress();
+        })
+        .catch((error) => {
+          if (
+            error.response &&
+            error.response.data &&
+            error.response.data.errors
+          ) {
+            // Lấy thông báo lỗi từ phản hồi máy chủ
+            const serviceErrors = error.response.data.errors.Service;
+            if (serviceErrors && serviceErrors.length > 0) {
+              // In ra thông báo lỗi (hoặc xử lý theo cách bạn muốn)
+              console.log(serviceErrors);
+            }
+          } else if (error.message) {
+            toast.error(`Lỗi khi thêm dịch vụ: ${error.message}`);
+          } else {
+            toast.error("Lỗi khi thêm dịch vụ.");
+          }
+        });
+    }
+  };
+  const handleUpdateService = () => {
+    // Lấy giá trị quantity từ values
     console.log(quantity);
     if (!selectedEditOrder || !edit) {
       toast.error("Không có cập nhật dịch vụ");
@@ -169,11 +278,11 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
       dispatch(updateServiceForTechnicians(updatedEdit))
         .then(() => {
           toast.success("Cập nhật dịch vụ thành công");
-
           setIsSuccess(true);
-          reloadOrderDetail(selectedOrderId)
-          handleClose()
+          reloadOrderDetail(selectedOrderId);
+          handleClose();
           reloadOrderInprogress();
+          setQuantity(null);
         })
         .catch((error) => {
           if (
@@ -211,46 +320,19 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
         }
       })
       .catch((error) => {
-        console.error(
-          "Lỗi khi tải lại chi tiết đơn:",
-          error
-        );
+        console.error("Lỗi khi tải lại chi tiết đơn:", error);
       });
   };
   const handleClose = () => {
     setOpenEditModal(false);
   };
 
-  //search service
 
 
-  // useEffect(() => {
-  //   if (Array.isArray(selectedEditOrder) && selectedEditOrder.length > 0) {
-  //     // Initialize an object to collect quantities for each serviceId
-  //     const quantities = selectedEditOrder.reduce((acc, current) => {
-  //       const { serviceId, quantity, total } = current;
-  
-  //       // Initialize the total quantity and total amount if this serviceId hasn't been seen before
-  //       if (!acc[serviceId]) {
-  //         acc[serviceId] = { quantity: 0, total: 0 };
-  //       }
-  
-  //       // Add the current quantity and total to the accumulator
-  //       acc[serviceId].quantity += Number(quantity);
-  //       acc[serviceId].total += Number(total);
-  
-  //       return acc;
-  //     }, {});
-  
-  //     // Set the state with the accumulated quantities
-  //     setServiceQuantities(quantities);
-  //   }
-  // }, [selectedEditOrder]);
-  
   useEffect(() => {
     // Ensure selectedEditOrder is not null and is an array
     if (Array.isArray(selectedEditOrder) && selectedEditOrder.length > 0) {
-        // Group services and set them in state or use them directly
+      // Group services and set them in state or use them directly
       // Extract service IDs, removing duplicates based on custom criteria
       const serviceIdsSeen = new Set(); // To keep track of serviceIds we have seen
       const uniqueServiceIds = selectedEditOrder
@@ -287,8 +369,6 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
         });
     }
   };
-
-
   return (
     <>
       <ToastContainer />
@@ -345,26 +425,24 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
               {selectedEditOrder && (
                 <Card>
                   <CardContent>
-                    <Card>
-                      <CardContent>
-                        <Typography variant="h6" sx={{ marginBottom: 2 }}>
-                          id: {selectedEditOrder[0].id}
-                        </Typography>
-                        <Typography variant="body2">
-                          orderId:{selectedEditOrder[0].orderId}
-                        </Typography>
-                        <Typography variant="body2">
-                          serviceId:{selectedEditOrder[0].serviceId}
-                        </Typography>
-                        <Typography variant="body2">
-                          Số lượng :{selectedEditOrder[0].quantity}
-                        </Typography>
-                        <Typography variant="body2">
-                          Tổng:{selectedEditOrder[0].tOtal}
-                          <span> VNĐ</span>
-                        </Typography>
-                      </CardContent>
-                    </Card>
+                    <CardContent>
+                      <Typography variant="h6" sx={{ marginBottom: 2 }}>
+                        id: {selectedEditOrder[0].id}
+                      </Typography>
+                      <Typography variant="body2">
+                        orderId:{selectedEditOrder[0].orderId}
+                      </Typography>
+                      <Typography variant="body2">
+                        serviceId:{selectedEditOrder[0].serviceId}
+                      </Typography>
+                      <Typography variant="body2">
+                        Số lượng :{selectedEditOrder[0].quantity}
+                      </Typography>
+                      <Typography variant="body2">
+                        Tổng:{selectedEditOrder[0].tOtal}
+                        <span> VNĐ</span>
+                      </Typography>
+                    </CardContent>
                     <TextField
                       name="id"
                       label="id"
@@ -384,7 +462,7 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
                   {selectedEditOrder &&
                     selectedEditOrder.length > 0 &&
                     selectedEditOrder.map((order, index) => (
-                      <CardContent key={order.id || index}>
+                      <div key={order.id || index}>
                         <TextField
                           name="id"
                           label="id"
@@ -402,6 +480,8 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "space-between", // This will add space between the children
+                            marginLeft: "16px",
+                            marginRight: "12px",
                           }}
                         >
                           <TextField
@@ -417,51 +497,19 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
                           />
 
                           <TextField
-                            variant="outlined"
-                            label="quantity"
-                            value={order.quantity || ""} // Assuming 'total' is the property
-                            onChange={(event) => {
-                              // Handle the change. Here you need to implement the logic to update the state
-                              // This is just a placeholder function, replace it with your actual state update logic
-                              // const updatedOrders = selectedEditOrder.map(
-                              //   (order, index) =>
-                              //     index === 0
-                              //       ? { ...order, total: event.target.value }
-                              //       : order
-                              // );
-                              // setSelectedEditOrder(updatedOrders);
-                            }}
-                            InputProps={{
-                              startAdornment: (
-                                <InputAdornment position="start">
-                                  <ProductionQuantityLimitsIcon />
-                                </InputAdornment>
-                              ),
-                            }}
+                            name="quantity"
+                            label="Số lượng"
+                            type="text"
+                            value={orderQuantities[order.id] !== undefined ? orderQuantities[order.id] : ''}
+                            onChange={(event) => handleInputChange(event, order.id)}
                             fullWidth
                             margin="normal"
                             style={{ marginLeft: "10px", flex: "1" }}
-                            sx={{
-                              flex: "1",
-                              mt: 1, // Use theme spacing or specific value to reduce top margin
-                              mb: 1, // Use theme spacing or specific value to reduce bottom margin
-                            }}
                           />
                           <TextField
                             variant="outlined"
                             label="Total"
-                            value={order.tOtal || ""} // Assuming 'total' is the property
-                            onChange={(event) => {
-                              // Handle the change. Here you need to implement the logic to update the state
-                              // This is just a placeholder function, replace it with your actual state update logic
-                              // const updatedOrders = selectedEditOrder.map(
-                              //   (order, index) =>
-                              //     index === 0
-                              //       ? { ...order, total: event.target.value }
-                              //       : order
-                              // );
-                              // setSelectedEditOrder(updatedOrders);
-                            }}
+                            value={order.tOtal || ""}
                             InputProps={{
                               startAdornment: (
                                 <InputAdornment position="start">
@@ -477,19 +525,13 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
                             fullWidth
                             margin="normal"
                             style={{ marginLeft: "10px", flex: "1" }}
-                            sx={{
-                              flex: "1",
-                              mt: 1, // Use theme spacing or specific value to reduce top margin
-                              mb: 1, // Use theme spacing or specific value to reduce bottom margin
-                            }}
                           />
                         </div>
-                      </CardContent>
+                      </div>
                     ))}
 
-                    
                   <Formik
-                    onSubmit={handleSaveClick}
+                    onSubmit={handleAddService}
                     initialValues={initialValues}
                     validationSchema={checkoutSchema}
                   >
@@ -515,19 +557,16 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
                               getOptionLabel={(option) =>
                                 option.name || "Default Name"
                               }
+                              sx={{ width: 260 }}
                               value={selectedService}
                               onChange={(_, newValue) => {
-                                setSelectedService(newValue);
-                                const selectedServiceName = newValue
-                                  ? newValue.name
-                                  : "";
-                                // handleChange("service")(selectedServiceName);
+                                checkDuplicateSerivce(newValue);
                               }}
                               renderInput={(params) => (
                                 <TextField
                                   {...params}
                                   label="Danh Sách Dịch Vụ"
-                                  variant="filled"
+                                  sx={{ marginLeft: 2 }}
                                 />
                               )}
                             />
@@ -535,6 +574,7 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
                               name="quantity"
                               label="Số lượng"
                               type="number"
+                              InputLabelProps={{ shrink: true }}
                               onChange={(e) => {
                                 formikProps.handleChange(e); // Update Formik's internal state
                                 setQuantity(e.target.value); // Update component's state
@@ -542,7 +582,6 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
                               onBlur={formikProps.handleBlur}
                               value={formikProps.values.quantity}
                               fullWidth
-                              variant="filled"
                               error={
                                 formikProps.touched.quantity &&
                                 Boolean(formikProps.errors.quantity)
@@ -551,15 +590,17 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
                                 formikProps.touched.quantity &&
                                 formikProps.errors.quantity
                               }
-                              sx={{ gridColumn: "span 2" }}
+                              sx={{ gridColumn: "span 1", marginLeft: 14 }}
                             />
                           </Box>
                           <Button
-                            onClick={handleSaveClick}
+                            onClick={handleAddService}
                             startIcon={<AddIcon />}
                             sx={{
                               color: "green", // This will set the text color to green
                               marginLeft: "16px",
+                              marginTop: "10px",
+                              marginBottom: "16px",
                               fontWeight: "bold",
                               "& .MuiButton-startIcon": {
                                 // This targets the start icon specifically
@@ -578,19 +619,21 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
                       );
                     }}
                   </Formik>
+                  <Divider />
                   <Box
                     sx={{
                       display: "flex",
                       justifyContent: "center",
                       marginBottom: "5px",
+                      marginTop: "5px",
                     }}
                   >
                     <Button
-                      onClick={handleSaveClick}
+                      onClick={handleUpdateService}
                       variant="contained"
                       color="primary"
                     >
-                      Lưu Dịch Vụ
+                      Cập Nhật Dịch Vụ
                     </Button>
                   </Box>
                 </Card>
