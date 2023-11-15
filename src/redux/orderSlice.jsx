@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-const apiKeyGG = 'AIzaSyAzVr5QXjWd5aFyfI2s-0_70CoEjRqJdeQ';
+const apiKeyGG = 'AIzaSyCZPpY4KcOcClHuiQEuzb2t51ov9XkJVfg';
 // const apiKeyGG = process.env.API_KEY_GG;
 const mapboxToken = 'pk.eyJ1IjoidGhhbmgyazEiLCJhIjoiY2xvZjMxcWppMG5oejJqcnI2M2ZleTJtZiJ9.yvWTA-yYNqTdr2OstpB7bw';
 // const apiKey = '';

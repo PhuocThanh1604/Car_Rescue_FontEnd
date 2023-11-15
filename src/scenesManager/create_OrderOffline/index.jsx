@@ -410,9 +410,8 @@ const CreateOrderOffline = () => {
                     touched.paymentMethod && errors.paymentMethod ? true : false
                   }
                 >
-                  <MenuItem value="Cast">Tiền Mặt</MenuItem>
-                  <MenuItem value="Bank">Chuyển Khoản</MenuItem>
-                  <MenuItem value="Momo">Momo</MenuItem>
+                  <MenuItem value="Cash">Tiền Mặt</MenuItem>
+                  <MenuItem value="Banking">Chuyển Khoản</MenuItem>
                 </Select>
               </FormControl>
               <FormControl fullWidth variant="filled">

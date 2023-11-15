@@ -69,7 +69,7 @@ const ModalEdit = ({
   const [loadingVehicle, setLoadingVehicle] = useState(true);
   const [vehicleData, setVehicleData] = useState([]);
   const [vehicleDetails, setVehicleDetails] = useState(null);
-  const [technicianId, setTechnicianId] = useState(null);
+  // const [technicianId, setTechnicianId] = useState(null);
   const [loadingTechnician, setLoadingTechnician] = useState(true);
   const [technicianData, setTechnicianData] = useState([]);
   const [selectedTechnician, setSelectedTechnician] = useState(null);
@@ -140,20 +140,20 @@ const ModalEdit = ({
     vehicleData,
   ]);
 
-  useEffect(() => {
-    if (selectedTechnician) {
-      console.log("test tec" + selectedTechnician);
-      const selectedTechnicianId = selectedTechnician.id;
-      // Filter the active technicians based on the selected technician's ID
-      const filteredTechnicianDetails = technicianData.find(
-        (technician) => technician.id === selectedTechnicianId
-      );
-      setTechnicianDetails(filteredTechnicianDetails);
-      console.log("detail" + technicianDetails);
-    } else {
-      setTechnicianDetails(null);
-    }
-  }, [selectedTechnician, technicianData]);
+  // useEffect(() => {
+  //   if (selectedTechnician) {
+  //     console.log("test tec" + selectedTechnician);
+  //     const selectedTechnicianId = selectedTechnician.id;
+  //     // Filter the active technicians based on the selected technician's ID
+  //     const filteredTechnicianDetails = technicianData.find(
+  //       (technician) => technician.id === selectedTechnicianId
+  //     );
+  //     setTechnicianDetails(filteredTechnicianDetails);
+  //     console.log("detail" + technicianDetails);
+  //   } else {
+  //     setTechnicianDetails(null);
+  //   }
+  // }, [selectedTechnician, technicianData]);
 
   useEffect(() => {
     if (selectedVehicle) {
@@ -242,7 +242,7 @@ const ModalEdit = ({
         }
       })
       .catch((error) => {
-        console.error("Lỗi khi tải lại danh sách khách hàng:", error);
+        console.error("Lỗi khi tải lại danh sách đơn hàng mới:", error);
       });
   };
   useEffect(() => {
@@ -289,7 +289,6 @@ const ModalEdit = ({
       const requestData = {
         orderID: orderId,
         vehicleID: vehicleId,
-        technicianID: technicianId,
         managerID: manager.id,
       };
       dispatch(createAcceptOrder(requestData))
@@ -338,10 +337,10 @@ const ModalEdit = ({
   };
 
   // Function to reset Fixing state variables
-  const resetFixingState = () => {
-    setSelectedTechnician(null);
-    setTechnicianId(null);
-  };
+  // const resetFixingState = () => {
+  //   setSelectedTechnician(null);
+  //   setTechnicianId(null);
+  // };
 
   // Function to reset Towing state variables
   const resetTowingState = () => {
@@ -354,7 +353,7 @@ const ModalEdit = ({
     if (selectedRescueType === "Fixing") {
       resetTowingState();
     } else if (selectedRescueType === "Towing") {
-      resetFixingState();
+      // resetFixingState();
     }
   }, [selectedRescueType]);
 
@@ -767,7 +766,7 @@ const ModalEdit = ({
                             value={selectedTechnician}
                             onChange={(_, newValue) => {
                               setSelectedTechnician(newValue);
-                              setTechnicianId(newValue && newValue.id);
+                              // setTechnicianId(newValue && newValue.id);
                             }}
                             renderInput={(params) => (
                               <TextField
