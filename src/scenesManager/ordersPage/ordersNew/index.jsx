@@ -63,6 +63,25 @@ const Orders = (props) => {
   const [selectedOrderFormattedAddress, setSelectedOrderFormattedAddress] =
     useState("");
 
+    //Reload data after assigning
+    const handleDataUpdated = () => {
+      reloadOrdersNew();
+    };
+
+    const reloadOrdersNew = () => {
+      dispatch(fetchOrdersNew())
+        .then((response) => {
+          const data = response.payload.data;
+          if (data) {
+            setFilteredOrders(data);
+            // Đặt loading thành false sau khi tải lại dữ liệu
+            setLoading(false);
+          }
+        })
+        .catch((error) => {
+          console.error("Lỗi khi tải lại danh sách đơn hàng mới:", error);
+        });
+    };
   const handleSearchChange = (event) => {
     const value = event.target.value.toLowerCase();
     setSearchText(value);
@@ -111,26 +130,11 @@ const Orders = (props) => {
     }
   };
 
-  const loadOrdersData = () => {
-    setLoading(true);
-    dispatch(fetchOrdersNew()) // Gọi hành động Redux
-      .then((response) => {
-        const data = response.payload.data;
-        if (data) {
-          setData(data);
-          setFilteredOrders(data);
-          setLoading(false); // Đặt trạng thái loading thành false sau khi xử lý dữ liệu
-        }
-        // Xử lý dữ liệu ở đây
-      })
-      .catch((error) => {
-        console.error("Error fetching orders:", error);
-        setLoading(false);
-      });
-  };
+
 
   useEffect(() => {
-    loadOrdersData(); // Gọi hàm mới này thay vì gọi đệ quy
+    // Gọi hàm mới này thay vì gọi đệ quy
+    reloadOrdersNew();
   }, [dispatch, location.pathname]);
 
   useEffect(() => {
@@ -170,7 +174,6 @@ const Orders = (props) => {
           setSelectedOrderFormattedAddress(formattedAddress);
           setOpenEditModal(true);
           setIsSuccess(true);
-          reloadOders();
         })
         .catch((error) => {
           console.error("Lỗi khi lấy thông tin đơn hàng mới:", error);
@@ -178,20 +181,6 @@ const Orders = (props) => {
     }
   };
 
-  const reloadOders = () => {
-    dispatch(fetchOrdersNew())
-      .then((response) => {
-        const data = response.payload.data;
-        if (data) {
-          setFilteredOrders(data);
-          // Đặt loading thành false sau khi tải lại dữ liệu
-          setLoading(false);
-        }
-      })
-      .catch((error) => {
-        console.error("Lỗi khi tải lại danh sách đơn hàng mới:", error);
-      });
-  };
   useEffect(() => {
     if (!data || data.length === 0) {
       fetchOrdersNew();
@@ -584,13 +573,18 @@ const Orders = (props) => {
             loading={loading}
           ></ModalDetail>
 
+
+       
           <ModalEdit
             openEditModal={openEditModal}
             setOpenEditModal={setOpenEditModal}
             selectedEditOrder={selectedEditOrder}
             selectedOrderFormattedAddress={selectedOrderFormattedAddress}
-            onClose={() => setOpenEditModal(false)}
+            onDataUpdated={handleDataUpdated}
+            // onClose={() => setOpenEditModal(false)}
             loading={loading}
+
+
           />
           <ToastContainer />
         </>

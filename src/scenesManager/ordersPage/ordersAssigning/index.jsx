@@ -165,10 +165,6 @@ const OrdersAssigning = (props) => {
       });
   };
 
-  const handleBookDetailClick = (book) => {
-    setSelectedBook(book);
-    setOpenModal(true);
-  };
   const reloadOders = () => {
     dispatch(fetchOrdersAssigning())
       .then((response) => {

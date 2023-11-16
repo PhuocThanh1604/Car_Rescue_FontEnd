@@ -47,6 +47,7 @@ const ModalEdit = ({
   setOpenEditModal,
   selectedEditOrder,
   formattedAddress,
+  onDataUpdated
 }) => {
   const dispatch = useDispatch();
   const orders = useSelector((state) => state.order.orders);
@@ -315,7 +316,10 @@ const ModalEdit = ({
 
           handleClose();
           setIsSuccess(true);
-          reloadOrders();
+          if (onDataUpdated) {
+            onDataUpdated(); // Call the callback function after successful update
+          }
+    
         })
         .catch((error) => {
           if (error.response && error.response.data) {
@@ -423,8 +427,8 @@ const ModalEdit = ({
       <Modal
         open={openEditModal}
         onClose={handleClose}
-        aria-labelledby="RescuseVehicleOwner-detail-modal"
-        aria-describedby="RescuseVehicleOwner-detail-modal-description"
+        aria-labelledby="Order-detail-modal"
+        aria-describedby="Order-detail-modal-description"
         closeAfterTransition
       >
         <Fade in={openEditModal}>
@@ -463,7 +467,7 @@ const ModalEdit = ({
               <Typography
                 variant="h2"
                 component="h4"
-                id="RescuseVehicleOwner-detail-modal"
+                id="Order-detail-modal"
                 sx={{
                   marginBottom: "16px",
                   textAlign: "center", // Căn giữa nội dung theo chiều ngang
@@ -473,7 +477,7 @@ const ModalEdit = ({
               >
                 {selectedEditOrder
                   ? "Thông tin điều phối nhân sự"
-                  : "RescuseVehicleOwner Detail"}
+                  : "Order Detail"}
               </Typography>
               <Grid container spacing={2}>
                 <Grid item xs={6}>

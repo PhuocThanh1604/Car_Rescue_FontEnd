@@ -111,7 +111,7 @@ const Dashboard = () => {
       {/* HEADER */}
       <Box display="flex" justifyContent="space-between" alignItems="center">
         <Header
-          title="Dasboard Của Hệ Thống Cứu Hộ Ô Tô"
+          title="Dashboard Của Hệ Thống Cứu Hộ Ô Tô"
           subtitle="Chào mừng bạn đến với Dasboard của hệ thống cứu hộ ô tô này"
         />
 
