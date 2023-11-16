@@ -63,25 +63,27 @@ const Orders = (props) => {
   const [selectedOrderFormattedAddress, setSelectedOrderFormattedAddress] =
     useState("");
 
-    //Reload data after assigning
-    const handleDataUpdated = () => {
-      reloadOrdersNew();
-    };
+  //Reload data after assigning
+  const handleDataUpdated = () => {
+    reloadOrdersNew();
+  };
 
-    const reloadOrdersNew = () => {
-      dispatch(fetchOrdersNew())
-        .then((response) => {
-          const data = response.payload.data;
-          if (data) {
-            setFilteredOrders(data);
-            // Đặt loading thành false sau khi tải lại dữ liệu
-            setLoading(false);
-          }
-        })
-        .catch((error) => {
-          console.error("Lỗi khi tải lại danh sách đơn hàng mới:", error);
-        });
-    };
+  const reloadOrdersNew = () => {
+    setLoading(true);
+    dispatch(fetchOrdersNew())
+      .then((response) => {
+        const data = response.payload.data;
+        if (data) {
+          setData(data);
+          setFilteredOrders(data);
+          // Đặt loading thành false sau khi tải lại dữ liệu
+          setLoading(false);
+        }
+      })
+      .catch((error) => {
+        console.error("Lỗi khi tải lại danh sách đơn hàng mới:", error);
+      });
+  };
   const handleSearchChange = (event) => {
     const value = event.target.value.toLowerCase();
     setSearchText(value);
@@ -130,11 +132,8 @@ const Orders = (props) => {
     }
   };
 
-
-
   useEffect(() => {
-    // Gọi hàm mới này thay vì gọi đệ quy
-    reloadOrdersNew();
+    reloadOrdersNew(); // Gọi hàm mới này thay vì gọi đệ quy
   }, [dispatch, location.pathname]);
 
   useEffect(() => {
@@ -174,6 +173,7 @@ const Orders = (props) => {
           setSelectedOrderFormattedAddress(formattedAddress);
           setOpenEditModal(true);
           setIsSuccess(true);
+          reloadOrdersNew();
         })
         .catch((error) => {
           console.error("Lỗi khi lấy thông tin đơn hàng mới:", error);
@@ -312,9 +312,11 @@ const Orders = (props) => {
       headerName: "Tên Khách Hàng",
       width: 140,
       renderCell: (params) => {
-        return fullnameData[params.value]
-          ? fullnameData[params.value]
-          : <CircularProgress size={20} />;
+        return fullnameData[params.value] ? (
+          fullnameData[params.value]
+        ) : (
+          <CircularProgress size={20} />
+        );
       },
     },
     // {
@@ -474,10 +476,10 @@ const Orders = (props) => {
                   Sửa Chữa Tại Chỗ
                 </MenuItem>
                 <MenuItem key="rescueType-fixing" value="Fixing">
-                 Lái Xe Về 
+                  Lái Xe Về
                 </MenuItem>
                 <MenuItem key="rescueType-fixing" value="Fixing">
-                 Chở Xe 
+                  Chở Xe
                 </MenuItem>
               </Select>
             </FormControl>
@@ -573,8 +575,6 @@ const Orders = (props) => {
             loading={loading}
           ></ModalDetail>
 
-
-       
           <ModalEdit
             openEditModal={openEditModal}
             setOpenEditModal={setOpenEditModal}
@@ -583,8 +583,6 @@ const Orders = (props) => {
             onDataUpdated={handleDataUpdated}
             // onClose={() => setOpenEditModal(false)}
             loading={loading}
-
-
           />
           <ToastContainer />
         </>
