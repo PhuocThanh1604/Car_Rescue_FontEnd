@@ -7,6 +7,9 @@ const saveToStorage = (key, data) => {
   // sessionStorage.setItem(key, jsonData); // Hoặc dùng Session Storage
 };
 
+const removeFromStorage = (key) => {
+  localStorage.removeItem(key);
+};
 // Hàm lấy dữ liệu từ storage
 const getFromStorage = (key) => {
   const jsonData = localStorage.getItem(key); // Dùng Local Storage
@@ -73,14 +76,10 @@ export const fetchVehicleWatting = createAsyncThunk(
 export const getVehicleId = createAsyncThunk(
   "vehicles/getVehicleId",
   async ({ id }) => {
+    const storageKey = "ordersNew";
 
-    const storageKey = "getVehicleId_" + id;;
-    const storedData = getFromStorage(storageKey);
-
-    if (storedData) {
-      return storedData;
-    }
     try {
+      removeFromStorage(storageKey);
       const response = await axios.get(
         `https://rescuecapstoneapi.azurewebsites.net/api/Vehicle/Get?id=${id}`
       );

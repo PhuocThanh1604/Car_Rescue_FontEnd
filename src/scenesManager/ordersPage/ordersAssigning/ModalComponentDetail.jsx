@@ -23,19 +23,22 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-
+import { styled } from "@mui/material/styles";
 import TimeToLeaveIcon from "@mui/icons-material/TimeToLeave";
 import { getCustomerId } from "../../../redux/customerSlice";
 import { useDispatch } from "react-redux";
 import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
-import WatchLaterRoundedIcon from "@mui/icons-material/WatchLaterRounded";
-import MarkChatUnreadRoundedIcon from "@mui/icons-material/MarkChatUnreadRounded";
+import TimerIcon from "@mui/icons-material/Timer";
+import CakeIcon from "@mui/icons-material/Cake";
+import MapIcon from '@mui/icons-material/Map';
 import { getTechnicianId } from "../../../redux/technicianSlice";
 import { getVehicleId } from "../../../redux/vehicleSlice";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import ReceiptRoundedIcon from "@mui/icons-material/ReceiptRounded";
 import { CategoryRounded } from "@mui/icons-material";
 import { getRescueVehicleOwnerId } from "../../../redux/rescueVehicleOwnerSlice";
+import AssignmentIcon from "@mui/icons-material/Assignment";
+import CreditScoreIcon from "@mui/icons-material/CreditScore";
 const MyModal = (props) => {
   const { openModal, setOpenModal, selectedEditOrder } = props;
   const dispatch = useDispatch();
@@ -152,8 +155,46 @@ const MyModal = (props) => {
     </Grid>
   );
 
-  // Styled Grid component
+  let formattedDateStart = "Chưa Bắt Đầu";
+  let formattedDateEnd = "Chưa Bắt Đầu";
+  if (
+    selectedEditOrder &&
+    selectedEditOrder.startTime &&
+    selectedEditOrder.endTime
+  ) {
+    const dateStart = new Date(selectedEditOrder.startTime);
+    const dateEnd = new Date(selectedEditOrder.startTime);
+    formattedDateStart = `${dateStart.getDate()}/${
+      dateStart.getMonth() + 1
+    }/${dateStart.getFullYear()} ${dateStart.getHours()}:${dateStart.getMinutes()}`;
+    formattedDateEnd = `${dateEnd.getDate()}/${
+      dateEnd.getMonth() + 1
+    }/${dateEnd.getFullYear()} ${dateEnd.getHours()}:${dateEnd.getMinutes()}`;
+  }
+  function formatDate(dateString) {
+    const date = new Date(dateString);
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0"); // +1 because months start at 0
+    const year = date.getFullYear();
 
+    return `${day}/${month}/${year}`; // Formats to dd/mm/yyyy
+  }
+
+  // Styled Grid component
+  const StyledGrid1 = styled(Grid)(({ theme }) => ({
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-start",
+    [theme.breakpoints.down("md")]: {
+      paddingTop: "0 !important",
+    },
+    "& .MuiCardContent-root": {
+      padding: theme.spacing(3, 4.75),
+      [theme.breakpoints.down("md")]: {
+        paddingTop: 0,
+      },
+    },
+  }));
   return (
     <Modal
       open={openModal}
@@ -202,93 +243,307 @@ const MyModal = (props) => {
 
             {selectedEditOrder  &&  (
               <Card>
-                <CardContent>
-                  <Typography variant="h6" sx={{ display: "none" }}>
-                    id: {selectedEditOrder.id}
-                  </Typography>
-
+                    <CardContent>
                   <Box
                     sx={{
-                      mr: 2,
                       display: "flex",
+                      flexWrap: "wrap",
                       alignItems: "center",
+                      justifyContent: "space-between",
                     }}
                   >
-                    <PersonRoundedIcon />
-                    <strong>Khách Hàng: </strong>{" "}
-                    <Typography
-                      variant="body1"
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        marginLeft: "10px",
-                      }}
-                    >
-                      {data.customer[selectedEditOrder.customerId]?.fullname ||
-                        "Không có thông tin"}
-                    </Typography>
-                    <Avatar
-                      alt="Avatar"
-                      src={
-                        data.customer[selectedEditOrder.customerId]?.avatar ||
-                        "URL mặc định của avatar"
-                      }
-                      sx={{
-                        width: 44,
-                        height: 44,
-                        marginLeft: 1.75,
-                      }}
-                    />
+                    <Grid container spacing={1} alignItems="stretch">
+                      <Grid item xs={5} alignItems="center">
+                        <Typography variant="h5" sx={{ marginBottom: 2 }}>
+                          Thông Tin Khách Hàng
+                        </Typography>
+
+                        <Typography
+                          variant="body1"
+                          component="p"
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            marginBottom: "8px", // Thêm khoảng cách dưới cùng của dòng
+                            fontSize: "1rem",
+                            marginRight: "2px",
+                          }}
+                        >
+                          <PersonRoundedIcon />
+                          <strong>Tên:</strong>
+                          <Typography
+                            variant="h6"
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              marginLeft: "10px",
+                            }}
+                          >
+                            {" "}
+                            {data.customer[selectedEditOrder.customerId]
+                              ?.fullname || "Không có thông tin"}
+                          </Typography>
+                        </Typography>
+
+                        <Typography
+                          variant="body1"
+                          component="p"
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            marginBottom: "8px", // Thêm khoảng cách dưới cùng của dòng
+                            fontSize: "1rem",
+                            marginRight: "2px",
+                          }}
+                        >
+                          <PeopleAltRoundedIcon />
+                          <strong>Giới Tính:</strong>
+                          <Typography
+                            variant="h6"
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              marginLeft: "10px",
+                            }}
+                          >
+                            {" "}
+                            {data.customer[selectedEditOrder.customerId]?.sex ||
+                              "Không có thông tin"}
+                          </Typography>
+                        </Typography>
+
+                        <Typography
+                          variant="body1"
+                          component="p"
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            marginBottom: "8px", // Thêm khoảng cách dưới cùng của dòng
+                            fontSize: "1rem",
+                            marginRight: "2px",
+                          }}
+                        >
+                          <PhoneRoundedIcon /> <strong>SĐT:</strong>
+                          <Typography
+                            variant="h6"
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              marginLeft: "10px",
+                            }}
+                          >
+                            {" "}
+                            {data.customer[selectedEditOrder.customerId]
+                              ?.phone || "Không có thông tin"}
+                          </Typography>
+                        </Typography>
+
+                        <Typography
+                          variant="body1"
+                          component="p"
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            marginBottom: "8px", // Thêm khoảng cách dưới cùng của dòng
+                            fontSize: "1rem",
+                            marginRight: "2px",
+                          }}
+                        >
+                          <PlaceIcon /> <strong>Địa chỉ:</strong>
+                          <Typography
+                            variant="h6"
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              marginLeft: "10px",
+                            }}
+                          >
+                            {" "}
+                            {data.customer[selectedEditOrder.customerId]
+                              ?.address || "Không có thông tin"}
+                          </Typography>
+                        </Typography>
+
+                        <Typography
+                          variant="body1"
+                          component="p"
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            marginBottom: "8px", // Thêm khoảng cách dưới cùng của dòng
+                            fontSize: "1rem",
+                          }}
+                        >
+                          <CakeIcon /> <strong>Ngày sinh: </strong>
+                          <Typography
+                            variant="h6"
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              marginLeft: "10px",
+                            }}
+                          >
+                            {data.customer[selectedEditOrder.customerId]
+                              ?.birthdate
+                              ? formatDate(
+                                  data.customer[selectedEditOrder.customerId]
+                                    .birthdate
+                                )
+                              : "Không có thông tin"}
+                          </Typography>
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={1}>
+                        <Divider
+                          orientation="vertical"
+                          sx={{ height: "100%" }}
+                        />
+                      </Grid>
+
+                      <Grid item xs={6}>
+                        <StyledGrid1>
+                          <Typography variant="h5" sx={{ marginBottom: 2 }}>
+                            Thông tin đơn hàng
+                          </Typography>
+                       
+                          <Typography
+                            variant="body1"
+                            component="p"
+                            sx={{
+                              marginBottom: "8px",
+                              fontSize: "1rem",
+                            }}
+                          >
+                            <TimerIcon />
+                            <strong>Thời gian bắt đầu: </strong>
+                            <Typography
+                              variant="h6"
+                              component="span"
+                              sx={{
+                                padding: "8px",
+                                borderRadius: "4px",
+                                marginLeft: "4px",
+                                wordWrap: "break-word",
+                                overflowWrap: "break-word",
+                                whiteSpace: "normal",
+                                flex: 1,
+                              }}
+                            >
+                              {formattedDateStart || "Đang cập nhật"}
+                            </Typography>
+                          </Typography>
+                          <Typography
+                            variant="body1"
+                            component="p"
+                            sx={{
+                              marginBottom: "8px",
+                              fontSize: "1rem",
+                            }}
+                          >
+                            <TimerIcon />
+                            <strong>Thời gian kết thúc: </strong>
+                            <Typography
+                              variant="h6"
+                              component="span"
+                              sx={{
+                                padding: "8px",
+                                borderRadius: "4px",
+                                marginLeft: "4px",
+                                wordWrap: "break-word",
+                                overflowWrap: "break-word",
+                                whiteSpace: "normal",
+                                flex: 1,
+                              }}
+                            >
+                              {formattedDateEnd || "Đang cập nhật"}
+                            </Typography>
+                          </Typography>
+
+                          <Typography
+                            variant="body1"
+                            component="p"
+                            sx={{
+                              marginBottom: "8px",
+                              fontSize: "1rem",
+                            }}
+                          >
+                            <MapIcon />
+                            <strong>Khu vực: </strong>
+                            <Typography
+                              variant="h6"
+                              component="span"
+                              sx={{
+                                padding: "8px",
+                                borderRadius: "4px",
+                                marginLeft: "4px",
+                                wordWrap: "break-word",
+                                overflowWrap: "break-word",
+                                whiteSpace: "normal",
+                                flex: 1,
+                              }}
+                            >
+                              {selectedEditOrder.area||"khu vực 1"}
+                            </Typography>
+                          </Typography>
+                          <Typography
+                            variant="body1"
+                            component="p"
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              marginBottom: "8px", // Thêm khoảng cách dưới cùng của dòng
+                              fontSize: "1rem",
+                              marginRight: "2px",
+                            }}
+                          >
+                            <AssignmentIcon />{" "}
+                            <strong>Dịch vụ đã sử dụng:</strong>
+                            <Typography
+                              variant="h6"
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                marginLeft: "10px",
+                              }}
+                            >
+                              {" "}
+                              {data.customer[selectedEditOrder.customerId]
+                                ?.address || "Không có thông tin"}
+                            </Typography>
+                          </Typography>
+
+                          <Typography
+                            variant="body1"
+                            component="p"
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              marginBottom: "8px", // Thêm khoảng cách dưới cùng của dòng
+                              fontSize: "1rem",
+                              marginRight: "2px",
+                            }}
+                          >
+                            <CreditScoreIcon />{" "}
+                            <strong>Tổng tiền đã thanh toán:</strong>
+                            <Typography
+                              variant="h6"
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                marginLeft: "10px",
+                              }}
+                            >
+                              {" "}
+                              {data.customer[selectedEditOrder.customerId]
+                                ?.address || "Không có thông tin"}
+                            </Typography>
+                          </Typography>
+
+                        
+                        </StyledGrid1>
+                      </Grid>
+                    </Grid>
                   </Box>
-
-                  <Typography
-                    variant="body1"
-                    component="p"
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      marginBottom: "8px", // Thêm khoảng cách dưới cùng của dòng
-                      fontSize: "1rem",
-                      marginRight: "2px",
-                    }}
-                  >
-                    <MarkChatUnreadRoundedIcon /> <strong>Ghi chú: </strong>
-                    <Typography
-                      variant="h5"
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        marginLeft: "10px",
-                      }}
-                    >
-                      {" "}
-                      {selectedEditOrder.customerNote}
-                    </Typography>
-                  </Typography>
-
-                  <Typography
-                    variant="body1"
-                    component="p"
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      marginBottom: "8px", // Thêm khoảng cách dưới cùng của dòng
-                      fontSize: "1rem",
-                    }}
-                  >
-                    <WatchLaterRoundedIcon /> <strong>Ngày tạo: </strong>
-                    <Typography
-                      variant="h5"
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        marginLeft: "10px",
-                      }}
-                    >
-                      {formattedDate}
-                    </Typography>
-                  </Typography>
-
                 </CardContent>
 
                 <CardActions className="card-action-dense">

@@ -9,7 +9,6 @@ import Invoices from "../../scenesManager/invoices";
 import FAQ from '../../scenesManager/faq';
 import Products from "../../scenesManager/products";
 import Orders from "../../scenesManager/ordersPage/ordersNew";
-import Orders2 from "../../scenesManager/ordersPage/ordersNew2";
 import { Routes, Route } from "react-router-dom";
 import Dashboard from "../../scenesManager/dashboard";
 import { useSelector } from "react-redux";
@@ -85,7 +84,6 @@ const Manager = () => {
             
                 <Route path="/manager/faq" element={<FAQ />} />
                 <Route path="/manager/orders" element={<Orders />} />
-                <Route path="/manager/orders2" element={<Orders2 />} />
                 <Route
                   path="/manager/ordersAssigned"
                   element={<OrdersAssigned />}

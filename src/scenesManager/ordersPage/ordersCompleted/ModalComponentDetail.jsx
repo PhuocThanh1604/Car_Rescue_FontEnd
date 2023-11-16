@@ -24,7 +24,7 @@ import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import PlaceIcon from "@mui/icons-material/Place";
 import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
-import WatchLaterRoundedIcon from "@mui/icons-material/WatchLaterRounded";
+import PaymentIcon from "@mui/icons-material/Payment";
 import PeopleAltRoundedIcon from "@mui/icons-material/PeopleAltRounded";
 import PhoneRoundedIcon from "@mui/icons-material/PhoneRounded";
 import MapRoundedIcon from "@mui/icons-material/MapRounded";
@@ -38,7 +38,7 @@ import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import TimeToLeaveIcon from "@mui/icons-material/TimeToLeave";
 import { CategoryRounded } from "@mui/icons-material";
 import ReceiptRoundedIcon from "@mui/icons-material/ReceiptRounded";
-import { getFeedbackOfOrderId } from "../../../redux/orderSlice";
+import { getFeedbackOfOrderId, getPaymentId } from "../../../redux/orderSlice";
 import CreditScoreIcon from "@mui/icons-material/CreditScore";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import TimerIcon from "@mui/icons-material/Timer";
@@ -54,6 +54,8 @@ const MyModal = (props) => {
     technician: {},
     vehicle: {},
   });
+  const [edit, setEdit] = useState({});
+  const [dataOrder, setDataOrder] = useState({});
   const [dataRescueVehicleOwner, setDataRescueVehicleOwner] = useState({});
   const [dataFeedBack, setDataFeedBack] = useState({});
   const [rescueVehicleOwnerId, setRescueVehicleOwnerId] = useState({});
@@ -74,6 +76,7 @@ const MyModal = (props) => {
       if (orderId) {
         setOrderId(orderId);
         fetchFeedBackOfOrder(orderId);
+        fetchOrder(orderId);
       }
     }
   }, [selectedEditOrder, data.vehicle]);
@@ -89,6 +92,29 @@ const MyModal = (props) => {
             setDataRescueVehicleOwner((prevData) => ({
               ...prevData,
               [vehicleRvoidId]: data,
+            }));
+          } else {
+            console.error("Service name not found in the API response.");
+          }
+        })
+        .catch((error) => {
+          console.error("Error while fetching service data:", error);
+        });
+    }
+  };
+
+  const fetchOrder = (orderId) => {
+    console.log(orderId);
+    // Make sure you have a check to prevent unnecessary API calls
+    if (orderId) {
+      dispatch(getPaymentId({ id: orderId }))
+        .then((response) => {
+          const data = response.payload.data;
+          console.log(data);
+          if (data) {
+            setDataOrder((prevData) => ({
+              ...prevData,
+              [orderId]: data,
             }));
           } else {
             console.error("Service name not found in the API response.");
@@ -571,6 +597,29 @@ const MyModal = (props) => {
                               marginRight: "2px",
                             }}
                           >
+                            <PaymentIcon /> <strong>Phương Thức Thanh toán:</strong>{" "}
+                            <Typography
+                              variant="h5"
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                marginLeft: "10px",
+                              }}
+                            >
+                              {dataOrder[edit.id]?.method || "Đang tải..."}
+                            </Typography>
+                          </Typography>
+                          <Typography
+                            variant="body1"
+                            component="p"
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              marginBottom: "8px", // Thêm khoảng cách dưới cùng của dòng
+                              fontSize: "1rem",
+                              marginRight: "2px",
+                            }}
+                          >
                             <CreditScoreIcon />{" "}
                             <strong>Tổng tiền đã thanh toán:</strong>
                             <Typography
@@ -618,6 +667,8 @@ const MyModal = (props) => {
                     </Grid>
                   </Box>
                 </CardContent>
+
+
                 <CardActions className="card-action-dense">
                   <Box
                     sx={{

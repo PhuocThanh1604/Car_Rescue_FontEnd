@@ -8,6 +8,7 @@ import {
   MenuItem,
   IconButton,
   FormControl,
+  Grid,
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { tokens } from "../../../theme";
@@ -33,6 +34,7 @@ import SupportIcon from "@mui/icons-material/Support";
 import HandymanIcon from "@mui/icons-material/Handyman";
 import AddchartIcon from '@mui/icons-material/Addchart';
 import { useLocation } from "react-router-dom";
+import InfoIcon from "@mui/icons-material/Info";
 const OrdersInprogress = (props) => {
   const dispatch = useDispatch();
   const location = useLocation();
@@ -134,7 +136,19 @@ const OrdersInprogress = (props) => {
         console.error("Lỗi khi lấy thông tin đơn hàng đang thực hiện:", error);
       });
   };
-
+  const handleDetailClickDetail = (orderId) => {
+    console.log(orderId);
+    // Fetch the rescueVehicleOwnerId details based on the selected rescueVehicleOwnerId ID
+    dispatch(getOrderDetailId({ id: orderId }))
+      .then((response) => {
+        const orderDetails = response.payload.data;
+        setSelectedEditOrder(orderDetails);
+        setOpenModal(true);
+      })
+      .catch((error) => {
+        console.error("Lỗi khi lấy thông tin đơn hàng mới:", error);
+      });
+  };
 
 
   const reloadOdersInprogress = () => {
@@ -171,6 +185,7 @@ const OrdersInprogress = (props) => {
         console.error("Lỗi khi tìm nạp dữ liệu khách hàng:", error);
       });
   };
+
 
   // Use an effect to fetch the fullname when the component mounts or customerId changes
   useEffect(() => {
@@ -313,6 +328,23 @@ const OrdersInprogress = (props) => {
       ),
       key: "update",
     },
+    {
+      field: "orderDetails",
+      headerName: "Chi Tiết Đơn Hàng",
+      width: 120,
+      renderCell: (params) => (
+        <Grid container justifyContent="center" alignItems="center">
+          <IconButton
+            color="indigo"
+            onClick={() => handleDetailClickDetail(params.row.id)}
+            aria-label="Chi Tiết Đơn Hàng"
+          >
+            <InfoIcon />
+          </IconButton>
+        </Grid>
+      ),
+      key: "bookDetail",
+    },
   ];
 
   return (
@@ -452,7 +484,7 @@ const OrdersInprogress = (props) => {
         openModal={openModal}
         setOpenModal={setOpenModal}
         onClose={() => setOpenModal(false)}
-        selectedBook={selectedBook}
+        selectedEditOrder={selectedEditOrder}
         loading={loading}
       ></ModalDetail>
 

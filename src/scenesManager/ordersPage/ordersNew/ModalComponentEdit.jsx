@@ -47,11 +47,11 @@ const ModalEdit = ({
   setOpenEditModal,
   selectedEditOrder,
   formattedAddress,
-  onDataUpdated
+  onDataUpdated,
 }) => {
   const dispatch = useDispatch();
   const orders = useSelector((state) => state.order.orders);
-  
+
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [edit, setEdit] = useState({});
@@ -61,9 +61,6 @@ const ModalEdit = ({
   const [fullnameValue, setFullnameValue] = useState("");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [filtereRescueVehicleOwners, setFilteredRescueVehicleOwners] = useState(
-    []
-  );
   const [filteredOrders, setFilteredOrders] = useState([]);
   const [serverError, setServerError] = useState(null);
   const [selectedVehicle, setSelectedVehicel] = useState(null);
@@ -156,7 +153,6 @@ const ModalEdit = ({
   //     setTechnicianDetails(null);
   //   }
   // }, [selectedTechnician, technicianData]);
-
   useEffect(() => {
     if (selectedVehicle) {
       const selectedVehicleId = selectedVehicle.id;
@@ -233,7 +229,6 @@ const ModalEdit = ({
     fetchData();
   }, [dispatch]);
 
- 
   useEffect(() => {
     if (selectedEditOrder && Array.isArray(orders) && selectedEditOrder.id) {
       const OrderToEdit = orders.find(
@@ -254,6 +249,11 @@ const ModalEdit = ({
     }
   }, [selectedEditOrder, orders, edit.id, paymentId]);
 
+  useEffect(() => {
+    if (orders) {
+      setFilteredOrders(orders); // Update the local state when the Redux state changes
+    }
+  }, [orders]);
   const handleSaveClick = () => {
     if (!selectedEditOrder || !data) {
       toast.error("Không có thông tin khách hàng để cập nhật.");
@@ -320,27 +320,29 @@ const ModalEdit = ({
         });
     }
   };
-  const reloadOrderNew = () => {
-    dispatch(fetchOrdersNew())
-      .then((response) => {
-        const data = response.payload.data;
-        console.log(data);
-        if (data) {
-          setFilteredOrders(data);
-          // Đặt loading thành false sau khi tải lại dữ liệu
-          setLoading(false);
-        }
-      })
-      .catch((error) => {
-        console.error("Lỗi khi tải lại danh sách đơn hàng:", error);
-      });
-  };
 
   const handleClose = () => {
     setOpenEditModal(false);
     if (isSuccess) {
       console.log("success" + isSuccess);
-      reloadOrderNew(); // Reload orders when the modal is closed after a successful update
+      dispatch(fetchOrdersNew())
+        .then((response) => {
+          const data = response.payload.data;
+          console.log(data);
+          if (data) {
+            setLoading(false);
+            setTechnicianData(null);
+            setFilteredTechnicianData(null);
+            setSelectedVehicel(null);
+            setVehicleId(null);
+            setFilteredOrders(data);
+
+            // Đặt loading thành false sau khi tải lại dữ liệu
+          }
+        })
+        .catch((error) => {
+          console.error("Lỗi khi tải lại danh sách đơn hàng:", error);
+        });
     }
   };
 
@@ -615,11 +617,8 @@ const ModalEdit = ({
                             >
                               {formattedDate}
                             </Typography>
-
-
                           </Typography>
 
-                          
                           <Typography
                             variant="body1"
                             component="p"
@@ -718,8 +717,6 @@ const ModalEdit = ({
                               {edit.customerNote}
                             </Typography>
                           </Typography>
-
-
 
                           <Typography
                             variant="body1"
@@ -1024,11 +1021,10 @@ const ModalEdit = ({
                                   </Box>
                                 </Box>
 
-                        
                                 <Box sx={{ flex: 1, marginTop: "10px" }}>
                                   {vehicleDetails.image ? (
                                     <img
-                                    src={vehicleDetails.image}
+                                      src={vehicleDetails.image}
                                       alt="Hình Ảnh Của Xe"
                                       style={{
                                         width: "100%",
@@ -1050,12 +1046,7 @@ const ModalEdit = ({
                                     />
                                   )}
                                 </Box>
-
-
-                                
                               </Box>
-
-                          
                             </div>
                           )}
                         </div>

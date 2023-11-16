@@ -9,6 +9,7 @@ import {
   IconButton,
   FormControl,
   Button,
+  Grid,
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { tokens } from "../../../theme";
@@ -23,7 +24,7 @@ import "react-toastify/dist/ReactToastify.css";
 import SearchIcon from "@mui/icons-material/Search";
 import InputBase from "@mui/material/InputBase";
 import moment from "moment";
-
+import InfoIcon from "@mui/icons-material/Info";
 import { fetchOrdersAssigned, getOrderId } from "../../../redux/orderSlice";
 import { getCustomerIdFullName } from "../../../redux/customerSlice";
 import CreditScoreIcon from "@mui/icons-material/CreditScore";
@@ -180,7 +181,19 @@ const OrdersAssigned = (props) => {
         console.error("Lỗi khi tìm nạp dữ liệu khách hàng:", error);
       });
   };
-
+  const handleDetailClickDetail = (orderId) => {
+    console.log(orderId);
+    // Fetch the rescueVehicleOwnerId details based on the selected rescueVehicleOwnerId ID
+    dispatch(getOrderId({ id: orderId }))
+      .then((response) => {
+        const orderDetails = response.payload.data;
+        setSelectedEditOrder(orderDetails);
+        setOpenModal(true);
+      })
+      .catch((error) => {
+        console.error("Lỗi khi lấy thông tin đơn hàng mới:", error);
+      });
+  };
   // Use an effect to fetch the fullname when the component mounts or customerId changes
   useEffect(() => {
     // Assuming you have an array of data, iterate through it and fetch fullnames
@@ -322,6 +335,23 @@ const OrdersAssigned = (props) => {
       ),
       key: "update",
     },
+    {
+      field: "orderDetails",
+      headerName: "Chi Tiết Đơn Hàng",
+      width: 120,
+      renderCell: (params) => (
+        <Grid container justifyContent="center" alignItems="center">
+          <IconButton
+            color="indigo"
+            onClick={() => handleDetailClickDetail(params.row.id)}
+            aria-label="Chi Tiết Đơn Hàng"
+          >
+            <InfoIcon />
+          </IconButton>
+        </Grid>
+      ),
+      key: "bookDetail",
+    },
  
   ];
 
@@ -459,7 +489,7 @@ const OrdersAssigned = (props) => {
         openModal={openModal}
         setOpenModal={setOpenModal}
         onClose={() => setOpenModal(false)}
-        selectedBook={selectedBook}
+        selectedEditOrder={selectedEditOrder}
         loading={loading}
       ></ModalDetail>
 

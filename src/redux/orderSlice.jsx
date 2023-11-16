@@ -10,7 +10,9 @@ const saveToStorage = (key, data) => {
   localStorage.setItem(key, jsonData); // Dùng Local Storage
   // sessionStorage.setItem(key, jsonData); // Hoặc dùng Session Storage
 };
-
+const removeFromStorage = (key) => {
+  localStorage.removeItem(key);
+};
 // Hàm lấy dữ liệu từ storage
 const getFromStorage = (key) => {
   const jsonData = localStorage.getItem(key); // Dùng Local Storage
@@ -35,17 +37,15 @@ export const fetchOrders = createAsyncThunk("orders/fetchOrders", async () => {
     throw response.status || response.message;
   }
 });
+
 export const fetchOrdersNew = createAsyncThunk(
   "orders/fetchOrdersNew",
   async () => {
     const storageKey = "ordersNew";
-    const storedData = getFromStorage(storageKey);
-
-    if (storedData) {
-      return storedData;
-    }
-
     try {
+      // Xóa dữ liệu cũ trong localStorage trước khi gửi yêu cầu lên server
+      removeFromStorage(storageKey);
+
       const response = await axios.get(
         "https://rescuecapstoneapi.azurewebsites.net/api/Order/GetAllOrderNew"
       );
@@ -62,15 +62,19 @@ export const fetchOrdersNew = createAsyncThunk(
     }
   }
 );
-
 export const fetchOrdersCompleted = createAsyncThunk(
   "orders/fetchOrdersCompleted",
+ 
   async () => {
+    const storageKey = "ordersCompleted";
     try {
+      removeFromStorage(storageKey);
+
       const response = await axios.get(
         "https://rescuecapstoneapi.azurewebsites.net/api/Order/GetAllOrderCompleted"
       );
       const data = response.data;
+      saveToStorage(storageKey, data);
       console.log(response.data);
       return data;
     } catch (response) {
