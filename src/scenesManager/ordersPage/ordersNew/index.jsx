@@ -69,7 +69,7 @@ const Orders = (props) => {
   };
 
   const reloadOrdersNew = () => {
-    setLoading(true);
+    // setLoading(true);
     dispatch(fetchOrdersNew())
       .then((response) => {
         const data = response.payload.data;
@@ -180,7 +180,7 @@ const Orders = (props) => {
           setSelectedOrderFormattedAddress(formattedAddress);
           setOpenEditModal(true);
           setIsSuccess(true);
-          reloadOrdersNew();
+          // reloadOrdersNew();
         })
         .catch((error) => {
           console.error("Lỗi khi lấy thông tin đơn hàng mới:", error);
@@ -591,6 +591,8 @@ const Orders = (props) => {
             // onClose={() => setOpenEditModal(false)}
             loading={loading}
           />
+
+          
           <ToastContainer />
         </>
       )}

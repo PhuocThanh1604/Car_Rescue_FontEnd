@@ -64,6 +64,7 @@ const ModalEdit = ({
   const [filtereRescueVehicleOwners, setFilteredRescueVehicleOwners] = useState(
     []
   );
+  const [filteredOrders, setFilteredOrders] = useState([]);
   const [serverError, setServerError] = useState(null);
   const [selectedVehicle, setSelectedVehicel] = useState(null);
   const [vehicleId, setVehicleId] = useState(null);
@@ -319,10 +320,28 @@ const ModalEdit = ({
         });
     }
   };
+  const reloadOrderNew = () => {
+    dispatch(fetchOrdersNew())
+      .then((response) => {
+        const data = response.payload.data;
+        console.log(data);
+        if (data) {
+          setFilteredOrders(data);
+          // Đặt loading thành false sau khi tải lại dữ liệu
+          setLoading(false);
+        }
+      })
+      .catch((error) => {
+        console.error("Lỗi khi tải lại danh sách đơn hàng:", error);
+      });
+  };
 
   const handleClose = () => {
     setOpenEditModal(false);
-    setEdit("");
+    if (isSuccess) {
+      console.log("success" + isSuccess);
+      reloadOrderNew(); // Reload orders when the modal is closed after a successful update
+    }
   };
 
   // Function to reset Fixing state variables

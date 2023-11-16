@@ -52,6 +52,8 @@ const OrdersAssigning = (props) => {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]);
   const [fullnameData, setFullnameData] = useState({});
+
+  
   const handleDataUpdated = () => {
     reloadOrdersAssigning();
   };
