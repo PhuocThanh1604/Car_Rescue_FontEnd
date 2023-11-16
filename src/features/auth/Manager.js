@@ -7,17 +7,13 @@ import Sidebar from "../../scenesManager/geographyManager/global/Sidebar";
 import Contacts from "../../scenesManager/contacts";
 import Invoices from "../../scenesManager/invoices";
 import FAQ from '../../scenesManager/faq';
-// import Bar from './scenes/bar';
-// import Pie from './scenes/Pie';
-// import Line from './scenes/line';
-// import Geography from './scenes/geography';
 import Products from "../../scenesManager/products";
 import Orders from "../../scenesManager/ordersPage/ordersNew";
+import Orders2 from "../../scenesManager/ordersPage/ordersNew2";
 import { Routes, Route } from "react-router-dom";
 import Dashboard from "../../scenesManager/dashboard";
 import { useSelector } from "react-redux";
 import { selectCurrentToken, selectCurrentUser } from "./authSlice";
-import { Link } from "react-router-dom";
 import Customers from "../../scenes/customer";
 import Technicians from "../../scenes/technician";
 import RescueVehicleOwners from "../../scenes/rescueVehicleOwner";
@@ -31,7 +27,6 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Services from "../../scenesManager/servicePage";
 import UpdateProfileManager from "../../scenesManager/updateProfile";
-// import Vehicles from "../../scenesManager/vehicle";
 import OrdersCompleted from "../../scenesManager/ordersPage/ordersCompleted";
 import OrdersAssigned from "../../scenesManager/ordersPage/ordersAssigned";
 import OrdersInprogress from "../../scenesManager/ordersPage/ordersInprogress";
@@ -90,6 +85,7 @@ const Manager = () => {
             
                 <Route path="/manager/faq" element={<FAQ />} />
                 <Route path="/manager/orders" element={<Orders />} />
+                <Route path="/manager/orders2" element={<Orders2 />} />
                 <Route
                   path="/manager/ordersAssigned"
                   element={<OrdersAssigned />}

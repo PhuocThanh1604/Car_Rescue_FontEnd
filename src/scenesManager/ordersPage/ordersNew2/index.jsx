@@ -8,39 +8,37 @@ import {
   MenuItem,
   IconButton,
   FormControl,
-  CircularProgress,
+  Grid,
+  CircularProgress
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { tokens } from "../../../theme";
 import Header from "../../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
+import { Edit } from "@mui/icons-material";
 import ModalDetail from "./ModalComponentDetail";
 import ModalEdit from "./ModalComponentEdit";
 import CustomTablePagination from "./TablePagination";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import SearchIcon from "@mui/icons-material/Search";
 import InputBase from "@mui/material/InputBase";
 import moment from "moment";
-
-import {
-  fetchOrdersNew,
-  getFormattedAddressGG,
-  getFormattedAddressMapbox,
-  getOrderId,
-} from "../../../redux/orderSlice";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import {  getFormattedAddressGG, fetchOrdersNew, getOrderId } from "../../../redux/orderSlice";
 import { getCustomerIdFullName } from "../../../redux/customerSlice";
 import CreditScoreIcon from "@mui/icons-material/CreditScore";
 import AddCardIcon from "@mui/icons-material/AddCard";
 import RepeatOnIcon from "@mui/icons-material/RepeatOn";
+import BuildIcon from "@mui/icons-material/Build";
 import SupportIcon from "@mui/icons-material/Support";
 import HandymanIcon from "@mui/icons-material/Handyman";
-import AssignmentLateIcon from "@mui/icons-material/AssignmentLate";
+import InfoIcon from "@mui/icons-material/Info";
 import { useLocation } from "react-router-dom";
-const Orders = (props) => {
+import AssignmentLateIcon from "@mui/icons-material/AssignmentLate";
+const OrdersAssigning = (props) => {
   const dispatch = useDispatch();
-  const orders = useSelector((state) => state.order.orders);
   const location = useLocation();
+  const orders = useSelector((state) => state.order.orders);
   const [openEditModal, setOpenEditModal] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [filterOption, setFilterOption] = useState("rescueType");
@@ -55,33 +53,40 @@ const Orders = (props) => {
   const [endDate, setEndDate] = useState(null);
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]);
+  const handleDataUpdated = () => {
+    reloadOrdersAssigning();
+  };
   const [fullnameData, setFullnameData] = useState({});
   const [formattedAddresses, setFormattedAddresses] = useState({});
-  const [orderId, setOrderId] = useState(null);
-  const [openConfirmModal, setOpenConfirmModal] = useState(false);
-  const [rescueVehicles, setRescueVehicles] = useState([]); // Tạo một state mới cho danh sách xe cứu hộ
   const [selectedOrderFormattedAddress, setSelectedOrderFormattedAddress] =
-    useState("");
-
-  //Reload data after assigning
-  const handleDataUpdated = () => {
-    reloadOrdersNew();
-  };
-
-  const reloadOrdersNew = () => {
-    setLoading(true);
+  useState("");
+  const [rescueVehicles, setRescueVehicles] = useState([])
+  const reloadOrdersAssigning = () => {
     dispatch(fetchOrdersNew())
       .then((response) => {
         const data = response.payload.data;
         if (data) {
-          setData(data);
           setFilteredOrders(data);
           // Đặt loading thành false sau khi tải lại dữ liệu
           setLoading(false);
         }
       })
       .catch((error) => {
-        console.error("Lỗi khi tải lại danh sách đơn hàng mới:", error);
+        console.error("Lỗi khi tải lại danh sách đơn hàng:", error);
+      });
+  };
+
+  const handleDetailClickDetail = (orderId) => {
+    console.log(orderId);
+    // Fetch the rescueVehicleOwnerId details based on the selected rescueVehicleOwnerId ID
+    dispatch(getOrderId({ id: orderId }))
+      .then((response) => {
+        const orderDetails = response.payload.data;
+        setSelectedEditOrder(orderDetails);
+        setOpenModal(true);
+      })
+      .catch((error) => {
+        console.error("Lỗi khi lấy thông tin đơn hàng mới:", error);
       });
   };
   const handleSearchChange = (event) => {
@@ -102,6 +107,7 @@ const Orders = (props) => {
 
     setFilteredOrders(filteredOrders);
   };
+
   const handleFilterChange = (event) => {
     const selectedStatusOption = event.target.value;
     setFilterOption(selectedStatusOption);
@@ -126,13 +132,13 @@ const Orders = (props) => {
   
   const handleDateFilterChange = () => {
     if (startDate && endDate) {
-      const filteredOrders = orders.filter((user) => {
-        const orderDate = moment(orders.createdAt).format("YYYY-MM-DD");
+      const filteredrescueVehicleOwners = orders.filter((user) => {
+        const orderDate = moment(user.createAt).format("YYYY-MM-DD");
         const isAfterStartDate = moment(orderDate).isSameOrAfter(startDate);
         const isBeforeEndDate = moment(orderDate).isSameOrBefore(endDate);
         return isAfterStartDate && isBeforeEndDate;
       });
-      setFilteredOrders(filteredOrders);
+      setFilteredOrders(filteredrescueVehicleOwners);
       setFilterOption("Date");
     } else {
       setFilteredOrders(orders);
@@ -140,18 +146,21 @@ const Orders = (props) => {
   };
 
   useEffect(() => {
-    reloadOrdersNew(); // Gọi hàm mới này thay vì gọi đệ quy
+    setLoading(true);
+    dispatch(fetchOrdersNew())
+      .then((response) => {
+        // Đã lấy dữ liệu thành công
+        const data = response.payload.data;
+        if (data) {
+          setData(data);
+          setFilteredOrders(data);
+          setLoading(false); // Đặt trạng thái loading thành false sau khi xử lý dữ liệu
+        }
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, [dispatch, location.pathname]);
-
-  useEffect(() => {
-    setLoading(true); // Bắt đầu với trạng thái loading
-
-    const timer = setTimeout(() => {
-      setLoading(false); // Kết thúc trạng thái loading sau một khoảng thời gian
-    }, 3000); // Thời gian loading là 3000ms (3 giây)
-
-    return () => clearTimeout(timer); // Dọn dẹp khi component unmount
-  }, []);
 
   const handleAssignClick = (orderId) => {
     console.log(orderId);
@@ -180,21 +189,13 @@ const Orders = (props) => {
           setSelectedOrderFormattedAddress(formattedAddress);
           setOpenEditModal(true);
           setIsSuccess(true);
-          reloadOrdersNew();
+          // reloadOrdersNew();
         })
         .catch((error) => {
           console.error("Lỗi khi lấy thông tin đơn hàng mới:", error);
         });
     }
   };
-
-  useEffect(() => {
-    if (!data || data.length === 0) {
-      fetchOrdersNew();
-    }
-  }, [data]); // Chỉ gọi API nếu 'data' rỗng hoặc chưa được tải
-
-  // ...
 
   useEffect(() => {
     const uniqueCustomerIds = [...new Set(data.map((row) => row.customerId))];
@@ -212,89 +213,98 @@ const Orders = (props) => {
       await Promise.all(fetchPromises);
     };
 
-    // const debouncedFetchAddresses = debounce(async (departures) => {
-    //   const uniqueDeparturesToFetch = departures.filter(
-    //     (departure) => !formattedAddresses[departure]
-    //   );
+    const debouncedFetchAddresses = debounce(async (departures) => {
+      const uniqueDeparturesToFetch = departures.filter(
+        (departure) => !formattedAddresses[departure]
+      );
 
-    //   const fetchPromises = uniqueDeparturesToFetch.map((departure) => {
-    //     const order = data.find((order) => order.departure === departure);
-    //     return fetchAddress(order);
-    //   });
+      const fetchPromises = uniqueDeparturesToFetch.map((departure) => {
+        const order = data.find((order) => order.departure === departure);
+        return fetchAddress(order);
+      });
 
-    //   await Promise.all(fetchPromises);
-    // }, 500);
+      await Promise.all(fetchPromises);
+    }, 500);
 
     fetchFullNames(uniqueCustomerIds);
     // debouncedFetchAddresses(uniqueDepartures);
   }, [data, formattedAddresses, fullnameData]);
-  // function debounce(func, wait) {
-  //   let timeout;
-  //   return function () {
-  //     const context = this;
-  //     const args = arguments;
-  //     const later = function () {
-  //       timeout = null;
-  //       func.apply(context, args);
-  //     };
-  //     clearTimeout(timeout);
-  //     timeout = setTimeout(later, wait);
-  //   };
-  // }
-  // const fetchAddress = async (order) => {
-  //   if (!order || formattedAddresses[order.departure]) {
-  //     return; // Trả về nếu order không tồn tại hoặc địa chỉ đã được lưu trữ
-  //   }
-
-  //   const departure = order.departure;
-  //   const matches = /lat:\s*([^,]+),\s*long:\s*([^,]+)/.exec(departure);
-
-  //   if (matches && matches.length === 3) {
-  //     const [, lat, lng] = matches;
-
-  //     if (!isNaN(lat) && !isNaN(lng)) {
-  //       try {
-  //         const response = await dispatch(getFormattedAddressGG({ lat, lng }));
-  //         const formattedAddress =
-  //           response.payload.results[0].formatted_address;
-  //         setFormattedAddresses((prevAddresses) => ({
-  //           ...prevAddresses,
-  //           [departure]: formattedAddress,
-  //         }));
-  //         setSelectedOrderFormattedAddress(formattedAddress);
-  //       } catch (error) {
-  //         console.error(
-  //           "Error fetching address:",
-  //           error.response ? error.response : error
-  //         );
-  //       } finally {
-  //         setLoading(false); // Đảm bảo loading được đặt lại thành false dù có lỗi
-  //       }
-  //     }
-  //   }
-  // };
-
-  const fetchFullname = (customerId) => {
-    if (!fullnameData[customerId]) {
-      dispatch(getCustomerIdFullName({ id: customerId }))
-        .then((response) => {
-          const data = response.payload.data;
-          if (data && data.fullname) {
-            // Update the state with the fetched fullname
-            setFullnameData((prevData) => ({
-              ...prevData,
-              [customerId]: data.fullname,
-            }));
-          } else {
-            console.error("Fullname not found in the API response.");
-          }
-        })
-        .catch((error) => {
-          console.error("Error while fetching customer data:", error);
-        });
+  function debounce(func, wait) {
+    let timeout;
+    return function () {
+      const context = this;
+      const args = arguments;
+      const later = function () {
+        timeout = null;
+        func.apply(context, args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
+  }
+  const fetchAddress = async (order) => {
+    if (!order || formattedAddresses[order.departure]) {
+      return; // Trả về nếu order không tồn tại hoặc địa chỉ đã được lưu trữ
     }
-    // You can use your existing code to fetch the fullname
+
+    const departure = order.departure;
+    const matches = /lat:\s*([^,]+),\s*long:\s*([^,]+)/.exec(departure);
+
+    if (matches && matches.length === 3) {
+      const [, lat, lng] = matches;
+
+      if (!isNaN(lat) && !isNaN(lng)) {
+        try {
+          const response = await dispatch(getFormattedAddressGG({ lat, lng }));
+          const formattedAddress =
+            response.payload.results[0].formatted_address;
+          setFormattedAddresses((prevAddresses) => ({
+            ...prevAddresses,
+            [departure]: formattedAddress,
+          }));
+          setSelectedOrderFormattedAddress(formattedAddress);
+        } catch (error) {
+          console.error(
+            "Error fetching address:",
+            error.response ? error.response : error
+          );
+        } finally {
+          setLoading(false); // Đảm bảo loading được đặt lại thành false dù có lỗi
+        }
+      }
+    }
   };
+  const fetchFullname = (customerId) => {
+    // You can use your existing code to fetch the fullname
+    dispatch(getCustomerIdFullName({ id: customerId }))
+      .then((response) => {
+        const data = response.payload.data;
+        if (data && data.fullname) {
+          // Update the state with the fetched fullname
+          setFullnameData((prevData) => ({
+            ...prevData,
+            [customerId]: data.fullname,
+          }));
+        } else {
+          console.error("Fullname not found in the API response.");
+        }
+      })
+      .catch((error) => {
+        console.error("Error while fetching customer data:", error);
+      });
+  };
+
+  // Use an effect to fetch the fullname when the component mounts or customerId changes
+  // useEffect(() => {
+  //   // Assuming you have an array of data, iterate through it and fetch fullnames
+  //   data.forEach((row) => {
+  //     const customerId = row.customerId;
+  //     // Check if you have already fetched the fullname to avoid duplicate requests
+  //     if (!fullnameData[customerId]) {
+  //       fetchFullname(customerId);
+  //     }
+  //   });
+  // }, [data, fullnameData]);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -317,16 +327,14 @@ const Orders = (props) => {
     {
       field: "customerId",
       headerName: "Tên Khách Hàng",
-      width: 140,
-      renderCell: (params) => {
-        return fullnameData[params.value] ? (
-          fullnameData[params.value]
-        ) : (
-          <CircularProgress size={20} />
-        );
+      width: 100,
+      valueGetter: (params) => {
+        // Get the fullname from the state based on customerId
+        return fullnameData[params.value] || "";
       },
     },
-    // {
+
+    //    {
     //   field: "departure",
     //   headerName: "Địa Chỉ",
     //   width: 240,
@@ -370,10 +378,10 @@ const Orders = (props) => {
             borderRadius={8} // Corrected prop name from "buserRadius" to "borderRadius"
             backgroundColor={
               rescueType === "Fixing"
-                ? colors.yellowAccent[400]
-                : colors.grey[800]
-                ? colors.redAccent[600]
-                : rescueType === "Towing"
+              ? colors.yellowAccent[400]
+              : colors.grey[800]
+              ? colors.redAccent[600]
+              : rescueType === "Towing"
             }
           >
             {rescueType === "Towing" && <SupportIcon />}
@@ -386,6 +394,7 @@ const Orders = (props) => {
       },
     },
     { field: "area", headerName: "khu vực", width: 60, key: "area" },
+
     {
       field: "status",
       headerName: "Trạng Thái",
@@ -421,6 +430,7 @@ const Orders = (props) => {
         );
       },
     },
+
     {
       field: "update",
       headerName: "Diều Phối",
@@ -437,165 +447,170 @@ const Orders = (props) => {
       ),
       key: "update",
     },
+    
+    {
+      field: "orderDetails",
+      headerName: "Chi Tiết Đơn Hàng",
+      width: 120,
+      renderCell: (params) => (
+        <Grid container justifyContent="center" alignItems="center">
+          <IconButton
+            color="indigo"
+            onClick={() => handleDetailClickDetail(params.row.id)}
+            aria-label="Chi Tiết Đơn Hàng"
+          >
+            <InfoIcon />
+          </IconButton>
+        </Grid>
+      ),
+      key: "bookDetail",
+    },
   ];
 
   return (
     <Box m="5px">
-      {loading ? (
-        <Typography>Loading...</Typography> // Hiển thị thông báo loading
-      ) : (
-        <>
-          <Header
-            title="Danh Sách Đơn Hàng Mới"
-            subtitle="Danh sách chi tiết đơn hàng mới"
+      <Header
+        title="Danh Sách Đơn Hàng Mới"
+        subtitle="Danh sách chi tiết đơn hàng"
+      />
+      <Box display="flex" className="box" left={0}>
+        <Box display="flex" borderRadius="5px" border={1} marginRight={2}>
+          <InputBase
+            sx={{ ml: 4, flex: 1 }}
+            placeholder="Tìm kiếm"
+            onChange={handleSearchChange}
+            className="search-input"
           />
-          <Box display="flex" className="box" left={0}>
-            <Box display="flex" borderRadius="5px" border={1} marginRight={2}>
-              <InputBase
-                sx={{ ml: 4, flex: 1 }}
-                placeholder="Tìm kiếm"
-                onChange={handleSearchChange}
-                className="search-input"
-              />
-              <IconButton type="button" sx={{ p: 1 }}>
-                <SearchIcon />
-              </IconButton>
-            </Box>
+          <IconButton type="button" sx={{ p: 1 }}>
+            <SearchIcon />
+          </IconButton>
+        </Box>
 
-            <ToastContainer />
-            <FormControl>
-              <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                value={filterOption}
-                onChange={handleFilterChange}
-                variant="outlined"
-                className="filter-select"
-                style={{ width: "150px" }}
-              >
-                <MenuItem key="rescueType-all" value="rescueType">
-                  Hình Thức
-                </MenuItem>
-                <MenuItem key="rescueType-towing" value="Towing">
-                  Kéo Xe
-                </MenuItem>
-                <MenuItem key="rescueType-fixing" value="Fixing">
-                  Sửa Chữa Tại Chỗ
-                </MenuItem>
-                <MenuItem key="rescueType-fixing" value="Fixing">
-                  Lái Xe Về
-                </MenuItem>
-                <MenuItem key="rescueType-fixing" value="Fixing">
-                  Chở Xe
-                </MenuItem>
-              </Select>
-            </FormControl>
-
-            <Box display="flex" alignItems="center" className="startDate-box">
-              <TextField
-                label="Từ ngày"
-                type="date"
-                value={startDate || ""}
-                onChange={(event) => setStartDate(event.target.value)}
-                InputLabelProps={{
-                  shrink: true,
-                }}
-                onBlur={handleDateFilterChange}
-                inputProps={{
-                  max: moment().format("YYYY-MM-DD"), // Set the maximum selectable date as today
-                }}
-                sx={{ ml: 4, mr: 2 }}
-              />
-            </Box>
-
-            <Box display="flex" alignItems="center" className="endtDate-box">
-              <TextField
-                label="Đến ngày"
-                type="date"
-                value={endDate || ""}
-                onChange={(event) => setEndDate(event.target.value)}
-                InputLabelProps={{
-                  shrink: true,
-                }}
-                onBlur={handleDateFilterChange}
-                inputProps={{
-                  max: moment().format("YYYY-MM-DD"), // Set the maximum selectable date as today
-                }}
-              />
-            </Box>
-          </Box>
-
-          <Box
-            m="10px 0 0 0"
-            height="75vh"
-            sx={{
-              "& .MuiDataGrid-root": {
-                border: "none",
-              },
-              "& .MuiDataGrid-cell": {
-                borderBottom: "none",
-              },
-              "& .name-column--cell": {
-                color: colors.greenAccent[300],
-              },
-              "& .MuiDataGrid-columnHeaders": {
-                backgroundColor: colors.blueAccent[700],
-                borderBottom: "none",
-              },
-              "& .MuiDataGrid-virtualScroller": {
-                backgroundColor: colors.primary[400],
-              },
-              "& .MuiDataGrid-footerContainer": {
-                display: "none",
-              },
-              "& .MuiCheckbox-root": {
-                color: `${colors.greenAccent[200]} !important`,
-              },
-              "& .MuiDataGrid-row": {
-                borderBottom: "none",
-              },
-            }}
+        <ToastContainer />
+        <FormControl>
+          <Select
+            labelId="demo-simple-select-label"
+            id="demo-simple-select"
+            value={filterOption}
+            onChange={handleFilterChange}
+            variant="outlined"
+            className="filter-select"
+            style={{ width: "150px" }}
           >
-            <DataGrid
-              rows={filteredOrdersPagination} // Thêm id nếu không có
-              columns={columns}
-              getRowId={(row) => row.id}
-              autoHeight
-              checkboxSelection
-              loading={loading}
-            />
+            <MenuItem key="rescueType-all" value="rescueType">
+              Hình Thức
+            </MenuItem>
+            <MenuItem key="rescueType-towing" value="Towing">
+              Kéo Xe
+            </MenuItem>
+            <MenuItem key="rescueType-fixing" value="Fixing">
+              Sửa Chữa Tại Chỗ
+            </MenuItem>
+          </Select>
+        </FormControl>
 
-            <CustomTablePagination
-              count={filteredOrders.length}
-              page={page}
-              rowsPerPage={rowsPerPage}
-              onPageChange={handleChangePage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
-              loading={loading}
-            />
-          </Box>
-          <ModalDetail
-            openModal={openModal}
-            setOpenModal={setOpenModal}
-            onClose={() => setOpenModal(false)}
-            selectedBook={selectedBook}
-            loading={loading}
-          ></ModalDetail>
-
-          <ModalEdit
-            openEditModal={openEditModal}
-            setOpenEditModal={setOpenEditModal}
-            selectedEditOrder={selectedEditOrder}
-            selectedOrderFormattedAddress={selectedOrderFormattedAddress}
-            onDataUpdated={handleDataUpdated}
-            // onClose={() => setOpenEditModal(false)}
-            loading={loading}
+        <Box display="flex" alignItems="center" className="startDate-box">
+          <TextField
+            label="Từ ngày"
+            type="date"
+            value={startDate || ""}
+            onChange={(event) => setStartDate(event.target.value)}
+            InputLabelProps={{
+              shrink: true,
+            }}
+            onBlur={handleDateFilterChange}
+            inputProps={{
+              max: moment().format("YYYY-MM-DD"), // Set the maximum selectable date as today
+            }}
+            sx={{ ml: 4, mr: 2 }}
           />
-          <ToastContainer />
-        </>
-      )}
+        </Box>
+
+        <Box display="flex" alignItems="center" className="endtDate-box">
+          <TextField
+            label="Đến ngày"
+            type="date"
+            value={endDate || ""}
+            onChange={(event) => setEndDate(event.target.value)}
+            InputLabelProps={{
+              shrink: true,
+            }}
+            onBlur={handleDateFilterChange}
+            inputProps={{
+              max: moment().format("YYYY-MM-DD"), // Set the maximum selectable date as today
+            }}
+          />
+        </Box>
+      </Box>
+
+      <Box
+        m="10px 0 0 0"
+        height="75vh"
+        sx={{
+          "& .MuiDataGrid-root": {
+            border: "none",
+          },
+          "& .MuiDataGrid-cell": {
+            borderBottom: "none",
+          },
+          "& .name-column--cell": {
+            color: colors.greenAccent[300],
+          },
+          "& .MuiDataGrid-columnHeaders": {
+            backgroundColor: colors.blueAccent[700],
+            borderBottom: "none",
+          },
+          "& .MuiDataGrid-virtualScroller": {
+            backgroundColor: colors.primary[400],
+          },
+          "& .MuiDataGrid-footerContainer": {
+            display: "none",
+          },
+          "& .MuiCheckbox-root": {
+            color: `${colors.greenAccent[200]} !important`,
+          },
+          "& .MuiDataGrid-row": {
+            borderBottom: "none",
+          },
+        }}
+      >
+        <DataGrid
+          rows={filteredOrdersPagination} // Thêm id nếu không có
+          columns={columns}
+          getRowId={(row) => row.id}
+          autoHeight
+          checkboxSelection
+          loading={loading}
+        />
+
+        <CustomTablePagination
+          count={filteredOrders.length}
+          page={page}
+          rowsPerPage={rowsPerPage}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+          loading={loading}
+        />
+      </Box>
+      <ModalDetail
+        openModal={openModal}
+        setOpenModal={setOpenModal}
+        onClose={() => setOpenModal(false)}
+        selectedEditOrder={selectedEditOrder}
+        loading={loading}
+      ></ModalDetail>
+
+      <ModalEdit
+        openEditModal={openEditModal}
+        setOpenEditModal={setOpenEditModal}
+        selectedEditOrder={selectedEditOrder}
+        // onClose={() => setOpenEditModal(false)}
+        onDataUpdated={handleDataUpdated}
+        loading={loading}
+      />
+      <ToastContainer />
     </Box>
   );
 };
 
-export default Orders;
+export default OrdersAssigning;

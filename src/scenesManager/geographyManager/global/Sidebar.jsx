@@ -239,6 +239,13 @@ useEffect(() => {
                   selected={selected}
                   setSelected={setSelected}
                 />
+                     <Item
+                  title="Đơn Hàng Mới2"
+                  to="manager/orders2"
+                  icon={<PlaylistAddIcon />}
+                  selected={selected}
+                  setSelected={setSelected}
+                />
          
                    <Item
                   title="Đang Điều Phối"

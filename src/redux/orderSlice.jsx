@@ -540,7 +540,11 @@ const orderSlice = createSlice({
         state.orderData = action.payload.data;
       })
       .addCase(createAcceptOrder.fulfilled, (state, action) => {
-        state.orders.push(action.payload);
+        if (Array.isArray(state.orders)) {
+          state.orders.push(action.payload);
+        } else {
+          state.orders = [action.payload]; // Nếu không phải mảng, khởi tạo một mảng mới với action.payload
+        }
       })
       .addCase(createAcceptOrder.pending, (state) => {
         state.status = "loading";

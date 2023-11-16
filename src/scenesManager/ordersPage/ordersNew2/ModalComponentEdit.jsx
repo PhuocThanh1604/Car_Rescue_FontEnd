@@ -51,7 +51,6 @@ const ModalEdit = ({
 }) => {
   const dispatch = useDispatch();
   const orders = useSelector((state) => state.order.orders);
-  
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [edit, setEdit] = useState({});
@@ -92,6 +91,7 @@ const ModalEdit = ({
   const [paymentId, setPaymentId] = useState({});
   const [dataCustomer, setDataCustomer] = useState({});
   const [dataOrder, setDataOrder] = useState({});
+
   const managerString = localStorage.getItem("manager");
   let manager = null;
 
@@ -232,7 +232,21 @@ const ModalEdit = ({
     fetchData();
   }, [dispatch]);
 
- 
+  const reloadOrders = () => {
+    dispatch(fetchOrdersNew())
+      .then((response) => {
+        const data = response.payload.data;
+        if (data) {
+          setFilteredRescueVehicleOwners(data);
+          // Đặt loading thành false sau khi tải lại dữ liệu
+          setLoading(false);
+        }
+      })
+      .catch((error) => {
+        console.error("Lỗi khi tải lại danh sách đơn hàng mới:", error);
+      });
+  };
+  
   useEffect(() => {
     if (selectedEditOrder && Array.isArray(orders) && selectedEditOrder.id) {
       const OrderToEdit = orders.find(
@@ -740,7 +754,7 @@ const ModalEdit = ({
                         // Reset các giá trị khi thay đổi loại cứu hộ
                         setSelectedVehicel(null);
                         setVehicleDetails(null);
-                        // setSelectedTechnician(null);
+                        setSelectedTechnician(null);
                         setTechnicianDetails(null);
                       }, [edit.rescueType])}
 
