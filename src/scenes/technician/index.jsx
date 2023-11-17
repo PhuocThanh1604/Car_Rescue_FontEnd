@@ -108,22 +108,6 @@ const Technicians = (props) => {
     setOpenDeleteModal(true);
   };
 
-  // const handleConfirmDelete = () => {
-  //   dispatch(deletetechnician({ id: selectedtechnician.bookId }))
-  //     .then(() => {
-  //       toast.success('Delete book successfully');
-  //       setOpenDeleteModal(false);
-  //       // Cập nhật danh sách sản phẩm sau khi xóa thành công
-  //       const updatedtechnicians = technicians.filter(
-  //         (technician) => technician.bookId !== selectedtechnician.bookId
-  //       );
-  //       setFilteredtechnicians(updatedtechnicians);
-  //     })
-  //     .catch((error) => {
-  //       toast.error(error,"Error!!");
-  //     });
-  // };
-
   useEffect(() => {
     const filteredtechnicians = technicians
       ? technicians.filter((technician) => {
