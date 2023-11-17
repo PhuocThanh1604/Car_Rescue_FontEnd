@@ -111,7 +111,7 @@ const Map = () => {
  
   <GoogleMapReact
         bootstrapURLKeys={{
-          key: process.env.REACT_APP_MAP_API,
+          key: process.env.API_KEY_GG,
         }}
         defaultCenter={defaultCenter}
         defaultZoom={defaultZoom}
