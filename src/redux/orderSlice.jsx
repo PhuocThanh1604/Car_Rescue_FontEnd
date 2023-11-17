@@ -90,11 +90,14 @@ export const fetchOrdersCompleted = createAsyncThunk(
 export const fetchOrdersInprogress = createAsyncThunk(
   "orders/fetchOrdersInprogress",
   async () => {
+    const storageKey = "ordersInprogress";
     try {
+      removeFromStorage(storageKey);
       const response = await axios.get(
         "https://rescuecapstoneapi.azurewebsites.net/api/Order/GetAllOrderInprogress"
       );
       const data = response.data;
+      saveToStorage(storageKey, data);
       return data;
     } catch (response) {
       console.error(
@@ -108,12 +111,16 @@ export const fetchOrdersInprogress = createAsyncThunk(
 );
 export const fetchOrdersAssigned = createAsyncThunk(
   "orders/fetchOrdersAssigned",
+  
   async () => {
+    const storageKey = "ordersAssigned";
     try {
+      removeFromStorage(storageKey);
       const response = await axios.get(
         "https://rescuecapstoneapi.azurewebsites.net/api/Order/GetAllOrderAssigned"
       );
       const data = response.data;
+      saveToStorage(storageKey, data);
       console.log(response.data);
       return data;
     } catch (response) {
@@ -129,11 +136,14 @@ export const fetchOrdersAssigned = createAsyncThunk(
 export const fetchOrdersCancelled = createAsyncThunk(
   "orders/fetchOrdersCancelled",
   async () => {
+    const storageKey = "ordersCanneclled";
     try {
+      removeFromStorage(storageKey);
       const response = await axios.get(
         "https://rescuecapstoneapi.azurewebsites.net/api/Order/GetAllOrderCancelled"
       );
       const data = response.data;
+      saveToStorage(storageKey, data);
       console.log(response.data);
       return data;
     } catch (response) {
@@ -149,12 +159,15 @@ export const fetchOrdersCancelled = createAsyncThunk(
 export const fetchOrdersAssigning = createAsyncThunk(
   "orders/fetchOrdersAssigning",
   async () => {
+    const storageKey = "ordersAssigning";
     try {
+      removeFromStorage(storageKey);
       const response = await axios.get(
         "https://rescuecapstoneapi.azurewebsites.net/api/Order/GetAllOrderAssigning"
       );
       const data = response.data;
       console.log(response.data);
+      saveToStorage(storageKey, data);
       return data;
     } catch (response) {
       console.error(

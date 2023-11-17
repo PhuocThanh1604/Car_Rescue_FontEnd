@@ -18,7 +18,6 @@ import { Edit, FilterList, Search } from "@mui/icons-material";
 
 import ModalDetail from "./ModalComponentDetail";
 import ModalEdit from "./ModalComponentEdit";
-import CustomTablePagination from "./TablePagination";
 
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -33,6 +32,7 @@ import {
 } from "../../redux/rescueVehicleOwnerSlice";
 import InfoIcon from "@mui/icons-material/Info";
 import EditIcon from "@mui/icons-material/Edit";
+import CustomTablePagination from "../../components/TablePagination";
 const RescueVehicleOwners = (props) => {
   const dispatch = useDispatch();
   const rescueVehicleOwners = useSelector(

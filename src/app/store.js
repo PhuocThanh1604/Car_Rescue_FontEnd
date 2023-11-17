@@ -10,6 +10,8 @@ import rescueVehicleOwnerReducer from "../redux/rescueVehicleOwnerSlice";
 import technicianReducer from "../redux/technicianSlice";
 import serviceReducer from "../redux/serviceSlice";
 import vehicleReducer from "../redux/vehicleSlice";
+import transactionReducer from "../redux/transactionsSlice";
+
 export const store = configureStore({
   reducer: {
     [apiSlice.reducerPath]: apiSlice.reducer,
@@ -23,7 +25,7 @@ export const store = configureStore({
     technician:technicianReducer,
     service: serviceReducer,
     vehicle: vehicleReducer,
-    // auth:authSlice
+    transaction: transactionReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(apiSlice.middleware),

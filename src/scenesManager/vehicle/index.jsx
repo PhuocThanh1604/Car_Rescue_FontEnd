@@ -29,7 +29,6 @@ import Header from "../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
 import ModalDetail from "./ModalComponentDetail";
 import ModalEdit from "./ModalComponentEdit";
-import CustomTablePagination from "./TablePagination";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import SearchIcon from "@mui/icons-material/Search";
@@ -57,6 +56,7 @@ import MapRoundedIcon from "@mui/icons-material/MapRounded";
 import PhoneRoundedIcon from "@mui/icons-material/PhoneRounded";
 import PeopleAltRoundedIcon from "@mui/icons-material/PeopleAltRounded";
 import PlaceIcon from "@mui/icons-material/Place";
+import CustomTablePagination from "../../components/TablePagination";
 const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
 const Vehicles = (props) => {
   const dispatch = useDispatch();

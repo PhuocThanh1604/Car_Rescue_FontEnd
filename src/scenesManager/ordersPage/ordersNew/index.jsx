@@ -16,7 +16,6 @@ import Header from "../../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
 import ModalDetail from "./ModalComponentDetail";
 import ModalEdit from "./ModalComponentEdit";
-import CustomTablePagination from "./TablePagination";
 import SearchIcon from "@mui/icons-material/Search";
 import InputBase from "@mui/material/InputBase";
 import moment from "moment";
@@ -37,6 +36,7 @@ import SupportIcon from "@mui/icons-material/Support";
 import HandymanIcon from "@mui/icons-material/Handyman";
 import AssignmentLateIcon from "@mui/icons-material/AssignmentLate";
 import { useLocation } from "react-router-dom";
+import CustomTablePagination from "../../../components/TablePagination";
 const Orders = (props) => {
   const dispatch = useDispatch();
   const orders = useSelector((state) => state.order.orders);

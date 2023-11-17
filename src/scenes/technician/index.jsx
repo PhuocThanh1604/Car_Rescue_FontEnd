@@ -1,32 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import {
   Box,
-  Button,
-  Typography,
   useTheme,
   Modal,
   TextField,
   Select,
   MenuItem,
   IconButton,
-  Card,
-  CardContent,
-  CardActions,
   FormControl,
-  InputLabel,
-  CircularProgress,
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import { tokens } from '../../theme';
 import Header from '../../components/Header';
 import { useDispatch, useSelector } from 'react-redux';
 import { Edit, FilterList, Search } from '@mui/icons-material';
-import { Delete } from '@mui/icons-material';
-import ModalDetail from './ModalComponentDetail';
 import ModalEdit from './ModalComponentEdit';
-import CustomTablePagination from './TablePagination';
 import ToggleButton from './ToggleButton';
-import { DeleteOutline } from '@mui/icons-material';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Fade from '@mui/material/Fade';
@@ -34,6 +23,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import InputBase from '@mui/material/InputBase';
 import moment from 'moment';
 import { fetchTechnicians, getTechnicianId } from '../../redux/technicianSlice';
+import CustomTablePagination from '../../components/TablePagination';
 
 const Technicians = (props) => {
   const dispatch = useDispatch();

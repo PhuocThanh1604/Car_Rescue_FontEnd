@@ -7,7 +7,6 @@ import Sidebar from "../../scenesManager/geographyManager/global/Sidebar";
 import Contacts from "../../scenesManager/contacts";
 import Invoices from "../../scenesManager/invoices";
 import FAQ from '../../scenesManager/faq';
-import Products from "../../scenesManager/products";
 import Orders from "../../scenesManager/ordersPage/ordersNew";
 import { Routes, Route } from "react-router-dom";
 import Dashboard from "../../scenesManager/dashboard";
@@ -80,7 +79,6 @@ const Manager = () => {
                   <Route path="/line" element={<Line />} /> */}
                 {/* <Route path="/geography" element={<Geography />} /> */}
                 <Route path="/manager/googlemap" element={<Map />} />
-                <Route path="/manager/books" element={<Products />} />
             
                 <Route path="/manager/faq" element={<FAQ />} />
                 <Route path="/manager/orders" element={<Orders />} />

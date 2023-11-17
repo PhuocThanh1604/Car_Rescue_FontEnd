@@ -19,7 +19,6 @@ import { Edit, FilterList, Search } from "@mui/icons-material";
 import { Delete } from "@mui/icons-material";
 // import ModalDetail from "./ModalComponentDetail";
 import ModalEdit from "./ModalComponentEdit";
-import CustomTablePagination from "./TablePagination";
 import ToggleButton from "./ToggleButton";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -29,6 +28,7 @@ import InputBase from "@mui/material/InputBase";
 import moment from "moment";
 
 import { fetchServices, getServiceId } from "../../redux/serviceSlice";
+import CustomTablePagination from "../../components/TablePagination";
 const Services = (props) => {
   const dispatch = useDispatch();
   const services = useSelector((state) => state.service.services);

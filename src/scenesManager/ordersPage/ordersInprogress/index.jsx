@@ -17,13 +17,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { Edit} from "@mui/icons-material";
 import ModalDetail from "./ModalComponentDetail";
 import ModalEdit from "./ModalComponentEdit";
-import CustomTablePagination from "./TablePagination";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import SearchIcon from "@mui/icons-material/Search";
 import InputBase from "@mui/material/InputBase";
 import moment from "moment";
-
 import { fetchOrdersInprogress, fetchOrdersNew, getOrderDetailId, getOrderId } from "../../../redux/orderSlice";
 import { getCustomerIdFullName } from "../../../redux/customerSlice";
 import CreditScoreIcon from "@mui/icons-material/CreditScore";
@@ -35,6 +33,7 @@ import HandymanIcon from "@mui/icons-material/Handyman";
 import AddchartIcon from '@mui/icons-material/Addchart';
 import { useLocation } from "react-router-dom";
 import InfoIcon from "@mui/icons-material/Info";
+import CustomTablePagination from "../../../components/TablePagination";
 const OrdersInprogress = (props) => {
   const dispatch = useDispatch();
   const location = useLocation();

@@ -1,50 +1,32 @@
 import React, { useState } from "react";
 import GoogleMapReact from "google-map-react";
+import TextField from "@mui/material/TextField";
+import {
+  Box,
+  CircularProgress,
+  FormControl,
+  IconButton,
+  InputAdornment,
+} from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
+import CloseIcon from "@mui/icons-material/Close";
 import { FaMapMarkerAlt } from "react-icons/fa";
-import axios from "axios";
 import PlacesAutocomplete, {
   geocodeByAddress,
   getLatLng,
-  geocodeByPlaceId,
 } from "react-places-autocomplete";
-import TextField from "@mui/material/TextField";
-import { Box, CircularProgress, FormControl, IconButton, InputAdornment } from "@mui/material";
-import SearchIcon from '@mui/icons-material/Search';
-import CloseIcon from '@mui/icons-material/Close';
-const Map = ({ onLocationSelected }) => {
+
+const Map = () => {
   const [coords, setCoords] = useState(null);
   const [address, setAddress] = useState("");
-  const [isMapModalOpen, setIsMapModalOpen] = useState(false);
-  const [geocodeResult, setGeocodeResult] = useState([]);
   const [loading, setLoading] = useState(false);
   const [defaultCenter, setDefaultCenter] = useState({
     lat: 10.8591597,
     lng: 106.8095694,
   });
-  const [defaultZoom, setDefaultZoom] = useState(11);  const Position = ({ lat, lng, text, icon }) => {
-    if (lat && lng) {
-      // Render the marker only if valid coordinates are available
-      return (
-        <div>
-          <FaMapMarkerAlt color="red" size={24} />
-          {text}
-        </div>
-      );
-    } else {
-      return null; // Don't render the marker if coordinates are not available
-    }
-  };
-
-  const defaultProps = {
-    center: {
-      lat: 10.8591597,
-      lng: 106.8095694,
-    },
-    zoom: 11,
-  };
-
-
-//Google mapps
+  const [defaultZoom, setDefaultZoom] = useState(11);
+  const [selectedSuggestion, setSelectedSuggestion] = useState("");
+  const [isCustomAddress, setIsCustomAddress] = useState(false);
   const handleAddressSelected = async (selectedAddress) => {
     try {
       // Sử dụng Places Autocomplete để lấy thông tin chi tiết về địa chỉ
@@ -59,8 +41,8 @@ const Map = ({ onLocationSelected }) => {
         };
         setCoords({ lat: selectedLocation.lat, lng: selectedLocation.lng });
         setAddress(selectedLocation.address);
-        setIsMapModalOpen(true);
-        onLocationSelected(selectedLocation );
+        // setIsMapModalOpen(true);
+        // onLocationSelected(selectedLocation );
 
         const newCenter = {
           lat: selectedLocation.lat,
@@ -108,14 +90,26 @@ const Map = ({ onLocationSelected }) => {
       console.error("Đã xảy ra lỗi trong quá trình tìm kiếm vị trí.", error);
     }
   };
-
+  const Position = ({ lat, lng, text, icon }) => {
+    if (lat && lng) {
+      // Render the marker only if valid coordinates are available
+      return (
+        <div>
+          <FaMapMarkerAlt color="red" size={24} />
+          {text}
+        </div>
+      );
+    } else {
+      return null; // Don't render the marker if coordinates are not available
+    }
+  };
   const handleClearAddress = () => {
     setAddress("");
   };
-  
   return (
-    <div style={{ height: "100%", width: "100%" }}>
-        <GoogleMapReact
+    <div style={{ height: "100%", width: "100%", position: "relative" }}>
+ 
+      <GoogleMapReact
         bootstrapURLKeys={{
           key: "AIzaSyBSLmhb6vCHhrZxMh3lmUI-CICfzhiMakk",
         }}
@@ -126,7 +120,8 @@ const Map = ({ onLocationSelected }) => {
       >
         <Position lat={coords?.lat} lng={coords?.lng} />
       </GoogleMapReact>
-    <form
+
+      <form
         onSubmit={(e) => {
           e.preventDefault();
           handleSearchIcon();
@@ -172,13 +167,13 @@ const Map = ({ onLocationSelected }) => {
                     InputProps={{
                       endAdornment: (
                         <InputAdornment position="end">
-                             <SearchIcon/>
-                          {/* <IconButton
+                           
+                          <IconButton
                             type="submit"
-                            // onClick={handleSearchIcon}
+                            onClick={handleSearchIcon}
                           >
-                         
-                          </IconButton> */}
+                           <SearchIcon/>
+                          </IconButton>
                           <IconButton onClick={handleClearAddress}>
                             {loading ? (
                               <CircularProgress size={20} />
@@ -219,6 +214,7 @@ const Map = ({ onLocationSelected }) => {
         </Box>
       </form>
 
+      {/* <MapboxMap/> */}
     </div>
   );
 };

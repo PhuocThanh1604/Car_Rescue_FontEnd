@@ -25,7 +25,6 @@ import { Edit, FilterList, Search } from "@mui/icons-material";
 import { Delete } from "@mui/icons-material";
 import ModalDetail from "./ModalComponentDetail";
 import ModalEdit from "./ModalComponentEdit";
-import CustomTablePagination from "./TablePagination";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Fade from "@mui/material/Fade";
@@ -33,6 +32,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import InputBase from "@mui/material/InputBase";
 import moment from "moment";
 import { fetchManagers } from "../../redux/managerSlice";
+import CustomTablePagination from "../../components/TablePagination";
 const Managers = (props) => {
   const dispatch = useDispatch();
   const managers = useSelector((state) => state.manager.managers);

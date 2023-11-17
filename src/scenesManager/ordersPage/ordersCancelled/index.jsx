@@ -17,7 +17,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { Edit} from "@mui/icons-material";
 import ModalDetail from "./ModalComponentDetail";
 import ModalEdit from "./ModalComponentEdit";
-import CustomTablePagination from "./TablePagination";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import SearchIcon from "@mui/icons-material/Search";
@@ -34,6 +33,7 @@ import SupportIcon from "@mui/icons-material/Support";
 import HandymanIcon from "@mui/icons-material/Handyman";
 import InfoIcon from "@mui/icons-material/Info";
 import { useLocation } from "react-router-dom";
+import CustomTablePagination from "../../../components/TablePagination";
 const OrdersCancelled = (props) => {
   const dispatch = useDispatch();
   const location = useLocation();

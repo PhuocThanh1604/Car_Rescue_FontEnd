@@ -25,7 +25,6 @@ import { Edit, FilterList, Search } from "@mui/icons-material";
 import { Delete } from "@mui/icons-material";
 import ModalDetail from "./ModalComponentDetail";
 import ModalEdit from "./ModalComponentEdit";
-import CustomTablePagination from "./TablePagination";
 import ToggleButton from "./ToggleButton";
 import { DeleteOutline } from "@mui/icons-material";
 import { ToastContainer, toast } from "react-toastify";
@@ -34,6 +33,7 @@ import Fade from "@mui/material/Fade";
 import SearchIcon from "@mui/icons-material/Search";
 import InputBase from "@mui/material/InputBase";
 import moment from "moment";
+import CustomTablePagination from "../../components/TablePagination";
 const Customers = (props) => {
   const dispatch = useDispatch();
   const customers = useSelector((state) => state.customer.customers);
