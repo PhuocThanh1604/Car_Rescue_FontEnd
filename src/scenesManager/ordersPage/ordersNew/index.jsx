@@ -253,7 +253,6 @@ const Orders = (props) => {
       const [, lat, lng] = matches;
 
       if (!isNaN(lat) && !isNaN(lng)) {
-        console.log(lat)
         try {
           const response = await dispatch(getFormattedAddressGG({ lat, lng }));
           const formattedAddress =
