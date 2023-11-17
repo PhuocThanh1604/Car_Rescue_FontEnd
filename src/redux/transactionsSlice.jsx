@@ -11,87 +11,61 @@ const getFromStorage = (key) => {
   const jsonData = localStorage.getItem(key); 
   return jsonData ? JSON.parse(jsonData) : null;
 };
-export const createTransaction = createAsyncThunk(
-  "transactions/createTransactions",
-  async (transaction) => {
+
+export const createAcceptWithdrawRequest = createAsyncThunk(
+  "vehicles/createAcceptWithdrawRequest",
+  async ({ id, boolean }) => {
     try {
-      const id = uuidv4();
-      const TransactionData = {
-        ...transaction,
-        id: id,
-      };
-      const res = await axios.post(
-        "https://rescuecapstoneapi.azurewebsites.net/api/Transaction/Create",
-        TransactionData,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
+      console.log(id, boolean);
+      const response = await axios.post(
+        `https://rescuecapstoneapi.azurewebsites.net/api/Transaction/AcceptWithdrawRequest?id=${id}&boolean=${boolean}`,
       );
-      return res.data;
-    } catch (error) {
-      console.error("Failed to create Transaction :", error.response);
-      throw error.response.data || error.message;
-    }
-  }
-);
-export const fetchTransactions = createAsyncThunk(
-  "transactions/fetchTransactions",
-  async () => {
-    try {
-      const response = await axios.get(
-        "https://rescuecapstoneapi.azurewebsites.net/api/Transaction/GetAll"
-      );
-      const data = response.data;
-      return data;
-    } catch (error) {
-      console.error("Failed to retrieve Transaction:", error.response);
-      throw error.response.data || error.message;
-    }
-  }
-);
-export const getTransactionId = createAsyncThunk(
-  "transaction/getTransactionId",
-  async ({ id }) => {
-    const storageKey = "getTransactionId" + id;
-    const storedData = getFromStorage(storageKey);
-    if (storedData) {
-      return storedData;
-    }
-    try {
-      const response = await axios.get(
-        `https://rescuecapstoneapi.azurewebsites.net/api/Transaction/Get?id=${id}`
-      );
-      const data = response.data;
-      saveToStorage(storageKey, data);
-      console.log(data);
-      return data;
-    } catch (error) {
-      console.error("Failed to get customer:", error.response);
-      throw error.response.data || error.message;
-    }
-  }
-);
-export const getScheduleOfTechinciansAWeek = createAsyncThunk(
-  "transaction/getScheduleOfTechinciansAWeek",
-  async ({ year }) => {
-    try {
-      const response = await axios.get(
-        `https://rescuecapstoneapi.azurewebsites.net/api/Schedule/GetWeeksByYear?year=${year}`
-      );
+
       const data = response.data;
       console.log(data);
       return data;
     } catch (error) {
       console.error(
-        "Failed to get Schedule Of Techincians A Week:",
+        "Failed to create Accept Withdraw Request:",
         error.response
       );
       throw error.response.data || error.message;
     }
   }
 );
+
+export const fetchTransactionsNew = createAsyncThunk(
+  "transactions/fetchTransactionsNew",
+  async () => {
+    try {
+      const response = await axios.get(
+        "https://rescuecapstoneapi.azurewebsites.net/api/Transaction/GetNewTransactions"
+      );
+      const data = response.data;
+      return data;
+    } catch (error) {
+      console.error("Failed to retrieve fetch Transactions New:", error.response);
+      throw error.response.data || error.message;
+    }
+  }
+);
+export const getTransactionOfWalletId = createAsyncThunk(
+  "transaction/getTransactionOfWalletId",
+  async ({ id }) => {
+
+    try {
+      const response = await axios.get(
+        `https://rescuecapstoneapi.azurewebsites.net/api/Transaction/GetTransactionOfWallet?id=${id}`
+      );
+      const data = response.data;
+      return data;
+    } catch (error) {
+      console.error("Failed to get Transaction Of Wallet Id:", error.response);
+      throw error.response.data || error.message;
+    }
+  }
+);
+
 
 
 
@@ -108,29 +82,20 @@ const TransactionSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchTransactions.fulfilled, (state, action) => {
+      .addCase(fetchTransactionsNew.fulfilled, (state, action) => {
         state.transactions = action.payload.data;
       })
-      .addCase(fetchTransactions.pending, (state, action) => {
+      .addCase(fetchTransactionsNew.pending, (state, action) => {
         state.status = "loading";
       })
-      .addCase(getScheduleOfTechinciansAWeek.fulfilled, (state, action) => {
-        state.transactions = action.payload.data;
+      .addCase(createAcceptWithdrawRequest.fulfilled, (state, action) => {
+        state.transactions.push(action.payload);
       })
-      .addCase(getScheduleOfTechinciansAWeek.pending, (state, action) => {
+      .addCase(createAcceptWithdrawRequest.pending, (state) => {
         state.status = "loading";
       })
-      .addCase(createTransaction.fulfilled, (state, action) => {
-        state.transactions.push(action.payload.data);
-      })
-      .addCase(createTransaction.pending, (state) => {
-        state.status = "loading";
-      })
-      .addCase(createTransaction.rejected, (state, action) => {
+      .addCase(createAcceptWithdrawRequest.rejected, (state, action) => {
         state.status = "error";
-      })
-      .addCase(getTransactionId.fulfilled, (state, action) => {
-        state.transactions = action.payload.data;
       });
   },
 });
