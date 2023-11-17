@@ -4,7 +4,6 @@ import PlacesAutocomplete, {
   geocodeByAddress,
   getLatLng,
 } from "react-places-autocomplete";
-
 import { FaMapMarkerAlt } from "react-icons/fa";
 import {
   Box,
@@ -18,6 +17,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import CloseIcon from "@mui/icons-material/Close";
 mapboxgl.accessToken =
   "pk.eyJ1IjoidGhhbmgyazEiLCJhIjoiY2xvZjMxcWppMG5oejJqcnI2M2ZleTJtZiJ9.yvWTA-yYNqTdr2OstpB7bw";
+  // mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_API_KEY;
 
 const MapboxMap = () => {
   const mapContainer = useRef(null);

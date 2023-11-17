@@ -212,67 +212,67 @@ const Orders = (props) => {
       await Promise.all(fetchPromises);
     };
 
-    // const debouncedFetchAddresses = debounce(async (departures) => {
-    //   const uniqueDeparturesToFetch = departures.filter(
-    //     (departure) => !formattedAddresses[departure]
-    //   );
+    const debouncedFetchAddresses = debounce(async (departures) => {
+      const uniqueDeparturesToFetch = departures.filter(
+        (departure) => !formattedAddresses[departure]
+      );
 
-    //   const fetchPromises = uniqueDeparturesToFetch.map((departure) => {
-    //     const order = data.find((order) => order.departure === departure);
-    //     return fetchAddress(order);
-    //   });
+      const fetchPromises = uniqueDeparturesToFetch.map((departure) => {
+        const order = data.find((order) => order.departure === departure);
+        return fetchAddress(order);
+      });
 
-    //   await Promise.all(fetchPromises);
-    // }, 500);
+      await Promise.all(fetchPromises);
+    }, 500);
 
     fetchFullNames(uniqueCustomerIds);
-    // debouncedFetchAddresses(uniqueDepartures);
+    debouncedFetchAddresses(uniqueDepartures);
   }, [data, formattedAddresses, fullnameData]);
-  // function debounce(func, wait) {
-  //   let timeout;
-  //   return function () {
-  //     const context = this;
-  //     const args = arguments;
-  //     const later = function () {
-  //       timeout = null;
-  //       func.apply(context, args);
-  //     };
-  //     clearTimeout(timeout);
-  //     timeout = setTimeout(later, wait);
-  //   };
-  // }
-  // const fetchAddress = async (order) => {
-  //   if (!order || formattedAddresses[order.departure]) {
-  //     return; // Trả về nếu order không tồn tại hoặc địa chỉ đã được lưu trữ
-  //   }
+  function debounce(func, wait) {
+    let timeout;
+    return function () {
+      const context = this;
+      const args = arguments;
+      const later = function () {
+        timeout = null;
+        func.apply(context, args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
+  }
+  const fetchAddress = async (order) => {
+    if (!order || formattedAddresses[order.departure]) {
+      return; // Trả về nếu order không tồn tại hoặc địa chỉ đã được lưu trữ
+    }
 
-  //   const departure = order.departure;
-  //   const matches = /lat:\s*([^,]+),\s*long:\s*([^,]+)/.exec(departure);
+    const departure = order.departure;
+    const matches = /lat:\s*([^,]+),\s*long:\s*([^,]+)/.exec(departure);
 
-  //   if (matches && matches.length === 3) {
-  //     const [, lat, lng] = matches;
+    if (matches && matches.length === 3) {
+      const [, lat, lng] = matches;
 
-  //     if (!isNaN(lat) && !isNaN(lng)) {
-  //       try {
-  //         const response = await dispatch(getFormattedAddressGG({ lat, lng }));
-  //         const formattedAddress =
-  //           response.payload.results[0].formatted_address;
-  //         setFormattedAddresses((prevAddresses) => ({
-  //           ...prevAddresses,
-  //           [departure]: formattedAddress,
-  //         }));
-  //         setSelectedOrderFormattedAddress(formattedAddress);
-  //       } catch (error) {
-  //         console.error(
-  //           "Error fetching address:",
-  //           error.response ? error.response : error
-  //         );
-  //       } finally {
-  //         setLoading(false); // Đảm bảo loading được đặt lại thành false dù có lỗi
-  //       }
-  //     }
-  //   }
-  // };
+      if (!isNaN(lat) && !isNaN(lng)) {
+        try {
+          const response = await dispatch(getFormattedAddressGG({ lat, lng }));
+          const formattedAddress =
+            response.payload.results[0].formatted_address;
+          setFormattedAddresses((prevAddresses) => ({
+            ...prevAddresses,
+            [departure]: formattedAddress,
+          }));
+          setSelectedOrderFormattedAddress(formattedAddress);
+        } catch (error) {
+          console.error(
+            "Error fetching address:",
+            error.response ? error.response : error
+          );
+        } finally {
+          setLoading(false); // Đảm bảo loading được đặt lại thành false dù có lỗi
+        }
+      }
+    }
+  };
 
   const fetchFullname = (customerId) => {
     if (!fullnameData[customerId]) {
@@ -326,19 +326,19 @@ const Orders = (props) => {
         );
       },
     },
-    // {
-    //   field: "departure",
-    //   headerName: "Địa Chỉ",
-    //   width: 240,
-    //   renderCell: (params) => {
-    //     if (params.value) {
-    //       return formattedAddresses[params.value]
-    //         ? formattedAddresses[params.value]
-    //         : <CircularProgress size={20} />;
-    //     }
-    //     return ""; // Trả về chuỗi rỗng nếu không có địa chỉ
-    //   },
-    // },
+    {
+      field: "departure",
+      headerName: "Địa Chỉ",
+      width: 240,
+      renderCell: (params) => {
+        if (params.value) {
+          return formattedAddresses[params.value]
+            ? formattedAddresses[params.value]
+            : <CircularProgress size={20} />;
+        }
+        return ""; // Trả về chuỗi rỗng nếu không có địa chỉ
+      },
+    },
     {
       field: "customerNote",
       headerName: "Ghi Chú của Customer",

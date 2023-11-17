@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-const apiKeyGG = 'AIzaSyCZPpY4KcOcClHuiQEuzb2t51ov9XkJVfg';
-// const apiKeyGG = process.env.API_KEY_GG;
+// const apiKeyGG = 'AIzaSyCZPpY4KcOcClHuiQEuzb2t51ov9XkJVfg';
+const apiKeyGG = process.env.API_KEY_GG;
 const mapboxToken = 'pk.eyJ1IjoidGhhbmgyazEiLCJhIjoiY2xvZjMxcWppMG5oejJqcnI2M2ZleTJtZiJ9.yvWTA-yYNqTdr2OstpB7bw';
 // const apiKey = '';
 // Hàm lưu dữ liệu vào storage
@@ -90,11 +90,14 @@ export const fetchOrdersCompleted = createAsyncThunk(
 export const fetchOrdersInprogress = createAsyncThunk(
   "orders/fetchOrdersInprogress",
   async () => {
+    const storageKey = "ordersInprogress";
     try {
+      removeFromStorage(storageKey);
       const response = await axios.get(
         "https://rescuecapstoneapi.azurewebsites.net/api/Order/GetAllOrderInprogress"
       );
       const data = response.data;
+      saveToStorage(storageKey, data);
       return data;
     } catch (response) {
       console.error(
@@ -108,13 +111,16 @@ export const fetchOrdersInprogress = createAsyncThunk(
 );
 export const fetchOrdersAssigned = createAsyncThunk(
   "orders/fetchOrdersAssigned",
+
   async () => {
+    const storageKey = "ordersAssigned";
     try {
+      removeFromStorage(storageKey);
       const response = await axios.get(
         "https://rescuecapstoneapi.azurewebsites.net/api/Order/GetAllOrderAssigned"
       );
       const data = response.data;
-      console.log(response.data);
+      saveToStorage(storageKey, data);
       return data;
     } catch (response) {
       console.error(
@@ -129,11 +135,15 @@ export const fetchOrdersAssigned = createAsyncThunk(
 export const fetchOrdersCancelled = createAsyncThunk(
   "orders/fetchOrdersCancelled",
   async () => {
+    const storageKey = "ordersAssigned";
     try {
+      removeFromStorage(storageKey);
+     
       const response = await axios.get(
         "https://rescuecapstoneapi.azurewebsites.net/api/Order/GetAllOrderCancelled"
       );
       const data = response.data;
+      saveToStorage(storageKey, data);
       console.log(response.data);
       return data;
     } catch (response) {
@@ -149,11 +159,14 @@ export const fetchOrdersCancelled = createAsyncThunk(
 export const fetchOrdersAssigning = createAsyncThunk(
   "orders/fetchOrdersAssigning",
   async () => {
+    const storageKey = "ordersAssigning";
     try {
+      removeFromStorage(storageKey);
       const response = await axios.get(
         "https://rescuecapstoneapi.azurewebsites.net/api/Order/GetAllOrderAssigning"
       );
       const data = response.data;
+      saveToStorage(storageKey, data);
       console.log(response.data);
       return data;
     } catch (response) {
@@ -233,6 +246,32 @@ export const getOrderDetailId = createAsyncThunk(
     }
   }
 );
+// export const getFormattedAddressGG = createAsyncThunk(
+//   "orders/getFormattedAddress",
+//   async ({ lat, lng }) => {
+//     const key = `formattedAddress_${lat}_${lng}`;
+//     const storedData = getFromStorage(key);
+
+//     if (storedData) {
+//       return storedData; // Trả về dữ liệu đã lưu nếu có
+//     }
+//     const storageKey = "ordersAddress";
+
+//     try {
+//       removeFromStorage(storageKey);
+//       const response = await axios.get(
+//         `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKeyGG}`
+//       );
+//       const data = response.data;
+//       saveToStorage(key, data); // Lưu dữ liệu mới vào storage
+//       return data;
+//     } catch (error) {
+//       console.error("Failed to get Address ", error.error_message);
+//       throw error.response.data || error.message;
+//     }
+//   }
+// );
+
 export const getFormattedAddressGG = createAsyncThunk(
   "orders/getFormattedAddress",
   async ({ lat, lng }) => {
@@ -242,13 +281,27 @@ export const getFormattedAddressGG = createAsyncThunk(
     if (storedData) {
       return storedData; // Trả về dữ liệu đã lưu nếu có
     }
+    const storageKey = "ordersAddress";
 
     try {
+      // Lấy dữ liệu cũ từ localStorage để kiểm tra
+      const previousData = getFromStorage(storageKey);
+
+      if (previousData) {
+        // Kiểm tra xem dữ liệu cũ có khác với dữ liệu mới không
+        const previousKey = Object.keys(previousData)[0]; // Lấy key của dữ liệu cũ
+        if (previousKey !== key) {
+          // Nếu địa chỉ mới khác với địa chỉ cũ, xóa dữ liệu cũ
+          removeFromStorage(previousKey);
+        }
+      }
+
       const response = await axios.get(
         `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKeyGG}`
       );
       const data = response.data;
       saveToStorage(key, data); // Lưu dữ liệu mới vào storage
+      saveToStorage(storageKey, { [key]: true }); // Lưu key của địa chỉ mới vào storage
       return data;
     } catch (error) {
       console.error("Failed to get Address ", error.error_message);
@@ -256,6 +309,7 @@ export const getFormattedAddressGG = createAsyncThunk(
     }
   }
 );
+
 
 
 // export const getFormattedAddressGG = createAsyncThunk(
