@@ -11,7 +11,7 @@ import {
   Button,
   Grid,
 } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
+import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../../theme";
 import Header from "../../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
@@ -474,6 +474,7 @@ const OrdersAssigned = (props) => {
           autoHeight
           checkboxSelection
           loading={loading}
+          components={{ Toolbar: GridToolbar }}
         />
 
         <CustomTablePagination

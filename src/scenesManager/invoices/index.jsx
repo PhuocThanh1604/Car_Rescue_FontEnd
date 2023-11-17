@@ -1,11 +1,22 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Box, Typography, useTheme } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
+import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
-import { mockDataInvoices } from "../../data/mockData";
+import { mockDataContacts, mockDataInvoices } from "../../data/mockData";
 import Header from "../../components/Header";
+import { useDispatch, useSelector } from 'react-redux';
 
 const Invoices = () => {
+  const dispatch = useDispatch();
+  const transactions = useSelector((state) => state.transaction.transactions);
+  const [loading, setLoading] = useState(false);
+  const [filteredTransaction, setFilteredTransaction] = useState([]);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(8);
+  const filteredTransactionsPagination = filteredTransaction.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
+  );
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const columns = [
@@ -56,8 +67,8 @@ const Invoices = () => {
           "& .MuiDataGrid-cell": {
             borderBottom: "none",
           },
-          "& .name-column--cell": {
-            color: colors.greenAccent[300],
+          "& .no-border-bottom": {
+            borderBottom: "none !important",
           },
           "& .MuiDataGrid-columnHeaders": {
             backgroundColor: colors.blueAccent[700],
@@ -73,13 +84,24 @@ const Invoices = () => {
           "& .MuiCheckbox-root": {
             color: `${colors.greenAccent[200]} !important`,
           },
-          "& .MuiDataGrid-row": {
-            borderBottom: "none",
+          "& .MuiDataGrid-toolbarContainer .MuiButton-text": {
+            color: `${colors.grey[100]} !important`,
           },
         }}
       >
-        <DataGrid checkboxSelection rows={mockDataInvoices} columns={columns} />
+
+        
+          <DataGrid
+          rows={filteredTransactionsPagination}
+          columns={columns}
+          getRowId={(row) => row.id}
+          autoHeight
+          checkboxSelection
+          loading={loading}
+          components={{ Toolbar: GridToolbar }}
+        />
       </Box>
+     
     </Box>
   );
 };
