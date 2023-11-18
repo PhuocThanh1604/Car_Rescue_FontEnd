@@ -1,35 +1,21 @@
-import React from 'react';
+import { styled } from '@mui/material/styles';
 import IconButton from '@mui/material/IconButton';
 import ToggleOn from '@mui/icons-material/ToggleOn';
 import ToggleOff from '@mui/icons-material/ToggleOff';
-import { makeStyles } from '@mui/styles';
 import { useTheme } from '@mui/material/styles';
 
-const useStyles = makeStyles((theme) => ({
-  toggleOn: {
-    color: theme.palette.success.main,
-  },
-  toggleOff: {
-    color: theme.palette.error.main,
-  },
+const StyledIconButton = styled(IconButton)(({ theme, isOn }) => ({
+  color: isOn ? theme.palette.success.main : theme.palette.error.main,
 }));
 
 const ToggleButton = ({ initialValue, onChange }) => {
-  const classes = useStyles();
   const theme = useTheme();
-
-  const handleToggle = () => {
-    onChange(!initialValue);
-  };
+  const handleToggle = () => onChange(!initialValue);
 
   return (
-    <IconButton onClick={handleToggle} className={initialValue ? classes.toggleOn : classes.toggleOff}>
-      {initialValue ? (
-        <ToggleOn style={{ color: theme.palette.success.main }} />
-      ) : (
-        <ToggleOff style={{ color: theme.palette.error.main }} />
-      )}
-    </IconButton>
+    <StyledIconButton onClick={handleToggle} isOn={initialValue}>
+      {initialValue ? <ToggleOn /> : <ToggleOff />}
+    </StyledIconButton>
   );
 };
 

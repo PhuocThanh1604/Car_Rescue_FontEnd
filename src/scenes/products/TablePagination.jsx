@@ -1,24 +1,20 @@
-import { TablePagination, Typography } from '@mui/material';
-import { makeStyles } from '@mui/styles';
+import { TablePagination, Typography, styled } from '@mui/material';
 
-const useStyles = makeStyles((theme) => ({
-  paginationContainer: {
-    display: 'flex',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    marginTop: theme.spacing(2),
-    fontSize: '2.2rem', // Tăng kích thước chữ ở đây
-  },
+const PaginationContainer = styled('span')(({ theme }) => ({
+  display: 'flex',
+  justifyContent: 'flex-end',
+  alignItems: 'center',
+  marginTop: theme.spacing(2),
+  fontSize: '2.2rem', // Tăng kích thước chữ ở đây
 }));
 
 const CustomTablePagination = (props) => {
-  const classes = useStyles();
   const { count, page, rowsPerPage, onPageChange, onRowsPerPageChange } = props;
 
   const emptyRowsPerPageOptions = [];
 
   return (
-    <span className={classes.paginationContainer}>
+    <PaginationContainer>
       <Typography variant="body2" color="textSecondary">
         Showing page {page + 1} of {Math.ceil(count / rowsPerPage)}
       </Typography>
@@ -30,7 +26,7 @@ const CustomTablePagination = (props) => {
         onRowsPerPageChange={onRowsPerPageChange}
         rowsPerPageOptions={emptyRowsPerPageOptions}
       />
-    </span>
+    </PaginationContainer>
   );
 };
 
