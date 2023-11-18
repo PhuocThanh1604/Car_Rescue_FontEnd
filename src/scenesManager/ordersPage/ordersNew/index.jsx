@@ -63,6 +63,11 @@ const Orders = (props) => {
   const [selectedOrderFormattedAddress, setSelectedOrderFormattedAddress] =
     useState("");
 
+  useEffect(() => {
+    if (!data || data.length === 0) {
+      fetchOrdersNew();
+    }
+  }, [data]); // Chỉ gọi API nếu 'data' rỗng hoặc chưa được tải
   //Reload data after assigning
   const handleDataUpdated = () => {
     reloadOrdersNew();
@@ -105,13 +110,13 @@ const Orders = (props) => {
   const handleFilterChange = (event) => {
     const selectedStatusOption = event.target.value;
     setFilterOption(selectedStatusOption);
-  
+
     // Kiểm tra nếu orders không phải là một mảng hoặc nó không được thiết lập
     if (!Array.isArray(orders) || !orders.length) {
       // Thực hiện xử lý khi orders không tồn tại hoặc không phải là một mảng
       return;
     }
-  
+
     if (selectedStatusOption === "rescueType") {
       // Hiển thị tất cả các trạng thái
       setFilteredOrders(orders);
@@ -123,7 +128,7 @@ const Orders = (props) => {
       setFilteredOrders(filteredOrders);
     }
   };
-  
+
   const handleDateFilterChange = () => {
     if (startDate && endDate) {
       const filteredOrders = orders.filter((user) => {
@@ -180,19 +185,13 @@ const Orders = (props) => {
           setSelectedOrderFormattedAddress(formattedAddress);
           setOpenEditModal(true);
           setIsSuccess(true);
-          // reloadOrdersNew();
+          reloadOrdersNew();
         })
         .catch((error) => {
           console.error("Lỗi khi lấy thông tin đơn hàng mới:", error);
         });
     }
   };
-
-  useEffect(() => {
-    if (!data || data.length === 0) {
-      fetchOrdersNew();
-    }
-  }, [data]); // Chỉ gọi API nếu 'data' rỗng hoặc chưa được tải
 
   // ...
 
@@ -332,9 +331,11 @@ const Orders = (props) => {
       width: 240,
       renderCell: (params) => {
         if (params.value) {
-          return formattedAddresses[params.value]
-            ? formattedAddresses[params.value]
-            : <CircularProgress size={20} />;
+          return formattedAddresses[params.value] ? (
+            formattedAddresses[params.value]
+          ) : (
+            <CircularProgress size={20} />
+          );
         }
         return ""; // Trả về chuỗi rỗng nếu không có địa chỉ
       },
@@ -593,7 +594,6 @@ const Orders = (props) => {
             loading={loading}
           />
 
-          
           <ToastContainer />
         </>
       )}
