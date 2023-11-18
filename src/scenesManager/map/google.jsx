@@ -108,7 +108,7 @@ const Map = () => {
     setAddress("");
   };
   return (
-    <div style={{ height: "100%", width: "100%", position: "relative" }}>
+    <div style={{ height: "96%", width: "98%", position: "relative",margin:"10px", border:"1.4px solid black" }}>
  
       <GoogleMapReact
         bootstrapURLKeys={{
@@ -152,16 +152,16 @@ const Map = () => {
               getSuggestionItemProps,
               loading,
             }) => (
-              <div style={{ display: "flex", flexDirection: "column",  borderRadius: "10px", }}>
+              <div style={{ display: "flex", flexDirection: "column",  borderRadius: "8px" }}>
                 <FormControl>
                   <TextField
                     {...getInputProps({
                       placeholder: "Nhập địa chỉ",
                       style: {
-                        height: "50px",
+                        height: "52px",
                         width: "400px",
                         marginRight: "5px",
-                        borderRadius: "10px",
+                        borderRadius: "8px",
                         backgroundColor:"white"
                       },
                     })}

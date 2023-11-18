@@ -10,14 +10,14 @@ body,
 #root {
   height: 100%;
   width: 100%;
-  font-family: "Source Sans Pro", sans-serif;
+  font-family: "Source Sans Pro",'Roboto', sans-serif;
 }
 
 .app,
 .content {
   height: 100vh;
   width: 100%;
-  font-family: "Source Sans Pro", sans-serif;
+  font-family: "Source Sans Pro",'Roboto', sans-serif;
 }
 
 .app {

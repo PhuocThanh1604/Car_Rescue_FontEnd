@@ -13,20 +13,19 @@ import {
   CardContent,
   CardActions,
   FormControl,
-  InputLabel,
-  CircularProgress,
 } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import Header from "../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchCustomers, deleteCustomer, getCustomerId } from "../../redux/customerSlice";
+import {
+  fetchCustomers,
+  getCustomerId,
+} from "../../redux/customerSlice";
 import { Edit, FilterList, Search } from "@mui/icons-material";
-import { Delete } from "@mui/icons-material";
 import ModalDetail from "./ModalComponentDetail";
 import ModalEdit from "./ModalComponentEdit";
 import ToggleButton from "./ToggleButton";
-import { DeleteOutline } from "@mui/icons-material";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Fade from "@mui/material/Fade";
@@ -53,6 +52,9 @@ const Customers = (props) => {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]);
   const [customersData, setCustomersData] = useState([]);
+  const startIndex = page * rowsPerPage;
+  const endIndex = startIndex + rowsPerPage;
+  const customersForCurrentPage = filteredCustomers.slice(startIndex, endIndex);
   useEffect(() => {
     if (isSuccess) {
     }
@@ -76,7 +78,7 @@ const Customers = (props) => {
       setFilteredCustomers(customers);
     }
   };
-  
+
   const handleFilterChange = (event) => {
     const selectedStatusOption = event.target.value;
     setFilterOption(selectedStatusOption);
@@ -92,24 +94,21 @@ const Customers = (props) => {
       setFilteredCustomers(filteredcustomers);
     }
   };
-// Trong thành phần Customers.js
-const handleUpdateClick = (customerId) => {
-  console.log(customerId)
-  // Fetch the customer details based on the selected customer ID
-  dispatch(getCustomerId({ id: customerId }))
-    .then((response) => {
-      const customerDetails = response.payload.data; // No need for .data here
-      setSelectedEditCustomer(customerDetails);
-      setOpenEditModal(true);
-      setIsSuccess(true);
-    })
-    .catch((error) => {
-      console.error('Lỗi khi lấy thông tin khách hàng:', error);
-    });
-};
-  
-
-
+  // Trong thành phần Customers.js
+  const handleUpdateClick = (customerId) => {
+    console.log(customerId);
+    // Fetch the customer details based on the selected customer ID
+    dispatch(getCustomerId({ id: customerId }))
+      .then((response) => {
+        const customerDetails = response.payload.data; // No need for .data here
+        setSelectedEditCustomer(customerDetails);
+        setOpenEditModal(true);
+        setIsSuccess(true);
+      })
+      .catch((error) => {
+        console.error("Lỗi khi lấy thông tin khách hàng:", error);
+      });
+  };
 
   useEffect(() => {
     const filteredCustomers = customers
@@ -120,14 +119,12 @@ const handleUpdateClick = (customerId) => {
           const filterMatch =
             filterOption === "Status" ||
             (filterOption === "ACTIVE" && customer.status === "ACTIVE") ||
-            (filterOption === "INACTIVE" &&
-              customer.status === "INACTIVE");
+            (filterOption === "INACTIVE" && customer.status === "INACTIVE");
           return nameMatch && filterMatch;
         })
       : [];
     setFilteredCustomers(filteredCustomers);
   }, [customers, searchText, filterOption]);
-
 
   if (customers) {
     customers.forEach((customer) => {
@@ -145,6 +142,7 @@ const handleUpdateClick = (customerId) => {
         if (data) {
           setData(data);
           setFilteredCustomers(data);
+          setCustomersData(data);
           // Truy xuất và xử lý từng đối tượng khách hàng ở đây
           setLoading(false); // Đặt trạng thái loading thành false sau khi xử lý dữ liệu
         }
@@ -153,7 +151,6 @@ const handleUpdateClick = (customerId) => {
         setLoading(false);
       });
   }, [dispatch]);
-
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -164,7 +161,7 @@ const handleUpdateClick = (customerId) => {
     setPage(0);
   };
 
-  const filteredcustomersPagination = filteredCustomers.slice(
+  const filteredCustomersPagination = filteredCustomers.slice(
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
   );
@@ -256,12 +253,7 @@ const handleUpdateClick = (customerId) => {
       <Header title="Khách hàng" subtitle="Danh sách khách hàng" />
 
       <Box display="flex" className="box" left={0}>
-      <Box
-          display="flex"
-          borderRadius="5px"
-          border={1}
-          marginRight={2} 
-        >
+        <Box display="flex" borderRadius="5px" border={1} marginRight={2}>
           <InputBase
             sx={{ ml: 4, flex: 1 }}
             placeholder="Tìm kiếm"
@@ -362,7 +354,7 @@ const handleUpdateClick = (customerId) => {
         }}
       >
         <DataGrid
-          rows={filteredcustomersPagination}
+          rows={customersForCurrentPage}
           columns={columns}
           getRowId={(row) => row.id}
           autoHeight
