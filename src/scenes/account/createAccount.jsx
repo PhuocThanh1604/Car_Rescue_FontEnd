@@ -1,39 +1,41 @@
-import React, { useRef } from 'react';
-import { Box, Button, TextField } from '@mui/material';
-import { Formik } from 'formik';
-import * as yup from 'yup';
-import useMediaQuery from '@mui/material/useMediaQuery';
-import Header from '../../components/Header';
-import { useDispatch, useSelector } from 'react-redux';
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { createAccount } from '../../redux/accountSlice';
+import React, { useRef } from "react";
+import { Box, Button, TextField } from "@mui/material";
+import { Formik } from "formik";
+import * as yup from "yup";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import Header from "../../components/Header";
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { createAccount } from "../../redux/accountSlice";
 
 const CreateAccount = () => {
   const dispatch = useDispatch();
   const accounts = useSelector((state) => state.account.accounts);
-  const isNonMobile = useMediaQuery('(min-width:600px)');
+  const isNonMobile = useMediaQuery("(min-width:600px)");
 
+  //Check value input field
   const checkoutSchema = yup.object().shape({
-    email: yup.string().email('Invalid email').required('Required'),
-    password: yup.string().required('Required'),
-    date: yup.date().required('Required'), // Date validation
+    email: yup.string().email("Invalid email").required("Required"),
+    password: yup.string().required("Required"),
+    date: yup.date().required("Required"), // Date validation
   });
-
+  //Bien khoi tao
   const initialValues = {
-    email: '',
-    password: '',
-    date: '',
+    email: "",
+    password: "",
+    date: "",
   };
 
   // Tạo ref để lưu trữ tham chiếu đến formik
   const formikRef = useRef(null);
 
+  //Function create a account 
   const handleFormSubmit = (values) => {
     dispatch(createAccount(values))
       .then((response) => {
         console.log(response);
-        toast.success('Tạo Tài Khoản Thành Công');
+        toast.success("Tạo Tài Khoản Thành Công");
 
         // Đặt lại giá trị của formik về giá trị ban đầu (rỗng)
         formikRef.current.resetForm();
@@ -77,7 +79,7 @@ const CreateAccount = () => {
               gap="30px"
               gridTemplateColumns="repeat(4, minmax(0, 1fr))"
               sx={{
-                '& > div': { gridColumn: isNonMobile ? undefined : 'span 4' },
+                "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
               }}
             >
               <TextField
@@ -91,7 +93,7 @@ const CreateAccount = () => {
                 name="email"
                 error={touched.email && errors.email ? true : false}
                 helperText={touched.email && errors.email}
-                sx={{ gridColumn: 'span 2' }}
+                sx={{ gridColumn: "span 2" }}
               />
               <TextField
                 fullWidth
@@ -104,7 +106,7 @@ const CreateAccount = () => {
                 name="password"
                 error={touched.password && errors.password ? true : false}
                 helperText={touched.password && errors.password}
-                sx={{ gridColumn: 'span 2' }}
+                sx={{ gridColumn: "span 2" }}
               />
               <TextField
                 fullWidth
@@ -117,7 +119,7 @@ const CreateAccount = () => {
                 name="date"
                 error={touched.date && errors.date ? true : false}
                 helperText={touched.date && errors.date}
-                sx={{ gridColumn: 'span 2' }}
+                sx={{ gridColumn: "span 2" }}
               />
             </Box>
           </form>

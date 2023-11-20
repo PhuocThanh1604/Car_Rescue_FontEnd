@@ -52,15 +52,35 @@ export const fetchTransactionsNew = createAsyncThunk(
 export const getTransactionOfWalletId = createAsyncThunk(
   "transaction/getTransactionOfWalletId",
   async ({ id }) => {
-
+    console.log("tesst: "+id)
     try {
       const response = await axios.get(
         `https://rescuecapstoneapi.azurewebsites.net/api/Transaction/GetTransactionOfWallet?id=${id}`
       );
+      
       const data = response.data;
+      console.log(data);
       return data;
     } catch (error) {
       console.error("Failed to get Transaction Of Wallet Id:", error.response);
+      throw error.response.data || error.message;
+    }
+  }
+);
+
+export const getTransactionById = createAsyncThunk(
+  "transaction/getTransactionById",
+  async ({ id }) => {
+  
+    try {
+      const response = await axios.get(
+        `https://rescuecapstoneapi.azurewebsites.net/api/Transaction/GetByID?id=${id}`
+      );
+      const data = response.data;
+      console.log(data);
+      return data;
+    } catch (error) {
+      console.error("Failed to get Transaction By Id ", error.response);
       throw error.response.data || error.message;
     }
   }
@@ -70,7 +90,7 @@ export const getTransactionOfWalletId = createAsyncThunk(
 
 
 const TransactionSlice = createSlice({
-  name: "Transaction",
+  name: "transaction",
   initialState: {
     transactions: [],
     status: "",
@@ -96,6 +116,12 @@ const TransactionSlice = createSlice({
       })
       .addCase(createAcceptWithdrawRequest.rejected, (state, action) => {
         state.status = "error";
+      })
+      .addCase(getTransactionOfWalletId.fulfilled, (state, action) => {
+        state.transactionsData = action.payload.data;
+      })
+      .addCase(getTransactionById.fulfilled, (state, action) => {
+        state.transactionsData = action.payload.data;
       });
   },
 });

@@ -63,11 +63,11 @@ const Orders = (props) => {
   const [selectedOrderFormattedAddress, setSelectedOrderFormattedAddress] =
     useState("");
 
-  useEffect(() => {
-    if (!data || data.length === 0) {
-      fetchOrdersNew();
-    }
-  }, [data]); // Chỉ gọi API nếu 'data' rỗng hoặc chưa được tải
+  // useEffect(() => {
+  //   if (!data || data.length === 0) {
+  //     fetchOrdersNew();
+  //   }
+  // }, [data]); // Chỉ gọi API nếu 'data' rỗng hoặc chưa được tải
   //Reload data after assigning
   const handleDataUpdated = () => {
     reloadOrdersNew();
@@ -128,13 +128,16 @@ const Orders = (props) => {
       setFilteredOrders(filteredOrders);
     }
   };
-
   const handleDateFilterChange = () => {
     if (startDate && endDate) {
-      const filteredOrders = orders.filter((user) => {
-        const orderDate = moment(orders.createdAt).format("YYYY-MM-DD");
-        const isAfterStartDate = moment(orderDate).isSameOrAfter(startDate);
-        const isBeforeEndDate = moment(orderDate).isSameOrBefore(endDate);
+      // Chuyển đổi startDate và endDate sang định dạng "DD-MM-YYYY"
+      const formattedStartDate = moment(startDate).format("DD-MM-YYYY");
+      const formattedEndDate = moment(endDate).format("DD-MM-YYYY");
+  
+      const filteredOrders = orders.filter((order) => {
+        const orderDate = moment(order.createdAt).format("DD-MM-YYYY");
+        const isAfterStartDate = moment(orderDate, "DD-MM-YYYY").isSameOrAfter(formattedStartDate, "day");
+        const isBeforeEndDate = moment(orderDate, "DD-MM-YYYY").isSameOrBefore(formattedEndDate, "day");
         return isAfterStartDate && isBeforeEndDate;
       });
       setFilteredOrders(filteredOrders);
@@ -143,6 +146,9 @@ const Orders = (props) => {
       setFilteredOrders(orders);
     }
   };
+  
+  
+  
 
   useEffect(() => {
     reloadOrdersNew(); // Gọi hàm mới này thay vì gọi đệ quy
@@ -211,21 +217,21 @@ const Orders = (props) => {
       await Promise.all(fetchPromises);
     };
 
-    const debouncedFetchAddresses = debounce(async (departures) => {
-      const uniqueDeparturesToFetch = departures.filter(
-        (departure) => !formattedAddresses[departure]
-      );
+    // const debouncedFetchAddresses = debounce(async (departures) => {
+    //   const uniqueDeparturesToFetch = departures.filter(
+    //     (departure) => !formattedAddresses[departure]
+    //   );
 
-      const fetchPromises = uniqueDeparturesToFetch.map((departure) => {
-        const order = data.find((order) => order.departure === departure);
-        return fetchAddress(order);
-      });
+    //   const fetchPromises = uniqueDeparturesToFetch.map((departure) => {
+    //     const order = data.find((order) => order.departure === departure);
+    //     return fetchAddress(order);
+    //   });
 
-      await Promise.all(fetchPromises);
-    }, 500);
+    //   await Promise.all(fetchPromises);
+    // }, 500);
 
     fetchFullNames(uniqueCustomerIds);
-    debouncedFetchAddresses(uniqueDepartures);
+    // debouncedFetchAddresses(uniqueDepartures);
   }, [data, formattedAddresses, fullnameData]);
   function debounce(func, wait) {
     let timeout;
@@ -325,25 +331,25 @@ const Orders = (props) => {
         );
       },
     },
-    {
-      field: "departure",
-      headerName: "Địa Chỉ",
-      width: 240,
-      renderCell: (params) => {
-        if (params.value) {
-          return formattedAddresses[params.value] ? (
-            formattedAddresses[params.value]
-          ) : (
-            <CircularProgress size={20} />
-          );
-        }
-        return ""; // Trả về chuỗi rỗng nếu không có địa chỉ
-      },
-    },
+    // {
+    //   field: "departure",
+    //   headerName: "Địa Chỉ",
+    //   width: 240,
+    //   renderCell: (params) => {
+    //     if (params.value) {
+    //       return formattedAddresses[params.value] ? (
+    //         formattedAddresses[params.value]
+    //       ) : (
+    //         <CircularProgress size={20} />
+    //       );
+    //     }
+    //     return ""; // Trả về chuỗi rỗng nếu không có địa chỉ
+    //   },
+    // },
     {
       field: "customerNote",
       headerName: "Ghi Chú của Customer",
-      width: 120,
+      width: 160,
       key: "customerNote",
     },
     {
@@ -497,13 +503,16 @@ const Orders = (props) => {
                 label="Từ ngày"
                 type="date"
                 value={startDate || ""}
-                onChange={(event) => setStartDate(event.target.value)}
+                onChange={(event) => {
+                  setStartDate(event.target.value);
+                  // handleDateFilterChange(); // Gọi hàm lọc ngay khi ngày tháng thay đổi
+                }}
                 InputLabelProps={{
                   shrink: true,
                 }}
                 onBlur={handleDateFilterChange}
                 inputProps={{
-                  max: moment().format("YYYY-MM-DD"), // Set the maximum selectable date as today
+                  max: moment().format("MM-DD-YYYY"), // Set the maximum selectable date as today
                 }}
                 sx={{ ml: 4, mr: 2 }}
               />
@@ -514,13 +523,15 @@ const Orders = (props) => {
                 label="Đến ngày"
                 type="date"
                 value={endDate || ""}
-                onChange={(event) => setEndDate(event.target.value)}
+                onChange={(event) => {
+                  setEndDate(event.target.value);
+                }}
                 InputLabelProps={{
                   shrink: true,
                 }}
                 onBlur={handleDateFilterChange}
                 inputProps={{
-                  max: moment().format("YYYY-MM-DD"), // Set the maximum selectable date as today
+                  max: moment().format("MM-DD-YYYY"), // Set the maximum selectable date as today
                 }}
               />
             </Box>

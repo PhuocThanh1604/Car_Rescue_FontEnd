@@ -1,8 +1,9 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-const apiKeyGG = 'AIzaSyB0SpNdaH-YaePTJtVWjlwrGHwTIiZm_t4';
+const apiKeyGG = "AIzaSyAid63yPsUnB_deR9bJTfYRKcc2Z8tgl3E";
 // const apiKeyGG = process.env.API_KEY_GG;
-const mapboxToken = 'pk.eyJ1IjoidGhhbmgyazEiLCJhIjoiY2xvZjMxcWppMG5oejJqcnI2M2ZleTJtZiJ9.yvWTA-yYNqTdr2OstpB7bw';
+const mapboxToken =
+  "pk.eyJ1IjoidGhhbmgyazEiLCJhIjoiY2xvZjMxcWppMG5oejJqcnI2M2ZleTJtZiJ9.yvWTA-yYNqTdr2OstpB7bw";
 // const apiKey = '';
 // Hàm lưu dữ liệu vào storage
 const saveToStorage = (key, data) => {
@@ -64,7 +65,7 @@ export const fetchOrdersNew = createAsyncThunk(
 );
 export const fetchOrdersCompleted = createAsyncThunk(
   "orders/fetchOrdersCompleted",
- 
+
   async () => {
     const storageKey = "ordersCompleted";
     try {
@@ -111,7 +112,7 @@ export const fetchOrdersInprogress = createAsyncThunk(
 );
 export const fetchOrdersAssigned = createAsyncThunk(
   "orders/fetchOrdersAssigned",
-  
+
   async () => {
     const storageKey = "ordersAssigned";
     try {
@@ -217,12 +218,12 @@ export const getFeedbackOfOrderId = createAsyncThunk(
   "orders/getFeedbackOfOrderId",
   async ({ id }) => {
     try {
-      console.log("id:"+id)
+      console.log("id:" + id);
       const response = await axios.get(
         `https://rescuecapstoneapi.azurewebsites.net/api/Feedback/GetFeedbackOfOrder?id=${id}`
       );
       const data = response.data;
-      console.log("data of feedback"+data);
+      console.log("data of feedback" + data);
       return data;
     } catch (error) {
       console.error("Failed to get Feedback Of Order  Id ", error.response);
@@ -271,7 +272,6 @@ export const getFormattedAddressGG = createAsyncThunk(
   }
 );
 
-
 // export const getFormattedAddressGG = createAsyncThunk(
 //   "orders/getFormattedAddress",
 //   async ({ lat, lng }) => {
@@ -297,8 +297,7 @@ export const getFormattedAddressMapbox = createAsyncThunk(
       const response = await axios.get(url);
       const data = response.data;
       const formattedAddress = data.features[0].place_name;
-      console.log(formattedAddress)
- 
+      console.log(formattedAddress);
     } catch (error) {
       console.error("Failed to get Address ", error.message);
       return rejectWithValue(error.response.data || error.message);
@@ -327,6 +326,7 @@ export const createAcceptOrder = createAsyncThunk(
     }
   }
 );
+
 export const createCancelOrder = createAsyncThunk(
   "orders/createCancelOrder",
   async (data) => {
@@ -392,11 +392,32 @@ export const createOrderOffline = createAsyncThunk(
     }
   }
 );
+export const createOrderOfflineFixing = createAsyncThunk(
+  "orders/createOrderOfflineFixing",
+  async (data) => {
+    try {
+      const res = await axios.post(
+        "https://rescuecapstoneapi.azurewebsites.net/api/Order/CreateFixingOrderForCustomer",
+        data,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log(data);
+      return res.data;
+    } catch (error) {
+      console.error("Failed to create Order Offline fixing:", error.response);
+      throw error.response.data || error.message;
+    }
+  }
+);
 export const addServiceForTechnicians = createAsyncThunk(
   "orders/addServiceForTechnicians",
   async (data) => {
     try {
-      console.log(data)
+      console.log(data);
       const res = await axios.post(
         "https://rescuecapstoneapi.azurewebsites.net/api/Order/ManagerAddService",
         data,
@@ -418,7 +439,7 @@ export const updateServiceForTechnicians = createAsyncThunk(
   "orders/updateServiceForTechnicians",
   async (data) => {
     try {
-      console.log(data)
+      console.log(data);
       const res = await axios.post(
         "https://rescuecapstoneapi.azurewebsites.net/api/Order/ManagerUpdateService",
         data,
@@ -431,7 +452,10 @@ export const updateServiceForTechnicians = createAsyncThunk(
       console.log(data);
       return res.data;
     } catch (error) {
-      console.error("Failed to update Service For Technicians:", error.response);
+      console.error(
+        "Failed to update Service For Technicians:",
+        error.response
+      );
       throw error.response.data || error.message;
     }
   }
@@ -461,17 +485,15 @@ export const sendNotification = createAsyncThunk(
   }
 );
 
-
 export const getPaymentId = createAsyncThunk(
   "orders/getPaymentId",
-  async ({id}) => {
-    
+  async ({ id }) => {
     try {
       const response = await axios.get(
         `https://rescuecapstoneapi.azurewebsites.net/api/Payment/GetPaymentOfOrder?id=${id}`
       );
       const data = response.data;
-      console.log(data)
+      console.log(data);
       return data;
     } catch (response) {
       console.error(
@@ -570,7 +592,7 @@ const orderSlice = createSlice({
       .addCase(createAcceptOrder.rejected, (state, action) => {
         state.status = "error";
       })
-       .addCase(createCancelOrder.fulfilled, (state, action) => {
+      .addCase(createCancelOrder.fulfilled, (state, action) => {
         state.orders.push(action.payload);
       })
       .addCase(createCancelOrder.pending, (state) => {
@@ -606,12 +628,22 @@ const orderSlice = createSlice({
       .addCase(sendNotification.rejected, (state, action) => {
         state.status = "error";
       })
+      .addCase(createOrderOfflineFixing.fulfilled, (state, action) => {
+        state.orders.push(action.payload);
+      })
+      .addCase(createOrderOfflineFixing.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(createOrderOfflineFixing.rejected, (state, action) => {
+        state.status = "error";
+      })
       .addCase(getFormattedAddressMapbox.fulfilled, (state, action) => {
         state.formattedAddress = action.payload;
       })
       .addCase(getFormattedAddressMapbox.pending, (state, action) => {
         state.status = "loading";
-      }).addCase(updateServiceForTechnicians.fulfilled, (state, action) => {
+      })
+      .addCase(updateServiceForTechnicians.fulfilled, (state, action) => {
         state.orders = action.payload.data;
       })
       .addCase(updateServiceForTechnicians.pending, (state) => {
@@ -628,7 +660,7 @@ const orderSlice = createSlice({
       })
       .addCase(addServiceForTechnicians.rejected, (state, action) => {
         state.status = "error";
-      })
+      });
   },
 });
 export const { setorders } = orderSlice.actions;

@@ -12,30 +12,25 @@ import ReceiptOutlinedIcon from "@mui/icons-material/ReceiptOutlined";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
 import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
-import BarChartOutlinedIcon from "@mui/icons-material/BarChartOutlined";
-import PieChartOutlineOutlinedIcon from "@mui/icons-material/PieChartOutlineOutlined";
-import TimelineOutlinedIcon from "@mui/icons-material/TimelineOutlined";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
-import MapOutlinedIcon from "@mui/icons-material/MapOutlined";
 import PropTypes from "prop-types";
 import CategoryIcon from "@mui/icons-material/Category";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "../../../features/auth/authSlice";
 import BookmarkAddIcon from "@mui/icons-material/BookmarkAdd";
 import ListIcon from "@mui/icons-material/List";
-import { display } from "@mui/system";
 import TaskAltIcon from "@mui/icons-material/TaskAlt";
-import QueuePlayNextIcon from "@mui/icons-material/QueuePlayNext";
 import HourglassTopIcon from "@mui/icons-material/HourglassTop";
-import ElectricRickshawIcon from '@mui/icons-material/ElectricRickshaw';
-import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
-import DvrIcon from '@mui/icons-material/Dvr';
-import CancelIcon from '@mui/icons-material/Cancel';
-import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
-import LoopIcon from '@mui/icons-material/Loop';
-import PermContactCalendarIcon from '@mui/icons-material/PermContactCalendar';
-import AddToQueueIcon from '@mui/icons-material/AddToQueue';
-import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import ElectricRickshawIcon from "@mui/icons-material/ElectricRickshaw";
+import PlaylistAddIcon from "@mui/icons-material/PlaylistAdd";
+import DvrIcon from "@mui/icons-material/Dvr";
+import CancelIcon from "@mui/icons-material/Cancel";
+import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
+import LoopIcon from "@mui/icons-material/Loop";
+import PermContactCalendarIcon from "@mui/icons-material/PermContactCalendar";
+import AddToQueueIcon from "@mui/icons-material/AddToQueue";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import { useParams } from "react-router-dom";
 const Item = ({ title, to, icon, selected, setSelected, subItems }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -77,7 +72,8 @@ const Item = ({ title, to, icon, selected, setSelected, subItems }) => {
   );
 };
 
-const Sidebar = () => {
+const Sidebar = ({ selectedWalletId,selectedItemId }) => {
+
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -87,6 +83,11 @@ const Sidebar = () => {
   const [userRole, setUserRole] = useState(storedRole || "");
   const [shouldShowItem, setShouldShowItem] = useState(false);
   const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 768);
+  const [showSubItems, setShowSubItems] = useState(false);
+  const [showSubItemsTransaction, setShowSubItemsTransaction] = useState(false);
+  const [showSubItemsRescue, setShowSubItemsRescue] = useState(false);
+  
+  const { id } = useParams();
   useEffect(() => {
     if (user && user.role) {
       setUserRole(user.role);
@@ -96,25 +97,27 @@ const Sidebar = () => {
     }
   }, [user, storedRole]);
 
+  useEffect(() => {
+    const handleResize = () => {
+      setIsSmallScreen(window.innerWidth < 768);
+    };
 
-useEffect(() => {
-  const handleResize = () => {
-    setIsSmallScreen(window.innerWidth < 768);
-  };
+    window.addEventListener("resize", handleResize);
 
-  window.addEventListener('resize', handleResize);
-
-  return () => {
-    window.removeEventListener('resize', handleResize);
-  };
-}, []);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
 
-  const [showSubItems, setShowSubItems] = useState(false);
-  const [showSubItemsRescue, setShowSubItemsRescue] = useState(false);
   const handleOrderClick = () => {
     // Toggle the visibility of sub-items
     setShowSubItems(!showSubItems);
+  };
+
+  const handleTransactionClick = () => {
+    // Toggle the visibility of sub-items
+    setShowSubItemsTransaction(!showSubItemsTransaction);
   };
   const handleRescuseClick = () => {
     // Toggle the visibility of sub-items
@@ -132,7 +135,11 @@ useEffect(() => {
       sx={{
         ...sidebarStyles, // Apply the sidebar styles
         display: "flex",
-        height: isSmallScreen ? '100vh' : (userRole === 'manager' ? '100%' : 'auto'),
+        height: isSmallScreen
+          ? "100vh"
+          : userRole === "manager"
+          ? "100%"
+          : "auto",
         "& .pro-sidebar-inner": {
           background: `${colors.primary[400]} !important`,
         },
@@ -239,22 +246,22 @@ useEffect(() => {
                   selected={selected}
                   setSelected={setSelected}
                 />
-         
-                   <Item
+
+                <Item
                   title="Đang Điều Phối"
                   to="manager/ordersAssigning"
                   icon={<LoopIcon />}
                   selected={selected}
                   setSelected={setSelected}
                 />
-                  <Item
+                <Item
                   title="Đã Được Điều Phối"
                   to="manager/ordersAssigned"
                   icon={<AssignmentTurnedInIcon />}
                   selected={selected}
                   setSelected={setSelected}
                 />
-                       <Item
+                <Item
                   title="Đang Thực Hiện"
                   to="manager/ordersInprogress"
                   icon={<HourglassTopIcon />}
@@ -268,7 +275,7 @@ useEffect(() => {
                   selected={selected}
                   setSelected={setSelected}
                 />
-                 <Item
+                <Item
                   title="Đã Bị Hủy"
                   to="manager/ordersCancelled"
                   icon={<CancelIcon />}
@@ -297,7 +304,6 @@ useEffect(() => {
                   selected={selected}
                   setSelected={setSelected}
                 />
-             
                 <Item
                   title="Chủ Xe Cứu Hộ"
                   to="manager/rescueVehicleOwner"
@@ -338,27 +344,51 @@ useEffect(() => {
               selected={selected}
               setSelected={setSelected}
             />{" "}
-              {/* <Item
+            {/* <Item
               title="FeedBack"
               to="manager/service"
               icon={<ListIcon />}
               selected={selected}
               setSelected={setSelected}
             />{" "} */}
-            <Item
-              title="Contacts Info"
-              to="manager/contacts"
-              icon={<ContactsOutlinedIcon />}
+                     <Item
+              title="Payment"
+              to="manager/payments"
+              icon={<ListIcon />}
               selected={selected}
               setSelected={setSelected}
-            />
-            <Item
-              title="Giao Dịch"
-              to="manager/invoices"
+            />{" "}
+      
+               <MenuItem
+              onClick={handleTransactionClick}
               icon={<ReceiptOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
+              style={{
+                color: colors.grey[100],
+                // Add a conditional class to indicate if this item is selected
+                backgroundColor: selectedItemId === 'yourItemId' ? 'selectedColor' : 'defaultColor',
+              }}
+            >
+              <Typography>Giao Dịch</Typography>
+              <Link to="#" />
+            </MenuItem>
+            {showSubItemsTransaction && (
+              <div style={{ marginLeft: "20px" }}>
+                <Item
+                  title="Giao Dịch"
+                  to="manager/invoices"
+                  icon={<ReceiptOutlinedIcon />}
+                  selected={selected}
+                  setSelected={setSelected}
+                />
+                <Item
+                  title="Giao Dịch Chi Tiết"
+                  to={`/manager/invoices/${selectedWalletId}`}
+                  icon={<ReceiptOutlinedIcon />}
+                  selected={selected}
+                  setSelected={setSelected}
+                />{" "}
+              </div>
+            )}
             <Typography
               variant="h6"
               color={colors.grey[300]}
@@ -373,7 +403,7 @@ useEffect(() => {
               selected={selected}
               setSelected={setSelected}
             />
-                <Item
+            <Item
               title="Tạo Mới Khách Hàng"
               to="manager/add/customer"
               icon={<PersonAddIcon />}
@@ -394,7 +424,6 @@ useEffect(() => {
               selected={selected}
               setSelected={setSelected}
             />
-        
             <Item
               title="Lịch Kỹ Thuật Viên"
               to="manager/calendarTechnicians"

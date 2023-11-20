@@ -22,7 +22,7 @@ import {
   Grid,
 
 } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
+import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 
 import { tokens } from "../../theme";
 import Header from "../../components/Header";
@@ -50,7 +50,6 @@ import "react-responsive-carousel/lib/styles/carousel.min.css"; // Import the ca
 import ReceiptRoundedIcon from "@mui/icons-material/ReceiptRounded";
 import SwipeableViews from "react-swipeable-views";
 import { autoPlay } from "react-swipeable-views-utils";
-import { getCustomerId } from "../../redux/customerSlice";
 import { getRescueVehicleOwnerId } from "../../redux/rescueVehicleOwnerSlice";
 import MapRoundedIcon from "@mui/icons-material/MapRounded";
 import PhoneRoundedIcon from "@mui/icons-material/PhoneRounded";
@@ -487,6 +486,7 @@ const Vehicles = (props) => {
           autoHeight
           checkboxSelection
           loading={loading}
+          components={{ Toolbar: GridToolbar }}
         />
 
         <CustomTablePagination

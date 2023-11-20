@@ -6,9 +6,9 @@ import Topbar from "../../components/Topbar";
 import Sidebar from "../../scenesManager/geographyManager/global/Sidebar";
 import Contacts from "../../scenesManager/contacts";
 import Invoices from "../../scenesManager/invoices";
-import FAQ from '../../scenesManager/faq';
+import FAQ from "../../scenesManager/faq";
 import Orders from "../../scenesManager/ordersPage/ordersNew";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useParams } from "react-router-dom";
 import Dashboard from "../../scenesManager/dashboard";
 import { useSelector } from "react-redux";
 import { selectCurrentToken, selectCurrentUser } from "./authSlice";
@@ -35,8 +35,10 @@ import CalendarTechnician from "../../scenesManager/calendarTechnician";
 import Map from "../../scenesManager/map/google";
 import Vehicles from "../../scenesManager/vehicle";
 import CreateOrderOffline from "../../scenesManager/create_OrderOffline";
-import { useLocation } from 'react-router-dom';
+import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
+import TransactionDetails from "../../scenesManager/invoices/transactionDetail";
+import Payment from "../../scenesManager/payment";
 
 const Manager = () => {
   const user = useSelector(selectCurrentUser);
@@ -44,18 +46,23 @@ const Manager = () => {
   const location = useLocation();
   const [theme, colorMode] = useMode();
   const [isSidebar, setIsSidebar] = useState(true);
+  const [selectedWalletId, setSelectedWalletId] = useState(null);
+  const handleSelectWallet = (id) => {
+    console.log("Manager: Updating Selected Wallet ID to", id);
+    setSelectedWalletId(id);
+  };
+
   useEffect(() => {
     // Hàm để tải lại dữ liệu
     const reloadData = async () => {
       // Tạo các hành động để tải lại dữ liệu ở đây
-      console.log('Reloading data for new route:', location.pathname);
+      console.log("Reloading data for new route:", location.pathname);
       // Ví dụ: dispatch(fetchOrdersNew()), fetchProducts(), v.v...
     };
 
     // Gọi hàm tải lại dữ liệu
     reloadData();
-  }, [location.pathname]); 
-
+  }, [location.pathname]);
   return (
     <ColorModeContext.Provider value={colorMode}>
       <ThemeProvider theme={theme}>
@@ -63,23 +70,45 @@ const Manager = () => {
         <div className="app">
           <ToastContainer />
           <Topbar setIsSidebar={setIsSidebar} />
-          <main className="content" style={{ display: "flex", height: '100vh' }}>
-            {isSidebar && <Sidebar isSidebar={isSidebar}  />}
+          <main
+            className="content"
+            style={{ display: "flex", height: "100vh" }}
+          >
+            {isSidebar && (
+              <Sidebar
+                isSidebar={isSidebar}
+                selectedWalletId={selectedWalletId}
+              />
+            )}
             <Box flexGrow={2}>
               {/* <AuthProvider> */}
               <Routes>
                 <Route path="/client" element={<Dashboard />} />
                 <Route path="/manager/contacts" element={<Contacts />} />
-                <Route path="/manager/invoices" element={<Invoices />} />
-                <Route path="/manager/calendarTechnicians" element={<CalendarTechnician />} />
-                <Route path="/manager/calendarRescueVehicleOwners" element={<CalendarRescueVehicleOwner />} />
+                <Route path="/manager/payments" element={<Payment />} />
+                {/* <Route path="/manager/invoices" element={<Invoices />} /> */}
+                <Route path="/manager/invoices/:id" element={ <TransactionDetails/>} />
+
+                <Route 
+                  path="/manager/invoices" 
+                  element={<Invoices onSelectWallet={handleSelectWallet} />} 
+                />
+
+                <Route
+                  path="/manager/calendarTechnicians"
+                  element={<CalendarTechnician />}
+                />
+                <Route
+                  path="/manager/calendarRescueVehicleOwners"
+                  element={<CalendarRescueVehicleOwner />}
+                />
                 {/* } />
                   <Route path="/bar" element={<Bar />} />
                   <Route path="pie" element={<Pie />} />
                   <Route path="/line" element={<Line />} /> */}
                 {/* <Route path="/geography" element={<Geography />} /> */}
                 <Route path="/manager/googlemap" element={<Map />} />
-            
+
                 <Route path="/manager/faq" element={<FAQ />} />
                 <Route path="/manager/orders" element={<Orders />} />
                 <Route
@@ -126,7 +155,10 @@ const Manager = () => {
                 <Route path="/manager/add/manager" element={<AddManager />} />
                 <Route path="/manager/add/customer" element={<AddCustomer />} />
                 <Route path="/manager/add/service" element={<AddService />} />
-                <Route path="/manager/add/orderOffline" element={<CreateOrderOffline />} />
+                <Route
+                  path="/manager/add/orderOffline"
+                  element={<CreateOrderOffline />}
+                />
                 {/*Update Profile*/}
                 <Route
                   path="/manager/update/profile"

@@ -158,11 +158,11 @@ const CalendarTechnician = () => {
         <Box flex="1 1 100%" ml="30px">
           <FullCalendar
             height="75vh"
-            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+            plugins={[ timeGridPlugin, interactionPlugin]}
             headerToolbar={{
               left: "prev,next today",
               center: "title",
-              right: "dayGridMonth,timeGridWeek,timeGridDay",
+              right: "timeGridWeek,timeGridDay",
             }}
             editable={true}
             selectable={true}
@@ -173,7 +173,8 @@ const CalendarTechnician = () => {
             eventSources={[currentEvents]}
             eventColor={colors.greenAccent[500]}
             eventTextColor="white"
-            weekends={false}
+            weekends={true}
+            dayHeaders={true}
           />
         </Box>
       </Box>

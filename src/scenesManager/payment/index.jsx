@@ -1,12 +1,9 @@
 import React, { useEffect, useState } from "react";
 import {
   Box,
-  Button,
   Card,
   CardContent,
-  CardMedia,
   Dialog,
-  DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
@@ -18,15 +15,11 @@ import {
 } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
-import { ToastContainer, toast } from "react-toastify";
-import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
 import Header from "../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
 import {
   createAcceptWithdrawRequest,
   fetchTransactionsNew,
-  getTransactionById,
-  getTransactionOfWalletId,
 } from "../../redux/transactionsSlice";
 import moment from "moment";
 import AddCardIcon from "@mui/icons-material/AddCard";
@@ -42,59 +35,45 @@ import PlaceIcon from "@mui/icons-material/Place";
 import ReceiptRoundedIcon from "@mui/icons-material/ReceiptRounded";
 import { CategoryRounded } from "@mui/icons-material";
 import TimerIcon from "@mui/icons-material/Timer";
-import ModalDetail from "./transactionDetail";
 import InfoIcon from "@mui/icons-material/Info";
 import { autoPlay } from "react-swipeable-views-utils";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../geographyManager/global/Sidebar";
 import AssuredWorkloadIcon from "@mui/icons-material/AssuredWorkload";
 import CustomTablePagination from "../../components/TablePagination";
+import { fetchPayments } from "../../redux/paymentSlice";
+import { getPaymentId } from "../../redux/orderSlice";
 
-const Invoices = ({ onSelectWallet = () => {} }) => {
+const Payment = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const transactions = useSelector((state) => state.transaction.transactions);
-  const [openEditModal, setOpenEditModal] = useState(false);
+  const payments = useSelector((state) => state.payment.payments);
   const [loading, setLoading] = useState(false);
-  const [filteredTransaction, setFilteredTransaction] = useState([]);
+  const [filteredPayment, setFilteredPayment] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(8);
-  const [detailedData, setDetailedData] = useState([]);
+  const [detailedData, setDetailedData] = useState(null);
   const [searchText, setSearchText] = useState("");
   const [filterOption, setFilterOption] = useState("Status");
-  const [openModal, setOpenModal] = useState(false);
-  const [selectedEditOrder, setSelectedEditOrder] = useState(null);
   const [isSuccess, setIsSuccess] = useState(false);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [data, setData] = useState([]);
-  const [transactionId, setTransactionId] = useState(null);
+  const [paymentId, setPaymentId] = useState(null);
   const [openConfirmModal, setOpenConfirmModal] = useState(false);
   const [isAccepted, setIsAccepted] = useState(false);
   const [selectedWalletId, setSelectedWalletId] = useState("");
-  const [selectedItemId, setSelectedItemId] = useState(null);
 
-  const handleDetailClickDetail = (selectedWalletId) => {
-    console.log(selectedWalletId);
-    console.log("Invoices: Selected Wallet ID", selectedWalletId);
-    setSelectedWalletId(selectedWalletId);
-    onSelectWallet(selectedWalletId);
-    setSelectedItemId(selectedWalletId);
-    if (typeof onSelectWallet === "function") {
-      onSelectWallet(selectedWalletId);
-    } else {
-      console.error("onSelectWallet is not a function or not defined");
-    }
-    // Fetch the rescueVehicleOwnerId details based on the selected rescueVehicleOwnerId ID
-    dispatch(getTransactionOfWalletId({ id: selectedWalletId }))
+  const handleClickPaymentDetail = (paymentId) => {
+    console.log(paymentId); 
+    dispatch(getPaymentId({ id: paymentId }))
       .then((response) => {
-        const orderDetails = response.payload.data;
-        setSelectedEditOrder(orderDetails);
-        navigate(`/manager/invoices/${selectedWalletId}`);
-        setOpenModal(true);
+        const transactionDetails = response.payload.data;
+        setOpenConfirmModal(true);
+        setDetailedData(transactionDetails);
+        setIsSuccess(true);
       })
       .catch((error) => {
-        console.error("Lỗi khi lấy thông tin giao dịch:", error);
+        console.error("Lỗi khi lấy thông tin payment:", error);
       });
   };
 
@@ -110,18 +89,18 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
 
   const handleDateFilterChange = () => {
     if (startDate && endDate) {
-      const filteredTransaction = transactions
-        ? transactions.filter((user) => {
+      const filteredTransaction = payments
+        ? payments.filter((user) => {
             const orderDate = moment(user.createAt).format("YYYY-MM-DD");
             const isAfterStartDate = moment(orderDate).isSameOrAfter(startDate);
             const isBeforeEndDate = moment(orderDate).isSameOrBefore(endDate);
             return isAfterStartDate && isBeforeEndDate;
           })
         : [];
-      setFilteredTransaction(filteredTransaction);
+      setFilteredPayment(filteredTransaction);
       setFilterOption("Date");
     } else {
-      setFilteredTransaction(transactions);
+      setFilteredPayment(payments);
     }
   };
 
@@ -131,39 +110,38 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
 
     if (selectedStatusOption === "Status") {
       // Hiển thị tất cả các trạng thái
-      setFilteredTransaction(transactions);
+      setFilteredPayment(payments);
     } else {
       // Lọc sản phẩm dựa trên giá trị trạng thái
-      const filteredTransaction = transactions.filter(
+      const filteredTransaction = payments.filter(
         (transaction) => transaction.status === selectedStatusOption
       );
-      setFilteredTransaction(filteredTransaction);
+      setFilteredPayment(filteredTransaction);
     }
   };
 
   useEffect(() => {
-    const filteredTransaction = transactions
-      ? transactions.filter((technician) => {
+    const filteredTransaction = payments
+      ? payments.filter((payment) => {
           const filterMatch =
             filterOption === "Status" ||
-            (filterOption === "ACTIVE" && technician.status === "ACTIVE") ||
-            (filterOption === "INACTIVE" && technician.status === "INACTIVE");
+            (filterOption === "ACTIVE" && payment.status === "ACTIVE") ||
+            (filterOption === "INACTIVE" && payment.status === "INACTIVE");
           return filterMatch;
         })
       : [];
-    setFilteredTransaction(filteredTransaction);
-  }, [transactions, searchText, filterOption]);
+    setFilteredPayment(filteredTransaction);
+  }, [payments, searchText, filterOption]);
 
   useEffect(() => {
     setLoading(true);
-    dispatch(fetchTransactionsNew())
+    dispatch(fetchPayments())
       .then((response) => {
         // Đã lấy dữ liệu thành công
         const data = response.payload.data;
         if (data) {
           setData(data);
-          setFilteredTransaction(data);
-          // setDetailedData(data);
+          setFilteredPayment(data);
           console.log(data);
           setLoading(false); // Đặt trạng thái loading thành false sau khi xử lý dữ liệu
         }
@@ -177,19 +155,19 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
   const handleCancel = () => {
     // Đóng modal và đặt lại orderId
     setOpenConfirmModal(false);
-    setTransactionId(null);
+    setPaymentId(null);
   };
   const handleSelectWallet = (id) => {
     setSelectedWalletId(id);
   };
 
-  const reloadTrsansaction = () => {
-    dispatch(fetchTransactionsNew())
+  const reloadPayment = () => {
+    dispatch(fetchPayments())
       .then((response) => {
         const data = response.payload.data;
 
         if (data) {
-          setFilteredTransaction(data);
+          setFilteredPayment(data);
 
           // Đặt loading thành false sau khi tải lại dữ liệu
           setLoading(false);
@@ -201,44 +179,7 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
       });
   };
 
-  const handleModalTransaction = (transactionId) => {
-    console.log(transactionId); // Fetch the rescueVehicleOwnerId details based on the selected rescueVehicleOwnerId ID
-    dispatch(getTransactionById({ id: transactionId }))
-      .then((response) => {
-        const transactionDetails = response.payload.data;
-        setTransactionId(transactionId);
-        // Đóng modal và đặt lại orderId
-        setOpenConfirmModal(true);
-        setDetailedData(transactionDetails);
 
-        setIsSuccess(true);
-      })
-      .catch((error) => {
-        console.error("Lỗi khi lấy thông tin chủ xe cứu hộ:", error);
-      });
-  };
-  const handleConfirmWithdraw = (transactionId, accept) => {
-    console.log(transactionId);
-    setIsAccepted(accept);
-    console.log(accept);
-    // Fetch the VehicleId details based on the selected Vehicle ID
-    dispatch(
-      createAcceptWithdrawRequest({ id: transactionId, boolean: accept })
-    )
-      .then(() => {
-        setTransactionId(transactionId);
-        setOpenConfirmModal(false);
-        setIsSuccess(true);
-        reloadTrsansaction();
-        toast.success("Xác nhận rút tiền thành công.");
-      })
-      .catch((error) => {
-        console.error(
-          "Lỗi khi Xác nhận rút tiền thành công:",
-          error.status || error.message
-        );
-      });
-  };
 
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
@@ -247,7 +188,7 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
-  const filteredTransactionsPagination = filteredTransaction.slice(
+  const filteredPaymentsPagination = filteredPayment.slice(
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
   );
@@ -258,92 +199,50 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
       field: "id",
       headerName: "id",
       width: 100,
-      cellClassName: "name-column--cell"
-  
+      cellClassName: "name-column--cell",
     },
     {
-      field: "walletId",
-      headerName: "walletId",
+      field: "orderId",
+      headerName: "orderId",
       width: 100,
       cellClassName: "name-column--cell",
       onCellClick: (params) => {
-        setSelectedWalletId(params.row.walletId);
-        // Các hành động khác sau khi chọn walletId
+        setSelectedWalletId(params.row.orderId);
+        // Các hành động khác sau khi chọn orderId
       },
     },
+
     {
-      field: "transactionAmount",
-      headerName: "Số tiền giao dịch",
-      width: 100,
-      valueFormatter: (params) => {
-        // Đảm bảo rằng params.value là một số
-        if (typeof params.value === "number") {
-          // Chuyển số thành chuỗi và định dạng theo định dạng tiền tệ VNĐ
-          const formattedPrice = params.value.toLocaleString("vi-VN", {
-            style: "currency",
-            currency: "VND",
-          });
-          return formattedPrice;
-        } else {
-          return params.value;
-        }
-      },
-    },
-    {
-      field: "type",
+      field: "method",
       headerName: "Hình thức",
       width: 120,
       key: "type",
-      renderCell: ({ row: { type } }) => {
-        return (
-          <Box
-            width="86%"
-            m="0 auto"
-            p="4px"
-            display="flex"
-            justifyContent="center"
-            fontSize={8}
-            borderRadius={2} // Corrected prop name from "buserRadius" to "borderRadius"
-            backgroundColor={
-              type === "Withdraw"
-                ? colors.greenAccent[700]
-                : type === "Deposit"
-                ? colors.purpleAccent[200]
-                : colors.purpleAccent[200]
-            }
-          >
-            {type === "Withdraw" && <CurrencyExchangeIcon />}
-            {type === "Deposit" && <AssuredWorkloadIcon />}
-            <Typography color={colors.grey[100]} sx={{ ml: "2px" }}>
-              {type}
-            </Typography>
-          </Box>
-        );
-      },
-    },
-    {
-      field: "totalAmount",
-      headerName: "Tổng cộng",
-      width: 100,
-      renderCell: (params) => {
-        // Đảm bảo rằng params.value là một số
-        if (typeof params.value === "number") {
-          // Chuyển số thành chuỗi và định dạng theo định dạng tiền tệ VNĐ
-          const formattedPrice = params.value.toLocaleString("vi-VN", {
-            style: "currency",
-            currency: "VND",
-          });
-
-          // Trả về phần tử Typography để render với màu xanh và giá trị tiền đã định dạng
-          return (
-            <Typography color={colors.greenAccent[500]}>
-              {formattedPrice}
-            </Typography>
-          );
-        } else {
-          return params.value;
-        }
-      },
+      // renderCell: ({ row: { type } }) => {
+      //   return (
+      //     <Box
+      //       width="86%"
+      //       m="0 auto"
+      //       p="4px"
+      //       display="flex"
+      //       justifyContent="center"
+      //       fontSize={8}
+      //       borderRadius={2} // Corrected prop name from "buserRadius" to "borderRadius"
+      //       backgroundColor={
+      //         type === "Withdraw"
+      //           ? colors.greenAccent[700]
+      //           : type === "Deposit"
+      //           ? colors.purpleAccent[200]
+      //           : colors.purpleAccent[200]
+      //       }
+      //     >
+      //       {type === "Withdraw" && <CurrencyExchangeIcon />}
+      //       {type === "Deposit" && <AssuredWorkloadIcon />}
+      //       <Typography color={colors.grey[100]} sx={{ ml: "2px" }}>
+      //         {type}
+      //       </Typography>
+      //     </Box>
+      //   );
+      // },
     },
     {
       field: "createdAt",
@@ -387,24 +286,7 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
         );
       },
     },
-    {
-      field: "acceptWithdraw",
-      headerName: "Trạng Thái Đơn",
-      width: 60,
-      renderCell: (params) => (
-        <IconButton
-          variant="contained"
-          color="error"
-          onClick={() => handleModalTransaction(params.row.id)}
-        >
-          <CheckCircleOutlineIcon
-            variant="contained"
-            style={{ color: "green" }} // Set the color to green
-          />
-        </IconButton>
-      ),
-      key: "acceptWithdraw",
-    },
+
     {
       field: "orderDetails",
       headerName: "Chi Tiết Đơn Hàng",
@@ -413,7 +295,7 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
         <Grid container justifyContent="center" alignItems="center">
           <IconButton
             color="indigo"
-            onClick={() => handleDetailClickDetail(params.row.walletId)}
+            onClick={() => handleClickPaymentDetail(params.row.orderId)}
             aria-label="Chi Tiết Đơn Hàng"
           >
             <InfoIcon />
@@ -426,7 +308,7 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
 
   return (
     <Box m="20px">
-      <Header title="Giao Dịch" subtitle="Danh sách giao dịch với đối tác" />
+      <Header title="Payment" subtitle="Danh sách chi tiết payment " />
       <Box
         m="40px 0 0 0"
         height="75vh"
@@ -459,7 +341,7 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
         }}
       >
         <DataGrid
-          rows={filteredTransactionsPagination}
+          rows={filteredPaymentsPagination}
           columns={columns}
           getRowId={(row) => row.id} // Sử dụng thuộc tính `id` của mỗi hàng
           autoHeight
@@ -469,7 +351,7 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
         />
       </Box>
       <CustomTablePagination
-        count={filteredTransaction.length}
+        count={filteredPayment.length}
         page={page}
         rowsPerPage={rowsPerPage}
         onPageChange={handleChangePage}
@@ -493,7 +375,7 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
           id="alert-dialog-title"
           sx={{ color: "indigo", fontSize: "24px", textAlign: "center" }}
         >
-          Xác nhận rút tiền
+          Thông tin chi tiết payment
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
@@ -519,9 +401,10 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
                       <PhoneRoundedIcon />
                       <Typography variant="h6">
                         <strong>SĐT: </strong>{" "}
-                        {detailedData.walletId || "Không có thông tin"}
+                        {detailedData.id || "Không có thông tin"}
                       </Typography>
                     </Box>
+                 
                     <Box
                       sx={{
                         display: "flex",
@@ -529,12 +412,13 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
                         gap: 1, // Khoảng cách giữa icon và văn bản
                       }}
                     >
-                      <PersonRoundedIcon />
+                      {/* <PersonRoundedIcon /> */}
                       <Typography variant="h6">
-                        <strong>transactionAmount: </strong>{" "}
-                        {detailedData.transactionAmount || "Không có thông tin"}
+                        <strong>hình thức: </strong>{" "}
+                        {detailedData.method || "Không có thông tin"}
                       </Typography>
                     </Box>
+                  
                     <Box
                       sx={{
                         display: "flex",
@@ -542,33 +426,7 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
                         gap: 1, // Khoảng cách giữa icon và văn bản
                       }}
                     >
-                      <PersonRoundedIcon />
-                      <Typography variant="h6">
-                        <strong>totalAmount: </strong>{" "}
-                        {detailedData.totalAmount || "Không có thông tin"}
-                      </Typography>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 1, // Khoảng cách giữa icon và văn bản
-                      }}
-                    >
-                      <PersonRoundedIcon />
-                      <Typography variant="h6">
-                        <strong>type: </strong>{" "}
-                        {detailedData.type || "Không có thông tin"}
-                      </Typography>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 1, // Khoảng cách giữa icon và văn bản
-                      }}
-                    >
-                      <PersonRoundedIcon />
+                      {/* <PersonRoundedIcon /> */}
                       <Typography variant="h6">
                         <strong>createdAt: </strong>{" "}
                         {detailedData.createdAt || "Không có thông tin"}
@@ -581,10 +439,10 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
                         gap: 1, // Khoảng cách giữa icon và văn bản
                       }}
                     >
-                      <PersonRoundedIcon />
+                      {/* <PersonRoundedIcon /> */}
                       <Typography variant="h6">
                         <strong>Ghi Chú: </strong>{" "}
-                        {detailedData.description || "Không có thông tin"}
+                        {detailedData.amount || "Không có thông tin"}
                       </Typography>
                     </Box>
                   </CardContent>
@@ -595,29 +453,9 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
             )}
           </DialogContentText>
         </DialogContent>
-
-        <DialogActions>
-          <Button onClick={handleCancel} color="primary" variant="contained">
-            Hủy
-          </Button>
-          <Button
-            onClick={() => handleConfirmWithdraw(transactionId, true)}
-            color="secondary"
-            variant="contained"
-          >
-            Đồng Ý
-          </Button>
-          <Button
-            onClick={() => handleConfirmWithdraw(transactionId, false)}
-            color="primary"
-            variant="contained"
-          >
-            Không Đồng Ý
-          </Button>
-        </DialogActions>
       </Dialog>
     </Box>
   );
 };
 
-export default Invoices;
+export default Payment;

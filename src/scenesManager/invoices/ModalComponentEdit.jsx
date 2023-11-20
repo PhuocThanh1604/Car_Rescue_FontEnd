@@ -148,8 +148,8 @@ const ModalEdit = ({
       <Modal
         open={openEditModal}
         onClose={handleClose}
-        aria-labelledby="Vehicle-detail-modal"
-        aria-describedby="Vehicle-detail-modal-description"
+        aria-labelledby="RescuseVehicleOwner-detail-modal"
+        aria-describedby="RescuseVehicleOwner-detail-modal-description"
         closeAfterTransition
       >
         <Fade in={openEditModal}>
