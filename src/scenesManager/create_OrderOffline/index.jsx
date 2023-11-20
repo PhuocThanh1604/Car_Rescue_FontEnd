@@ -19,7 +19,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import { createOrderOffline } from "../../redux/orderSlice";
+import {
+  createOrderOffline,
+  createOrderOfflineFixing,
+} from "../../redux/orderSlice";
 import { fetchServices } from "../../redux/serviceSlice";
 import { fetchCustomers } from "../../redux/customerSlice";
 import EditLocationAltIcon from "@mui/icons-material/EditLocationAlt";
@@ -126,10 +129,6 @@ const CreateOrderOffline = () => {
 
         // Cập nhật trường "destination"
         formikRef.current.setFieldValue("destination", latLngDestination);
-        formikRef.current.setFieldValue(
-          "addressDestination",
-          selectedLocation.address
-        );
       } else {
         console.error("No results found for this address.");
       }
@@ -189,6 +188,7 @@ const CreateOrderOffline = () => {
     customerId: yup.string().required("Required"),
     service: yup.string().required("Required"),
   });
+
   const initialValues = {
     customerNote: "",
     distance: "",
@@ -204,34 +204,85 @@ const CreateOrderOffline = () => {
   // Tạo ref để lưu trữ tham chiếu đến formik
   const formikRef = useRef(null);
 
-  const handleFormSubmit = (values, { resetForm }) => {
-    const selectedServices = selectedService ? [selectedService.name] : [];
-    values.service = selectedServices;
-    resetForm({ values: initialValues });
-    setSelectedService(null);
-    setSelectedCustomer(null);
-    // In ra tất cả dữ liệu đã nhập
-    console.log("Dữ liệu đã nhập:", orders);
-    dispatch(createOrderOffline(values))
-      .then((response) => {
-        console.log(response);
-        toast.success("Tạo Đơn Hàng Thành Công");
+  // const handleFormSubmit = (values, { resetForm }) => {
+  //   const selectedServices = selectedService ? [selectedService.name] : [];
+  //   values.service = selectedServices;
+  //   resetForm({ values: initialValues });
+  //   setSelectedService(null);
+  //   setSelectedCustomer(null);
+  //   // In ra tất cả dữ liệu đã nhập
+  //   console.log("Dữ liệu đã nhập:", orders);
+  //   dispatch(createOrderOffline(values))
+  //     .then((response) => {
+  //       console.log(response);
+  //       toast.success("Tạo Đơn Hàng Thành Công");
 
-        // Đặt lại giá trị của formik về giá trị ban đầu (rỗng)
-        formikRef.current.resetForm();
-        setAddress("");
-        setAddressDestination("");
-      })
-      .catch((error) => {
-        if (error.response && error.response.data) {
-          toast.error(
-            `Lỗi khi tạo đơn hàng trực Offline: ${error.response.data.message}`
-          );
-        } else {
-          toast.error("Lỗi khi lỗi khi tạo đơn hàng trực Offline");
-        }
-      });
+  //       // Đặt lại giá trị của formik về giá trị ban đầu (rỗng)
+  //       formikRef.current.resetForm();
+  //       setAddress("");
+  //       setAddressDestination("");
+  //     })
+  //     .catch((error) => {
+  //       if (error.response && error.response.data) {
+  //         toast.error(
+  //           `Lỗi khi tạo đơn hàng trực Offline: ${error.response.data.message}`
+  //         );
+  //       } else {
+  //         toast.error("Lỗi khi lỗi khi tạo đơn hàng trực Offline");
+  //       }
+  //     });
+  // };
+  const handleFormSubmit = (values, { resetForm }) => {
+    if (selectedRescueType === "Fixing") {
+      // Loại bỏ distance khỏi values nếu là loại Fixing
+      delete values.distance;
+      const submissionValues = { ...values, service: [values.service] };
+      console.log("Submitting Fixing Service:", submissionValues);
+      dispatch(createOrderOfflineFixing(submissionValues))
+        .then((response) => {
+          console.log(response);
+          toast.success("Tạo Đơn Hàng Thành Công");
+          formikRef.current.resetForm();
+          setAddress("");
+          setAddressDestination("");
+        })
+        .catch((error) => {
+          if (error.response && error.response.data) {
+            toast.error(
+              `Lỗi khi tạo đơn hàng trực Offline: ${error.response.data.message}`
+            );
+          } else {
+            toast.error("Lỗi khi lỗi khi tạo đơn hàng trực Offline");
+          }
+        });
+    } else {
+    // Assuming service IDs are sent
+      // const submissionValues = { ...values, services:  [values.service] };
+      const submissionValuesTowing = { ...values, service: [values.service] };
+      console.log(
+        "Data sent to createOrderOffline API for Towing:",
+        submissionValuesTowing
+      );
+      dispatch(createOrderOffline(submissionValuesTowing))
+        .then((response) => {
+          console.log(response);
+          toast.success("Tạo Đơn Hàng Thành Công");
+          formikRef.current.resetForm();
+          setAddress("");
+          setAddressDestination("");
+        })
+        .catch((error) => {
+          if (error.response && error.response.data) {
+            toast.error(
+              `Lỗi khi tạo đơn hàng trực Offline: ${error.response.data.message}`
+            );
+          } else {
+            toast.error("Lỗi khi lỗi khi tạo đơn hàng trực Offline");
+          }
+        });
+    }
   };
+
   useEffect(() => {
     const fetchServicesAndCustomers = async () => {
       try {
@@ -345,6 +396,7 @@ const CreateOrderOffline = () => {
                   <MenuItem value="Fixing">Sửa Tại Chỗ Cơ Bản</MenuItem>
                 </Select>
               </FormControl>
+
               <Autocomplete
                 id="service-select"
                 disabled={!isRescueTypeSelected}
@@ -368,7 +420,7 @@ const CreateOrderOffline = () => {
                 )}
               />
 
-              <div style={{ display:   "none" }}>
+              <div style={{ display: "none" }}>
                 <Autocomplete
                   id="customer-select"
                   options={customersData}
@@ -446,7 +498,7 @@ const CreateOrderOffline = () => {
                 </Select>
               </FormControl>
 
-              <TextField
+              {/* <TextField
                 fullWidth
                 variant="filled"
                 type="text"
@@ -458,7 +510,24 @@ const CreateOrderOffline = () => {
                 error={touched.distance && errors.distance ? true : false}
                 helperText={touched.distance && errors.distance}
                 sx={{ gridColumn: "span 1" }}
+              /> */}
+              <TextField
+                fullWidth
+                variant="filled"
+                type="text"
+                label="Khoảng cách "
+                onBlur={handleBlur}
+                onChange={handleChange}
+                value={values.distance}
+                name="distance"
+                error={touched.distance && errors.distance ? true : false}
+                helperText={touched.distance && errors.distance}
+                sx={{
+                  gridColumn: "span 1",
+                  display: selectedRescueType === "Fixing" ? "none" : "block",
+                }}
               />
+
               <PlacesAutocomplete
                 value={address}
                 onChange={setAddress}
@@ -525,7 +594,6 @@ const CreateOrderOffline = () => {
                     <div
                       style={{
                         position: "relative",
-                       
                       }}
                     >
                       <TextField
