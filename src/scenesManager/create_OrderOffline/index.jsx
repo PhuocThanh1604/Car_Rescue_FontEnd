@@ -263,13 +263,9 @@ const CreateOrderOffline = () => {
       console.log("Submitting Fixing Service:", submissionValues);
       dispatch(createOrderOfflineFixing(submissionValues))
         .then((response) => {
-          console.log(response.payload.message);
-          // Kiểm tra nội dung của message
           if (response.payload.message === "Hiện tại không kĩ thuật viên") {
-            // Hiển thị thông báo phù hợp
             toast.warn("Hiện tại không có kỹ thuật viên vui lòng đợi");
           } else {
-            // Nếu không phải trường hợp không có kỹ thuật viên
             toast.success("Tạo Đơn Hàng Fixing Thành Công");
           }
           formikRef.current.resetForm();
@@ -297,19 +293,36 @@ const CreateOrderOffline = () => {
       dispatch(createOrderOffline(submissionValuesTowing))
         .then((response) => {
           console.log(response);
-          toast.success("Tạo Đơn Hàng Towing Thành Công");
-          formikRef.current.setFieldValue('distance', '');
+          if (
+            response &&
+            response.message === "Hiện tại không còn xe cứu hộ"
+          ) {
+            toast.warn("Hiện tại không có kỹ thuật viên vui lòng đợi");
+          } else {
+            toast.success("Tạo Đơn Hàng Towing Thành Công");
+          }
+          formikRef.current.setFieldValue("distance", "");
           formikRef.current.resetForm();
           setSelectedService(null);
           setAddress("");
           setAddressDestination("");
         })
         .catch((error) => {
-          if (error.response && error.response.data) {
+          console.log(error); // Log the error object to inspect its structure
+          if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+          ) {
+            // Handle specific error message provided by the API
             toast.error(
               `Lỗi khi tạo đơn hàng trực Offline: ${error.response.data.message}`
             );
+          } else if (error.response && error.response.data) {
+            // Handle cases where response data exists but no specific message
+            toast.error(`Lỗi khi tạo đơn hàng trực Offline: Unexpected error`);
           } else {
+            // Handle cases with no response data or unexpected error structure
             toast.error("Lỗi khi lỗi khi tạo đơn hàng trực Offline");
           }
         });

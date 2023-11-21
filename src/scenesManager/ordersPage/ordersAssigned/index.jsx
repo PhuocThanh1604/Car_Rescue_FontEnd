@@ -23,6 +23,8 @@ import "react-toastify/dist/ReactToastify.css";
 import SearchIcon from "@mui/icons-material/Search";
 import InputBase from "@mui/material/InputBase";
 import moment from "moment";
+import 'moment-timezone';
+
 import InfoIcon from "@mui/icons-material/Info";
 import { fetchOrdersAssigned, getOrderId } from "../../../redux/orderSlice";
 import { getCustomerIdFullName } from "../../../redux/customerSlice";
@@ -227,7 +229,7 @@ const OrdersAssigned = (props) => {
     {
       field: "customerId",
       headerName: "Tên Khách Hàng",
-      width: 100,
+      width: 120,
       valueGetter: (params) => {
         // Get the fullname from the state based on customerId
         return fullnameData[params.value] || "";
@@ -237,16 +239,19 @@ const OrdersAssigned = (props) => {
     {
       field: "customerNote",
       headerName: "Ghi Chú của Customer",
-      width: 120,
+      width: 140,
       key: "customerNote",
     },
     {
       field: "createdAt",
       headerName: "Date",
-      width: 100,
+      width: 140,
       key: "createdAt",
       valueGetter: (params) =>
-        moment(params.row.createdAt).utcOffset(7).format("DD-MM-YYYY"),
+      moment(params.row.createdAt)
+        .tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
+        .add(7, 'hours') // Adding 3 hours (you can adjust this number as needed)
+        .format("DD-MM-YYYY HH:mm:ss")
     },
     {
       field: "rescueType",

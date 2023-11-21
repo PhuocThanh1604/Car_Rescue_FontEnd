@@ -13,6 +13,7 @@ import {
   Autocomplete,
   Avatar,
   Grid,
+  Tooltip,
 } from "@mui/material";
 import { CategoryRounded, Close } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
@@ -21,6 +22,7 @@ import { toast } from "react-toastify";
 import {
   createAcceptOrder,
   fetchOrdersNew,
+  getOrderDetailId,
   getPaymentId,
   sendNotification,
 } from "../../../redux/orderSlice";
@@ -42,6 +44,8 @@ import PhoneRoundedIcon from "@mui/icons-material/PhoneRounded";
 import ReceiptRoundedIcon from "@mui/icons-material/ReceiptRounded";
 import SourceRoundedIcon from "@mui/icons-material/SourceRounded";
 import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
+import { getServiceId } from "../../../redux/serviceSlice";
+import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
 const ModalEdit = ({
   openEditModal,
   setOpenEditModal,
@@ -64,11 +68,13 @@ const ModalEdit = ({
   const [filteredOrders, setFilteredOrders] = useState([]);
   const [serverError, setServerError] = useState(null);
   const [selectedVehicle, setSelectedVehicel] = useState(null);
+  const [vehicleDetails, setVehicleDetails] = useState(null);
   const [vehicleId, setVehicleId] = useState(null);
   const [orderId, setOrderId] = useState(null);
   const [loadingVehicle, setLoadingVehicle] = useState(true);
   const [vehicleData, setVehicleData] = useState([]);
-  const [vehicleDetails, setVehicleDetails] = useState(null);
+  const [serviceNames, setServiceNames] = useState({});
+  const [firstServiceName, setFirstServiceName] = useState([]);
   // const [technicianId, setTechnicianId] = useState(null);
   const [loadingTechnician, setLoadingTechnician] = useState(true);
   const [technicianData, setTechnicianData] = useState([]);
@@ -90,6 +96,7 @@ const ModalEdit = ({
   const [paymentId, setPaymentId] = useState({});
   const [dataCustomer, setDataCustomer] = useState({});
   const [dataOrder, setDataOrder] = useState({});
+  const [dataOrderDetail, setDataOrderDetail] = useState({});
   const managerString = localStorage.getItem("manager");
   let manager = null;
 
@@ -100,6 +107,7 @@ const ModalEdit = ({
       console.error("Lỗi khi phân tích chuỗi JSON:", error);
     }
   }
+
   // 1. Tạo hàm xử lý sự kiện cho TextField để cập nhật edit.id
   const handleEditIdChange = (event) => {
     const { value } = event.target;
@@ -118,27 +126,25 @@ const ModalEdit = ({
       }));
     }
   }, [formattedAddress]);
-  //lọc kéo và sửa cho tech và carowner
+
   useEffect(() => {
     // Filter and set the list of technicians or rescue vehicles based on the selected rescueType
     if (selectedRescueType === "Fixing") {
-      setFilteredTechnicianData(
-        technicianData.filter((tech) => tech.status === "ACTIVE")
-      );
-      setFilteredTechnicianData([]);
-    } else if (selectedRescueTypeTowing === "Towing") {
-      setFilteredVehicleData(
-        vehicleData.filter((vehicle) => vehicle.status === "ACTIVE")
-      );
-      setFilteredVehicleData([]);
+      if (technicianData !== null) {
+        setFilteredTechnicianData(
+          technicianData.filter((tech) => tech.status === "ACTIVE")
+        );
+      }
+      resetTowingState();
+    } else if (selectedRescueType === "Towing") {
+      if (vehicleData !== null) {
+        setFilteredVehicleData(
+          vehicleData.filter((vehicle) => vehicle.status === "ACTIVE")
+        );
+      }
+      // resetFixingState();
     }
-  }, [
-    selectedRescueType,
-    selectedRescueTypeTowing,
-    technicianData,
-    vehicleData,
-  ]);
-
+  }, [selectedRescueType, technicianData, vehicleData]);
   // useEffect(() => {
   //   if (selectedTechnician) {
   //     console.log("test tec" + selectedTechnician);
@@ -153,6 +159,8 @@ const ModalEdit = ({
   //     setTechnicianDetails(null);
   //   }
   // }, [selectedTechnician, technicianData]);
+
+  //Cái nay chính
   useEffect(() => {
     if (selectedVehicle) {
       const selectedVehicleId = selectedVehicle.id;
@@ -166,6 +174,27 @@ const ModalEdit = ({
       setVehicleDetails(null);
     }
   }, [selectedVehicle, vehicleData]);
+  // useEffect(() => {
+  //   if (selectedVehicle && vehicleData) {
+  //     const selectedVehicleId = selectedVehicle.id;
+
+  //     // Check if vehicleData needs updating
+  //     const needsVehicleDataUpdate = vehicleData.some(item => item.id === selectedVehicleId);
+  //     if (needsVehicleDataUpdate) {
+  //       const updatedVehicleData = vehicleData.filter(item => item.id !== selectedVehicleId);
+  //       setVehicleData(updatedVehicleData);
+  //     }
+
+  //     // Update vehicleDetails only if it's different
+  //     const newVehicleDetails = vehicleData.find(vehicle => vehicle.id === selectedVehicleId);
+  //     if (vehicleDetails !== newVehicleDetails) {
+  //       setVehicleDetails(newVehicleDetails);
+  //     }
+  //   } else if (!selectedVehicle && vehicleDetails !== null) {
+  //     setVehicleDetails(null);
+  //   }
+  // }, [selectedVehicle, vehicleData]); // Ensure dependencies are correct
+  // Xóa selectedVehicleId khỏi danh sách phụ thuộc
 
   useEffect(() => {
     const fetchData = async () => {
@@ -246,6 +275,7 @@ const ModalEdit = ({
       console.log(edit.id);
       setPaymentId(edit.id);
       fetchOrder(edit.id);
+      fetchOrderDetail(edit.id);
     }
   }, [selectedEditOrder, orders, edit.id, paymentId]);
 
@@ -282,7 +312,18 @@ const ModalEdit = ({
       };
       dispatch(createAcceptOrder(requestData))
         .then(() => {
+          if (selectedVehicle && vehicleData) {
+            // Loại bỏ phương tiện đã chọn từ danh sách vehicleData
+            const updatedVehicleData = vehicleData.filter(
+              (item) => item.id !== selectedVehicle.id
+            );
+            setVehicleData(updatedVehicleData);
+          }
           toast.success("Gửi điều phối thành công.");
+          // Reset vehicleDetails here
+          setVehicleDetails(null);
+          setSelectedVehicel(null);
+
           const notificationData = {
             // deviceId: "eZ3zGYZ-SU-rsFAjjsDLrS:APA91bH45eTlMbPI8GfqxllTtB4tzSgpB-9ppDGfJ4xv3FuxpbRqAj2RHcgZn-pj0JG9CGxGmi69HHTRkzNlSbOy5xuryR43BFIMtn9_l68ZfJRzfr8C55Yk2vP19Y5jjSiRHgKLMTTk", // Thay YOUR_DEVICE_ID bằng ID thiết bị cần gửi thông báo đến
             deviceId:
@@ -300,7 +341,6 @@ const ModalEdit = ({
             .catch((error) => {
               console.error("Lỗi khi gửi thông báo:", error);
             });
-
           handleClose();
           setIsSuccess(true);
           if (onDataUpdated) {
@@ -320,7 +360,6 @@ const ModalEdit = ({
         });
     }
   };
-
   const handleClose = () => {
     setOpenEditModal(false);
     if (isSuccess) {
@@ -332,11 +371,11 @@ const ModalEdit = ({
           if (data) {
             setLoading(false);
             setTechnicianData(null);
+            setVehicleData(null);
             setFilteredTechnicianData(null);
             setSelectedVehicel(null);
-            setVehicleId(null);
+            setVehicleDetails(null);
             setFilteredOrders(data);
-
             // Đặt loading thành false sau khi tải lại dữ liệu
           }
         })
@@ -346,27 +385,14 @@ const ModalEdit = ({
     }
   };
 
-  // Function to reset Fixing state variables
-  // const resetFixingState = () => {
-  //   setSelectedTechnician(null);
-  //   setTechnicianId(null);
-  // };
-
   // Function to reset Towing state variables
   const resetTowingState = () => {
     setSelectedVehicel(null);
     setVehicleId(null);
+    setVehicleData(null);
   };
 
   // When rescue type is changed, reset the state accordingly
-  useEffect(() => {
-    if (selectedRescueType === "Fixing") {
-      resetTowingState();
-    } else if (selectedRescueType === "Towing") {
-      // resetFixingState();
-    }
-  }, [selectedRescueType]);
-
   //get Full NameCustomer
 
   useEffect(() => {
@@ -422,6 +448,103 @@ const ModalEdit = ({
         });
     }
   };
+
+  //Hiển thị 1 dịch vụ đầu tiên
+  // Thay đổi hàm fetchOrderDetail
+  const fetchOrderDetail = (orderId) => {
+    console.log(orderId);
+    // Make sure you have a check to prevent unnecessary API calls
+    if (orderId) {
+      dispatch(getOrderDetailId({ id: orderId }))
+        .then((response) => {
+          const data = response.payload.data;
+          console.log(data);
+          if (data && Array.isArray(data)) {
+            const serviceIds = data.map((item) => item.serviceId);
+            console.log(serviceIds);
+
+            // Tạo mảng promises để gọi API lấy thông tin từng serviceId
+            const servicePromises = serviceIds.map((serviceId) => {
+              return dispatch(getServiceId({ id: serviceId }))
+                .then((serviceResponse) => {
+                  const serviceName = serviceResponse.payload.data.name;
+                  console.log(
+                    `ServiceId: ${serviceId}, ServiceName: ${serviceName}`
+                  );
+                  return {
+                    serviceId,
+                    serviceName,
+                  };
+                })
+                .catch((serviceError) => {
+                  console.error(
+                    `Error while fetching service data for serviceId ${serviceId}:`,
+                    serviceError
+                  );
+                  return null;
+                });
+            });
+
+            // Sử dụng Promise.all để chờ tất cả các promises hoàn thành
+            Promise.all(servicePromises)
+              .then((serviceData) => {
+                // Truy cập serviceName đầu tiên trong danh sách dịch vụ
+                const firstServiceName =
+                  serviceData[0]?.serviceName || "Không có thông tin";
+
+                // Cập nhật chỉ serviceName đầu tiên vào state
+                setFirstServiceName(firstServiceName);
+              })
+              .catch((error) => {
+                console.error(
+                  "Error while processing service data promises:",
+                  error
+                );
+              });
+          } else {
+            console.error(
+              "Service data not found in the API response or data is not an array."
+            );
+          }
+        })
+        .catch((error) => {
+          console.error("Error while fetching service data detail:", error);
+        });
+    }
+  };
+
+
+  // Hàm fetch chung
+  // const fetchData = (dispatch, getIdAction, setDataFunction) => (orderId) => {
+  //   console.log(orderId);
+  //   if (orderId) {
+  //     dispatch(getIdAction({ id: orderId }))
+  //       .then((response) => {
+  //         const data = response.payload.data;
+  //         console.log(data);
+  //         if (data) {
+  //           setDataFunction((prevData) => ({
+  //             ...prevData,
+  //             [orderId]: data,
+  //           }));
+  //         } else {
+  //           console.error("Service name not found in the API response.");
+  //         }
+  //       })
+  //       .catch((error) => {
+  //         console.error("Error while fetching service data:", error);
+  //       });
+  //   }
+  // };
+
+  // // Sử dụng hàm fetchData để fetch dữ liệu order và order detail
+  // const fetchOrder = fetchData(dispatch, getPaymentId, setDataOrder);
+  // const fetchOrderDetail = fetchData(
+  //   dispatch,
+  //   getOrderDetailId,
+  //   setDataOrderDetail
+  // );
+  // Thay someOrderId bằng dependency của useEffect của bạn, để đảm bảo useEffect chạy khi dependency thay đổi
 
   const date = new Date(edit.createdAt);
   const formattedDate = `${date.getDate()}/${
@@ -485,11 +608,11 @@ const ModalEdit = ({
                   ? "Thông tin điều phối nhân sự"
                   : "Order Detail"}
               </Typography>
-              <Grid container spacing={2}>
+              <Grid container spacing={1}>
                 <Grid item xs={6}>
                   {selectedEditOrder && (
                     <>
-                      <Card sx={{ height: "380px" }}>
+                      <Card sx={{ height: "400px" }}>
                         <CardContent>
                           <Typography variant="h4" sx={{ marginBottom: 2 }}>
                             Chi Tiết Đơn Hàng
@@ -656,17 +779,20 @@ const ModalEdit = ({
                             }}
                           >
                             <PlaceIcon /> <strong>Địa điểm muốn đến: </strong>{" "}
-                            <Typography
-                              variant="h5"
-                              sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                marginLeft: "10px",
-                              }}
-                            >
-                              {edit.destination}
-                            </Typography>
+                            <Tooltip title={edit.destination}>
+                              <Typography
+                                variant="h5"
+                                sx={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  marginLeft: "10px",
+                                }}
+                              >
+                                {edit.destination}
+                              </Typography>
+                            </Tooltip>
                           </Typography>
+
                           <Typography
                             variant="body1"
                             component="p"
@@ -741,13 +867,41 @@ const ModalEdit = ({
                               {dataOrder[edit.id]?.method || "Đang tải..."}
                             </Typography>
                           </Typography>
+
+                          <Typography
+                            variant="body1"
+                            component="p"
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              marginBottom: "8px", // Thêm khoảng cách dưới cùng của dòng
+                              fontSize: "1rem",
+                              marginRight: "2px",
+                            }}
+                          >
+                            <AddShoppingCartIcon /> <strong>Dịch vụ đã chọn:</strong>{" "}
+                            <Typography
+                              variant="h5"
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                marginLeft: "10px",
+                              }}
+                            >
+                             {firstServiceName}
+                            </Typography>
+                          </Typography>
+
+
+                        
+                   
                         </CardContent>
                       </Card>
                     </>
                   )}
                 </Grid>
                 <Grid item xs={6}>
-                  <Card sx={{ height: "380px" }}>
+                  <Card sx={{ height: "400px" }}>
                     <CardContent>
                       <Typography variant="h4" sx={{ marginBottom: 1 }}>
                         Điều phối nhân sự

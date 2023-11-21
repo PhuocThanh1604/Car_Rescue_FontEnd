@@ -218,10 +218,13 @@ const Orders = (props) => {
     {
       field: "createdAt",
       headerName: "Date",
-      width: 100,
+      width: 140,
       key: "createdAt",
       valueGetter: (params) =>
-        moment(params.row.createdAt).utcOffset(7).format("DD-MM-YYYY"),
+      moment(params.row.createdAt)
+        .tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
+        .add(7, 'hours') // Adding 3 hours (you can adjust this number as needed)
+        .format("DD-MM-YYYY HH:mm:ss")
     },
     {
       field: "rescueType",

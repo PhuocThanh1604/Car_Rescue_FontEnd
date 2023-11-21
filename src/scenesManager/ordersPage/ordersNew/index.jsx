@@ -19,6 +19,7 @@ import ModalEdit from "./ModalComponentEdit";
 import SearchIcon from "@mui/icons-material/Search";
 import InputBase from "@mui/material/InputBase";
 import moment from "moment";
+import 'moment-timezone';
 
 import {
   fetchOrdersNew,
@@ -72,6 +73,7 @@ const Orders = (props) => {
   const handleDataUpdated = () => {
     reloadOrdersNew();
   };
+
 
   const reloadOrdersNew = () => {
     // setLoading(true);
@@ -167,8 +169,8 @@ const Orders = (props) => {
   const handleAssignClick = (orderId) => {
     console.log(orderId);
     // Đặt trạng thái của danh sách xe cứu hộ về một mảng trống
+    setSelectedEditOrder(null)
     setRescueVehicles(null);
-
     // Lấy địa chỉ đã được định dạng từ state 'formattedAddresses' dựa trên 'departure'
     const orderWithDeparture = data.find((order) => order.id === orderId);
     if (orderWithDeparture) {
@@ -355,10 +357,13 @@ const Orders = (props) => {
     {
       field: "createdAt",
       headerName: "Date",
-      width: 100,
+      width: 140,
       key: "createdAt",
       valueGetter: (params) =>
-        moment(params.row.createdAt).utcOffset(7).format("DD-MM-YYYY"),
+      moment(params.row.createdAt)
+        .tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
+        .add(11, 'hours') // Adding 3 hours (you can adjust this number as needed)
+        .format("DD-MM-YYYY HH:mm:ss")
     },
     {
       field: "rescueType",
