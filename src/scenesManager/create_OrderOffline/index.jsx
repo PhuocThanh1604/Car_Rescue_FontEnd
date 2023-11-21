@@ -178,16 +178,34 @@ const CreateOrderOffline = () => {
     return d;
   }
 
-  const checkoutSchema = yup.object().shape({
-    customerNote: yup.string().required("Required"),
-    departure: yup.string().required("Required"),
-    destination: yup.string().required("Required"),
-    rescueType: yup.string().required("Required"),
-    paymentMethod: yup.string().required("Required"),
-    area: yup.string().required("Required"),
-    customerId: yup.string().required("Required"),
-    service: yup.string().required("Required"),
-  });
+  const getValidationSchema = () => {
+    let schema = {
+      customerNote: yup.string().required("Required"),
+      departure: yup.string().required("Required"),
+      rescueType: yup.string().required("Required"),
+      paymentMethod: yup.string().required("Required"),
+      area: yup.string().required("Required"),
+      customerId: yup.string().required("Required"),
+      service: yup.string().required("Required"),
+    };
+
+    if (selectedRescueType !== "Fixing") {
+      schema.destination = yup.string().required("Required");
+    }
+
+    return yup.object().shape(schema);
+  };
+
+  // const checkoutSchema = yup.object().shape({
+  //   customerNote: yup.string().required("Required"),
+  //   departure: yup.string().required("Required"),
+  //   // destination: yup.string().required("Required"),
+  //   rescueType: yup.string().required("Required"),
+  //   paymentMethod: yup.string().required("Required"),
+  //   area: yup.string().required("Required"),
+  //   customerId: yup.string().required("Required"),
+  //   service: yup.string().required("Required"),
+  // });
 
   const initialValues = {
     customerNote: "",
@@ -235,14 +253,27 @@ const CreateOrderOffline = () => {
   const handleFormSubmit = (values, { resetForm }) => {
     if (selectedRescueType === "Fixing") {
       // Loại bỏ distance khỏi values nếu là loại Fixing
-      delete values.distance;
-      const submissionValues = { ...values, service: [values.service] };
+      // delete values.distance;
+      // const submissionValues = { ...values, service: [values.service] };
+      // console.log("Submitting Fixing Service:", submissionValues);
+
+      // Loại bỏ distance và destination khỏi values nếu là loại Fixing
+      const { distance, destination, ...submissionValues } = values;
+      submissionValues.service = [values.service];
       console.log("Submitting Fixing Service:", submissionValues);
       dispatch(createOrderOfflineFixing(submissionValues))
         .then((response) => {
-          console.log(response);
-          toast.success("Tạo Đơn Hàng Thành Công");
+          console.log(response.payload.message);
+          // Kiểm tra nội dung của message
+          if (response.payload.message === "Hiện tại không kĩ thuật viên") {
+            // Hiển thị thông báo phù hợp
+            toast.warn("Hiện tại không có kỹ thuật viên vui lòng đợi");
+          } else {
+            // Nếu không phải trường hợp không có kỹ thuật viên
+            toast.success("Tạo Đơn Hàng Fixing Thành Công");
+          }
           formikRef.current.resetForm();
+          setSelectedService(null);
           setAddress("");
           setAddressDestination("");
         })
@@ -256,7 +287,7 @@ const CreateOrderOffline = () => {
           }
         });
     } else {
-    // Assuming service IDs are sent
+      // Assuming service IDs are sent
       // const submissionValues = { ...values, services:  [values.service] };
       const submissionValuesTowing = { ...values, service: [values.service] };
       console.log(
@@ -266,8 +297,10 @@ const CreateOrderOffline = () => {
       dispatch(createOrderOffline(submissionValuesTowing))
         .then((response) => {
           console.log(response);
-          toast.success("Tạo Đơn Hàng Thành Công");
+          toast.success("Tạo Đơn Hàng Towing Thành Công");
+          formikRef.current.setFieldValue('distance', '');
           formikRef.current.resetForm();
+          setSelectedService(null);
           setAddress("");
           setAddressDestination("");
         })
@@ -282,6 +315,10 @@ const CreateOrderOffline = () => {
         });
     }
   };
+  useEffect(() => {
+    // Reset the selected service when the rescue type changes
+    setSelectedService(null);
+  }, [selectedRescueType]);
 
   useEffect(() => {
     const fetchServicesAndCustomers = async () => {
@@ -333,7 +370,7 @@ const CreateOrderOffline = () => {
       <Formik
         onSubmit={handleFormSubmit}
         initialValues={initialValues}
-        validationSchema={checkoutSchema}
+        validationSchema={getValidationSchema()}
         // Gán formikRef cho ref
         innerRef={formikRef}
       >
@@ -583,7 +620,72 @@ const CreateOrderOffline = () => {
                 )}
               </PlacesAutocomplete>
 
-              <div>
+              {selectedRescueType !== "Fixing" && (
+                <div>
+                  <PlacesAutocomplete
+                    value={addressDestination}
+                    onChange={setAddressDestination}
+                    onSelect={handleMapLocationSelectedDestination}
+                    sx={{ gridColumn: "span 2", width: "80vw" }}
+                  >
+                    {({
+                      getInputProps,
+                      suggestions,
+                      getSuggestionItemProps,
+                    }) => (
+                      <div style={{ position: "relative" }}>
+                        <TextField
+                          {...getInputProps({
+                            placeholder: "Nhập địa chỉ kéo đến",
+                            variant: "filled",
+                            fullWidth: true,
+                            InputProps: {
+                              endAdornment: (
+                                <IconButton onClick={handleOpenMapModal}>
+                                  <EditLocationAltIcon />
+                                </IconButton>
+                              ),
+                            },
+                          })}
+                        />
+                        <div
+                          style={{
+                            position: "absolute",
+                            top: "100%",
+                            left: 0,
+                            right: 0,
+                            zIndex: 1,
+                            maxHeight: "200px",
+                            overflowY: "auto",
+                            backgroundColor: "white",
+                            border: "1px solid #ccc",
+                          }}
+                        >
+                          {suggestions.map((suggestion, index) => {
+                            const style = {
+                              backgroundColor: suggestion.active
+                                ? "#fafafa"
+                                : "#fff",
+                            };
+                            return (
+                              <div
+                                key={index}
+                                {...getSuggestionItemProps(suggestion, {
+                                  style,
+                                })}
+                              >
+                                {suggestion.description}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </PlacesAutocomplete>
+                </div>
+              )}
+
+              {/* <div  >
                 <PlacesAutocomplete
                   value={addressDestination}
                   onChange={setAddressDestination}
@@ -642,7 +744,7 @@ const CreateOrderOffline = () => {
                     </div>
                   )}
                 </PlacesAutocomplete>
-              </div>
+              </div> */}
             </Box>
           </form>
         )}

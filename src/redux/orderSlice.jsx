@@ -385,9 +385,9 @@ export const createOrderOffline = createAsyncThunk(
         }
       );
       console.log(data);
-      return res.data;
+      return res.data && res.message;
     } catch (error) {
-      console.error("Failed to create Order Offline:", error.response);
+      console.error("Failed to create Order Offline:", error.response.message);
       throw error.response.data || error.message;
     }
   }

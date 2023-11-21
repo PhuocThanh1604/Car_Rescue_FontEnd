@@ -16,8 +16,8 @@ import { tokens } from "../../theme";
 import Header from "../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
 import { Edit, FilterList, Search } from "@mui/icons-material";
-import { Delete } from "@mui/icons-material";
-// import ModalDetail from "./ModalComponentDetail";
+import SupportIcon from "@mui/icons-material/Support";
+import HandymanIcon from "@mui/icons-material/Handyman";
 import ModalEdit from "./ModalComponentEdit";
 import ToggleButton from "./ToggleButton";
 import { ToastContainer, toast } from "react-toastify";
@@ -53,20 +53,7 @@ const Services = (props) => {
     const value = event.target.value || ""; // Use an empty string if the value is null
     setSearchText(value);
   };
-  const handleDateFilterChange = () => {
-    if (startDate && endDate) {
-      const filteredServices = services.filter((user) => {
-        const orderDate = moment(user.createAt).format("YYYY-MM-DD");
-        const isAfterStartDate = moment(orderDate).isSameOrAfter(startDate);
-        const isBeforeEndDate = moment(orderDate).isSameOrBefore(endDate);
-        return isAfterStartDate && isBeforeEndDate;
-      });
-      setFilteredSerivces(filteredServices);
-      setFilterOption("Date");
-    } else {
-      setFilteredSerivces(services);
-    }
-  };
+
   const handleFilterChange = (event) => {
     const selectedStatusOption = event.target.value;
     setFilterOption(selectedStatusOption);
@@ -152,14 +139,7 @@ const Services = (props) => {
     page * rowsPerPage + rowsPerPage
   );
 
-  function isAllCharactersSame(value) {
-    if (!value) {
-      return false;
-    }
-
-    const firstChar = value[0];
-    return value.split("").every((char) => char === firstChar);
-  }
+ 
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   // eslint-disable-next-line no-sparse-arrays
@@ -171,11 +151,38 @@ const Services = (props) => {
       key: "name",
       cellClassName: "name-column--cell",
     },
+  
     {
       field: "type",
       headerName: "Loại Dịch Vụ",
-      width: 80,
+      width: 120,
       key: "type",
+      renderCell: ({ row: { type } }) => {
+        return (
+          <Box
+            width="80%"
+            m="0 auto"
+            p="4px"
+            display="flex"
+            justifyContent="center"
+            fontSize={10}
+            borderRadius={8} // Corrected prop name from "buserRadius" to "borderRadius"
+            backgroundColor={
+              type === "Fixing"
+                ? colors.yellowAccent[400]
+                : colors.grey[800]
+                ? colors.redAccent[600]
+                : type === "Towing"
+            }
+          >
+            {type === "Towing" && <SupportIcon />}
+            {type === "Fixing" && <HandymanIcon />}
+            <Typography color={colors.grey[100]} sx={{ ml: "8px" }}>
+              {type}
+            </Typography>
+          </Box>
+        );
+      },
     },
     {
       field: "description",
@@ -254,7 +261,7 @@ const Services = (props) => {
 
   return (
     <Box m="5px">
-      <Header title="Dịch Vụ" subtitle="Danh sách dịch vụ" />
+      <Header title="Dịch Vụ" subtitle="Danh sách chi tiết dịch vụ" />
       <Box display="flex" className="box" left={0}>
       <Box
           display="flex"
@@ -296,38 +303,7 @@ const Services = (props) => {
             </Select>
           </FormControl>
         </Box>
-        <Box display="flex" alignItems="center" className="startDate-box">
-          <TextField
-            label="Từ ngày"
-            type="date"
-            value={startDate || ""}
-            onChange={(event) => setStartDate(event.target.value)}
-            InputLabelProps={{
-              shrink: true,
-            }}
-            onBlur={handleDateFilterChange}
-            inputProps={{
-              max: moment().format("YYYY-MM-DD"), // Set the maximum selectable date as today
-            }}
-            sx={{ ml: 4, mr: 2 }}
-          />
-        </Box>
-
-        <Box display="flex" alignItems="center" className="endtDate-box">
-          <TextField
-            label="Đến ngày"
-            type="date"
-            value={endDate || ""}
-            onChange={(event) => setEndDate(event.target.value)}
-            InputLabelProps={{
-              shrink: true,
-            }}
-            onBlur={handleDateFilterChange}
-            inputProps={{
-              max: moment().format("YYYY-MM-DD"), // Set the maximum selectable date as today
-            }}
-          />
-        </Box>
+  
       </Box>
 
       <Box

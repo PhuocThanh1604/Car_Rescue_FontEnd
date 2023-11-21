@@ -153,27 +153,67 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
     getServices();
   }, [dispatch]);
 
+  // const handleInputChange = (event, orderId) => {
+  //   const { value } = event.target;
+  //   setOrderQuantities((prevOrderQuantities) => ({
+  //     ...prevOrderQuantities,
+  //     [orderId]: value,
+  //   }));
+  //   setIsEditing(true);
+  //   setOrderDetailIdService((prevOrderDetailIdService) => {
+  //     const updatedIds = [...prevOrderDetailIdService];
+  //     const index = updatedIds.findIndex((id) => id === orderId);
+  //     if (index !== -1) {
+  //       // Nếu đã tồn tại orderId trong mảng, cập nhật giá trị mới
+  //       updatedIds[index] = orderId;
+  //     } else {
+  //       // Nếu chưa tồn tại orderId trong mảng, thêm vào mảng
+  //       updatedIds.push(orderId);
+  //     }
+  //     return updatedIds;
+  //   });
+  //   console.log(`Quantity người dùng đã nhập cho orderId ${orderId}:`, value);
+  // };
+
+
+  const [totalForOrder, setTotalForOrder] = useState({});
+
+const updateTotalForOrder = (orderId, newTotal) => {
+  setTotalForOrder((prevTotals) => ({
+    ...prevTotals,
+    [orderId]: newTotal,
+  }));
+};
   const handleInputChange = (event, orderId) => {
-    const { value } = event.target;
+    const newQuantity = event.target.value;
+  
+    // Cập nhật số lượng và lưu trữ
     setOrderQuantities((prevOrderQuantities) => ({
       ...prevOrderQuantities,
-      [orderId]: value,
+      [orderId]: newQuantity,
     }));
+  
+    // Tính toán tổng tiền mới
+    const order = orders.find(o => o.id === orderId);
+    const newTotal = order.unitPrice * newQuantity;
+  
+    // Cập nhật tổng tiền vào state hoặc context tương ứng
+    updateTotalForOrder(orderId, newTotal);
+  
+    // Cập nhật trạng thái chỉnh sửa và ID dịch vụ
     setIsEditing(true);
     setOrderDetailIdService((prevOrderDetailIdService) => {
       const updatedIds = [...prevOrderDetailIdService];
       const index = updatedIds.findIndex((id) => id === orderId);
-      if (index !== -1) {
-        // Nếu đã tồn tại orderId trong mảng, cập nhật giá trị mới
-        updatedIds[index] = orderId;
-      } else {
-        // Nếu chưa tồn tại orderId trong mảng, thêm vào mảng
-        updatedIds.push(orderId);
+      if (index === -1) {
+        updatedIds.push(orderId); // Thêm mới nếu orderId chưa tồn tại
       }
       return updatedIds;
     });
-    console.log(`Quantity người dùng đã nhập cho orderId ${orderId}:`, value);
+  
+    console.log(`Quantity người dùng đã nhập cho orderId ${orderId}:`, newQuantity);
   };
+  
 
   
   useEffect(() => {
@@ -426,9 +466,10 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
                 <Close />
               </IconButton>
               <Typography
-                variant="h6"
+                variant="h4"
                 component="h2"
                 id="RescuseVehicleOwner-detail-modal"
+                align="center"
               >
                 {selectedEditOrder
                   ? "Cập nhật dịch vụ"

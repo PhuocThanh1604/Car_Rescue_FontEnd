@@ -232,7 +232,7 @@ const ModalEdit = ({
                       fullWidth
                       margin="normal"
                     />
-                    <TextField
+                    {/* <TextField
                       name="type"
                       type="text"
                       label="Loại Dịch Vụ"
@@ -240,7 +240,30 @@ const ModalEdit = ({
                       onChange={handleInputChange}
                       fullWidth
                       margin="normal"
-                    />
+                    /> */}
+                      <FormControl fullWidth sx={{ marginTop: 1 }}>
+                      <InputLabel id="demo-simple-select-label">
+                        Loại Dịch Vụ
+                      </InputLabel>
+                      <Select
+                        labelId="demo-simple-select-label"
+                        id="demo-simple-select"
+                        value={edit.type || ""}
+                        onChange={handleInputChange}
+                        variant="outlined"
+                        className="filter-select"
+                        name="type"
+                        label="type"
+                        fullWidth
+                      >
+                        <MenuItem key="status-active" value="Fixing">
+                          Fixing
+                        </MenuItem>
+                        <MenuItem key="status-INACTIVE" value="Towing">
+                          Towing
+                        </MenuItem>
+                      </Select>
+                    </FormControl>
                     <FormControl fullWidth sx={{ marginTop: 1 }}>
                       <InputLabel id="demo-simple-select-label">
                         Trạng Thái
