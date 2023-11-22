@@ -579,8 +579,8 @@ export const mockLineData = [
     color: tokens("dark").greenAccent[500],
     data: [
       {
-        x: "plane",
-        y: 101,
+        x: "plane", // x bỏ 1->12 ngày
+        y: 101,  //y bỏ số tiền
       },
       {
         x: "helicopter",

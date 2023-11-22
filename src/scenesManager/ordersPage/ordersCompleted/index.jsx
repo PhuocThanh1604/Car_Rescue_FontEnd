@@ -435,6 +435,7 @@ const Orders = (props) => {
           autoHeight
           checkboxSelection
           loading={loading}
+          components={{ Toolbar: GridToolbar }}
         />
 
         <CustomTablePagination

@@ -263,6 +263,7 @@ const CreateOrderOffline = () => {
       console.log("Submitting Fixing Service:", submissionValues);
       dispatch(createOrderOfflineFixing(submissionValues))
         .then((response) => {
+          console.log(response);
           if (response.payload.message === "Hiện tại không kĩ thuật viên") {
             toast.warn("Hiện tại không có kỹ thuật viên vui lòng đợi");
           } else {
@@ -293,11 +294,8 @@ const CreateOrderOffline = () => {
       dispatch(createOrderOffline(submissionValuesTowing))
         .then((response) => {
           console.log(response);
-          if (
-            response &&
-            response.message === "Hiện tại không còn xe cứu hộ"
-          ) {
-            toast.warn("Hiện tại không có kỹ thuật viên vui lòng đợi");
+          if (response.payload.message === "Hiện tại không còn xe cứu hộ") {
+            toast.warn("Hiện tại không có xe cứu hộ vui lòng đợi");
           } else {
             toast.success("Tạo Đơn Hàng Towing Thành Công");
           }
@@ -310,9 +308,7 @@ const CreateOrderOffline = () => {
         .catch((error) => {
           console.log(error); // Log the error object to inspect its structure
           if (
-            error.response &&
-            error.response.data &&
-            error.response.data.message
+            error.response && error.response.data
           ) {
             // Handle specific error message provided by the API
             toast.error(

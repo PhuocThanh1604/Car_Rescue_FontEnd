@@ -1,182 +1,243 @@
-import React, { useEffect, useState } from "react";
-import FullCalendar, { formatDate } from "@fullcalendar/react";
+import React, { useState } from "react";
+import { Box, Typography, List, ListItem } from "@mui/material";
+import { formatDate } from "@fullcalendar/core";
+import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import listPlugin from "@fullcalendar/list";
-import {
-  Box,
-  List,
-  ListItem,
-  ListItemText,
-  Typography,
-  useTheme,
-} from "@mui/material";
-import Header from "../../components/Header";
+import {  createEventId } from "./event-utils";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { tokens } from "../../theme";
-import { useDispatch, useSelector } from "react-redux";
-import { getScheduleOfTechinciansAWeek } from "../../redux/technicianSlice";
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import listPlugin from "@fullcalendar/list";
+import { getShiftOfDate } from "../../redux/scheduleSlice";
+import { useCallback } from "react";
+import { debounce } from 'lodash';
+
 
 const CalendarTechnician = () => {
   const dispatch = useDispatch();
-  const theme = useTheme();
+  const [weekendsVisible, setWeekendsVisible] = useState(true);
+  const [currentEvents, setCurrentEvents] = useState([]);
+  const [currentEventsDay, setCurrentEventsDay] = useState([]);
+  const [currentEventsWeek, setCurrentEventsWeek] = useState([]);
+ const  [eventType, setEventType] = useState("");
+ const  [eventTypeid, setEventTypeId] = useState("");
+ const  [eventTypeDate, setEventTypeDate] = useState("");
+ const [initialEvents, setInitialEvents] = useState([]);
+ const  [id, setId] = useState("");
+  const theme = createTheme();
   const colors = tokens(theme.palette.mode);
-  const technicians = useSelector((state) => state.technician.technicians);
-  const [currentEvents, setCurrentEvents] = useState([]); // Initialize with an empty array
-  const convertToDateString = (date) => {
-    return formatDate(date, {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
+
+  const RESOURCES = [
+    { id: "a", title: "Auditorium A" },
+    { id: "b", title: "Auditorium B", eventColor: "green" },
+    { id: "c", title: "Auditorium C", eventColor: "orange" },
+  ];
+  
+  const INITIAL_EVENTS = [
+    {
+      id: eventTypeid,
+      title: eventType,
+      start: eventTypeDate ,
+    
+    },
+  
+  ]
+  const fetchShiftDataForWeek = (startDate) => {
+    const days = getWeekDays(startDate);
+    // Gọi API cho từng ngày trong tuần
+    days.forEach(day => {
+      dispatch(getShiftOfDate({ date: day }));
     });
   };
-  const handleDateClick = (selected) => {
-    const title = prompt("Please enter a new title for your event");
-    const calendarApi = selected.view.calendar;
-    calendarApi.unselect();
+  useEffect(() => {
+    const handleFetchData = async () => {
+      const days = getWeekDays(new Date());
+      try {
+        const promises = days.map(day => 
+          dispatch(getShiftOfDate({ date: day })).unwrap()
+        );
+        const responses = await Promise.all(promises);
+        if (responses && responses[0] && responses[0].data && responses[0].data.length > 0) {
+          setInitialEvents([
+            {
+              id: responses[0].data[0].id,
+              title: responses[0].data[0].type,
+              start: responses[0].data[0].date,
+              resourceId: 'a',
+            }
+          ]);
+        }
+        console.log("Updated INITIAL_EVENTS:", responses[0].data[0].type);
+        // Kiểm tra và xử lý dữ liệu trả về từ API
+       
+      } catch (error) {
+        console.error("Error fetching data for the week:", error);
+      }
+    };
+  
+    handleFetchData();
+  }, [dispatch]);
+
+  // Ví dụ: trong một hàm useEffect hoặc sự kiện xử lý
+// useEffect(() => {
+//   const mondayStr = getMondayStr(new Date()); // Lấy ngày thứ Hai của tuần hiện tại
+//   dispatch(getShiftOfDate({ date: mondayStr }))
+//     .then(response => {
+//       // Xử lý phản hồi từ API
+//       console.log(`Data for Monday ${mondayStr}:`, response);
+//     })
+//     .catch(error => {
+//       // Xử lý lỗi
+//       console.error(`Error fetching data for Monday ${mondayStr}:`, error);
+//     });
+// }, [dispatch]);
+
+
+function getMondayOfWeek(date) {
+  const day = date.getDay() || 7; // Chuyển đổi Chủ nhật từ 0 thành 7
+  if (day !== 1) {
+    date.setDate(date.getDate() - (day - 1)); // Thiết lập ngày về thứ Hai
+  }
+  return new Date(date); // Trả về ngày thứ Hai
+}
+function getMondayStr(startDateStr) {
+  const startDate = new Date(startDateStr);
+  const monday = getMondayOfWeek(startDate);
+  return monday.toISOString().split('T')[0]; // Trả về chuỗi ngày thứ Hai định dạng YYYY-MM-DD
+}
+  const debouncedFetchShiftData = useCallback(debounce(fetchShiftDataForWeek, 1000), []);
+
+  const handleDateSelect = (selectInfo) => {
+    let title = prompt("Please enter a new title for your event");
+    let calendarApi = selectInfo.view.calendar;
+
+    calendarApi.unselect(); // clear date selection
 
     if (title) {
       calendarApi.addEvent({
-        id: `${selected.dateStr}-${title}`,
+        id: createEventId(),
         title,
-        start: selected.startStr,
-        end: selected.endStr,
-        allDay: selected.allDay,
+        start: selectInfo.startStr,
+        end: selectInfo.endStr,
+        allDay: selectInfo.allDay,
       });
+      dispatch(getShiftOfDate({ date: selectInfo.startStr  }));
     }
   };
-
-  const handleEventClick = (selected) => {
-    if (
-      window.confirm(
-        `Are you sure you want to delete the event '${selected.event.title}'`
-      )
-    ) {
-      selected.event.remove();
-    }
-  };
-
-  useEffect(() => {
-    // Gửi yêu cầu API để lấy dữ liệu lịch
-    const fetchDataFromServer = async () => {
-      try {
-        const response = await dispatch(
-          getScheduleOfTechinciansAWeek({ year: 2023 })
-        );
-        const data = response.payload.data; // Log the data
-        console.log("test" + data);
-
-        if (Array.isArray(data) && data.length > 0) {
-          // Process and map the data
-          const events = data.map((event) => ({
-            id: event.id,
-            week: event.week,
-            year: event.year,
-            startDate: event.startDate,
-            endDate: event.endDate,
-          }));
-
-          // Log data from each event
-          events.forEach((event) => {
-            console.log("Event ID:", event.id);
-            console.log("Week:", event.week);
-            console.log("Year:", event.year);
-            console.log("Start Date:", event.startDate);
-            console.log("End Date:", event.endDate);
-          });
-
-          setCurrentEvents(events);
-        } else {
-          console.error("Data from the API is not an array or is empty.");
-        }
-      } catch (error) {
-        console.error("Error when fetching calendar data:", error);
-      }
+    // Hàm xử lý khi chọn ngày trên lịch
+    const handleDatesSet = (info) => {
+      debouncedFetchShiftData(info.startStr);
     };
+  
+  const handleEvents = (events) => {
+    setCurrentEvents(events);
+  };
 
-    fetchDataFromServer();
-  }, [dispatch]);
+  const renderEventContent = (eventInfo) => {
+    return (
+      <>
+        <b>{eventInfo.timeText}</b>
+        <i>{eventInfo.event.title}</i>
+      </>
+    );
+  };
+  function getWeekDays(startDateStr) {
+    let days = [];
+    const startDate = new Date(startDateStr);
+    const monday = getMondayOfWeek(startDate);
+  
+    for (let i = 1; i <= 7; i++) { // Lặp từ thứ Hai đến Chủ nhật
+      let nextDay = new Date(monday);
+      nextDay.setDate(new Date(monday).getDate() + i);
+      days.push(nextDay.toISOString().split('T')[0]);
+    }
+  
+    return days; // Trả về mảng các ngày trong tuần
+  }
+
+  
+  
+
+  const renderSidebarEvent = (event) => {
+    return (
+      <li key={event.id}>
+        <b>
+          {formatDate(event.start, {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+          })}
+        </b>
+        <i>{event.title}</i>
+      </li>
+    );
+  };
+
+  const renderSidebar = () => {
+    return (
+      <Box
+        sx={{
+          flex: "1 1 20%",
+          backgroundColor: colors.primary[400],
+          p: "15px",
+          borderRadius: "4px",
+          ml: "15px",
+        }}
+      >
+        <Typography variant="h5">
+          All Events ({currentEvents.length})
+        </Typography>
+        <List>
+          <ListItem
+            sx={{
+              backgroundColor: colors.greenAccent[500],
+              margin: "30px 0",
+              borderRadius: "10px",
+            }}
+          >
+            {currentEvents.map(renderSidebarEvent)}
+          </ListItem>
+        </List>
+      </Box>
+    );
+  };
 
   return (
-    <Box m="20px">
-      <Header
-        title="Lịch Kỹ Thuật Viên"
-        subtitle="Trang tương tác toàn bộ lịch"
-      />
-
-      <Box display="flex" justifyContent="space-between">
-        {/* CALENDAR SIDEBAR */}
-        <Box
-          flex="1 1 20%"
-          backgroundColor={colors.primary[400]}
-          p="15px"
-          borderRadius="4px"
-        >
-          <Typography variant="h5">Events</Typography>
-          <List>
-            {currentEvents.map((event) => (
-              <ListItem
-                key={event.id}
-                sx={{
-                  backgroundColor: colors.greenAccent[500],
-                  margin: "30px 0",
-                  borderRadius: "10px",
-                }}
-              >
-                <ListItemText
-                  primary={event.startDate}
-                  secondary={
-                    <Typography>
-                      {formatDate(event.startDate, {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                      })}
-                    </Typography>
-                  }
-                />
-                <ListItemText
-                  primary={event.endDate}
-                  secondary={
-                    <Typography>
-                      {formatDate(event.endDate, {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                      })}
-                    </Typography>
-                  }
-                />
-                {/* <Typography variant="body2">ID: {event.id}</Typography> */}
-                {/* <Typography variant="body2">Week: {event.week}</Typography> */}
-              </ListItem>
-            ))}
-          </List>
-        </Box>
-
-        {/* CALENDAR */}
-        <Box flex="1 1 100%" ml="30px">
-          <FullCalendar
-            height="75vh"
-            plugins={[ timeGridPlugin, interactionPlugin]}
-            headerToolbar={{
-              left: "prev,next today",
-              center: "title",
-              right: "timeGridWeek,timeGridDay",
-            }}
-            editable={true}
-            selectable={true}
-            selectMirror={true}
-            dayMaxEvents={true}
-            select={handleDateClick}
-            eventClick={handleEventClick}
-            eventSources={[currentEvents]}
-            eventColor={colors.greenAccent[500]}
-            eventTextColor="white"
-            weekends={true}
-            dayHeaders={true}
-          />
-        </Box>
+    <Box sx={{ display: "flex", flexDirection: "row" }}>
+      {renderSidebar()}
+      <Box sx={{ flex: "1 1 75%", ml: "30px" }}>
+        <FullCalendar
+        
+        plugins={[
+          dayGridPlugin,
+          timeGridPlugin,
+          interactionPlugin,
+          listPlugin,
+        ]}
+        headerToolbar={{
+          left: "prev,next today",
+          center: "title",
+          right: "dayGridMonth,timeGridWeek,timeGridDay,listMonth",
+        }}
+        initialView="dayGridMonth"
+          editable={true}
+          selectable={true}
+          selectMirror={true}
+          dayMaxEvents={true}
+          weekends={weekendsVisible}
+          initialEvents={initialEvents}
+          resources={RESOURCES}
+          select={handleDateSelect}
+          eventContent={renderEventContent}
+          eventsSet={handleEvents}
+          locale="vi" // Thiết lập ngôn ngữ hiển thị là Tiếng Việt
+          timeZone="Asia/Ho_Chi_Minh" // Thiết lập múi giờ là múi giờ Việt Nam
+          datesSet={handleDatesSet}
+          firstDay={1}
+        />
       </Box>
     </Box>
   );

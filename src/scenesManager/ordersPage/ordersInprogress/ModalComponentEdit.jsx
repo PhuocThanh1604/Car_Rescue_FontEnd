@@ -194,11 +194,11 @@ const updateTotalForOrder = (orderId, newTotal) => {
     }));
   
     // Tính toán tổng tiền mới
-    const order = orders.find(o => o.id === orderId);
-    const newTotal = order.unitPrice * newQuantity;
+    // const order = orders.find(o => o.id === orderId);
+    // const newTotal = order.unitPrice * newQuantity;
   
     // Cập nhật tổng tiền vào state hoặc context tương ứng
-    updateTotalForOrder(orderId, newTotal);
+    // updateTotalForOrder(orderId, newTotal);
   
     // Cập nhật trạng thái chỉnh sửa và ID dịch vụ
     setIsEditing(true);

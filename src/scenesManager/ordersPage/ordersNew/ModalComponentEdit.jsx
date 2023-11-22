@@ -211,6 +211,7 @@ const ModalEdit = ({
 
           // Xác định selectedVehicle ban đầu
         } else {
+          setVehicleData([]);
           console.error("Vehicle response does not contain 'data'.");
         }
       } catch (error) {

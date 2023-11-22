@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-const apiKeyGG = "AIzaSyAid63yPsUnB_deR9bJTfYRKcc2Z8tgl3E";
+const apiKeyGG = "AIzaSyB3pfcWmEJDtpO6Kjy3OfikhN4bRP1ORjc";
 // const apiKeyGG = process.env.API_KEY_GG;
 const mapboxToken =
   "pk.eyJ1IjoidGhhbmgyazEiLCJhIjoiY2xvZjMxcWppMG5oejJqcnI2M2ZleTJtZiJ9.yvWTA-yYNqTdr2OstpB7bw";
@@ -371,27 +371,7 @@ export const createChangeTypeRescue = createAsyncThunk(
     }
   }
 );
-export const createOrderOffline = createAsyncThunk(
-  "orders/createOrderOffline",
-  async (data) => {
-    try {
-      const res = await axios.post(
-        "https://rescuecapstoneapi.azurewebsites.net/api/Order/CreateTowingOrderForCustomer",
-        data,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      console.log(data);
-      return res.data && res.message;
-    } catch (error) {
-      console.error("Failed to create Order Offline:", error.response.message);
-      throw error.response.data || error.message;
-    }
-  }
-);
+
 export const createOrderOfflineFixing = createAsyncThunk(
   "orders/createOrderOfflineFixing",
   async (data) => {
@@ -409,6 +389,27 @@ export const createOrderOfflineFixing = createAsyncThunk(
       return res.data;
     } catch (error) {
       console.error("Failed to create Order Offline fixing:", error.response);
+      throw error.response.data || error.message;
+    }
+  }
+);
+export const createOrderOffline = createAsyncThunk(
+  "orders/createOrderOffline",
+  async (data) => {
+    try {
+      const res = await axios.post(
+        "https://rescuecapstoneapi.azurewebsites.net/api/Order/CreateTowingOrderForCustomer",
+        data,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log(data);
+      return res.data ;
+    } catch (error) {
+      console.error("Failed to create Order Offline:", error.response);
       throw error.response.data || error.message;
     }
   }
