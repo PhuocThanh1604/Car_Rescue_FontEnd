@@ -25,7 +25,7 @@ const CalendarTechnician = () => {
   const [eventType, setEventType] = useState("");
   const [eventTypeid, setEventTypeId] = useState("");
   const [eventTypeDate, setEventTypeDate] = useState("");
-  const [initialEvents, setInitialEvents] = useState();
+  const [initialEvents, setInitialEvents] = useState("");
   const [timedEventTitle, setTimedEventTitle] = useState("");
   const [fullnameData, setFullnameData] = useState({});
   const [id, setId] = useState("");
@@ -44,30 +44,34 @@ const CalendarTechnician = () => {
   }
   const INITIAL = [
     {
-      id: createEventId(),
+      // id: createEventId(),
       title: "All-day event",
-      start: todayStr,
-      resourceId: "a",
+      date: todayStr,
+      // resourceId: "a",
     },
     {
-      id: createEventId(),
-      title: "tes" +timedEventTitle,
-      start: todayStr + "T12:00:00",
-      resourceId: "b",
+      // id: createEventId(),
+      title: "test 222" + timedEventTitle,
+      date: todayStr + "T12:00:00",
+      // resourceId: "b",
     },
     {
-      id: createEventId(),
-      title: "Timed event 2",
-      start: todayStr + "T13:00:00",
-      resourceId: "c",
+      // id: createEventId(),
+      title: "Timed event 2" + timedEventTitle,
+      date: todayStr + "T13:00:00",
+      // resourceId: "c",
     },
     {
-      id: createEventId(),
-      title: "Timed event 4",
-      start: todayStr + "T19:00:00",
-      resourceId: "d",
+      // id: createEventId(),
+      title: "Timed event 4"+timedEventTitle,
+      date: todayStr + "T19:00:00",
+      // resourceId: "d",
     },
   ];
+
+  // setInitialEvents(INITIAL);
+  console.log(INITIAL);
+
   const fetchShiftDataForWeek = (startDate) => {
     const days = getWeekDays(startDate);
     // Gọi API cho từng ngày trong tuần
@@ -75,9 +79,9 @@ const CalendarTechnician = () => {
       dispatch(getShiftOfDate({ date: day }));
     });
   };
-  
+
   useEffect(() => {
-    const todayStr = new Date().toISOString().replace(/T.*$/, "");
+    console.log("DEBUG01");
     const handleFetchData = async () => {
       const days = getWeekDays(new Date());
       try {
@@ -85,57 +89,30 @@ const CalendarTechnician = () => {
           dispatch(getShiftOfDate({ date: day })).unwrap()
         );
         const responses = await Promise.all(promises);
-  
+        console.log(responses);
         if (
-          responses &&
-          responses[0] &&
-          responses[0].data &&
-          responses[0].data.length > 0
+          responses
+          // responses &&
+          // responses[0] &&
+          // responses[0].data &&
+          // responses[0].data.length > 0
         ) {
-          const title = responses[0].data[0].type.toString();
-          setTimedEventTitle(title);
-  
-          // Update INITIAL with the new timedEventTitle
-          const updatedInitial = [
-            {
-              id: createEventId(),
-              title: "All-day event",
-              start: todayStr,
-              resourceId: "a",
-            },
-            {
-              id: createEventId(),
-              title: title,
-              start: todayStr + "T12:00:00",
-              resourceId: "b",
-            },
-            {
-              id: createEventId(),
-              title: "Timed event 2",
-              start: todayStr + "T13:00:00",
-              resourceId: "c",
-            },
-            {
-              id: createEventId(),
-              title: "Timed event 4",
-              start: todayStr + "T19:00:00",
-              resourceId: "d",
-            },
-          ];
-  
-          setInitialEvents(updatedInitial); // Update the state with the new INITIAL
+          const title = responses[2].data[0].type.toString();
+          console.log(title);
+          setInitialEvents(responses[2].data[2]);
+          setTimedEventTitle(() => title);
+          // console.log(title);
         }
-  
-        console.log("Updated INITIAL_EVENTS:", responses[0].data[0].type);
+
+        console.log("Updated INITIAL_EVENTS:", responses[2].data[0].type);
         // Kiểm tra và xử lý dữ liệu trả về từ API
       } catch (error) {
         console.error("Error fetching data for the week:", error);
       }
     };
-  
+
     handleFetchData();
-  }, [dispatch, todayStr]);
-  
+  }, [dispatch]);
 
   const fecthShiftOfDate = (customerId) => {
     if (!fullnameData[customerId]) {
@@ -272,6 +249,7 @@ const CalendarTechnician = () => {
     <Box sx={{ display: "flex", flexDirection: "row" }}>
       {renderSidebar()}
       <Box sx={{ flex: "1 1 75%", ml: "30px" }}>
+        {console.log("DEBUG02" + INITIAL)}
         <FullCalendar
           plugins={[
             dayGridPlugin,
@@ -290,11 +268,11 @@ const CalendarTechnician = () => {
           selectMirror={true}
           dayMaxEvents={true}
           weekends={weekendsVisible}
-          initialEvents={initialEvents}
-          resources={RESOURCES}
+          events={INITIAL}
+          // resources={RESOURCES}
           select={handleDateSelect}
           eventContent={renderEventContent}
-          eventsSet={handleEvents}
+          // eventsSet={handleEvents}
           locale="vi" // Thiết lập ngôn ngữ hiển thị là Tiếng Việt
           timeZone="Asia/Ho_Chi_Minh" // Thiết lập múi giờ là múi giờ Việt Nam
           datesSet={handleDatesSet}
