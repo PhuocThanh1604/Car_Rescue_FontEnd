@@ -8,90 +8,142 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { tokens } from "../../theme";
-import { mockTransactions } from "../../data/mockData";
 import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
-import EmailIcon from "@mui/icons-material/Email";
-import PointOfSaleIcon from "@mui/icons-material/PointOfSale";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
-import TrafficIcon from "@mui/icons-material/Traffic";
 import Header from "../../components/Header";
 import LineChart from "../../components/LineChart";
-import GeographyChart from "../../components/GeographyChart";
+import InventoryIcon from "@mui/icons-material/Inventory";
+import HandshakeIcon from "@mui/icons-material/Handshake";
 import BarChart from "../../components/BarChart";
-// import ProgressCircle from "../../components/ProgressCircle";
-// import MainChart from '../../components/MainChart';
+import DisplaySettingsIcon from "@mui/icons-material/DisplaySettings";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
-import { fetchAccounts } from "../../redux/accountSlice";
 import { toast } from "react-toastify";
 import { useState } from "react";
-import { fetchOrders, fetchOrdersCompleted } from "../../redux/orderSlice";
+import { fetchDashboard, fetchOrders, getOrderDetailId } from "../../redux/orderSlice";
 import ProgressCircle from "../../components/ProgressCircle";
-import { fetchServices } from "../../redux/serviceSlice";
-import { fetchCustomers } from "../../redux/customerSlice";
+import { fetchPayments } from "../../redux/paymentSlice";
 
 const Dashboard = () => {
   const dispatch = useDispatch();
-  const customer = useSelector((state) => state.customer.customers);
-  const orders = useSelector((state) => state.order.orders);
-  const services = useSelector((state) => state.service.services);
+  const customer = useSelector((state) => state.customer.customers || []);
+  const orders = useSelector((state) => state.order.orders || []);
+  const services = useSelector((state) => state.service.services || []);
+  const [maxRevenue, setMaxRevenue] = useState(0);
   const [loading, setLoading] = useState(false);
   const [filteredOrders, setFilteredOrders] = useState([]);
+  const [data, setData] = useState([]);
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-
-  useEffect(() => {
-    setLoading(true);
-    dispatch(fetchOrdersCompleted())
-      .then(() => {
-        // Không cần setFilteredaccountsStatus vì đã sử dụng useSelector để lấy danh sách sản phẩm
-      })
-      .catch((error) => {
-        toast.error(error);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, [dispatch]);
-  useEffect(() => {
-    setLoading(true);
-    dispatch(fetchServices())
-      .then(() => {
-        // Không cần setFilteredaccountsStatus vì đã sử dụng useSelector để lấy danh sách sản phẩm
-      })
-      .catch((error) => {
-        toast.error(error);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, [dispatch]);
-  useEffect(() => {
-    setLoading(true);
-    dispatch(fetchCustomers())
-      .then(() => {
-        // Không cần setFilteredaccountsStatus vì đã sử dụng useSelector để lấy danh sách sản phẩm
-      })
-      .catch((error) => {
-        toast.error(error);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, [dispatch]);
+  const [orderIds, setOrderIds] = useState([]);
+  const [dataOrder, setDataOrder] = useState([]);
+  const [orderDetailData, setOrderDetailData] = useState([]);
+  const [dataPayment, setDataPayment] = useState([]);
 
   const calculateIncrease = (currentValue, percentIncrease) => {
     return currentValue + Math.round((percentIncrease / 100) * currentValue);
   };
+  const totalPossibleOrders = 500; // This should be your comparison figure
+  const currentOrders = data.orders || 0; // Assuming data.orders is the current total number of orders
+
+  const ordersPercentage = (currentOrders / totalPossibleOrders) * 100;
 
   const increasedCustomer = calculateIncrease(customer.length, 5);
-  const increasedOrders = calculateIncrease(orders.length, 5);
+  const increasedOrders = calculateIncrease(data.orders, 5);
   const increasedServices = calculateIncrease(services.length, 5);
-  const total = orders.reduce(
-    (accumulator, order) => accumulator + order.price,
-    0
-  );
+  const increasedRescueCarOwner = calculateIncrease(data.partners, 5);
+  const addOrderId = (newOrderId) => {
+    setOrderIds([...orderIds, newOrderId]);
+    console.log(orderIds);
+  };
 
+  useEffect(() => {
+    setLoading(true);
+    dispatch(fetchDashboard())
+      .then((response) => {
+        // Đã lấy dữ liệu thành công
+        const data = response.payload;
+        if (data && data.revenue && data.revenue.length > 0) {
+          setData(data);
+          // Find the maximum revenue value
+          const maxRevenue = Math.max(...data.revenue);
+          setMaxRevenue(maxRevenue);
+          setLoading(false); // Đặt trạng thái loading thành false sau khi xử lý dữ liệu
+        }
+      })
+      .catch((error) => {
+        toast.error(error);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [dispatch]);
+  // useEffect(() => {
+  //   setLoading(true);
+  //   const processedOrderIds = new Set(); 
+  //   dispatch(fetchOrders())
+  //     .then((response) => {
+  //       const data = response.payload.data;
+  //       if (data) {
+  //         setDataOrder(data);
+  //         data.forEach(order => {
+  //           if (!processedOrderIds.has(order.id)) {
+  //             fectOrderDetail(order.id);
+  //             processedOrderIds.add(order.id); // Add the order.id to the Set
+  //           }
+  //         });
+  //         // setFilteredPayment(data);
+  //         console.log(data[0].id);
+  //         setLoading(false); // Đặt trạng thái loading thành false sau khi xử lý dữ liệu
+  //       }
+  //     })
+  //     .catch((error) => {
+  //       toast.error(error);
+  //     })
+  //     .finally(() => {
+  //       setLoading(false);
+  //     });
+  // }, [dispatch]);
+  useEffect(() => {
+    setLoading(true);
+    dispatch(fetchPayments())
+      .then((response) => {
+        const data = response.payload.data;
+        if (data) {
+          setDataPayment(data);
+      
+          // setFilteredPayment(data);
+          console.log(data[0].id);
+          setLoading(false); // Đặt trạng thái loading thành false sau khi xử lý dữ liệu
+        }
+      })
+      .catch((error) => {
+        toast.error(error);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [dispatch]);
+  const fectOrderDetail = (orderId) => {
+    console.log(orderId);
+    if (!orderId) {
+      console.error("No orderId provided for reloading order details.");
+      return;
+    }
+    dispatch(getOrderDetailId({ id: orderId }))
+      .then((response) => {
+        const data = response.payload.data;
+        if (data) {
+          console.log(data.quantity)
+          setOrderDetailData(data);
+          // Đặt loading thành false sau khi tải lại dữ liệu
+          setLoading(false);
+        }
+      })
+      .catch((error) => {
+        console.error("Lỗi khi tải lại chi tiết đơn:", error);
+      });
+  };
   useEffect(() => {
     // Lặp qua danh sách đơn hàng và gán accountName dựa trên accountId
     const ordersWithaccountNames = orders.map((order) => {
@@ -105,7 +157,7 @@ const Dashboard = () => {
     // Cập nhật danh sách đơn hàng đã được gán accountName
     setFilteredOrders(ordersWithaccountNames);
   }, [orders, customer]);
-
+ 
   return (
     <Box marginLeft={2} marginRight={1}>
       {/* HEADER */}
@@ -149,7 +201,7 @@ const Dashboard = () => {
           <Box width="100%" m="0 30px">
             <Box display="flex" justifyContent="space-between">
               <Box>
-                <EmailIcon
+                <InventoryIcon
                   sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
                 />
                 <Typography
@@ -157,31 +209,32 @@ const Dashboard = () => {
                   fontWeight="bold"
                   sx={{ color: colors.grey[100] }}
                 >
-                  {orders.length}
+                  {data.orders}
                 </Typography>
               </Box>
               <Box>
                 <CircularProgress
                   variant="determinate"
-                  value={75}
+                  value={data.orders}
                   sx={{ color: colors.greenAccent[500] }}
                 />
               </Box>
             </Box>
             <Box display="flex" justifyContent="space-between" mt="2px">
               <Typography variant="h5" sx={{ color: colors.greenAccent[500] }}>
-                Emails Sent
+                Tổng Đơn Hàng
               </Typography>
               <Typography
                 variant="h5"
                 fontStyle="italic"
                 sx={{ color: colors.greenAccent[600] }}
               >
-                +14%
+                {ordersPercentage}% {/* Display the calculated percentage */}
               </Typography>
             </Box>
           </Box>
         </Box>
+
         <Box
           gridColumn="span 3"
           backgroundColor={colors.primary[400]}
@@ -192,7 +245,7 @@ const Dashboard = () => {
           <Box width="100%" m="0 30px">
             <Box display="flex" justifyContent="space-between">
               <Box>
-                <PointOfSaleIcon
+                <HandshakeIcon
                   sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
                 />
                 <Typography
@@ -200,27 +253,27 @@ const Dashboard = () => {
                   fontWeight="bold"
                   sx={{ color: colors.grey[100] }}
                 >
-                  {orders.length}
+                  {data.partners}
                 </Typography>
               </Box>
               <Box>
                 <CircularProgress
                   variant="determinate"
-                  value={orders.length}
+                  value={data.partners}
                   sx={{ color: colors.greenAccent[500] }}
                 />
               </Box>
             </Box>
             <Box display="flex" justifyContent="space-between" mt="2px">
               <Typography variant="h5" sx={{ color: colors.greenAccent[500] }}>
-                Đơn Hoàn Thành
+                Đối Tác
               </Typography>
               <Typography
                 variant="h5"
                 fontStyle="italic"
                 sx={{ color: colors.greenAccent[600] }}
               >
-                {increasedOrders}%
+                {increasedRescueCarOwner}%
               </Typography>
             </Box>
           </Box>
@@ -256,7 +309,7 @@ const Dashboard = () => {
             </Box>
             <Box display="flex" justifyContent="space-between" mt="2px">
               <Typography variant="h5" sx={{ color: colors.greenAccent[500] }}>
-               Khách Hàng
+                Khách Hàng
               </Typography>
               <Typography
                 variant="h5"
@@ -278,7 +331,7 @@ const Dashboard = () => {
           <Box width="100%" m="0 30px">
             <Box display="flex" justifyContent="space-between">
               <Box>
-                <TrafficIcon
+                <DisplaySettingsIcon
                   sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
                 />
                 <Typography
@@ -286,20 +339,20 @@ const Dashboard = () => {
                   fontWeight="bold"
                   sx={{ color: colors.grey[100] }}
                 >
-                  {services.length}
+                  {data.services}
                 </Typography>
               </Box>
               <Box>
                 <CircularProgress
                   variant="determinate"
-                  value={services.length}
+                  value={data.services}
                   sx={{ color: colors.greenAccent[500] }}
                 />
               </Box>
             </Box>
             <Box display="flex" justifyContent="space-between" mt="2px">
               <Typography variant="h5" sx={{ color: colors.greenAccent[500] }}>
-               Dịch Vụ
+                Dịch Vụ
               </Typography>
               <Typography
                 variant="h5"
@@ -315,7 +368,7 @@ const Dashboard = () => {
         {/* ROW 2 */}
 
         <Box
-          gridColumn="span 8"
+          gridColumn="span 12"
           gridRow="span 2"
           backgroundColor={colors.primary[400]}
         >
@@ -332,14 +385,14 @@ const Dashboard = () => {
                 fontWeight="500"
                 color={colors.grey[100]}
               >
-                Revenue Generated
+                Doanh Thu Cao Nhất
               </Typography>
               <Typography
                 variant="h3"
                 fontWeight="bold"
                 color={colors.greenAccent[500]}
               >
-                {total.toLocaleString("vi-VN", {
+                {maxRevenue.toLocaleString("vi-VN", {
                   style: "currency",
                   currency: "VND",
                 })}
@@ -376,9 +429,9 @@ const Dashboard = () => {
               Giao dịch gần đây
             </Typography>
           </Box>
-          {orders.map((order, i) => (
+          {dataPayment.map((payment, i) => (
             <Box
-              key={`${order.orderId}-${i}`}
+              key={`${payment.orderId}-${i}`}
               display="flex"
               justifyContent="space-between"
               alignItems="center"
@@ -391,23 +444,15 @@ const Dashboard = () => {
                   variant="h5"
                   fontWeight="600"
                 >
-                  {order.id}
+                  {payment.id} {/* Sử dụng order.id thay vì dataOrder.id */}
                 </Typography>
 
-                {order.customerId && (
-                  <Typography color={colors.grey[100]} key={order.id}>
-                    {customer
-                      .filter(
-                        (account) => account.customerId === order.customerId
-                      )
-                      .map((account) => account.fullname)
-                      .join(", ")}
-                  </Typography>
-                )}
+             
               </Box>
 
               <Box color={colors.grey[100]}>
-                {new Date(order.createdAt).toLocaleDateString()}
+                {new Date(payment.createdAt).toLocaleDateString()}{" "}
+                {/* Sử dụng order.createdAt thay vì dataOrder.createdAt */}
               </Box>
 
               <Box
@@ -418,7 +463,7 @@ const Dashboard = () => {
                 {new Intl.NumberFormat("vi-VN", {
                   style: "currency",
                   currency: "VND",
-                }).format(order.price)}
+                }).format(payment.amount)}
               </Box>
             </Box>
           ))}
@@ -432,7 +477,7 @@ const Dashboard = () => {
           p="30px"
         >
           <Typography variant="h5" fontWeight="600">
-            Campaign
+            Giao dịch
           </Typography>
           <Box
             display="flex"
@@ -446,9 +491,11 @@ const Dashboard = () => {
               color={colors.greenAccent[500]}
               sx={{ mt: "15px" }}
             >
-              $48,352 revenue generated
+              {data.cash + data.banking} Tổng lần giao dịch
             </Typography>
-            <Typography>Includes extra misc expenditures and costs</Typography>
+            <Typography>
+              Bao gồm các tiền mặt và chuyển khoản ngân hàng
+            </Typography>
           </Box>
         </Box>
 
@@ -466,24 +513,6 @@ const Dashboard = () => {
           </Typography>
           <Box height="250px" mt="-20px">
             <BarChart isDashboard={true} />
-          </Box>
-        </Box>
-
-        <Box
-          gridColumn="span 4"
-          gridRow="span 2"
-          backgroundColor={colors.primary[400]}
-          padding="30px"
-        >
-          <Typography
-            variant="h5"
-            fontWeight="600"
-            sx={{ paddingBottom: "10px" }}
-          >
-            accounts by Geography
-          </Typography>
-          <Box height="250px" mt="-20px">
-            <GeographyChart />
           </Box>
         </Box>
       </Box>

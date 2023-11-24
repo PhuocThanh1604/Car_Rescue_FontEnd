@@ -88,6 +88,23 @@ export const fetchOrdersCompleted = createAsyncThunk(
     }
   }
 );
+export const fetchDashboard = createAsyncThunk(
+  "orders/fetchDashboard",
+  async () => {
+    const storageKey = "fetchDashboard";
+    try {
+      removeFromStorage(storageKey);
+      const response = await axios.get("https://rescuecapstoneapi.azurewebsites.net/api/Dashboard/GetDashboard");
+      const data = response.data;
+      saveToStorage(storageKey, data);
+      console.log("Response data:", data); // Log the response data for debugging
+      return data;
+    } catch (error) {
+      console.error("Failed to retrieve fetch Dashboard:", error); // Log the error for debugging
+      throw error; // Throw the error so it can be caught in your component
+    }
+  }
+);
 export const fetchOrdersInprogress = createAsyncThunk(
   "orders/fetchOrdersInprogress",
   async () => {
@@ -407,7 +424,7 @@ export const createOrderOffline = createAsyncThunk(
         }
       );
       console.log(data);
-      return res.data ;
+      return res.data;
     } catch (error) {
       console.error("Failed to create Order Offline:", error.response);
       throw error.response.data || error.message;
@@ -536,6 +553,12 @@ const orderSlice = createSlice({
         state.orders = action.payload.data;
       })
       .addCase(fetchOrdersCompleted.pending, (state, action) => {
+        state.status = "loading";
+      })
+      .addCase(fetchDashboard.fulfilled, (state, action) => {
+        state.orders = action.payload.data;
+      })
+      .addCase(fetchDashboard.pending, (state, action) => {
         state.status = "loading";
       })
       .addCase(fetchOrdersInprogress.fulfilled, (state, action) => {

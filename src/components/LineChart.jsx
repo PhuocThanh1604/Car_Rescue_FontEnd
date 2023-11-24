@@ -1,15 +1,66 @@
 import { ResponsiveLine } from "@nivo/line";
 import { useTheme } from "@mui/material";
 import { tokens } from "../theme";
-import { mockLineData as data } from "../data/mockData";
+// import { mockLineData  } from "../data/mockData";
+import { useEffect, useState } from "react";
+import { fetchDashboard } from "../redux/orderSlice";
+import { useDispatch } from "react-redux";
 
 const LineChart = ({ isCustomLineColors = false, isDashboard = false }) => {
   const theme = useTheme();
+  const dispatch = useDispatch();
   const colors = tokens(theme.palette.mode);
+  const [loading, setLoading] = useState(false);
+  const [dataDashbroad, setDataDasbroad] = useState([]);
+  const [mockLineData, setMockLineData] = useState([]);
+
+  
+const formatCurrency = (value) => {
+  return new Intl.NumberFormat('vi-VN', {
+    style: 'currency',
+    currency: 'VND'
+  }).format(value);
+};
+
+  
+  useEffect(() => {
+    setLoading(true);
+    dispatch(fetchDashboard())
+      .then((response) => {
+        const apiData = response.payload;
+        if (apiData.revenue && apiData.revenue.length > 0) {
+          // Assuming apiData.revenue is an array of numbers for each month
+          const transformedData = {
+            id: "apiData", // or a suitable identifier
+            color: "#4cceac", // replace with actual color
+            data: apiData.revenue.map((value, index) => ({
+              x: `Tháng ${index + 1}`,
+              y: formatCurrency(value)
+            }))
+          };
+  
+          // Update state for chart data
+          setMockLineData([transformedData]); // Assuming you want to replace the existing data
+  
+          setLoading(false);
+        }
+      })
+      .catch((error) => {
+        // Handle error
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [dispatch]);
+  
+
+  
+  
+
 
   return (
     <ResponsiveLine
-      data={data}
+      data={mockLineData}
       theme={{
         axis: {
           domain: {
@@ -53,7 +104,7 @@ const LineChart = ({ isCustomLineColors = false, isDashboard = false }) => {
         stacked: true,
         reverse: false,
       }}
-      yFormat=" >-.2f"
+      yFormat={value => `${Number(value).toFixed(6).replace(/\B(?=(\d{3})+(?!\d))/g, ",")} VND`}
       curve="catmullRom"
       axisTop={null}
       axisRight={null}
@@ -75,6 +126,7 @@ const LineChart = ({ isCustomLineColors = false, isDashboard = false }) => {
         legend: isDashboard ? undefined : "count", // added
         legendOffset: -40,
         legendPosition: "middle",
+        format: (e) => `${e.toLocaleString('vi-VN')} VND`
       }}
       enableGridX={false}
       enableGridY={false}

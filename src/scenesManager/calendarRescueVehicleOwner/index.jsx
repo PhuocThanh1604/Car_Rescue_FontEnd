@@ -13,11 +13,17 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
+import { styled } from "@mui/system";
 import Header from "../../components/Header";
 import { tokens } from "../../theme";
 
+const StyledList = styled(List)({
+  maxHeight: 700,
+  overflowY: "auto",
+});
 const CalendarRescueVehicleOwner = () => {
   const theme = useTheme();
+
   const colors = tokens(theme.palette.mode);
   const [currentEvents, setCurrentEvents] = useState([]);
 
@@ -60,7 +66,7 @@ const CalendarRescueVehicleOwner = () => {
           borderRadius="4px"
         >
           <Typography variant="h5">Events</Typography>
-          <List>
+          <StyledList>
             {currentEvents.map((event) => (
               <ListItem
                 key={event.id}
@@ -84,7 +90,7 @@ const CalendarRescueVehicleOwner = () => {
                 />
               </ListItem>
             ))}
-          </List>
+          </StyledList>
         </Box>
 
         {/* CALENDAR */}

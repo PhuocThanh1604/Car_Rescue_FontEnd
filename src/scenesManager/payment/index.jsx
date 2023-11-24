@@ -17,38 +17,26 @@ import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import Header from "../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  createAcceptWithdrawRequest,
-  fetchTransactionsNew,
-} from "../../redux/transactionsSlice";
 import moment from "moment";
 import AddCardIcon from "@mui/icons-material/AddCard";
 import CreditScoreIcon from "@mui/icons-material/CreditScore";
 import RepeatOnIcon from "@mui/icons-material/RepeatOn";
-import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
-import CurrencyExchangeIcon from "@mui/icons-material/CurrencyExchange";
+import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import PhoneRoundedIcon from "@mui/icons-material/PhoneRounded";
-import MapRoundedIcon from "@mui/icons-material/MapRounded";
-import PeopleAltRoundedIcon from "@mui/icons-material/PeopleAltRounded";
-import PlaceIcon from "@mui/icons-material/Place";
-import ReceiptRoundedIcon from "@mui/icons-material/ReceiptRounded";
-import { CategoryRounded } from "@mui/icons-material";
-import TimerIcon from "@mui/icons-material/Timer";
 import InfoIcon from "@mui/icons-material/Info";
-import { autoPlay } from "react-swipeable-views-utils";
-import { useNavigate } from "react-router-dom";
-import Sidebar from "../geographyManager/global/Sidebar";
-import AssuredWorkloadIcon from "@mui/icons-material/AssuredWorkload";
 import CustomTablePagination from "../../components/TablePagination";
 import { fetchPayments } from "../../redux/paymentSlice";
-import { getPaymentId } from "../../redux/orderSlice";
-
+import { getOrderDetailId, getPaymentId } from "../../redux/orderSlice";
+import GradingIcon from "@mui/icons-material/Grading";
+import TodayIcon from "@mui/icons-material/Today";
+import PaidIcon from "@mui/icons-material/Paid";
 const Payment = () => {
   const dispatch = useDispatch();
   const payments = useSelector((state) => state.payment.payments);
   const [loading, setLoading] = useState(false);
   const [filteredPayment, setFilteredPayment] = useState([]);
+  const [orderDetailData, setOrderDetailData] = useState([]);
+  const [orderId, setOrderId] = useState(null);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(8);
   const [detailedData, setDetailedData] = useState(null);
@@ -63,14 +51,17 @@ const Payment = () => {
   const [isAccepted, setIsAccepted] = useState(false);
   const [selectedWalletId, setSelectedWalletId] = useState("");
 
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
   const handleClickPaymentDetail = (paymentId) => {
-    console.log(paymentId); 
+    console.log(paymentId);
     dispatch(getPaymentId({ id: paymentId }))
       .then((response) => {
         const transactionDetails = response.payload.data;
         setOpenConfirmModal(true);
         setDetailedData(transactionDetails);
         setIsSuccess(true);
+        console.log(transactionDetails);
       })
       .catch((error) => {
         console.error("Lỗi khi lấy thông tin payment:", error);
@@ -179,8 +170,39 @@ const Payment = () => {
       });
   };
 
-
-
+  useEffect(() => {
+    if (detailedData && detailedData.orderId) {
+      setOrderId(detailedData.orderId);
+    }
+  }, [detailedData]);
+  
+  useEffect(() => {
+    if (orderId) {
+      console.log(orderId)
+      fectOrderDetail(orderId);
+    }
+  }, [orderId]); // Thêm orderId vào danh sách phụ thuộc
+  
+  const fectOrderDetail = (orderId) => {
+    console.log(orderId);
+    if (!orderId) {
+      console.error("No orderId provided for reloading order details.");
+      return;
+    }
+    dispatch(getOrderDetailId({ id: orderId }))
+      .then((response) => {
+        const data = response.payload.data;
+        if (data) {
+          console.log(data.quantity)
+          setOrderDetailData(data);
+          // Đặt loading thành false sau khi tải lại dữ liệu
+          setLoading(false);
+        }
+      })
+      .catch((error) => {
+        console.error("Lỗi khi tải lại chi tiết đơn:", error);
+      });
+  };
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
@@ -192,8 +214,7 @@ const Payment = () => {
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
   );
-  const theme = useTheme();
-  const colors = tokens(theme.palette.mode);
+
   const columns = [
     {
       field: "id",
@@ -373,7 +394,7 @@ const Payment = () => {
       >
         <DialogTitle
           id="alert-dialog-title"
-          sx={{ color: "indigo", fontSize: "24px", textAlign: "center" }}
+          sx={{  color: colors.greenAccent[500], fontSize: "24px", textAlign: "center" }}
         >
           Thông tin chi tiết payment
         </DialogTitle>
@@ -384,12 +405,47 @@ const Payment = () => {
                 <Card>
                   <Divider light />
                   <CardContent>
-                    <Typography
-                      variant="h5"
-                      sx={{ marginBottom: "4px", textAlign: "center" }}
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1, // Khoảng cách giữa icon và văn bản
+                      }}
                     >
-                      Thông tin giao dịch
-                    </Typography>
+                      <PhoneRoundedIcon
+                        sx={{ color: colors.blueAccent[400] }}
+                      />
+                      <Typography variant="h6">
+                        <strong>ID : </strong>{" "}
+                        {detailedData.id || "Không có thông tin"}
+                      </Typography>
+                    </Box>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1, // Khoảng cách giữa icon và văn bản
+                      }}
+                    >
+                      <GradingIcon sx={{ color: colors.blueAccent[400] }} />
+                      <Typography variant="h6">
+                        <strong>orderId : </strong>{" "}
+                        {detailedData.orderId || "Không có thông tin"}
+                      </Typography>
+                    </Box>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1, // Khoảng cách giữa icon và văn bản
+                      }}
+                    >
+                      <GradingIcon sx={{ color: colors.blueAccent[400] }} />
+                      <Typography variant="h6">
+                        <strong>serviceId : </strong>{" "}
+                        {orderDetailData.serviceId || "Không có thông tin"}
+                      </Typography>
+                    </Box>
 
                     <Box
                       sx={{
@@ -398,27 +454,15 @@ const Payment = () => {
                         gap: 1, // Khoảng cách giữa icon và văn bản
                       }}
                     >
-                      <PhoneRoundedIcon />
-                      <Typography variant="h6">
-                        <strong>SĐT: </strong>{" "}
-                        {detailedData.id || "Không có thông tin"}
-                      </Typography>
-                    </Box>
-                 
-                    <Box
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 1, // Khoảng cách giữa icon và văn bản
-                      }}
-                    >
-                      {/* <PersonRoundedIcon /> */}
+                      <AccountBalanceWalletIcon
+                        sx={{ color: colors.blueAccent[400] }}
+                      />
                       <Typography variant="h6">
                         <strong>hình thức: </strong>{" "}
                         {detailedData.method || "Không có thông tin"}
                       </Typography>
                     </Box>
-                  
+
                     <Box
                       sx={{
                         display: "flex",
@@ -426,7 +470,7 @@ const Payment = () => {
                         gap: 1, // Khoảng cách giữa icon và văn bản
                       }}
                     >
-                      {/* <PersonRoundedIcon /> */}
+                      <TodayIcon sx={{ color: colors.blueAccent[400] }} />
                       <Typography variant="h6">
                         <strong>createdAt: </strong>{" "}
                         {detailedData.createdAt || "Không có thông tin"}
@@ -439,10 +483,15 @@ const Payment = () => {
                         gap: 1, // Khoảng cách giữa icon và văn bản
                       }}
                     >
-                      {/* <PersonRoundedIcon /> */}
-                      <Typography variant="h6">
-                        <strong>Ghi Chú: </strong>{" "}
-                        {detailedData.amount || "Không có thông tin"}
+                      <PaidIcon sx={{ color: colors.blueAccent[400] }} />
+                      <Typography >
+                        <strong >Tổng Tiền: </strong>{" "}
+                        {detailedData.amount
+                          ? `${detailedData.amount.toLocaleString("vi-VN", {
+                              style: "currency",
+                              currency: "VND",
+                            })}`
+                          : "Không có thông tin"}
                       </Typography>
                     </Box>
                   </CardContent>
