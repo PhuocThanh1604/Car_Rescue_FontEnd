@@ -56,7 +56,7 @@ const Dashboard = () => {
 
   const increasedCustomer = calculateIncrease(dataCustomer.length, 5);
   const increasedOrders = calculateIncrease(data.orders, 5);
-  const increasedServices = calculateIncrease(services.length, 5);
+  const increasedServices = calculateIncrease(data.services, 5);
   const increasedRescueCarOwner = calculateIncrease(data.partners, 5);
   const addOrderId = (newOrderId) => {
     setOrderIds([...orderIds, newOrderId]);
@@ -118,8 +118,6 @@ const Dashboard = () => {
         if (data) {
           setDataPayment(data);
 
-          // setFilteredPayment(data);
-          console.log(data[0].id);
           setLoading(false); // Đặt trạng thái loading thành false sau khi xử lý dữ liệu
         }
       })
@@ -168,19 +166,19 @@ const Dashboard = () => {
         console.error("Lỗi khi tải lại chi tiết đơn:", error);
       });
   };
-  useEffect(() => {
-    // Lặp qua danh sách đơn hàng và gán accountName dựa trên accountId
-    const ordersWithaccountNames = orders.map((order) => {
-      const account = customer.find(
-        (account) => account.accountId === order.accountId
-      );
-      const accountName = account ? account.accountName : "Unknown account";
-      return { ...order, accountName };
-    });
+  // useEffect(() => {
+  //   // Lặp qua danh sách đơn hàng và gán accountName dựa trên accountId
+  //   const ordersWithaccountNames = orders.map((order) => {
+  //     const account = customer.find(
+  //       (account) => account.accountId === order.accountId
+  //     );
+  //     const accountName = account ? account.accountName : "Unknown account";
+  //     return { ...order, accountName };
+  //   });
 
-    // Cập nhật danh sách đơn hàng đã được gán accountName
-    setFilteredOrders(ordersWithaccountNames);
-  }, [orders, customer]);
+  //   // Cập nhật danh sách đơn hàng đã được gán accountName
+  //   setFilteredOrders(ordersWithaccountNames);
+  // }, [orders, customer]);
 
   return (
     <Box marginLeft={2} marginRight={1}>
