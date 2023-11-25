@@ -72,7 +72,7 @@ const Manager = () => {
           <Topbar setIsSidebar={setIsSidebar} />
           <main
             className="content"
-            style={{ display: "flex", height: "100vh" }}
+            style={{ display: "flex", height: "auto" }}
           >
             {isSidebar && (
               <Sidebar

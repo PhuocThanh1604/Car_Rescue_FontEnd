@@ -15,7 +15,7 @@ body,
 
 .app,
 .content {
-  height: 100vh;
+  height: auto;
   width: 100%;
   font-family: "Source Sans Pro",'Roboto', sans-serif;
 }
