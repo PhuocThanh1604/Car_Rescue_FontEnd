@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-const apiKeyGG = "AIzaSyB3pfcWmEJDtpO6Kjy3OfikhN4bRP1ORjc";
+const apiKeyGG = "AIzaSyBv0RoGulA7l1v9-d8uD5pgG8EsOPZbFLU";
 // const apiKeyGG = process.env.API_KEY_GG;
 const mapboxToken =
   "pk.eyJ1IjoidGhhbmgyazEiLCJhIjoiY2xvZjMxcWppMG5oejJqcnI2M2ZleTJtZiJ9.yvWTA-yYNqTdr2OstpB7bw";
@@ -503,6 +503,27 @@ export const sendNotification = createAsyncThunk(
   }
 );
 
+export const sendSMS= createAsyncThunk(
+  "orders/sendSMS",
+  async (data) => {
+    try {
+      const res = await axios.post(
+        "https://rescuecapstoneapi.azurewebsites.net/api/SMS/Send-SMS",
+        data,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log(data);
+      return res.data;
+    } catch (error) {
+      console.error("Failed to create send sms to customer:", error.res);
+      throw error.res.status || error.res.message;
+    }
+  }
+);
 export const getPaymentId = createAsyncThunk(
   "orders/getPaymentId",
   async ({ id }) => {
@@ -650,6 +671,15 @@ const orderSlice = createSlice({
         state.status = "loading";
       })
       .addCase(sendNotification.rejected, (state, action) => {
+        state.status = "error";
+      })
+      .addCase(sendSMS.fulfilled, (state, action) => {
+        state.orders.push(action.payload);
+      })
+      .addCase(sendSMS.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(sendSMS.rejected, (state, action) => {
         state.status = "error";
       })
       .addCase(createOrderOfflineFixing.fulfilled, (state, action) => {

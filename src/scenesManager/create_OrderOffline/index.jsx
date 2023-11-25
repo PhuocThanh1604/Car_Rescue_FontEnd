@@ -3,13 +3,16 @@ import {
   Autocomplete,
   Box,
   Button,
+  Divider,
   FormControl,
   IconButton,
+  InputAdornment,
   InputLabel,
   MenuItem,
   Modal,
   Select,
   TextField,
+  Typography,
 } from "@mui/material";
 import { Formik } from "formik";
 import * as yup from "yup";
@@ -18,10 +21,11 @@ import Header from "../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
+import LocalPhoneIcon from '@mui/icons-material/LocalPhone';
 import {
   createOrderOffline,
   createOrderOfflineFixing,
+  sendSMS,
 } from "../../redux/orderSlice";
 import { fetchServices } from "../../redux/serviceSlice";
 import { fetchCustomers } from "../../redux/customerSlice";
@@ -52,6 +56,9 @@ const CreateOrderOffline = () => {
   const [lngDestination, setLngDestination] = useState(null);
   const [lat, setLat] = useState(null);
   const [lng, setLng] = useState(null);
+  //display distance after user input destination
+  const [isDestinationSelected, setIsDestinationSelected] = useState(false);
+
   const [selectedMapAddress, setSelectedMapAddress] = useState("");
   // Khởi tạo showAutocompleteCustomer
   const [showAutocomplete, setShowAutocomplete] = useState(true);
@@ -125,6 +132,7 @@ const CreateOrderOffline = () => {
         setLatDestination(selectedLocation.lat);
         setLngDestination(selectedLocation.lng);
         setAddressDestination(selectedLocation.address);
+        setIsDestinationSelected(true);
         setSelectedMapAddress(selectedLocation.address);
 
         // Cập nhật trường "destination"
@@ -251,12 +259,16 @@ const CreateOrderOffline = () => {
   //     });
   // };
   const handleFormSubmit = (values, { resetForm }) => {
-    if (selectedRescueType === "Fixing") {
-      // Loại bỏ distance khỏi values nếu là loại Fixing
-      // delete values.distance;
-      // const submissionValues = { ...values, service: [values.service] };
-      // console.log("Submitting Fixing Service:", submissionValues);
+    console.log(values.nameCustomer)
+    const initialPhoneNumber = "+84";
+    const customer_name = values.nameCustomer;
+    const service = values.service;
+    const order_phone = initialPhoneNumber+values.to;
+    const type_payment = values.paymentMethod;
+    const sms_message = `Xin chào ${customer_name}!  \nDịch vụ: ${service}\nĐơn hàng: ${order_phone} 
+     của bạn đã được nhận và đang được xử lý. Hình thức thanh toán: ${type_payment}. Cảm ơn bạn đã mua hàng!`;
 
+    if (selectedRescueType === "Fixing") {
       // Loại bỏ distance và destination khỏi values nếu là loại Fixing
       const { distance, destination, ...submissionValues } = values;
       submissionValues.service = [values.service];
@@ -267,8 +279,21 @@ const CreateOrderOffline = () => {
           if (response.payload.message === "Hiện tại không kĩ thuật viên") {
             toast.warn("Hiện tại không có kỹ thuật viên vui lòng đợi");
           } else {
+            const smsData = {
+              to:order_phone,
+              body: sms_message,
+            };
+            dispatch(sendSMS(smsData))
+              .then((smsResponse) => {
+                console.log("Tin nhắn SMS đã được gửi:", smsResponse);
+              })
+              .catch((smsError) => {
+                console.error("Lỗi khi gửi tin nhắn SMS:", smsError);
+              });
             toast.success("Tạo Đơn Hàng Fixing Thành Công");
           }
+          formikRef.current.setFieldValue("to", "");
+          formikRef.current.setFieldValue("nameCustomer", "");
           formikRef.current.resetForm();
           setSelectedService(null);
           setAddress("");
@@ -297,8 +322,22 @@ const CreateOrderOffline = () => {
           if (response.payload.message === "Hiện tại không còn xe cứu hộ") {
             toast.warn("Hiện tại không có xe cứu hộ vui lòng đợi");
           } else {
+            const smsData = {
+              to: order_phone,
+              body: sms_message,
+            };
+            dispatch(sendSMS(smsData))
+              .then((smsResponse) => {
+                console.log("Tin nhắn SMS đã được gửi:", smsResponse);
+              })
+              .catch((smsError) => {
+                console.error("Lỗi khi gửi tin nhắn SMS:", smsError);
+              });
             toast.success("Tạo Đơn Hàng Towing Thành Công");
           }
+          setIsDestinationSelected(false)
+          formikRef.current.setFieldValue("nameCustomer", "");
+          formikRef.current.setFieldValue("to", "");
           formikRef.current.setFieldValue("distance", "");
           formikRef.current.resetForm();
           setSelectedService(null);
@@ -307,9 +346,7 @@ const CreateOrderOffline = () => {
         })
         .catch((error) => {
           console.log(error); // Log the error object to inspect its structure
-          if (
-            error.response && error.response.data
-          ) {
+          if (error.response && error.response.data) {
             // Handle specific error message provided by the API
             toast.error(
               `Lỗi khi tạo đơn hàng trực Offline: ${error.response.data.message}`
@@ -420,6 +457,66 @@ const CreateOrderOffline = () => {
                 helperText={touched.customerNote && errors.customerNote}
                 sx={{ gridColumn: "span 2" }}
               />
+               <TextField
+                fullWidth
+                variant="filled"
+                type="text"
+                label="Tên Khách Hàng"
+                onBlur={handleBlur}
+                onChange={handleChange}
+                value={values.nameCustomer}
+                name="nameCustomer"
+                error={touched.nameCustomer && errors.nameCustomer ? true : false}
+                helperText={touched.nameCustomer && errors.nameCustomer}
+                sx={{ gridColumn: "span 2" }}
+              />
+              <TextField
+                fullWidth
+                type="tel"
+                inputMode="tel"
+                label="SĐT Khách Hàng"
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <LocalPhoneIcon />
+                      <Typography
+                        sx={{
+                          marginLeft: "6px",
+                          fontWeight: "2rem",
+                          fontSize: "16px",
+                        }}
+                      >
+                        +84:
+                      </Typography>
+                      <Divider orientation="vertical" sx={{ height: "auto" }} />
+                    </InputAdornment>
+                  ),
+                  inputProps: {
+                    type: "tel",
+                    inputMode: "tel",
+                  },
+                }}
+                onBlur={handleBlur}
+                onChange={handleChange}
+                value={values.to}
+                name="to"
+                error={touched.to && errors.to ? true : false}
+                helperText={touched.to && errors.to}
+                sx={{ gridColumn: "span 2" }}
+              />
+              {/* <TextField
+                fullWidth
+                variant="filled"
+                type="text"
+                label="SĐT Khách Hàng"
+                onBlur={handleBlur}
+                onChange={handleChange}
+                value={values.to}
+                name="to"
+                error={touched.to && errors.to ? true : false}
+                helperText={touched.to && errors.to}
+                sx={{ gridColumn: "span 2" }}
+              /> */}
 
               <FormControl fullWidth variant="filled">
                 <InputLabel id="rescueType-label">
@@ -557,22 +654,6 @@ const CreateOrderOffline = () => {
                 helperText={touched.distance && errors.distance}
                 sx={{ gridColumn: "span 1" }}
               /> */}
-              <TextField
-                fullWidth
-                variant="filled"
-                type="text"
-                label="Khoảng cách "
-                onBlur={handleBlur}
-                onChange={handleChange}
-                value={values.distance}
-                name="distance"
-                error={touched.distance && errors.distance ? true : false}
-                helperText={touched.distance && errors.distance}
-                sx={{
-                  gridColumn: "span 1",
-                  display: selectedRescueType === "Fixing" ? "none" : "block",
-                }}
-              />
 
               <PlacesAutocomplete
                 value={address}
@@ -693,6 +774,42 @@ const CreateOrderOffline = () => {
                   </PlacesAutocomplete>
                 </div>
               )}
+
+              {isDestinationSelected && (
+                <TextField
+                  fullWidth
+                  variant="filled"
+                  type="text"
+                  label="Khoảng cách "
+                  onBlur={handleBlur}
+                  onChange={handleChange}
+                  value={values.distance}
+                  name="distance"
+                  error={touched.distance && errors.distance ? true : false}
+                  helperText={touched.distance && errors.distance}
+                  sx={{
+                    gridColumn: "span 1",
+                    display: selectedRescueType === "Fixing" ? "none" : "block",
+                  }}
+                />
+              )}
+
+              {/* <TextField
+                fullWidth
+                variant="filled"
+                type="text"
+                label="Khoảng cách "
+                onBlur={handleBlur}
+                onChange={handleChange}
+                value={values.distance}
+                name="distance"
+                error={touched.distance && errors.distance ? true : false}
+                helperText={touched.distance && errors.distance}
+                sx={{
+                  gridColumn: "span 1",
+                  display: selectedRescueType === "Fixing" ? "none" : "block",
+                }}
+              /> */}
 
               {/* <div  >
                 <PlacesAutocomplete
