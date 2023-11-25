@@ -13,6 +13,7 @@ import vehicleReducer from "../redux/vehicleSlice";
 import transactionReducer from "../redux/transactionsSlice";
 import paymentReducer from "../redux/transactionsSlice";
 import scheduleReducer from "../redux/transactionsSlice";
+import modelCarReducer from "../redux/transactionsSlice";
 
 export const store = configureStore({
   reducer: {
@@ -30,6 +31,7 @@ export const store = configureStore({
     transaction: transactionReducer,
     payment: paymentReducer,
     schedule: scheduleReducer,
+    modelCar: modelCarReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(apiSlice.middleware),

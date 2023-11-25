@@ -194,6 +194,7 @@ const CreateOrderOffline = () => {
       paymentMethod: yup.string().required("Required"),
       area: yup.string().required("Required"),
       customerId: yup.string().required("Required"),
+      // carId: yup.string(),
       service: yup.string().required("Required"),
     };
 
@@ -442,6 +443,21 @@ const CreateOrderOffline = () => {
                 "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
               }}
             >
+                   {/* <TextField
+                fullWidth
+                variant="filled"
+                type="text"
+                label="Ghi Chú Từ Khách Hàng"
+                onBlur={handleBlur}
+                onChange={handleChange}
+                value={values.carId}
+                name="customerNote"
+                error={
+                  touched.customerNote && errors.customerNote ? true : false
+                }
+                helperText={touched.customerNote && errors.customerNote}
+                sx={{ gridColumn: "span 2" , display:"none" }}
+              /> */}
               <TextField
                 fullWidth
                 variant="filled"

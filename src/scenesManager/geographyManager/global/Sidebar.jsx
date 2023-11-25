@@ -72,8 +72,7 @@ const Item = ({ title, to, icon, selected, setSelected, subItems }) => {
   );
 };
 
-const Sidebar = ({ selectedWalletId,selectedItemId }) => {
-
+const Sidebar = ({ selectedWalletId, selectedItemId }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -86,7 +85,8 @@ const Sidebar = ({ selectedWalletId,selectedItemId }) => {
   const [showSubItems, setShowSubItems] = useState(false);
   const [showSubItemsTransaction, setShowSubItemsTransaction] = useState(false);
   const [showSubItemsRescue, setShowSubItemsRescue] = useState(false);
-  
+  const [showSubItemsSchedule, setShowSubItemsSchedule] = useState(false);
+
   const { id } = useParams();
   useEffect(() => {
     if (user && user.role) {
@@ -109,7 +109,6 @@ const Sidebar = ({ selectedWalletId,selectedItemId }) => {
     };
   }, []);
 
-
   const handleOrderClick = () => {
     // Toggle the visibility of sub-items
     setShowSubItems(!showSubItems);
@@ -122,6 +121,10 @@ const Sidebar = ({ selectedWalletId,selectedItemId }) => {
   const handleRescuseClick = () => {
     // Toggle the visibility of sub-items
     setShowSubItemsRescue(!showSubItemsRescue);
+  };
+  const handleScheduleClick = () => {
+    // Toggle the visibility of sub-items
+    setShowSubItemsSchedule(!showSubItemsSchedule);
   };
 
   const sidebarStyles = {
@@ -344,44 +347,46 @@ const Sidebar = ({ selectedWalletId,selectedItemId }) => {
               selected={selected}
               setSelected={setSelected}
             />{" "}
-            {/* <Item
-              title="FeedBack"
-              to="manager/service"
-              icon={<ListIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />{" "} */}
-                     <Item
-              title="Payment"
-              to="manager/payments"
+            <Item
+              title="Mẫu Xe"
+              to="manager/modelCar"
               icon={<ListIcon />}
               selected={selected}
               setSelected={setSelected}
             />{" "}
-      
-               <MenuItem
+            <MenuItem
               onClick={handleTransactionClick}
               icon={<ReceiptOutlinedIcon />}
               style={{
                 color: colors.grey[100],
                 // Add a conditional class to indicate if this item is selected
-                backgroundColor: selectedItemId === 'yourItemId' ? 'selectedColor' : 'defaultColor',
+                backgroundColor:
+                  selectedItemId === "yourItemId"
+                    ? "selectedColor"
+                    : "defaultColor",
               }}
             >
-              <Typography>Giao Dịch</Typography>
+              <Typography>Các Loại Giao Dịch</Typography>
               <Link to="#" />
             </MenuItem>
             {showSubItemsTransaction && (
               <div style={{ marginLeft: "20px" }}>
                 <Item
-                  title="Giao Dịch"
+                  title="Thanh Toán"
+                  to="manager/payments"
+                  icon={<ListIcon />}
+                  selected={selected}
+                  setSelected={setSelected}
+                />{" "}
+                <Item
+                  title="Đối Tác Rút Ví"
                   to="manager/invoices"
                   icon={<ReceiptOutlinedIcon />}
                   selected={selected}
                   setSelected={setSelected}
                 />
                 <Item
-                  title="Giao Dịch Chi Tiết"
+                  title="Chi Tiết Rút Ví"
                   to={`/manager/invoices/${selectedWalletId}`}
                   icon={<ReceiptOutlinedIcon />}
                   selected={selected}
@@ -425,19 +430,40 @@ const Sidebar = ({ selectedWalletId,selectedItemId }) => {
               setSelected={setSelected}
             />
             <Item
-              title="Lịch Kỹ Thuật Viên"
-              to="manager/calendarTechnicians"
-              icon={<PermContactCalendarIcon />}
+              title="Tạo Mẫu Xe"
+              to="manager/add/modelCar"
+              icon={<PersonOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}
             />
-            <Item
-              title="Lịch Xe Cứu Hộ"
-              to="manager/calendarRescueVehicleOwners"
+            <MenuItem
+              onClick={handleScheduleClick}
               icon={<CalendarTodayOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
+              style={{
+                color: colors.grey[100],
+              }}
+            >
+              <Typography>Lịch</Typography>
+              <Link to="#" />
+            </MenuItem>
+            {showSubItemsSchedule && (
+              <div style={{ marginLeft: "20px" }}>
+                <Item
+                  title="Lịch Kỹ Thuật Viên"
+                  to="manager/calendarTechnicians"
+                  icon={<PermContactCalendarIcon />}
+                  selected={selected}
+                  setSelected={setSelected}
+                />
+                <Item
+                  title="Lịch Xe Cứu Hộ"
+                  to="manager/calendarRescueVehicleOwners"
+                  icon={<CalendarTodayOutlinedIcon />}
+                  selected={selected}
+                  setSelected={setSelected}
+                />
+              </div>
+            )}
             <Item
               title="Google Map"
               to="manager/googlemap"

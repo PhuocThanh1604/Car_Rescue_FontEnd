@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Box } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import { ColorModeContext, useMode } from "../../theme";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import Topbar from "../../components/Topbar";
@@ -21,7 +21,7 @@ import AddTechnician from "../../scenes/create_Technician";
 import AddManager from "../../scenes/create_Manager";
 import AddCustomer from "../../scenes/create_Customer";
 import AddService from "../../scenesManager/create_Service";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Services from "../../scenesManager/servicePage";
 import UpdateProfileManager from "../../scenesManager/updateProfile";
@@ -39,6 +39,10 @@ import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import TransactionDetails from "../../scenesManager/invoices/transactionDetail";
 import Payment from "../../scenesManager/payment";
+import Notification from "../../components/Notification";
+import { onMessageListener } from "../../firebase/firebase";
+import ModelCar from "../../scenesManager/modelCar";
+import AddModelCar from "../../scenesManager/create_ModelCar";
 
 const Manager = () => {
   const user = useSelector(selectCurrentUser);
@@ -63,6 +67,24 @@ const Manager = () => {
     // Gọi hàm tải lại dữ liệu
     reloadData();
   }, [location.pathname]);
+  useEffect(() => {
+    const handleMessage = (payload) => {
+      toast(
+        `Title: ${payload.notification.title}, Body: ${payload.notification.body}`,
+        {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        }
+      );
+    };
+
+    onMessageListener(handleMessage);
+  }, []);
   return (
     <ColorModeContext.Provider value={colorMode}>
       <ThemeProvider theme={theme}>
@@ -70,10 +92,7 @@ const Manager = () => {
         <div className="app">
           <ToastContainer />
           <Topbar setIsSidebar={setIsSidebar} />
-          <main
-            className="content"
-            style={{ display: "flex", height: "auto" }}
-          >
+          <main className="content" style={{ display: "flex", height: "auto" }}>
             {isSidebar && (
               <Sidebar
                 isSidebar={isSidebar}
@@ -81,17 +100,20 @@ const Manager = () => {
               />
             )}
             <Box flexGrow={2}>
+              <ToastContainer />
               {/* <AuthProvider> */}
               <Routes>
                 <Route path="/client" element={<Dashboard />} />
                 <Route path="/manager/contacts" element={<Contacts />} />
                 <Route path="/manager/payments" element={<Payment />} />
                 {/* <Route path="/manager/invoices" element={<Invoices />} /> */}
-                <Route path="/manager/invoices/:id" element={ <TransactionDetails/>} />
-
-                <Route 
-                  path="/manager/invoices" 
-                  element={<Invoices onSelectWallet={handleSelectWallet} />} 
+                <Route
+                  path="/manager/invoices/:id"
+                  element={<TransactionDetails />}
+                />
+                <Route
+                  path="/manager/invoices"
+                  element={<Invoices onSelectWallet={handleSelectWallet} />}
                 />
 
                 <Route
@@ -102,11 +124,6 @@ const Manager = () => {
                   path="/manager/calendarRescueVehicleOwners"
                   element={<CalendarRescueVehicleOwner />}
                 />
-                {/* } />
-                  <Route path="/bar" element={<Bar />} />
-                  <Route path="pie" element={<Pie />} />
-                  <Route path="/line" element={<Line />} /> */}
-                {/* <Route path="/geography" element={<Geography />} /> */}
                 <Route path="/manager/googlemap" element={<Map />} />
 
                 <Route path="/manager/faq" element={<FAQ />} />
@@ -142,6 +159,7 @@ const Manager = () => {
                 <Route path="/manager/vehicles" element={<Vehicles />} />
 
                 <Route path="/manager/service" element={<Services />} />
+                <Route path="/manager/modelCar" element={<ModelCar />} />
 
                 {/* create actor */}
                 <Route
@@ -155,6 +173,7 @@ const Manager = () => {
                 <Route path="/manager/add/manager" element={<AddManager />} />
                 <Route path="/manager/add/customer" element={<AddCustomer />} />
                 <Route path="/manager/add/service" element={<AddService />} />
+                <Route path="/manager/add/modelCar" element={<AddModelCar />} />
                 <Route
                   path="/manager/add/orderOffline"
                   element={<CreateOrderOffline />}

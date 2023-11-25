@@ -9,18 +9,24 @@ import {
   TextField,
   Button,
   IconButton,
-
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
-import { Close} from "@mui/icons-material";
+import { Close } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
-import { createCancelOrder, fetchOrdersAssigned } from "../../../redux/orderSlice";
+import {
+  createCancelOrder,
+  fetchOrdersAssigned,
+} from "../../../redux/orderSlice";
 
 const ModalEdit = ({
   openEditModal,
   setOpenEditModal,
   selectedEditOrder,
-  onDataUpdated
+  onDataUpdated,
 }) => {
   const dispatch = useDispatch();
   const orders = useSelector((state) => state.order.orders);
@@ -32,13 +38,16 @@ const ModalEdit = ({
   const [loading, setLoading] = useState(false);
   const [filteredOrders, setFilteredOrders] = useState([]);
   const [cancellationReason, setCancellationReason] = useState("");
-  
+
+  const handleCancellationReasonChange = (event) => {
+    setCancellationReason(event.target.value);
+  };
+
   const reloadOrderAssigned = () => {
     dispatch(fetchOrdersAssigned())
-    
       .then((response) => {
         const data = response.payload.data;
-        console.log(data)
+        console.log(data);
         if (data) {
           setFilteredOrders(data);
           // Đặt loading thành false sau khi tải lại dữ liệu
@@ -53,8 +62,7 @@ const ModalEdit = ({
     if (selectedEditOrder && orders) {
       if (selectedEditOrder.id) {
         const OrderToEditToEdit = orders.find(
-          (Order) =>
-            Order.id === selectedEditOrder.id
+          (Order) => Order.id === selectedEditOrder.id
         );
         if (OrderToEditToEdit) {
           console.log(OrderToEditToEdit);
@@ -70,7 +78,7 @@ const ModalEdit = ({
     const { name, value } = event.target;
     setEdit((prevEdit) => ({
       ...prevEdit,
-      [name]: value
+      [name]: value,
     }));
   };
   useEffect(() => {
@@ -78,7 +86,6 @@ const ModalEdit = ({
       setFilteredOrders(orders); // Update the local state when the Redux state changes
     }
   }, [orders]);
-  
 
   const handleSaveClick = () => {
     console.log(setEdit);
@@ -87,26 +94,26 @@ const ModalEdit = ({
       return;
     }
 
-     // Lấy tên dịch vụ đã chọn
-     const selectedCancellationReason = cancellationReason;
-     const selectedOrderId = edit.id;
-     console.log(selectedCancellationReason);
- 
-     if (!selectedOrderId) {
-       console.error("No orderId to reload details for.");
-       toast.error("No valid order ID found.");
-       return;
-     }
-     // Tạo một bản sao của đối tượng `edit` với tên dịch vụ
-     const updatedEdit = {
+    // Lấy tên dịch vụ đã chọn
+    const selectedCancellationReason = cancellationReason;
+    const selectedOrderId = edit.id;
+    console.log(selectedCancellationReason);
+
+    if (!selectedOrderId) {
+      console.error("No orderId to reload details for.");
+      toast.error("No valid order ID found.");
+      return;
+    }
+    // Tạo một bản sao của đối tượng `edit` với tên dịch vụ
+    const updatedEdit = {
       orderID: selectedOrderId, // Lấy id của đơn hàng
       cancellationReason: selectedCancellationReason, // Lưu tên dịch vụ vào thuộc tính `service` hoặc tùy chỉnh tên thuộc tính tương ứng trong đối tượng `edit`
-     };
-  
+    };
+
     // Kiểm tra xem có sự thay đổi trong dữ liệu so với dữ liệu ban đầu
     const hasChanges =
       JSON.stringify(updatedEdit) !== JSON.stringify(initialFormState);
-    console.log(edit)
+    console.log(edit);
     if (!hasChanges) {
       toast.info("Không có thay đổi để lưu.");
       handleClose();
@@ -120,7 +127,7 @@ const ModalEdit = ({
             onDataUpdated(); // Call the callback function after successful update
           }
           setIsSuccess(true);
-          setCancellationReason(null)
+          setCancellationReason(null);
         })
         .catch((error) => {
           if (error.response && error.response.data) {
@@ -133,11 +140,11 @@ const ModalEdit = ({
         });
     }
   };
-  
+
   const handleClose = () => {
     setOpenEditModal(false);
     if (isSuccess) {
-      console.log("success"+isSuccess);
+      console.log("success" + isSuccess);
       reloadOrderAssigned(); // Reload orders when the modal is closed after a successful update
     }
   };
@@ -189,11 +196,9 @@ const ModalEdit = ({
                 variant="h4"
                 component="h2"
                 id="Order-detail-modal"
-                sx={{textAlign:"center"}}
+                sx={{ textAlign: "center" }}
               >
-                {selectedEditOrder
-                  ? "Hủy Đơn Hàng"
-                  : "Order Detail"}
+                {selectedEditOrder ? "Hủy Đơn Hàng" : "Order Detail"}
               </Typography>
 
               {selectedEditOrder && (
@@ -213,10 +218,36 @@ const ModalEdit = ({
                       margin="normal"
                       style={{ display: "none" }}
                     />
-                 
 
+                    <FormControl fullWidth margin="normal">
+                      <InputLabel id="cancellation-reason-label">
+                        Lý do hủy đơn
+                      </InputLabel>
+                      <Select
+                        labelId="cancellation-reason-label"
+                        id="cancellation-reason-select"
+                        value={cancellationReason}
+                        label="Lý do hủy đơn"
+                        onChange={handleCancellationReasonChange}
+                      >
+                        <MenuItem value="">
+                          <em>None</em>
+                        </MenuItem>
+                        <MenuItem value="Không cần nữa">Không cần nữa</MenuItem>
+                        <MenuItem value="Đặt nhầm mặt hàng">
+                          Đặt nhầm mặt hàng
+                        </MenuItem>
+                        <MenuItem value="Thay đổi địa chỉ giao hàng">
+                          Thay đổi địa chỉ giao hàng
+                        </MenuItem>
+                        <MenuItem value="Đơn hàng chậm trễ">
+                          Đơn hàng chậm trễ
+                        </MenuItem>
+                        {/* Thêm các lý do khác tại đây */}
+                      </Select>
+                    </FormControl>
 
-                    <TextField
+                    {/* <TextField
                       name="cancellationReason"
                       label="Lý do hủy đơn"
                       value={cancellationReason}
@@ -225,10 +256,16 @@ const ModalEdit = ({
                       }}
                       fullWidth
                       margin="normal"
-                    />
+                    /> */}
                   </CardContent>
 
-                  <Box sx={{ display: "flex", justifyContent: "center" ,marginBottom:"5px"}}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                      marginBottom: "5px",
+                    }}
+                  >
                     <Button
                       onClick={handleSaveClick}
                       variant="contained"
@@ -243,7 +280,6 @@ const ModalEdit = ({
           </Box>
         </Fade>
       </Modal>
-     
     </>
   );
 };
