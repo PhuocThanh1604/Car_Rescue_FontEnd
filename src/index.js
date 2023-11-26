@@ -5,7 +5,7 @@ import App from './App';
 import { store } from './app/store';
 import { Provider } from 'react-redux';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'; // Import as Router
-
+import * as serviceWorker from './serviceWorker'
 import SignInSide from './features/auth/Singin';
 
 ReactDOM.render(
@@ -22,3 +22,4 @@ ReactDOM.render(
   </React.StrictMode>,
   document.getElementById('root')
 );
+serviceWorker.unregister();

@@ -86,11 +86,6 @@ const Manager = () => {
     onMessageListener(handleMessage);
   }, []);
 
-  useEffect(() => {
-    console.log("Manager");
-    requestPermissions()
-  }, []);
-  
   return (
     <ColorModeContext.Provider value={colorMode}>
       <ThemeProvider theme={theme}>

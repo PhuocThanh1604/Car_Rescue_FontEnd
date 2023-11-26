@@ -1,13 +1,10 @@
 /* eslint-disable no-undef */
-
-
 import { initializeApp } from "firebase/app";
 import firebase from "firebase/app";
 import { getStorage } from "firebase/storage";
 import { useDispatch } from 'react-redux';
 import { sendNotification } from "../redux/orderSlice";
 import { getMessaging,onMessage,getToken } from "firebase/messaging";
-import { onBackgroundMessage } from "firebase/messaging/sw";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDwwpps4RBQJUWK17ivjFZTSl5Gx5zP7s8",
@@ -18,12 +15,9 @@ const firebaseConfig = {
   appId: "1:387575068560:web:52c7c2e4f8684b230a2515",
   measurementId: "G-SYYVJXV5HQ"
 };
-
 const app = initializeApp(firebaseConfig);
 export const storage = getStorage(app);
-
 const messaging = getMessaging(app);
-
  export function requestPermissions() {
   console.log("Requesting permissions");
   Notification.requestPermission()
@@ -45,7 +39,6 @@ const messaging = getMessaging(app);
       console.log("Permission denied");
     }
   })
-  
 }
 requestPermissions();
 export const onMessageListener = (callback) =>
@@ -55,17 +48,17 @@ export const onMessageListener = (callback) =>
         callback(payload);
     });
 });
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/public/firebase.messaging.sw.js')
-      .then(registration => {
-        console.log('SW registered: ', registration);
-      })
-      .catch(registrationError => {
-        console.log('SW registration failed: ', registrationError);
-      });
-  });
-}
+// if ('serviceWorker' in navigator) {
+//   window.addEventListener('load', () => {
+//     navigator.serviceWorker.register('./public/firebase.messaging.sw.js')
+//       .then(registration => {
+//         console.log('SW registered: ', registration);
+//       })
+//       .catch(registrationError => {
+//         console.log('SW registration failed: ', registrationError);
+//       });
+//   });
+// }
 
 
 
