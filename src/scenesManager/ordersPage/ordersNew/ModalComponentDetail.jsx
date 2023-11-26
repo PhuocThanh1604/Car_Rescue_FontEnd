@@ -3,7 +3,7 @@ import Modal from '@mui/material/Modal';
 import Fade from '@mui/material/Fade';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import { Card, CardContent, CardMedia, IconButton } from '@mui/material';
+import { Card, CardActions, CardContent, CardMedia, Collapse, Divider, Grid, IconButton } from '@mui/material';
 import { Close } from '@mui/icons-material';
 
 import Slider from 'react-slick';
@@ -91,6 +91,7 @@ const MyModal = (props) => {
                   </Typography>
                   {/* Thêm thông tin chi tiết sách khác ở đây */}
                 </CardContent>
+          
               </Card>
             )}
           </Box>
