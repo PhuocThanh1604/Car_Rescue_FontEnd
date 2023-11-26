@@ -150,7 +150,6 @@ export default function SignInSide() {
           sx={{
             backgroundImage:
               "url(https://firebasestorage.googleapis.com/v0/b/car-rescue-399511.appspot.com/o/admin%2FbackgroundRecusse.png?alt=media&token=d2ae18a3-552c-40c5-9357-4fd461c6ed88&fbclid=IwAR0yad2TxLTLyFNAprcV_xARgoYuhjbZciJtePPYg-7zKx2uWzjSJQF2fzQ)",
-              // "url(../../../../../public/assets/backgroundRecuse.png)",
             backgroundRepeat: "no-repeat",
             backgroundColor: (t) =>
               t.palette.mode === "light"
