@@ -19,13 +19,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
 import {
   createCancelOrder,
+  createChangeTypeRescue,
   fetchOrdersAssigned,
 } from "../../../redux/orderSlice";
 
-const ModalEdit = ({
-  openEditModal,
-  setOpenEditModal,
-  selectedEditOrder,
+const ModalCancel = ({
+  openCancelModal,
+  setOpenCancelModal,
+  selectedCancelOrder,
   onDataUpdated,
 }) => {
   const dispatch = useDispatch();
@@ -37,12 +38,22 @@ const ModalEdit = ({
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [filteredOrders, setFilteredOrders] = useState([]);
+  const [typeRescue, setTypeRescue] = useState("");
   const [cancellationReason, setCancellationReason] = useState("");
+  //check value rescue type
+  const checkRescueTypeChange = (event) => {
+    const newRescueType = event.target.value;
 
+    if (newRescueType === selectedCancelOrder.rescueType) {
+      toast.error("Vui lòng chọn một loại hình cứu hộ khác.");
+      return;
+    }
+
+    setTypeRescue(newRescueType);
+  };
   const handleCancellationReasonChange = (event) => {
     setCancellationReason(event.target.value);
   };
-
   const reloadOrderAssigned = () => {
     dispatch(fetchOrdersAssigned())
       .then((response) => {
@@ -59,20 +70,19 @@ const ModalEdit = ({
       });
   };
   useEffect(() => {
-    if (selectedEditOrder && orders) {
-      if (selectedEditOrder.id) {
-        const OrderToEditToEdit = orders.find(
-          (Order) => Order.id === selectedEditOrder.id
+    if (selectedCancelOrder && orders) {
+      if (selectedCancelOrder.id) {
+        const OrderToEdit = orders.find(
+          (order) => order.id === selectedCancelOrder.id
         );
-        if (OrderToEditToEdit) {
-          console.log(OrderToEditToEdit);
-          setFullnameValue(OrderToEditToEdit.fullname);
-          setEdit(OrderToEditToEdit);
-          setInitialFormState(OrderToEditToEdit);
+        if (OrderToEdit) {
+          setFullnameValue(OrderToEdit.fullname);
+          setEdit(OrderToEdit);
+          setInitialFormState(OrderToEdit);
         }
       }
     }
-  }, [selectedEditOrder, orders]);
+  }, [selectedCancelOrder, orders]);
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -87,9 +97,9 @@ const ModalEdit = ({
     }
   }, [orders]);
 
-  const handleSaveClick = () => {
+  const handleCancelRescue = () => {
     console.log(setEdit);
-    if (!selectedEditOrder || !edit) {
+    if (!selectedCancelOrder || !edit) {
       toast.error("Không có thông tin khách hàng để cập nhật.");
       return;
     }
@@ -120,27 +130,27 @@ const ModalEdit = ({
     } else {
       // Gửi yêu cầu cập nhật lên máy chủ
       dispatch(createCancelOrder(updatedEdit))
-      .then((response) => {
-        console.log(response.payload.message);
-        if (response.payload.status === 201) {
-          toast.success("Đơn hàng đã được hủy trong hệ thống");
-          handleClose();
-          if (onDataUpdated) {
-            onDataUpdated(); // Call the callback function after successful update
+        .then((response) => {
+          console.log(response.payload.message);
+          if (response.payload.status === 201) {
+            toast.success("Đơn hàng đã được hủy trong hệ thống");
+            handleClose();
+            if (onDataUpdated) {
+              onDataUpdated(); // Call the callback function after successful update
+            }
+            setIsSuccess(true);
+            setCancellationReason(null);
+          } else if (response.payload.status === 400) {
+            // Xử lý lỗi khi status là 400 (Bad Request)
+            toast.error("Lỗi: Yêu cầu không hợp lệ hoặc thiếu thông tin.");
+          } else if (response.payload.status === 500) {
+            // Xử lý lỗi khi status là 500 (Internal Server Error)
+            toast.error("Lỗi: Lỗi phía máy chủ. Vui lòng thử lại sau.");
+          } else {
+            // Xử lý các trường hợp lỗi khác (nếu có)
+            toast.error("Hủy đơn không thành công");
           }
-          setIsSuccess(true);
-          setCancellationReason(null);
-        } else if (response.payload.status === 400) {
-          // Xử lý lỗi khi status là 400 (Bad Request)
-          toast.error("Lỗi: Yêu cầu không hợp lệ hoặc thiếu thông tin.");
-        } else if (response.payload.status === 500) {
-          // Xử lý lỗi khi status là 500 (Internal Server Error)
-          toast.error("Lỗi: Lỗi phía máy chủ. Vui lòng thử lại sau.");
-        } else {
-          // Xử lý các trường hợp lỗi khác (nếu có)
-          toast.error("Hủy đơn không thành công");
-        }
-      })
+        })
         .catch((error) => {
           if (error.response && error.response.data) {
             toast.error(`Lỗi khi hủy đơn : ${error.response.data.message}`);
@@ -154,24 +164,28 @@ const ModalEdit = ({
   };
 
   const handleClose = () => {
-    setOpenEditModal(false);
+    setOpenCancelModal(false);
     if (isSuccess) {
       console.log("success" + isSuccess);
       reloadOrderAssigned(); // Reload orders when the modal is closed after a successful update
     }
   };
-
+  const handleCancel = () => {
+    // Đặt lại các trạng thái hoặc thực hiện các xử lý cần thiết trước khi đóng modal
+    // Ở đây, bạn có thể đặt lại các trạng thái hoặc làm bất kỳ xử lý nào khác cần thiết trước khi đóng modal
+    setOpenCancelModal(false);
+  };
   return (
     <>
       <ToastContainer />
       <Modal
-        open={openEditModal}
+        open={openCancelModal}
         onClose={handleClose}
         aria-labelledby="Order-detail-modal"
         aria-describedby="Order-detail-modal-description"
         closeAfterTransition
       >
-        <Fade in={openEditModal}>
+        <Fade in={openCancelModal}>
           <Box
             sx={{
               display: "flex",
@@ -210,10 +224,10 @@ const ModalEdit = ({
                 id="Order-detail-modal"
                 sx={{ textAlign: "center" }}
               >
-                {selectedEditOrder ? "Hủy Đơn Hàng" : "Order Detail"}
+                {selectedCancelOrder ? "Hủy Đơn Cứu Hộ" : "Hủy Đơn Cứu Hộ"}
               </Typography>
 
-              {selectedEditOrder && (
+              {selectedCancelOrder && (
                 <Card>
                   <CardContent>
                     <TextField
@@ -222,7 +236,7 @@ const ModalEdit = ({
                       value={edit.id}
                       onChange={(event) => {
                         // Check if it's coming from selectedEditOrder and prevent changes
-                        if (!selectedEditOrder) {
+                        if (!selectedCancelOrder) {
                           handleInputChange(event);
                         }
                       }}
@@ -270,6 +284,42 @@ const ModalEdit = ({
                       margin="normal"
                     /> */}
                   </CardContent>
+                  {/* <CardContent>
+                    <TextField
+                      name="id"
+                      label="id"
+                      value={edit.id}
+                      onChange={(event) => {
+                        // Check if it's coming from selectedEditRescuseVehicleOwner and prevent changes
+                        if (!selectedCancelOrder) {
+                          handleInputChange(event);
+                        }
+                      }}
+                      fullWidth
+                      margin="normal"
+                      style={{ display: "none" }}
+                    />
+
+                    <Typography sx={{ display: "none" }}>
+                      {selectedCancelOrder.rescueType}
+                    </Typography>
+
+                    <FormControl fullWidth variant="filled">
+                      <InputLabel id="rescueType-label">
+                        Loại Hình Thức Cứu Hộ
+                      </InputLabel>
+                      <Select
+                        labelId="rescueType-label"
+                        id="rescueType"
+                        name="rescueType"
+                        value={typeRescue}
+                        onChange={checkRescueTypeChange}
+                      >
+                        <MenuItem value="Towing">Xe Kéo</MenuItem>
+                        <MenuItem value="Fixing">Sửa Tại Chỗ Cơ Bản</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </CardContent> */}
 
                   <Box
                     sx={{
@@ -279,7 +329,7 @@ const ModalEdit = ({
                     }}
                   >
                     <Button
-                      onClick={handleSaveClick}
+                      onClick={handleCancelRescue}
                       variant="contained"
                       color="primary"
                     >
@@ -296,4 +346,4 @@ const ModalEdit = ({
   );
 };
 
-export default ModalEdit;
+export default ModalCancel;

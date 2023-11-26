@@ -89,26 +89,34 @@ const ModalEdit = ({
     }));
     console.log(setEdit);
   };
-
   const handleSaveClick = () => {
     if (!selectedEditTechnician || !edit) {
-      toast.error("Không có thông tin khách hàng để cập nhật.");
+      toast.error("Không có thông tin kỹ thuật viên để cập nhật.");
       return;
     }
-
+  
     // Kiểm tra xem có sự thay đổi trong dữ liệu so với dữ liệu ban đầu
-    const hasChanges =
-      JSON.stringify(edit) !== JSON.stringify(initialFormState);
-
+    const hasChanges = JSON.stringify(edit) !== JSON.stringify(initialFormState);
+  
     if (!hasChanges) {
       toast.info("Không có thay đổi để lưu.");
       handleClose();
     } else {
+      if (
+        selectedEditTechnician.status === "ASSIGNED" &&
+        (edit.status === "ACTIVE" || edit.status === "INACTIVE")
+      ) {
+        if (edit.status === "ACTIVE") {
+          toast.warn("Kỹ thuật viên đang ở trạng thái Đang làm việc không thể chuyển sang trạng thái Hoạt Động");
+        } else  {
+          toast.warn("Kỹ thuật viên đang ở trạng thái Đang làm việc không thể chuyển sang trạng thái Không Hoạt Động.");
+        } 
+        
+        return;
+      }
       // Gửi yêu cầu cập nhật lên máy chủ
-      console.log("Data đã nhập và gửi"+edit)
       dispatch(editTechnician({ data: edit }))
         .then(() => {
-        
           setIsSuccess(true);
           toast.success("Cập nhật thành công.");
           handleClose();
@@ -117,15 +125,15 @@ const ModalEdit = ({
         .catch((error) => {
           if (error.response && error.response.data) {
             toast.error(
-              `Lỗi khi cập nhật khách hàng: ${error.response.data.message}`
+              `Lỗi khi cập nhật kỹ thuật viên: ${error.response.data.message}`
             );
           } else {
-            toast.error("Lỗi khi cập nhật khách hàng.");
+            toast.error("Lỗi khi cập nhật kỹ thuật viên.");
           }
         });
     }
   };
-
+  
   const handleClose = () => {
     setOpenEditModal(false);
   };
@@ -184,9 +192,11 @@ const ModalEdit = ({
                 <Close />
               </IconButton>
               <Typography
-                variant="h6"
+                variant="h4"
                 component="h2"
                 id="Technician-detail-modal"
+                textAlign= "center"
+
               >
                 {selectedEditTechnician ? "Sửa Thông Tin Kỹ Thuật Viên" : "Technician Detail"}
               </Typography>
@@ -321,6 +331,9 @@ const ModalEdit = ({
                     >
                       <MenuItem key="status-active" value="ACTIVE">
                         Hoạt Động
+                      </MenuItem>
+                      <MenuItem key="status-assigned" value="ASSIGNED">
+                       Đang làm việc
                       </MenuItem>
                       <MenuItem key="status-INACTIVE" value="INACTIVE">
                         Không Hoạt Động

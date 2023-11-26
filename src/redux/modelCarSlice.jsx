@@ -67,11 +67,16 @@ export const getModelCarId = createAsyncThunk(
         `https://rescuecapstoneapi.azurewebsites.net/api/Model/Get?id=${id}`
       );
       const data = response.data;
+      console.log(response);
       console.log(data);
       return data;
-    } catch (error) {
-      console.error("Failed to get model car ", error.response);
-      throw error.response.data || error.message;
+    }  catch (response) {
+      console.error(
+        "Failed to retrieve car:",
+        response.status,
+        response.message
+      );
+      throw response.status || response.message;
     }
   }
 );

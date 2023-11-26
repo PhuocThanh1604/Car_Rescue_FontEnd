@@ -174,23 +174,23 @@ const Orders = (props) => {
     // Lấy địa chỉ đã được định dạng từ state 'formattedAddresses' dựa trên 'departure'
     const orderWithDeparture = data.find((order) => order.id === orderId);
     if (orderWithDeparture) {
-      const formattedAddress = formattedAddresses[orderWithDeparture.departure];
-      console.log("formattedAddress: " + formattedAddress);
+      // const formattedAddress = formattedAddresses[orderWithDeparture.departure];
+      // console.log("formattedAddress: " + formattedAddress);
 
       // Kiểm tra xem có formattedAddress hay không
-      if (formattedAddress) {
-        setSelectedOrderFormattedAddress(formattedAddress);
-      } else {
-        console.error("Không tìm thấy địa chỉ đã định dạng cho đơn hàng này.");
-        // Xử lý lỗi nếu không tìm thấy formattedAddress
-      }
+      // if (formattedAddress) {
+      //   setSelectedOrderFormattedAddress(formattedAddress);
+      // } else {
+      //   console.error("Không tìm thấy địa chỉ đã định dạng cho đơn hàng này.");
+      //   // Xử lý lỗi nếu không tìm thấy formattedAddress
+      // }
 
       // Fetch the orderid details based on the selected order ID
       dispatch(getOrderId({ id: orderId }))
         .then((response) => {
           const orderDetails = response.payload.data;
           setSelectedEditOrder(orderDetails);
-          setSelectedOrderFormattedAddress(formattedAddress);
+          // setSelectedOrderFormattedAddress(formattedAddress);
           setOpenEditModal(true);
           setIsSuccess(true);
           reloadOrdersNew();

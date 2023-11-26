@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-const apiKeyGG = "AIzaSyBv0RoGulA7l1v9-d8uD5pgG8EsOPZbFLU";
+const apiKeyGG = "AIzaSyDrjEvDy6hbfCzcxdR8rYGjPqTZ_ZV1wyw";
 // const apiKeyGG = process.env.API_KEY_GG;
 const mapboxToken =
   "pk.eyJ1IjoidGhhbmgyazEiLCJhIjoiY2xvZjMxcWppMG5oejJqcnI2M2ZleTJtZiJ9.yvWTA-yYNqTdr2OstpB7bw";
@@ -544,6 +544,29 @@ export const getPaymentId = createAsyncThunk(
     }
   }
 );
+export const getCarById = createAsyncThunk(
+  "orders/getCarById",
+  async ({ id} ) => {
+    console.log("carId: "+ id)
+    try {
+      
+      const response = await axios.get(
+        `https://rescuecapstoneapi.azurewebsites.net/api/Car/Get?id=${id}`
+      );
+      const data = response.data;
+      console.log(response);
+      console.log(data);
+      return data;
+    } catch (response) {
+      console.error(
+        "Failed to retrieve car:",
+        response.status,
+        response.message
+      );
+      throw response.status || response.message;
+    }
+  }
+);
 const orderSlice = createSlice({
   name: "order",
   initialState: {
@@ -613,6 +636,9 @@ const orderSlice = createSlice({
         state.status = "loading";
       })
       .addCase(getOrderId.fulfilled, (state, action) => {
+        state.orderData = action.payload.data;
+      })
+      .addCase(getCarById.fulfilled, (state, action) => {
         state.orderData = action.payload.data;
       })
       .addCase(getOrderDetailId.fulfilled, (state, action) => {

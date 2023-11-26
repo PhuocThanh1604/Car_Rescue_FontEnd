@@ -194,7 +194,7 @@ const CreateOrderOffline = () => {
       paymentMethod: yup.string().required("Required"),
       area: yup.string().required("Required"),
       customerId: yup.string().required("Required"),
-      // carId: yup.string(),
+      carId: yup.string(),
       service: yup.string().required("Required"),
     };
 
@@ -226,6 +226,7 @@ const CreateOrderOffline = () => {
     area: "",
     customerId: "",
     service: [],
+    carId:""
   };
 
   // Tạo ref để lưu trữ tham chiếu đến formik
@@ -443,7 +444,7 @@ const CreateOrderOffline = () => {
                 "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
               }}
             >
-                   {/* <TextField
+                   <TextField
                 fullWidth
                 variant="filled"
                 type="text"
@@ -457,7 +458,7 @@ const CreateOrderOffline = () => {
                 }
                 helperText={touched.customerNote && errors.customerNote}
                 sx={{ gridColumn: "span 2" , display:"none" }}
-              /> */}
+              />
               <TextField
                 fullWidth
                 variant="filled"

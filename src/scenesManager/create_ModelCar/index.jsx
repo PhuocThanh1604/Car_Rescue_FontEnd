@@ -60,8 +60,6 @@ const AddModelCar = () => {
     console.log("Dữ liệu đã nhập:", values);
     dispatch(createModelCar(values))
       .then((response) => {
-     
-       
           console.log(response);
           toast.success("Tạo Mẫu Xe Thành Công");
           // Đặt lại giá trị của formik về giá trị ban đầu (rỗng)

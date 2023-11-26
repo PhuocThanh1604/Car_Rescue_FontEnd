@@ -129,14 +129,27 @@ const ModalEdit = ({
     } else {
       // Gửi yêu cầu cập nhật lên máy chủ
       dispatch(createChangeTypeRescue(updatedEdit))
-        .then(() => {
-          toast.success("Thay đổi loại cứu hộ thành công.");
-          handleClose();
-          if (onDataUpdated) {
-            onDataUpdated(); // Call the callback function after successful update
+        .then((response) => {
+          console.log(response)
+          if (response.payload.status === 201) {
+            toast.success("Thay đổi loại cứu hộ thành công.");
+            handleClose();
+            if (onDataUpdated) {
+              onDataUpdated(); // Call the callback function after successful update
+            }
+            setIsSuccess(true);
+            setTypeRescue(null);
+          } else if (response.payload.status === 400) {
+            // Xử lý lỗi khi status là 400 (Bad Request)
+            toast.error("Lỗi: Yêu cầu không hợp lệ hoặc thiếu thông tin.");
+          } else if (response.payload.status === 500) {
+            // Xử lý lỗi khi status là 500 (Internal Server Error)
+            toast.error("Lỗi: Lỗi phía máy chủ. Vui lòng thử lại sau.");
+          } else {
+            // Xử lý các trường hợp lỗi khác (nếu có)
+            toast.error("Hủy đơn không thành công");
           }
-          setIsSuccess(true);
-          setTypeRescue(null);
+       
         })
         .catch((error) => {
           if (error.response && error.response.data) {
@@ -159,7 +172,11 @@ const ModalEdit = ({
       reloadOrderAssigned(); // Reload orders when the modal is closed after a successful update
     }
   };
-
+  const handleCancel = () => {
+    // Đặt lại các trạng thái hoặc thực hiện các xử lý cần thiết trước khi đóng modal
+    // Ở đây, bạn có thể đặt lại các trạng thái hoặc làm bất kỳ xử lý nào khác cần thiết trước khi đóng modal
+    setOpenEditModal(false);
+  };
   return (
     <>
       <ToastContainer />
@@ -209,7 +226,9 @@ const ModalEdit = ({
                 id="Order-detail-modal"
                 sx={{ textAlign: "center" }}
               >
-                {selectedEditOrder ? "Thay Đổi Loại Hình Cứu Hộ" : "Order Detail"}
+                {selectedEditOrder
+                  ? "Thay Đổi Loại Hình Cứu Hộ"
+                  : "Hủy Đơn Cứu Hộ"}
               </Typography>
 
               {selectedEditOrder && (
@@ -230,7 +249,9 @@ const ModalEdit = ({
                       style={{ display: "none" }}
                     />
 
-                    <Typography sx={{display:"none"}}>{selectedEditOrder.rescueType}</Typography>
+                    <Typography sx={{ display: "none" }}>
+                      {selectedEditOrder.rescueType}
+                    </Typography>
 
                     <FormControl fullWidth variant="filled">
                       <InputLabel id="rescueType-label">
@@ -266,6 +287,7 @@ const ModalEdit = ({
                   </Box>
                 </Card>
               )}
+         
             </Box>
           </Box>
         </Fade>

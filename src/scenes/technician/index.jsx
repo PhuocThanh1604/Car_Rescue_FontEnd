@@ -8,6 +8,7 @@ import {
   MenuItem,
   IconButton,
   FormControl,
+  Typography,
 } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
@@ -24,7 +25,10 @@ import InputBase from "@mui/material/InputBase";
 import moment from "moment";
 import { fetchTechnicians, getTechnicianId } from "../../redux/technicianSlice";
 import CustomTablePagination from "../../components/TablePagination";
-
+import AddCardIcon from "@mui/icons-material/AddCard";
+import RepeatOnIcon from "@mui/icons-material/RepeatOn";
+import PersonOffIcon from '@mui/icons-material/PersonOff';
+import HowToRegIcon from '@mui/icons-material/HowToReg';
 const Technicians = (props) => {
   const dispatch = useDispatch();
   const technicians = useSelector((state) => state.technician.technicians);
@@ -222,30 +226,42 @@ const Technicians = (props) => {
       },
     },
     {
-      field: "status",
+      field: "status2",
       headerName: "Trạng Thái",
-      width: 80,
-      renderCell: (params) => (
-        <Box display="flex" alignItems="center" className="filter-box">
-          <ToggleButton
-            initialValue={params.value === "ACTIVE"}
-            onChange={(value) => {
-              const updatedtechnicians = technicians.map((technician) => {
-                if (technician.id === params.row.id) {
-                  return {
-                    ...technician,
-                    status: value ? "ACTIVE" : "INACTIVE",
-                  };
-                }
-                return technician;
-              });
-              // setFilteredtechnicians(updatedtechnicians);
-            }}
-          />
-        </Box>
-      ),
+      width: 150,
       key: "status",
+      renderCell: ({ row: { status } }) => {
+        return (
+          <Box
+            width="80%"
+            m="0 auto"
+            p="2px"
+            display="flex"
+            justifyContent="center"
+            fontSize={10}
+            borderRadius={8} // Corrected prop name from "buserRadius" to "borderRadius"
+            backgroundColor={
+              status === "ACTIVE"
+                ? colors.green[500]
+                : status === "ASSIGNED"
+                ? colors.redAccent[800]
+                : colors.redAccent[800]
+                ? colors.redAccent[500]
+                : status === "INACTIVE"
+            }
+          >
+            {status === "ACTIVE" && <HowToRegIcon />}
+            {status === "INACTIVE" && <PersonOffIcon />}
+            {status === "ASSIGNED" && <RepeatOnIcon />}
+            <Typography color={colors.grey[100]} sx={{ ml: "8px" }}>
+              {status}
+            </Typography>
+          </Box>
+        );
+      },
     },
+   
+    
     {
       field: "update",
       headerName: "Update",
@@ -261,24 +277,6 @@ const Technicians = (props) => {
       ),
       key: "update",
     },
-    // {
-    //   field: 'delete',
-    //   headerName: 'Xóa',
-    //   width: 60,
-    //   renderCell: (params) => (
-    //     <IconButton
-    //       variant="contained"
-    //       color="secondary"
-    //       onClick={() => handleDeleteClick(params.row)}
-    //       {...(loading ? { loading: true } : {})} // Conditionally include the loading attribute
-    //       comingsoon={loading ? 1 : 0}
-
-    //     >
-    //       <DeleteOutline />
-    //     </IconButton>
-    //   ),
-    //   key: 'deleted',
-    // },
   ];
 
   return (

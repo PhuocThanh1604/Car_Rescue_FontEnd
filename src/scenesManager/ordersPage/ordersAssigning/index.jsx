@@ -28,22 +28,25 @@ import { getCustomerIdFullName } from "../../../redux/customerSlice";
 import CreditScoreIcon from "@mui/icons-material/CreditScore";
 import AddCardIcon from "@mui/icons-material/AddCard";
 import RepeatOnIcon from "@mui/icons-material/RepeatOn";
-import BuildIcon from "@mui/icons-material/Build";
 import SupportIcon from "@mui/icons-material/Support";
 import HandymanIcon from "@mui/icons-material/Handyman";
+import CancelIcon from '@mui/icons-material/Cancel';
 import InfoIcon from "@mui/icons-material/Info";
 import { useLocation } from "react-router-dom";
 import CustomTablePagination from "../../../components/TablePagination";
+import ModalCancel from "./ModalCanncel";
 const OrdersAssigning = (props) => {
   const dispatch = useDispatch();
   const location = useLocation();
   const orders = useSelector((state) => state.order.orders);
   const [openEditModal, setOpenEditModal] = useState(false);
+  const [openCancelModal, setOpenCancelModal] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [filterOption, setFilterOption] = useState("rescueType");
   const [openModal, setOpenModal] = useState(false);
   const [selectedBook, setSelectedBook] = useState(null);
   const [selectedEditOrder, setSelectedEditOrder] = useState(null);
+  const [selectedCancelOrder, setSelectedCancelOrder] = useState(null);
   const [filteredOrders, setFilteredOrders] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(8);
@@ -161,6 +164,20 @@ const OrdersAssigning = (props) => {
         const orderDetails = response.payload.data;
         setSelectedEditOrder(orderDetails);
         setOpenEditModal(true);
+        setIsSuccess(true);
+      })
+      .catch((error) => {
+        console.error("Lỗi khi lấy thông tin đơn hàng mới:", error);
+      });
+  };
+  const handleCancelOrder  = (orderId) => {
+    console.log(orderId);
+    // Fetch the rescueVehicleOwnerId details based on the selected rescueVehicleOwnerId ID
+    dispatch(getOrderId({ id: orderId }))
+      .then((response) => {
+        const orderDetails = response.payload.data;
+        setSelectedCancelOrder(orderDetails);
+        setOpenCancelModal(true);
         setIsSuccess(true);
       })
       .catch((error) => {
@@ -335,7 +352,7 @@ const OrdersAssigning = (props) => {
     {
       field: "update",
       headerName: "Cập Nhật",
-      width: 60,
+      width: 70,
       renderCell: (params) => (
         <IconButton
           variant="contained"
@@ -343,6 +360,21 @@ const OrdersAssigning = (props) => {
           onClick={() => handleUpdateClick(params.row.id)}
         >
           <Edit style={{ color: "red" }} />
+        </IconButton>
+      ),
+      key: "update",
+    },
+    {
+      field: "cancel",
+      headerName: "Hủy Đơn",
+      width: 60,
+      renderCell: (params) => (
+        <IconButton
+          variant="contained"
+          color="error"
+          onClick={() => handleCancelOrder(params.row.id)}
+        >
+          <CancelIcon style={{ color: "red" }} />
         </IconButton>
       ),
       key: "update",
@@ -504,7 +536,14 @@ const OrdersAssigning = (props) => {
         openEditModal={openEditModal}
         setOpenEditModal={setOpenEditModal}
         selectedEditOrder={selectedEditOrder}
-        // onClose={() => setOpenEditModal(false)}
+        selectedCancelOrder={selectedCancelOrder}
+        onDataUpdated={handleDataUpdated}
+        loading={loading}
+      />
+      <ModalCancel
+        openCancelModal={openCancelModal}
+        setOpenCancelModal={setOpenCancelModal}
+        selectedCancelOrder={selectedCancelOrder}
         onDataUpdated={handleDataUpdated}
         loading={loading}
       />

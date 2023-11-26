@@ -464,7 +464,7 @@ const Dashboard = () => {
               justifyContent="space-between"
               alignItems="center"
               borderBottom={`4px solid ${colors.primary[500]}`}
-              p="15px"
+              p="10px"
             >
               <Box>
                 <Typography

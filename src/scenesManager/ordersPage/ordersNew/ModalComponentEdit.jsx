@@ -14,14 +14,21 @@ import {
   Avatar,
   Grid,
   Tooltip,
+  CardActions,
+  Collapse,
+  Divider,
 } from "@mui/material";
 import { CategoryRounded, Close } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
 import { tokens } from "../../../theme";
 import { toast } from "react-toastify";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import PeopleAltRoundedIcon from "@mui/icons-material/PeopleAltRounded";
 import {
   createAcceptOrder,
   fetchOrdersNew,
+  getCarById,
   getOrderDetailId,
   getPaymentId,
   sendNotification,
@@ -46,6 +53,7 @@ import SourceRoundedIcon from "@mui/icons-material/SourceRounded";
 import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 import { getServiceId } from "../../../redux/serviceSlice";
 import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
+import { getModelCarId } from "../../../redux/modelCarSlice";
 const ModalEdit = ({
   openEditModal,
   setOpenEditModal,
@@ -84,6 +92,8 @@ const ModalEdit = ({
     "Fixing",
     "Towing",
   ]);
+  const [showModal, setShowModal] = useState(false);
+  const [collapse, setCollapse] = useState(false);
   const [selectedRescueTypeTowing, setSelectedRescueTypeTowing] =
     useState("Towing");
   const [filteredTechnicianData, setFilteredTechnicianData] = useState([]);
@@ -93,9 +103,13 @@ const ModalEdit = ({
   const [selectedOrderFormattedAddress, setSelectedOrderFormattedAddress] =
     useState("");
   const [customerId, setCustomerId] = useState({});
+  const [carId, setCarId] = useState({});
+  const [modelId, setModelId] = useState({});
   const [paymentId, setPaymentId] = useState({});
   const [dataCustomer, setDataCustomer] = useState({});
+  const [dataCar, setDataCar] = useState({});
   const [dataOrder, setDataOrder] = useState({});
+  const [dataModel, setDataModel] = useState("");
   const [dataOrderDetail, setDataOrderDetail] = useState({});
   const managerString = localStorage.getItem("manager");
   let manager = null;
@@ -107,6 +121,10 @@ const ModalEdit = ({
       console.error("Lỗi khi phân tích chuỗi JSON:", error);
     }
   }
+
+  const handleClick = () => {
+    setCollapse(!collapse);
+  };
 
   // 1. Tạo hàm xử lý sự kiện cho TextField để cập nhật edit.id
   const handleEditIdChange = (event) => {
@@ -397,13 +415,56 @@ const ModalEdit = ({
   //get Full NameCustomer
 
   useEffect(() => {
+    if (edit.carId && edit.carId !== carId) {
+      console.log(edit.carId);
+      setCarId(edit.carId);
+      fetchCarOfCustomer(edit.carId);
+    }
+  }, [edit.carId, carId]);
+  useEffect(() => {
     if (edit.customerId && edit.customerId !== customerId) {
       console.log(edit.customerId);
       setCustomerId(edit.customerId);
       fetchCustomerName(edit.customerId);
+      fetchCarOfCustomer(edit.carId);
     }
-  }, [edit.customerId, customerId]);
 
+    // Thêm điều kiện modelId vào useEffect
+    if (dataCar[edit.carId]?.modelId && dataCar[edit.carId]?.modelId !== modelId) {
+      console.log(dataCar[edit.carId]?.modelId);
+      setModelId(dataCar[edit.carId]?.modelId);
+      fetchModelOfCar(dataCar[edit.carId]?.modelId); // Gọi hàm fetchModelOfCar với modelId mới
+    }
+  }, [edit.customerId, customerId, dataCar[edit.carId]?.modelId, modelId]);
+
+  const fetchModelOfCar = (modelId) => {
+    console.log("modelid: " + modelId);
+    // Make sure you have a check to prevent unnecessary API calls
+    if (modelId) {
+      console.log("Modelid: " + modelId);
+      dispatch(getModelCarId({ id: modelId }))
+        .then((response) => {
+          console.log("Response payload:", response.payload);
+          const data = response.payload.data;
+  
+          console.log("Data model:", data.model1);
+          setDataModel(data.model1)
+          // if (data) {
+          //   setDataModel((prevData) => ({
+          //     ...prevData,
+          //     [modelId]: data.model1,
+          //   }));
+          //   console.log("Data model1:", dataModel.model1);
+          // } else {
+          //   console.error("Service name not found in the API response.");
+          // }
+        })
+        .catch((error) => {
+          console.error("Error while fetching service data model:", error);
+        });
+    }
+  };
+  
   const fetchCustomerName = (customerId) => {
     console.log(customerId);
     // Make sure you have a check to prevent unnecessary API calls
@@ -423,6 +484,31 @@ const ModalEdit = ({
         })
         .catch((error) => {
           console.error("Error while fetching service data:", error);
+        });
+    }
+  };
+
+  const fetchCarOfCustomer = (carId) => {
+    console.log("carid" + carId);
+    // Make sure you have a check to prevent unnecessary API calls
+    if (carId) {
+      console.log("carid" + carId);
+      dispatch(getCarById({ id: carId }))
+        .then((response) => {
+          const data = response.payload.data;
+
+          console.log("data car" + data);
+          if (data) {
+            setDataCar((prevData) => ({
+              ...prevData,
+              [carId]: data,
+            }));
+          } else {
+            console.error("Service name not found in the API response.");
+          }
+        })
+        .catch((error) => {
+          console.error("Error while fetching service data car:", error);
         });
     }
   };
@@ -514,7 +600,6 @@ const ModalEdit = ({
     }
   };
 
-
   // Hàm fetch chung
   // const fetchData = (dispatch, getIdAction, setDataFunction) => (orderId) => {
   //   console.log(orderId);
@@ -547,6 +632,7 @@ const ModalEdit = ({
   // );
   // Thay someOrderId bằng dependency của useEffect của bạn, để đảm bảo useEffect chạy khi dependency thay đổi
 
+  
   const date = new Date(edit.createdAt);
   const formattedDate = `${date.getDate()}/${
     date.getMonth() + 1
@@ -793,7 +879,17 @@ const ModalEdit = ({
                               </Typography>
                             </Tooltip>
                           </Typography>
-
+                          <Typography
+                            variant="h5"
+                            sx={{
+                              display: "none",
+                              alignItems: "center",
+                              marginLeft: "10px",
+                            }}
+                          >
+                            {" "}
+                            {edit.carId}
+                          </Typography>
                           <Typography
                             variant="body1"
                             component="p"
@@ -880,7 +976,8 @@ const ModalEdit = ({
                               marginRight: "2px",
                             }}
                           >
-                            <AddShoppingCartIcon /> <strong>Dịch vụ đã chọn:</strong>{" "}
+                            <AddShoppingCartIcon />{" "}
+                            <strong>Dịch vụ đã chọn:</strong>{" "}
                             <Typography
                               variant="h5"
                               sx={{
@@ -889,13 +986,9 @@ const ModalEdit = ({
                                 marginLeft: "10px",
                               }}
                             >
-                             {firstServiceName}
+                              {firstServiceName}
                             </Typography>
                           </Typography>
-
-
-                        
-                   
                         </CardContent>
                       </Card>
                     </>
@@ -1210,6 +1303,188 @@ const ModalEdit = ({
                   </Card>
                 </Grid>
               </Grid>
+              <CardActions className="card-action-dense">
+                <Box
+                  sx={{
+                    width: "100%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <Button onClick={handleClick}>Thông tin xe khách hàng</Button>
+                  <IconButton size="small" onClick={handleClick}>
+                    {collapse ? (
+                      <ExpandLessIcon sx={{ fontSize: "1.875rem" }} />
+                    ) : (
+                      <ExpandMoreIcon sx={{ fontSize: "1.875rem" }} />
+                    )}
+                  </IconButton>
+                </Box>
+              </CardActions>
+              <Collapse in={collapse}>
+                <Divider sx={{ margin: 0 }} />
+                <CardContent>
+                  <Grid container spacing={2}>
+                    <Grid item xs={4}>
+                      {" "}
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "row",
+                          gap: 2,
+                        }}
+                      >
+                        {/* The following elements will be displayed horizontally */}
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexDirection: "column", // Set to "column" to stack the content vertically
+                            gap: "10px", // Adjust the gap as needed
+                          }}
+                        >
+                          <Box
+                            sx={{
+                              flex: 1,
+                              display: "flex",
+                              alignItems: "center",
+                            }}
+                          >
+                            <PersonRoundedIcon />
+                            <Typography variant="h6">
+                              <strong> Tên Chủ Xe: </strong>
+                              {dataCustomer[edit.customerId]?.fullname ||
+                                "Đang tải..."}
+                            </Typography>
+                          </Box>
+                          <Typography
+                            variant="h5"
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              marginLeft: "10px",
+                            }}
+                          >
+                            {" "}
+                          </Typography>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 1,
+                            }}
+                          >
+                            <ReceiptRoundedIcon />
+                            <Typography variant="h6">Biển Số: </Typography>
+                            {dataCar[edit.carId]?.licensePlate || "Đang tải..."}
+                          </Box>
+
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 1,
+                            }}
+                          >
+                            <TimeToLeaveIcon />
+                            <Typography variant="h6">Hãng Xe: </Typography>
+                            {dataCar[edit.carId]?.manufacturer || "Đang tải..."}
+                          </Box>
+
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 1,
+                            }}
+                          >
+                            <CategoryRounded />
+                            <Typography variant="h6">Loại Xe: </Typography>
+                            {dataModel || "Đang tải..."}
+
+                          </Box>
+
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 1,
+                            }}
+                          >
+                            <CalendarTodayIcon />
+                            <Typography variant="h6">Năm: </Typography>
+                            {dataCar[edit.carId]?.manufacturingYear ||
+                              "Đang tải..."}
+                          </Box>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 1,
+                            }}
+                          >
+                            <CalendarTodayIcon />
+                            <Typography variant="h6">Màu: </Typography>
+                            {dataCar[edit.carId]?.color || "Đang tải..."}
+                          </Box>
+                        </Box>
+                      </Box>
+                    </Grid>
+
+                    <Grid item xs={8}>
+                      {" "}
+                      <Box sx={{ flex: 1 }}>
+                        <img
+                          src={
+                            dataCar[edit.carId]?.image ||
+                            "https://firebasestorage.googleapis.com/v0/b/car-rescue-399511.appspot.com/o/admin%2Fdefault-image-icon-vector-missing-picture-page-website-design-mobile-app-no-photo-available_87543-11093.avif?alt=media&token=e03ee650-5571-430d-8e6b-5146638e8184"
+                          }
+                          alt="Hình Ảnh Của Xe"
+                          style={{
+                            width: "200px",
+                            height: "200px",
+                            border: "2px solid #000",
+                            objectFit: "cover",
+                          }}
+                          onClick={() => setShowModal(true)}
+                          title="Nhấp để xem ảnh rõ hơn"
+                        />
+
+                        {showModal && (
+                          <div
+                            style={{
+                              position: "fixed",
+                              top: 0,
+                              left: 0,
+                              width: "100%",
+                              height: "100%",
+                              backgroundColor: "rgba(0, 0, 0, 0.7)",
+                              display: "flex",
+                              justifyContent: "center",
+                              alignItems: "center",
+                            }}
+                            onClick={() => setShowModal(false)}
+                          >
+                            <img
+                              src={
+                                dataCar[edit.carId]?.image ||
+                                "https://firebasestorage.googleapis.com/v0/b/car-rescue-399511.appspot.com/o/admin%2Fdefault-image-icon-vector-missing-picture-page-website-design-mobile-app-no-photo-available_87543-11093.avif?alt=media&token=e03ee650-5571-430d-8e6b-5146638e8184"
+                              }
+                              alt="Hình Ảnh Của Xe"
+                              style={{
+                                maxWidth: "80%",
+                                maxHeight: "80%",
+                                objectFit: "contain",
+                              }}
+                            />
+                          </div>
+                        )}
+                      </Box>{" "}
+                    </Grid>
+                  </Grid>
+                </CardContent>
+              </Collapse>
+
               <Box
                 sx={{
                   display: "flex",
