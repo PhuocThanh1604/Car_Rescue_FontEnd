@@ -1,13 +1,4 @@
 /* eslint-disable no-undef */
-
-
-import { initializeApp } from "firebase/app";
-import firebase from "firebase/app";
-import { getStorage } from "firebase/storage";
-import { useDispatch } from 'react-redux';
-import { sendNotification } from "../src/redux/orderSlice";
-import { getMessaging,onMessage,getToken } from "firebase/messaging";
-import { onBackgroundMessage } from "firebase/messaging/sw";
 importScripts("https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js");
 importScripts(
   "https://www.gstatic.com/firebasejs/8.10.0/firebase-messaging.js"
@@ -22,12 +13,7 @@ const firebaseConfig = {
   measurementId: "G-SYYVJXV5HQ"
 };
 
-
-const app = initializeApp(firebaseConfig);
-export const storage = getStorage(app);
-
-const messaging = getMessaging(app);
-
+const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage(messaging, (payload) => {
   console.log('[firebase-messaging-sw.js] Received background message ', payload);
