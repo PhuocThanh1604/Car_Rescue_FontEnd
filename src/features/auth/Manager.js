@@ -87,13 +87,10 @@ const Manager = () => {
   }, []);
 
   useEffect(() => {
-    requestPermissions().then(token => {
-      if (token) {
-        console.log("Token received in App component By Manager:", token);
-        // You can further handle the token here
-      }
-    });
-  }, []);  
+    console.log("Manager");
+    requestPermissions()
+  }, []);
+  
   return (
     <ColorModeContext.Provider value={colorMode}>
       <ThemeProvider theme={theme}>

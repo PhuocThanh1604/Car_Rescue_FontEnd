@@ -45,6 +45,7 @@ const messaging = getMessaging(app);
       console.log("Permission denied");
     }
   })
+  
 }
 requestPermissions();
 export const onMessageListener = (callback) =>
