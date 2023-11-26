@@ -52,6 +52,18 @@ export const onMessageListener = (callback) =>
         callback(payload);
     });
 });
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js')
+      .then(registration => {
+        console.log('SW registered: ', registration);
+      })
+      .catch(registrationError => {
+        console.log('SW registration failed: ', registrationError);
+      });
+  });
+}
+
 // export function requestPermissions() {
 //   if ("Notification" in window && "requestPermission" in window.Notification) {
 //     console.log("Requesting permissions");
