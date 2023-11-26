@@ -13,6 +13,7 @@ const firebaseConfig = {
   measurementId: "G-SYYVJXV5HQ"
 };
 
+firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage(messaging, (payload) => {

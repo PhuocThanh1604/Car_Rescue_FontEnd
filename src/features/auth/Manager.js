@@ -40,7 +40,7 @@ import { useEffect } from "react";
 import TransactionDetails from "../../scenesManager/invoices/transactionDetail";
 import Payment from "../../scenesManager/payment";
 import Notification from "../../components/Notification";
-import { onMessageListener } from "../../firebase/firebase";
+import { onMessageListener, requestPermissions } from "../../firebase/firebase";
 import ModelCar from "../../scenesManager/modelCar";
 import AddModelCar from "../../scenesManager/create_ModelCar";
 
@@ -85,6 +85,15 @@ const Manager = () => {
 
     onMessageListener(handleMessage);
   }, []);
+
+  useEffect(() => {
+    requestPermissions().then(token => {
+      if (token) {
+        console.log("Token received in App component By Manager:", token);
+        // You can further handle the token here
+      }
+    });
+  }, []);  
   return (
     <ColorModeContext.Provider value={colorMode}>
       <ThemeProvider theme={theme}>
