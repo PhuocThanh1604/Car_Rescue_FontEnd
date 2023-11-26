@@ -2,13 +2,9 @@ import { Routes, Route } from "react-router-dom";
 import RequireAuth from "./features/auth/RequireAuth";
 import Manager from "./features/auth/Manager";
 import Admin from "./features/auth/Admin";
-import { useEffect } from "react";
-import { requestPermissions } from "./firebase/firebase";
 
 function App() {
-  useEffect(() => {
-    requestPermissions()
-  }, []);
+ 
    
   return (
      

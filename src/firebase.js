@@ -3,7 +3,7 @@ import { initializeApp } from "firebase/app";
 import firebase from "firebase/app";
 import { getStorage } from "firebase/storage";
 import { useDispatch } from 'react-redux';
-import { sendNotification } from "../redux/orderSlice";
+import { sendNotification } from "./redux/orderSlice";
 import { getMessaging,onMessage,getToken } from "firebase/messaging";
 
 const firebaseConfig = {

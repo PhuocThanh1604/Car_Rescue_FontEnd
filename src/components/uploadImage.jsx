@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { v4 } from "uuid";
-import { storage } from "../firebase/firebase";
+import { storage } from "../firebase";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
 const UploadImageField = ({ onImageUploaded, imageUrl }) => {

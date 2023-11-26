@@ -1,5 +1,5 @@
 import React,{useState,useEffect} from "react"
-import { onMessageListener, requestPermissions } from "../firebase/firebase"
+import { onMessageListener, requestPermissions } from "../firebase"
 import { ToastContainer ,toast} from "react-toastify"
 
 function Notification() {

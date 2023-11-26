@@ -1,0 +1,12 @@
+{
+    "rewrites": [
+      {
+        "source": "./firebase.js",
+        "destination": "./firebase.js",
+        "headers": {
+          "Content-Type": "application/javascript"
+        }
+      }
+    ]
+  }
+  
