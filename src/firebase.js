@@ -28,7 +28,7 @@ const messaging = getMessaging(app);
       .then((currentToken) => {
         if (currentToken) {
           console.log("Current token for client:", currentToken);
-          // localStorage.setItem('deviceToken', currentToken);
+          localStorage.setItem('deviceToken', currentToken);
           // Perform any other necessary action with the token
         } else {
           console.log("No registration token available. Request permission to generate one.");

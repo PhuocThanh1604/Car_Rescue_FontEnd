@@ -14,7 +14,6 @@ import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../../theme";
 import Header from "../../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
-import ModalDetail from "./ModalComponentDetail";
 import ModalEdit from "./ModalComponentEdit";
 import SearchIcon from "@mui/icons-material/Search";
 import InputBase from "@mui/material/InputBase";
@@ -592,13 +591,7 @@ const Orders = (props) => {
               loading={loading}
             />
           </Box>
-          <ModalDetail
-            openModal={openModal}
-            setOpenModal={setOpenModal}
-            onClose={() => setOpenModal(false)}
-            selectedBook={selectedBook}
-            loading={loading}
-          ></ModalDetail>
+    
 
           <ModalEdit
             openEditModal={openEditModal}

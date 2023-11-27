@@ -26,7 +26,7 @@ export const createModelCar = createAsyncThunk(
       };
       console.log(modelCarData)
       const res = await axios.post(
-        "https://rescuecapstoneapi.azurewebsites.net/api/RescueVehicleOwner/Create",
+        "https://rescuecapstoneapi.azurewebsites.net/api/Model/Create",
         modelCarData,
         {
           headers: {
@@ -34,6 +34,8 @@ export const createModelCar = createAsyncThunk(
           },
         }
       );
+      console.log(res)
+      console.log(res.data)
       return res.data;
     } catch (error) {
       console.error("Failed to create model Car of customer:", error.response);

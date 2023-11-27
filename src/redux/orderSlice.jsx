@@ -267,20 +267,11 @@ export const getOrderDetailId = createAsyncThunk(
 export const getFormattedAddressGG = createAsyncThunk(
   "orders/getFormattedAddress",
   async ({ lat, lng }) => {
-    const key = `formattedAddress_${lat}_${lng}`;
-    const storedData = getFromStorage(key);
-
-    if (storedData) {
-      return storedData; // Trả về dữ liệu đã lưu nếu có
-    }
-
     try {
-      removeFromStorage(storedData);
       const response = await axios.get(
         `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKeyGG}`
       );
       const data = response.data;
-      saveToStorage(key, data); // Lưu dữ liệu mới vào storage
       return data;
     } catch (error) {
       console.error("Failed to get Address ", error.error_message);
@@ -288,6 +279,30 @@ export const getFormattedAddressGG = createAsyncThunk(
     }
   }
 );
+// export const getFormattedAddressGG = createAsyncThunk(
+//   "orders/getFormattedAddress",
+//   async ({ lat, lng }) => {
+//     const key = `formattedAddress_${lat}_${lng}`;
+//     const storedData = getFromStorage(key);
+
+//     if (storedData) {
+//       return storedData; // Trả về dữ liệu đã lưu nếu có
+//     }
+
+//     try {
+//       removeFromStorage(storedData);
+//       const response = await axios.get(
+//         `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKeyGG}`
+//       );
+//       const data = response.data;
+//       saveToStorage(key, data); // Lưu dữ liệu mới vào storage
+//       return data;
+//     } catch (error) {
+//       console.error("Failed to get Address ", error.error_message);
+//       throw error.response.data || error.message;
+//     }
+//   }
+// );
 
 // export const getFormattedAddressGG = createAsyncThunk(
 //   "orders/getFormattedAddress",

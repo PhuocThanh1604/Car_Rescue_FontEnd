@@ -4,7 +4,6 @@ import { ColorModeContext, useMode } from "../../theme";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import Topbar from "../../components/Topbar";
 import Sidebar from "../../scenesManager/geographyManager/global/Sidebar";
-import Contacts from "../../scenesManager/contacts";
 import Invoices from "../../scenesManager/invoices";
 import FAQ from "../../scenesManager/faq";
 import Orders from "../../scenesManager/ordersPage/ordersNew";
@@ -105,7 +104,6 @@ const Manager = () => {
               {/* <AuthProvider> */}
               <Routes>
                 <Route path="/client" element={<Dashboard />} />
-                <Route path="/manager/contacts" element={<Contacts />} />
                 <Route path="/manager/payments" element={<Payment />} />
                 {/* <Route path="/manager/invoices" element={<Invoices />} /> */}
                 <Route

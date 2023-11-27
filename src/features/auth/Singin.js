@@ -17,6 +17,7 @@ import { useLoginMutation } from "./authApiSlice";
 import { useDispatch } from "react-redux";
 import { setCredentials } from "./authSlice";
 import { CircularProgress } from "@mui/material";
+import { requestPermissions } from "../../firebase";
 
 function Copyright(props) {
   return (
@@ -51,6 +52,7 @@ export default function SignInSide() {
   const [password, setPassword] = useState("");
   const [errMsg, setErrMsg] = useState("");
   const navigate = useNavigate();
+  const [deviceToken, setDeviceToken] = useState(null);
 
   const [singin, { isLoading }] = useLoginMutation();
   const dispatch = useDispatch();
@@ -73,19 +75,16 @@ export default function SignInSide() {
     errRef.current.focus();
   }
 
-  // useEffect(() => {
-  //   // Kiểm tra xem có token trong Local Storage không
-  //   const storedToken = localStorage.getItem('token');
-  //   if (storedToken) {
-  //     // Nếu có, chuyển hướng người dùng đến trang chính
-  //     navigate('/welcome');
-  //   }
-  // }, []);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isLoading) {
       return; // Tránh gửi yêu cầu nếu đang tải
+    }
+    let deviceToken = localStorage.getItem("deviceToken");
+  
+    if (!deviceToken) {
+      await requestPermissions();
+      deviceToken = localStorage.getItem("deviceToken");
     }
     try {
       if (!isValidEmail(email)) {
@@ -93,26 +92,22 @@ export default function SignInSide() {
         setErrMsg("Định dạng email không hợp lệ");
         return;
       }
-      // Lấy `deviceToken` từ `localStorage`
       const devicetoken1 = localStorage.getItem("deviceToken");
-      console.log(devicetoken1);
+      console.log("singin:"+devicetoken1);
       const devicetoken = `${devicetoken1}`;
-      // Sau khi đăng nhập thành công
       const userData = await singin({ email, password, devicetoken }).unwrap();
+      console.log(userData);
       dispatch(setCredentials({ ...userData, email }));
-   
       // Lưu token vào Local Storage
-      localStorage.setItem("token", userData.token);
+      // localStorage.setItem("token", userData.token);
       setEmail("");
       setPassword("");
       navigate("/client");
       let redirectTo = "/welcome"; // Đường dẫn mặc định
 
       if ((userData.roles = "Admin")) {
-        // Nếu có vai trò 5150, chuyển hướng đến "/welcome"
         redirect("/welcome");
       } else if ((userData.roles = "Manager")) {
-        // Nếu có vai trò 1984 hoặc 2001, chuyển hướng đến "/manager"
         redirect("/manager");
       }
     } catch (err) {

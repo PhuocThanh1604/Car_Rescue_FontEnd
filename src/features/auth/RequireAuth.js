@@ -16,7 +16,6 @@ const RequireAuth = () => {
     localStorage.setItem("role_user", data?.role);
     localStorage.setItem("access_token", data?.accessToken);
     localStorage.setItem("manager", data?.manager);
-    localStorage.setItem("deviceToken", data?.deviceToken);
   }
 
   if (data && data.manager) {

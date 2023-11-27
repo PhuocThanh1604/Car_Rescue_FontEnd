@@ -29,6 +29,7 @@ import {
   createAcceptOrder,
   fetchOrdersNew,
   getCarById,
+  getFormattedAddressGG,
   getOrderDetailId,
   getPaymentId,
   sendNotification,
@@ -99,7 +100,9 @@ const ModalEdit = ({
   const [filteredTechnicianData, setFilteredTechnicianData] = useState([]);
   const [filteredVehicleData, setFilteredVehicleData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
-  const [formattedAddresses, setFormattedAddresses] = useState({});
+  const [formattedAddresses, setFormattedAddresses] = useState({
+  });
+  
   const [selectedOrderFormattedAddress, setSelectedOrderFormattedAddress] =
     useState("");
   const [customerId, setCustomerId] = useState({});
@@ -109,6 +112,7 @@ const ModalEdit = ({
   const [dataCustomer, setDataCustomer] = useState({});
   const [dataCar, setDataCar] = useState({});
   const [dataOrder, setDataOrder] = useState({});
+  const [dataDeparture, setDataDeparture] = useState({});
   const [dataModel, setDataModel] = useState("");
   const [dataOrderDetail, setDataOrderDetail] = useState({});
   const managerString = localStorage.getItem("manager");
@@ -122,6 +126,50 @@ const ModalEdit = ({
     }
   }
 
+  useEffect(() => {
+    if (edit.departure) {
+      fetchAddress("departure", edit.departure);
+    }
+  
+    if (edit.destination) {
+      fetchAddress("destination", edit.destination);
+    }
+  }, [edit.departure, edit.destination]);
+  
+  const fetchAddress = async (addressType, addressValue) => {
+    console.log("latlng" + addressValue)
+    if (!addressValue ) {
+      return; // Trả về nếu order không tồn tại hoặc địa chỉ đã được lưu trữ
+    }
+
+    const matches = /lat:\s*([^,]+),\s*long:\s*([^,]+)/.exec(addressValue);
+    console.log(matches)
+    if (matches && matches.length === 3) {
+      const [, lat, lng] = matches;
+
+      if (!isNaN(lat) && !isNaN(lng)) {
+        console.log("Latitude:", lat, "Longitude:", lng);
+        try {
+          const response = await dispatch(getFormattedAddressGG({ lat, lng }));
+          console.log(response);
+          const formattedAddress =
+            response.payload.results[0].formatted_address;
+            console.log(formattedAddress);
+            setFormattedAddresses(prevAddresses => ({
+              ...prevAddresses,
+              [addressType]: formattedAddress
+            }));
+        } catch (error) {
+          console.error(
+            "Error fetching address:",
+            error.response ? error.response : error
+          );
+        } finally {
+          setLoading(false); // Đảm bảo loading được đặt lại thành false dù có lỗi
+        }
+      }
+    }
+  };
   const handleClick = () => {
     setCollapse(!collapse);
   };
@@ -219,7 +267,6 @@ const ModalEdit = ({
       try {
         const vehicleResponse = await dispatch(fetchVehicle());
         const vehicleData = vehicleResponse.payload.data;
-        console.log("Dữ liệu xe cứu hộ:", vehicleData);
         if (vehicleData) {
           const activeManufacturers = vehicleData.filter(
             (item) => item.status === "ACTIVE"
@@ -247,7 +294,6 @@ const ModalEdit = ({
       try {
         const technicianResponse = await dispatch(fetchTechnicians());
         const technicianData = technicianResponse.payload.data;
-        console.log("dữ liệu tech " + technicianData);
         if (technicianData) {
           const activeTechnicians = technicianData.filter(
             (item) => item.status === "ACTIVE"
@@ -256,9 +302,7 @@ const ModalEdit = ({
           setTechnicianData(activeTechnicians);
 
           if (activeTechnicians.length > 0) {
-            console.log("Active Technicians FullNAME:");
             activeTechnicians.forEach((technician) => {
-              console.log("Avatar:", technician.avatar);
               // You can also access other properties here if needed.
             });
           } else {
@@ -472,7 +516,6 @@ const ModalEdit = ({
       dispatch(getCustomerId({ id: customerId }))
         .then((response) => {
           const data = response.payload.data;
-          console.log(data);
           if (data) {
             setDataCustomer((prevData) => ({
               ...prevData,
@@ -489,15 +532,12 @@ const ModalEdit = ({
   };
 
   const fetchCarOfCustomer = (carId) => {
-    console.log("carid" + carId);
     // Make sure you have a check to prevent unnecessary API calls
     if (carId) {
-      console.log("carid" + carId);
       dispatch(getCarById({ id: carId }))
         .then((response) => {
           const data = response.payload.data;
 
-          console.log("data car" + data);
           if (data) {
             setDataCar((prevData) => ({
               ...prevData,
@@ -520,7 +560,6 @@ const ModalEdit = ({
       dispatch(getPaymentId({ id: orderId }))
         .then((response) => {
           const data = response.payload.data;
-          console.log(data);
           if (data) {
             setDataOrder((prevData) => ({
               ...prevData,
@@ -545,10 +584,8 @@ const ModalEdit = ({
       dispatch(getOrderDetailId({ id: orderId }))
         .then((response) => {
           const data = response.payload.data;
-          console.log(data);
           if (data && Array.isArray(data)) {
             const serviceIds = data.map((item) => item.serviceId);
-            console.log(serviceIds);
 
             // Tạo mảng promises để gọi API lấy thông tin từng serviceId
             const servicePromises = serviceIds.map((serviceId) => {
@@ -850,7 +887,7 @@ const ModalEdit = ({
                                 marginLeft: "10px",
                               }}
                             >
-                              {edit.formattedAddress}
+                           {formattedAddresses.departure || "Đang tải..."}
                             </Typography>
                           </Typography>
 
@@ -875,10 +912,12 @@ const ModalEdit = ({
                                   marginLeft: "10px",
                                 }}
                               >
-                                {edit.destination}
+                               {formattedAddresses.destination || "Đang tải..."}
                               </Typography>
                             </Tooltip>
                           </Typography>
+
+
                           <Typography
                             variant="h5"
                             sx={{
