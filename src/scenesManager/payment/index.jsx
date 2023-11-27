@@ -270,7 +270,8 @@ const Payment = () => {
       headerName: "Ngày giao dịch",
       width: 160,
       valueGetter: (params) =>
-        moment(params.row.createdAt).utcOffset(7).format("DD-MM-YYYY HH:mm"),
+        moment(params.row.createdAt).tz("Asia/Ho_Chi_Minh").add(7, 'hours') .format("DD-MM-YYYY HH:mm"),
+     
     },
     {
       field: "status",

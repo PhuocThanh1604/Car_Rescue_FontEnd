@@ -54,56 +54,56 @@ const CalendarTechnician = () => {
 
     try {
       const responses = await Promise.all(promises);
-      const eventPromises = responses.map(async (response) => {
+      const eventPromises = responses.flatMap(response => {
+        // Check if response data is available and has items
         if (response && response.data && response.data.length > 0) {
-          const eventData = response.data[0];
-          const fullname = await fetchFullNameTechnician(
-            eventData.technicianId
-          );
-          console.log(fullname);
+          // Filter items that have a technicianId and process them
+          return response.data.filter(eventData => eventData.technicianId).map(async (eventData) => {
+            const fullname = await fetchFullNameTechnician(eventData.technicianId);
+            console.log(fullname);
 
-          // Tạo sự kiện từ dữ liệu nhận được từ API
+            // Define shift hours based on shift type
+            let startHour = "00:00:00";
+            let endHour = "08:00:00";
 
-          let startHour = "00:00:00";
-          let endHour = "08:00:00";
+            // Conditional statements to set startHour and endHour
+            if (eventData.type === "Midnight") {
+              startHour = "00:00:00";
+              endHour = "08:00:00";
+            } else if (eventData.type === "Night") {
+              startHour = "16:00:00";
+              endHour = "24:00:00";
+            } else if (eventData.type === "Morning") {
+              startHour = "08:00:00";
+              endHour = "16:00:00";
+            }
 
-          if (eventData.type === "Midnight") {
-            startHour = "00:00:00";
-            endHour = "08:00:00";
-          } else if (eventData.type === "Night") {
-            startHour = "16:00:00";
-            endHour = "24:00:00"; // Kết thúc vào ngày tiếp theo
-          } else if (eventData.type === "Morning") {
-            startHour = "08:00:00";
-            endHour = "16:00:00";
-          } else {
-            // Xử lý các trường hợp khác của eventData.type ở đây (nếu cần)
-          }
+            // Calculate the event color
+            const eventColor = getEventColor(eventData.type);
 
-          // Trong hàm fetchShiftDataForWeek và các hàm tương tự
-          const eventColor = getEventColor(eventData.type);
-          return {
-            id: createEventId(),
-            title: eventData.type,
-            description: fullname, // Đặt fullname vào trường description
-            start: eventData.date.substring(0, 10) + "T" + startHour,
-            end: eventData.date.substring(0, 10) + "T" + endHour,
-            color: eventColor,
-          };
+            // Return the event object
+            return {
+              id: createEventId(),
+              title: eventData.type,
+              description: fullname,
+              start: eventData.date.substring(0, 10) + "T" + startHour,
+              end: eventData.date.substring(0, 10) + "T" + endHour,
+              color: eventColor,
+            };
+          });
         }
-        return null;
+        return [];
       });
 
-      const updatedEvents = (await Promise.all(eventPromises)).filter(
-        (event) => event
-      );
-
+      const updatedEvents = (await Promise.all(eventPromises.flat())).filter(event => event);
       setInitialEvents(updatedEvents);
       setCurrentEvents(updatedEvents);
     } catch (error) {
       console.error("Error fetching data for the week:", error);
     }
   };
+
+  
   const fetchFullNameTechnician = async (technicianId) => {
     try {
       const response = await dispatch(

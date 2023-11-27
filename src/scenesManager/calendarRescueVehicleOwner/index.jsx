@@ -52,49 +52,105 @@ const CalendarTechnician = () => {
     const promises = days.map((day) =>
       dispatch(getShiftOfDate({ date: day })).unwrap()
     );
-  
+
     try {
       const responses = await Promise.all(promises);
-      const eventPromises = responses.map(async (response) => {
+      const eventPromises = responses.flatMap(response => {
+        // Check if response data is available and has items
         if (response && response.data && response.data.length > 0) {
-          const eventData = response.data[0];
-            console.log(eventData.rvoid)
-          // Kiểm tra nếu eventData có chứa rvoid
-          if (!eventData.rvoid) {
-            return null; // Không tạo sự kiện nếu không có rvoid
-          }
-  
-          const fullname = await fetchFullNameRescueCarOwner(eventData.rvoid);
-          console.log(fullname);
-  
-          // Xử lý tạo sự kiện như trước nếu có rvoid
-          let startHour = "00:00:00";
-          let endHour = "08:00:00";
-          // ... Các xử lý khác cho startHour và endHour
-  
-          const eventColor = getEventColor(eventData.type);
-          return {
-            id: createEventId(),
-            title: eventData.type,
-            description: fullname,
-            start: eventData.date.substring(0, 10) + "T" + startHour,
-            end: eventData.date.substring(0, 10) + "T" + endHour,
-            color: eventColor,
-          };
+          // Filter items that have a technicianId and process them
+          return response.data.filter(eventData => eventData.rvoid).map(async (eventData) => {
+            const fullname = await fetchFullNameRescueCarOwner(eventData.rvoid);
+            console.log(fullname);
+
+            // Define shift hours based on shift type
+            let startHour = "00:00:00";
+            let endHour = "08:00:00";
+
+            // Conditional statements to set startHour and endHour
+            if (eventData.type === "Midnight") {
+              startHour = "00:00:00";
+              endHour = "08:00:00";
+            } else if (eventData.type === "Night") {
+              startHour = "16:00:00";
+              endHour = "24:00:00";
+            } else if (eventData.type === "Morning") {
+              startHour = "08:00:00";
+              endHour = "16:00:00";
+            }
+
+            // Calculate the event color
+            const eventColor = getEventColor(eventData.type);
+
+            // Return the event object
+            return {
+              id: createEventId(),
+              title: eventData.type,
+              description: fullname,
+              start: eventData.date.substring(0, 10) + "T" + startHour,
+              end: eventData.date.substring(0, 10) + "T" + endHour,
+              color: eventColor,
+            };
+          });
         }
-        return null;
+        return [];
       });
-  
-      const updatedEvents = (await Promise.all(eventPromises)).filter(
-        (event) => event
-      );
-  
+
+      const updatedEvents = (await Promise.all(eventPromises.flat())).filter(event => event);
       setInitialEvents(updatedEvents);
       setCurrentEvents(updatedEvents);
     } catch (error) {
       console.error("Error fetching data for the week:", error);
     }
   };
+  // const fetchShiftDataForWeek = async (startDateStr) => {
+  //   const days = getWeekDays(startDateStr);
+  //   const promises = days.map((day) =>
+  //     dispatch(getShiftOfDate({ date: day })).unwrap()
+  //   );
+  
+  //   try {
+  //     const responses = await Promise.all(promises);
+  //     const eventPromises = responses.map(async (response) => {
+  //       if (response && response.data && response.data.length > 0) {
+  //         const eventData = response.data[0];
+  //           console.log(eventData.rvoid)
+  //         // Kiểm tra nếu eventData có chứa rvoid
+  //         if (!eventData.rvoid) {
+  //           return null; // Không tạo sự kiện nếu không có rvoid
+  //         }
+  
+  //         const fullname = await fetchFullNameRescueCarOwner(eventData.rvoid);
+  //         console.log(fullname);
+  
+  //         // Xử lý tạo sự kiện như trước nếu có rvoid
+  //         let startHour = "00:00:00";
+  //         let endHour = "08:00:00";
+  //         // ... Các xử lý khác cho startHour và endHour
+  
+  //         const eventColor = getEventColor(eventData.type);
+  //         return {
+  //           id: createEventId(),
+  //           title: eventData.type,
+  //           description: fullname,
+  //           start: eventData.date.substring(0, 10) + "T" + startHour,
+  //           end: eventData.date.substring(0, 10) + "T" + endHour,
+  //           color: eventColor,
+  //         };
+  //       }
+  //       return null;
+  //     });
+  
+  //     const updatedEvents = (await Promise.all(eventPromises)).filter(
+  //       (event) => event
+  //     );
+  
+  //     setInitialEvents(updatedEvents);
+  //     setCurrentEvents(updatedEvents);
+  //   } catch (error) {
+  //     console.error("Error fetching data for the week:", error);
+  //   }
+  // };
   
   const fetchFullNameRescueCarOwner = async (rvoId) => {
     try {

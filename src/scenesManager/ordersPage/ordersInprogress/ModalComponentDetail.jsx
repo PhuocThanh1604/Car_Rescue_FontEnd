@@ -160,7 +160,6 @@ const MyModal = (props) => {
     if (!dateTime) return "Đang cập nhật";
     return moment(dateTime).tz("Asia/Ho_Chi_Minh").add(7,'hours').format('DD/MM/YYYY HH:mm:ss');
     // Set the time zone to Vietnam's ICT
-        
   };
 
   // Styled Grid component

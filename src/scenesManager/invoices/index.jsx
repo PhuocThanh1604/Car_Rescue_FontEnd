@@ -152,11 +152,17 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
       createAcceptWithdrawRequest({ id: transactionId, boolean: accept })
     )
       .then(() => {
+        
         setTransactionId(transactionId);
         setOpenConfirmModal(false);
         setIsSuccess(true);
         reloadTrsansaction();
-        toast.success("Chấp nhận rút tiền ví thành công.");
+           // Check if accept is true or false
+           if (accept) {
+            toast.success("Chấp nhận rút tiền ví thành công.");
+          } else {
+            toast.error("Không đồng ý rút tiền ví.");
+          }
       })
       .catch((error) => {
         console.error(
@@ -210,8 +216,8 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
     // Chuyển đổi thời gian sang múi giờ Việt Nam (GMT+7)
     const vietnamTime = moment
       .utc(createdAt)
-      .utcOffset("+0700")
-      .format("YYYY-MM-DD HH:mm:ss");
+      .tz("Asia/Ho_Chi_Minh")
+      .format("DD-MM-YYYY HH:mm:ss");
     return vietnamTime;
   };
   const formatToVND = (amount) => {
@@ -361,7 +367,12 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
       headerName: "Ngày giao dịch",
       width: 160,
       valueGetter: (params) =>
-        moment(params.row.createdAt).utcOffset(7).format("DD-MM-YYYY HH:mm"),
+      moment(params.row.createdAt)
+      .tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
+      .add(7, 'hours') // Adding 3 hours (you can adjust this number as needed)
+      .format("DD-MM-YYYY HH:mm:ss"),
+
+        
     },
     {
       field: "status",

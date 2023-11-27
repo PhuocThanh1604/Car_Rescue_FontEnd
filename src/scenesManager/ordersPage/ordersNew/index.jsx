@@ -23,7 +23,6 @@ import 'moment-timezone';
 import {
   fetchOrdersNew,
   getFormattedAddressGG,
-  getFormattedAddressMapbox,
   getOrderId,
 } from "../../../redux/orderSlice";
 import { ToastContainer, toast } from "react-toastify";
@@ -72,8 +71,9 @@ const Orders = (props) => {
   const handleDataUpdated = () => {
     reloadOrdersNew();
   };
-
-
+  useEffect(() => {
+    reloadOrdersNew(); // Gọi hàm mới này thay vì gọi đệ quy
+  }, [dispatch, location.pathname]);
   const reloadOrdersNew = () => {
     // setLoading(true);
     dispatch(fetchOrdersNew())
@@ -131,16 +131,20 @@ const Orders = (props) => {
   };
   const handleDateFilterChange = () => {
     if (startDate && endDate) {
-      // Chuyển đổi startDate và endDate sang định dạng "DD-MM-YYYY"
-      const formattedStartDate = moment(startDate).format("DD-MM-YYYY");
-      const formattedEndDate = moment(endDate).format("DD-MM-YYYY");
+      // Format startDate and endDate to the beginning of the day in the specified time zone
+      const formattedStartDate = moment(startDate).tz("Asia/Ho_Chi_Minh").startOf('day');
+      const formattedEndDate = moment(endDate).tz("Asia/Ho_Chi_Minh").startOf('day');
   
       const filteredOrders = orders.filter((order) => {
-        const orderDate = moment(order.createdAt).format("DD-MM-YYYY");
-        const isAfterStartDate = moment(orderDate, "DD-MM-YYYY").isSameOrAfter(formattedStartDate, "day");
-        const isBeforeEndDate = moment(orderDate, "DD-MM-YYYY").isSameOrBefore(formattedEndDate, "day");
+        // Adjust the order createdAt date to the same time zone
+        const orderDate = moment(order.createdAt).tz("Asia/Ho_Chi_Minh").startOf('day');
+  
+        const isAfterStartDate = orderDate.isSameOrAfter(formattedStartDate, "day");
+        const isBeforeEndDate = orderDate.isSameOrBefore(formattedEndDate, "day");
+        
         return isAfterStartDate && isBeforeEndDate;
       });
+  
       setFilteredOrders(filteredOrders);
       setFilterOption("Date");
     } else {
@@ -148,13 +152,6 @@ const Orders = (props) => {
     }
   };
   
-  
-  
-
-  useEffect(() => {
-    reloadOrdersNew(); // Gọi hàm mới này thay vì gọi đệ quy
-  }, [dispatch, location.pathname]);
-
   useEffect(() => {
     setLoading(true); // Bắt đầu với trạng thái loading
 
@@ -350,8 +347,8 @@ const Orders = (props) => {
       key: "createdAt",
       valueGetter: (params) =>
       moment(params.row.createdAt)
-        .tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
-        .add(7, 'hours') // Adding 3 hours (you can adjust this number as needed)
+        .tz("Asia/Ho_Chi_Minh")
+        .add(7, 'hours')
         .format("DD-MM-YYYY HH:mm:ss")
     },
     {
@@ -501,7 +498,9 @@ const Orders = (props) => {
                 }}
                 onBlur={handleDateFilterChange}
                 inputProps={{
-                  max: moment().format("MM-DD-YYYY"), // Set the maximum selectable date as today
+                  max: moment().tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
+                  .add(7, 'hours') // Adding 3 hours (you can adjust this number as needed)
+                  .format("DD-MM-YYYY"), // Set the maximum selectable date as today
                 }}
                 sx={{ ml: 4, mr: 2 }}
               />
@@ -520,7 +519,9 @@ const Orders = (props) => {
                 }}
                 onBlur={handleDateFilterChange}
                 inputProps={{
-                  max: moment().format("MM-DD-YYYY"), // Set the maximum selectable date as today
+                  max: moment().tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
+                  .add(7, 'hours') // Adding 3 hours (you can adjust this number as needed)
+                  .format("DD-MM-YYYY"), // Set the maximum selectable date as today
                 }}
               />
             </Box>

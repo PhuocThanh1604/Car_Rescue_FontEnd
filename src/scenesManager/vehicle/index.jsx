@@ -189,7 +189,12 @@ const Vehicles = (props) => {
         setOpenConfirmModal(false);
         setIsSuccess(true);
         reloadVehicle();
-        toast.success("Chấp nhận thành công.");
+            // Check if accept is true or false
+            if (accept) {
+              toast.success("Chấp nhận xe thành công.");
+            } else {
+              toast.error("Không đồng chấp nhận xe vào hệ thống ");
+            }
       })
       .catch((error) => {
         console.error(
@@ -554,7 +559,7 @@ const Vehicles = (props) => {
                         onClick={() => handleImageClick(data.carRegistrationBack)}
                       >
                         <img
-                          src={detailedData[0].carRegistrationBack}
+                          src={detailedData.carRegistrationBack}
                           alt="Car Back"
                           style={{
                             width: imageWidth,
@@ -571,7 +576,7 @@ const Vehicles = (props) => {
                         }}
                       >
                         <img
-                          src={detailedData[0].carRegistrationFont}
+                          src={detailedData.carRegistrationFont}
                           alt="Car Front"
                           style={{
                             width: imageWidth,
@@ -588,7 +593,7 @@ const Vehicles = (props) => {
                         }}
                       >
                         <img
-                          src={detailedData[0].image}
+                          src={detailedData.image}
                           alt="Car Front"
                           style={{
                             width: imageWidth,

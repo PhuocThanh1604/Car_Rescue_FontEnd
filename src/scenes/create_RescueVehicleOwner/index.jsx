@@ -47,7 +47,9 @@ const AddRescueVehicleOwner = () => {
     phone: yup.string().required("Required"),
     avatar: yup.string().required("Required"),
     birthdate: yup.date().required("Required"), // Date validation
+    createAt: yup.date().required("Required"), // Date validation
     accountId: yup.string().required("Required"),
+    area: yup.string().required("Required"),
   });
   const statusOptions = ["ACTIVE", "INACTIVE"];
   const initialValues = {
@@ -59,6 +61,8 @@ const AddRescueVehicleOwner = () => {
     phone: "",
     avatar: "",
     accountId: "",
+    createAt: "",
+    area:""
   };
 
   // Tạo ref để lưu trữ tham chiếu đến formik
@@ -151,6 +155,22 @@ const AddRescueVehicleOwner = () => {
                 helperText={touched.fullname && errors.fullname}
                 sx={{ gridColumn: "span 1" }}
               />
+        
+              <FormControl fullWidth variant="filled">
+                <InputLabel id="area-label">Khu Vực</InputLabel>
+                <Select
+                  labelId="area-label"
+                  id="area"
+                  name="area"
+                  value={values.area}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  error={touched.area && errors.area ? true : false}
+                >
+                  <MenuItem value="1">1</MenuItem>
+                  <MenuItem value="2">2</MenuItem>
+                </Select>
+              </FormControl>
               <Grid container spacing={4} alignItems="center" marginBottom={2}>
                 <Grid item xs={6}>
                   <Grid container spacing={1} alignItems="center">
@@ -250,6 +270,19 @@ const AddRescueVehicleOwner = () => {
                 name="birthdate"
                 error={touched.birthdate && errors.birthdate ? true : false}
                 helperText={touched.birthdate && errors.birthdate}
+                sx={{ gridColumn: "span 2" }}
+              />
+              <TextField
+                fullWidth
+                variant="filled"
+                type="date"
+                label="Ngày Tạo"
+                onBlur={handleBlur}
+                onChange={handleChange}
+                value={values.createAt}
+                name="createAt"
+                error={touched.createAt && errors.createAt ? true : false}
+                helperText={touched.createAt && errors.createAt}
                 sx={{ gridColumn: "span 2" }}
               />
               <Box sx={{ minWidth: 120 }}>
