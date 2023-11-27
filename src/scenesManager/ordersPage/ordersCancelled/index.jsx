@@ -16,7 +16,7 @@ import Header from "../../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
 import { Edit} from "@mui/icons-material";
 import ModalDetail from "./ModalComponentDetail";
-import ModalEdit from "./ModalComponentEdit";
+// import ModalEdit from "./ModalComponentEdit";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import SearchIcon from "@mui/icons-material/Search";
@@ -499,13 +499,13 @@ const handleDetailClick = (orderId) => {
         loading={loading}
       ></ModalDetail>
 
-      <ModalEdit
+      {/* <ModalEdit
         openEditModal={openEditModal}
         setOpenEditModal={setOpenEditModal}
         selectedEditRescuseVehicleOwner={selectedEditOrder}
         onClose={() => setOpenEditModal(false)}
         loading={loading}
-      />
+      /> */}
       <ToastContainer />
     </Box>
   );

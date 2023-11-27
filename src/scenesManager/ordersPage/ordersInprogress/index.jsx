@@ -221,7 +221,7 @@ const OrdersInprogress = (props) => {
     {
       field: "customerId",
       headerName: "Tên Khách Hàng",
-      width: 100,
+      width: 160,
       valueGetter: (params) => {
         // Get the fullname from the state based on customerId
         return fullnameData[params.value] || "";
@@ -239,7 +239,7 @@ const OrdersInprogress = (props) => {
       width: 100,
       key: "createdAt",
       valueGetter: (params) =>
-        moment(params.row.createdAt).utcOffset(7).format("DD-MM-YYYY"),
+        moment(params.row.createdAt).utcOffset(7).format("DD-MM-YYYY HH:mm:ss"),
     },
     {
       field: "rescueType",
