@@ -236,10 +236,13 @@ const OrdersInprogress = (props) => {
     {
       field: "createdAt",
       headerName: "Ngày Tạo Đơn",
-      width: 100,
+      width: 150,
       key: "createdAt",
       valueGetter: (params) =>
-        moment(params.row.createdAt).utcOffset(7).format("DD-MM-YYYY HH:mm:ss"),
+      moment(params.row.createdAt)
+      .tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
+      .add(7, 'hours') // Adding 3 hours (you can adjust this number as needed)
+      .format("DD-MM-YYYY HH:mm:ss")
     },
     {
       field: "rescueType",

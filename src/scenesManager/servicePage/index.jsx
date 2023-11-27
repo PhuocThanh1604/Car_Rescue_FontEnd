@@ -154,7 +154,7 @@ const Services = (props) => {
   
     {
       field: "type",
-      headerName: "Loại Dịch Vụ",
+      headerName: "Hình Thức",
       width: 120,
       key: "type",
       renderCell: ({ row: { type } }) => {

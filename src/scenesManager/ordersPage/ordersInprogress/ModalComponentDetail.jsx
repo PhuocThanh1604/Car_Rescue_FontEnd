@@ -158,7 +158,9 @@ const MyModal = (props) => {
 
   const formatDateTime = (dateTime) => {
     if (!dateTime) return "Đang cập nhật";
-    return moment(dateTime).utcOffset('+07:00').format('DD/MM/YYYY HH:mm:ss');
+    return moment(dateTime).tz("Asia/Ho_Chi_Minh").add(7,'hours').format('DD/MM/YYYY HH:mm:ss');
+    // Set the time zone to Vietnam's ICT
+        
   };
 
   // Styled Grid component
