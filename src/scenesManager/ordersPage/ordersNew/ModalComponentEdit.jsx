@@ -577,7 +577,7 @@ const ModalEdit = ({
   };
 
   //Hiển thị 1 dịch vụ đầu tiên
-  // Thay đổi hàm fetchOrderDetail
+
   const fetchOrderDetail = (orderId) => {
     console.log(orderId);
     // Make sure you have a check to prevent unnecessary API calls
