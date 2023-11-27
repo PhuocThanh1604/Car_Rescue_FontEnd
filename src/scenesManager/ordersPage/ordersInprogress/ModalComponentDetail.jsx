@@ -39,8 +39,9 @@ import { CategoryRounded } from "@mui/icons-material";
 import { getRescueVehicleOwnerId } from "../../../redux/rescueVehicleOwnerSlice";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import CreditScoreIcon from "@mui/icons-material/CreditScore";
+import moment from "moment";
 const MyModal = (props) => {
-  const { openModal, setOpenModal, selectedEditOrder } = props;
+  const { openModal, setOpenModal, selectedDetailOrder } = props;
   const dispatch = useDispatch();
   const [collapse, setCollapse] = useState(false);
   const [data, setData] = useState({
@@ -53,13 +54,13 @@ const MyModal = (props) => {
   const [rescueVehicleOwnerId, setRescueVehicleOwnerId] = useState({});
   // Lưu giá trị vào một biến
   useEffect(() => {
-    if (selectedEditOrder && selectedEditOrder.vehicleId) {
-      const vehicleRvoidId = data.vehicle[selectedEditOrder.vehicleId]?.rvoid;
+    if (selectedDetailOrder && selectedDetailOrder.vehicleId) {
+      const vehicleRvoidId = data.vehicle[selectedDetailOrder.vehicleId]?.rvoid;
       if (vehicleRvoidId) {
         fetchRescueVehicleOwner(vehicleRvoidId);
       }
     }
-  }, [selectedEditOrder, data.vehicle, rescueVehicleOwnerId]);
+  }, [selectedDetailOrder, data.vehicle, rescueVehicleOwnerId]);
 
   const fetchRescueVehicleOwner = (vehicleRvoidId) => {
     console.log(vehicleRvoidId);
@@ -83,17 +84,17 @@ const MyModal = (props) => {
         });
     }
   };
-   // Lấy vehicleRvoidId từ selectedEditOrder và data.vehicle
+   // Lấy vehicleRvoidId từ selectedDetailOrder và data.vehicle
   
 
    useEffect(() => {
-    if (selectedEditOrder) {
+    if (selectedDetailOrder) {
       // Gọi API chỉ khi cần thiết
-      fetchDataIfNeeded("customer", selectedEditOrder.customerId);
-      fetchDataIfNeeded("technician", selectedEditOrder.technicianId);
-      fetchDataIfNeeded("vehicle", selectedEditOrder.vehicleId);
+      fetchDataIfNeeded("customer", selectedDetailOrder.customerId);
+      fetchDataIfNeeded("technician", selectedDetailOrder.technicianId);
+      fetchDataIfNeeded("vehicle", selectedDetailOrder.vehicleId);
     }
-  }, [selectedEditOrder]);
+  }, [selectedDetailOrder]);
 
   const fetchDataIfNeeded = useCallback(
     (type, id) => {
@@ -139,46 +140,26 @@ const MyModal = (props) => {
     setCollapse(!collapse);
   };
 
-  const vehicleRvoidId = selectedEditOrder && selectedEditOrder.vehicleId
-    ? data.vehicle[selectedEditOrder.vehicleId]?.rvoid
+  const vehicleRvoidId = selectedDetailOrder && selectedDetailOrder.vehicleId
+    ? data.vehicle[selectedDetailOrder.vehicleId]?.rvoid
     : null;
     let formattedDate = "Không rõ ngày tạo";
-    if (selectedEditOrder && selectedEditOrder.createdAt) {
-      const date = new Date(selectedEditOrder.createdAt);
+    if (selectedDetailOrder && selectedDetailOrder.createdAt) {
+      const date = new Date(selectedDetailOrder.createdAt);
       formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`;
   }
 
-  const technicianInfo = selectedEditOrder && selectedEditOrder.technicianId && (
+  const technicianInfo = selectedDetailOrder && selectedDetailOrder.technicianId && (
     <Grid item xs={5} alignItems="center">
       <p>Không có thông tin</p>
       {/* Đảm bảo rằng bạn đặt tất cả JSX liên quan đến thông tin kỹ thuật viên ở đây */}
     </Grid>
   );
 
-  let formattedDateStart = "Không có thông tin";
-  let formattedDateEnd = "Không có thông tin";
-  if (
-    selectedEditOrder &&
-    selectedEditOrder.startTime &&
-    selectedEditOrder.endTime
-  ) {
-    const dateStart = new Date(selectedEditOrder.startTime);
-    const dateEnd = new Date(selectedEditOrder.startTime);
-    formattedDateStart = `${dateStart.getDate()}/${
-      dateStart.getMonth() + 1
-    }/${dateStart.getFullYear()} ${dateStart.getHours()}:${dateStart.getMinutes()}`;
-    formattedDateEnd = `${dateEnd.getDate()}/${
-      dateEnd.getMonth() + 1
-    }/${dateEnd.getFullYear()} ${dateEnd.getHours()}:${dateEnd.getMinutes()}`;
-  }
-  function formatDate(dateString) {
-    const date = new Date(dateString);
-    const day = date.getDate().toString().padStart(2, "0");
-    const month = (date.getMonth() + 1).toString().padStart(2, "0"); // +1 because months start at 0
-    const year = date.getFullYear();
-
-    return `${day}/${month}/${year}`; // Formats to dd/mm/yyyy
-  }
+  const formatDateTime = (dateTime) => {
+    if (!dateTime) return "Đang cập nhật";
+    return moment(dateTime).utcOffset('+07:00').format('DD/MM/YYYY HH:mm:ss');
+  };
 
   // Styled Grid component
   const StyledGrid1 = styled(Grid)(({ theme }) => ({
@@ -237,11 +218,11 @@ const MyModal = (props) => {
               <Close />
             </IconButton>
 
-            <Typography variant="h4" component="h2" id="book-detail-modal">
+            <Typography variant="h4" component="h2" id="book-detail-modal" sx={{textAlign:"center"}}>
               Thông Tin Chi Tiết Đơn Hàng Đang Điều Phối
             </Typography>
 
-            {selectedEditOrder  &&  (
+            {selectedDetailOrder  &&  (
               <Card>
                     <CardContent>
                   <Box
@@ -280,7 +261,7 @@ const MyModal = (props) => {
                             }}
                           >
                             {" "}
-                            {data.customer[selectedEditOrder.customerId]
+                            {data.customer[selectedDetailOrder.customerId]
                               ?.fullname || "Không có thông tin"}
                           </Typography>
                         </Typography>
@@ -307,7 +288,7 @@ const MyModal = (props) => {
                             }}
                           >
                             {" "}
-                            {data.customer[selectedEditOrder.customerId]?.sex ||
+                            {data.customer[selectedDetailOrder.customerId]?.sex ||
                               "Không có thông tin"}
                           </Typography>
                         </Typography>
@@ -333,7 +314,7 @@ const MyModal = (props) => {
                             }}
                           >
                             {" "}
-                            {data.customer[selectedEditOrder.customerId]
+                            {data.customer[selectedDetailOrder.customerId]
                               ?.phone || "Không có thông tin"}
                           </Typography>
                         </Typography>
@@ -359,7 +340,7 @@ const MyModal = (props) => {
                             }}
                           >
                             {" "}
-                            {data.customer[selectedEditOrder.customerId]
+                            {data.customer[selectedDetailOrder.customerId]
                               ?.address || "Không có thông tin"}
                           </Typography>
                         </Typography>
@@ -383,13 +364,10 @@ const MyModal = (props) => {
                               marginLeft: "10px",
                             }}
                           >
-                            {data.customer[selectedEditOrder.customerId]
+                            {data.customer[selectedDetailOrder.customerId]
                               ?.birthdate
-                              ? formatDate(
-                                  data.customer[selectedEditOrder.customerId]
-                                    .birthdate
-                                )
-                              : "Không có thông tin"}
+                       
+                              || "Không có thông tin"}
                           </Typography>
                         </Typography>
                       </Grid>
@@ -403,7 +381,7 @@ const MyModal = (props) => {
                       <Grid item xs={6}>
                         <StyledGrid1>
                           <Typography variant="h5" sx={{ marginBottom: 2 }}>
-                            FeedBack của đơn hàng
+                            Thông tin đơn hàng
                           </Typography>
                        
                           <Typography
@@ -429,7 +407,7 @@ const MyModal = (props) => {
                                 flex: 1,
                               }}
                             >
-                              {formattedDateStart || "Đang cập nhật"}
+                               {formatDateTime(selectedDetailOrder.startTime || "Đang cập nhật")}
                             </Typography>
                           </Typography>
                           <Typography
@@ -455,7 +433,7 @@ const MyModal = (props) => {
                                 flex: 1,
                               }}
                             >
-                              {formattedDateEnd || "Đang cập nhật"}
+                             {selectedDetailOrder.endTime || "Đang cập nhật"}
                             </Typography>
                           </Typography>
 
@@ -482,35 +460,10 @@ const MyModal = (props) => {
                                 flex: 1,
                               }}
                             >
-                              {selectedEditOrder.area||"khu vực 1"}
+                              {selectedDetailOrder.area||"khu vực 1"}
                             </Typography>
                           </Typography>
-                          <Typography
-                            variant="body1"
-                            component="p"
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              marginBottom: "8px", // Thêm khoảng cách dưới cùng của dòng
-                              fontSize: "1rem",
-                              marginRight: "2px",
-                            }}
-                          >
-                            <AssignmentIcon />{" "}
-                            <strong>Dịch vụ đã sử dụng:</strong>
-                            <Typography
-                              variant="h6"
-                              sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                marginLeft: "10px",
-                              }}
-                            >
-                              {" "}
-                              {data.customer[selectedEditOrder.customerId]
-                                ?.address || "Không có thông tin"}
-                            </Typography>
-                          </Typography>
+                   
 
                           <Typography
                             variant="body1"
@@ -534,7 +487,7 @@ const MyModal = (props) => {
                               }}
                             >
                               {" "}
-                              {data.customer[selectedEditOrder.customerId]
+                              {data.customer[selectedDetailOrder.customerId]
                                 ?.address || "Không có thông tin"}
                             </Typography>
                           </Typography>
@@ -600,7 +553,7 @@ const MyModal = (props) => {
                             <Avatar
                               alt="Avatar"
                               src={
-                                data.technician[selectedEditOrder.technicianId]
+                                data.technician[selectedDetailOrder.technicianId]
                                   ?.avatar || "URL mặc định của avatar"
                               }
                               sx={{
@@ -617,7 +570,7 @@ const MyModal = (props) => {
                                 marginLeft: "10px",
                               }}
                             >
-                              {data.technician[selectedEditOrder.technicianId]
+                              {data.technician[selectedDetailOrder.technicianId]
                                 ?.fullname || "Không có thông tin"}
                             </Typography>
                           </Box>
@@ -631,7 +584,7 @@ const MyModal = (props) => {
                             <PeopleAltRoundedIcon />
                             <Typography variant="h6">
                               Giới Tính:{" "}
-                              {data.technician[selectedEditOrder.technicianId]
+                              {data.technician[selectedDetailOrder.technicianId]
                                 ?.sex || "Không có thông tin"}
                             </Typography>
                           </Box>
@@ -645,7 +598,7 @@ const MyModal = (props) => {
                             <PhoneRoundedIcon />
                             <Typography variant="h6">
                               SĐT:{" "}
-                              {data.technician[selectedEditOrder.technicianId]
+                              {data.technician[selectedDetailOrder.technicianId]
                                 ?.phone || "Không có thông tin"}
                             </Typography>
                           </Box>
@@ -659,7 +612,7 @@ const MyModal = (props) => {
                             <PlaceIcon />
                             <Typography variant="h6">
                               Địa Chỉ:{" "}
-                              {data.technician[selectedEditOrder.technicianId]
+                              {data.technician[selectedDetailOrder.technicianId]
                                 ?.address || "Không có thông tin"}
                             </Typography>
                           </Box>
@@ -674,7 +627,7 @@ const MyModal = (props) => {
                             <MapRoundedIcon />
                             <Typography variant="h6">
                               Khu vực:{" "}
-                              {data.technician[selectedEditOrder.technicianId]
+                              {data.technician[selectedDetailOrder.technicianId]
                                 ?.area || "Không có thông tin"}
                             </Typography>
                           </Box>
@@ -734,7 +687,7 @@ const MyModal = (props) => {
                             <ReceiptRoundedIcon />
                             <Typography variant="h6">
                               Biển Số:{" "}
-                              {data.vehicle[selectedEditOrder.vehicleId]
+                              {data.vehicle[selectedDetailOrder.vehicleId]
                                 ?.licensePlate || "Không có thông tin"}
                             </Typography>
                           </Box>
@@ -749,7 +702,7 @@ const MyModal = (props) => {
                             <TimeToLeaveIcon />
                             <Typography variant="h6">
                               Hãng Xe:{" "}
-                              {data.vehicle[selectedEditOrder.vehicleId]
+                              {data.vehicle[selectedDetailOrder.vehicleId]
                                 ?.manufacturer || "Không có thông tin"}
                             </Typography>
                           </Box>
@@ -763,7 +716,7 @@ const MyModal = (props) => {
                             <CategoryRounded />
                             <Typography variant="h6">
                               Loại Xe:{" "}
-                              {data.vehicle[selectedEditOrder.vehicleId]
+                              {data.vehicle[selectedDetailOrder.vehicleId]
                                 ?.type || "Không có thông tin"}
                             </Typography>
                           </Box>
@@ -778,7 +731,7 @@ const MyModal = (props) => {
                             <CalendarTodayIcon />
                             <Typography variant="h6">
                               Năm:{" "}
-                              {data.vehicle[selectedEditOrder.vehicleId]
+                              {data.vehicle[selectedDetailOrder.vehicleId]
                                 ?.manufacturingYear || "Không có thông tin"}
                             </Typography>
                           </Box>

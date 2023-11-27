@@ -39,11 +39,12 @@ const OrdersInprogress = (props) => {
   const location = useLocation();
   const orders = useSelector((state) => state.order.orders);
   const [openEditModal, setOpenEditModal] = useState(false);
+  const [openDetailModal, setOpenDetailModal] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [filterOption, setFilterOption] = useState("rescueType");
   const [openModal, setOpenModal] = useState(false);
-  const [selectedBook, setSelectedBook] = useState(null);
   const [selectedEditOrder, setSelectedEditOrder] = useState(null);
+  const [selectedDetailOrder, setSelectedDetailOrder] = useState(null);
   const [filteredOrders, setFilteredOrders] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(8);
@@ -126,6 +127,7 @@ const OrdersInprogress = (props) => {
     dispatch(getOrderDetailId({ id: orderId }))
       .then((response) => {
         const orderDetails = response.payload.data;
+        console.log("orderDetails"+orderDetails)
         setSelectedEditOrder(orderDetails);
         setOpenEditModal(true);
         setIsSuccess(true);
@@ -138,10 +140,10 @@ const OrdersInprogress = (props) => {
   const handleDetailClickDetail = (orderId) => {
     console.log(orderId);
     // Fetch the rescueVehicleOwnerId details based on the selected rescueVehicleOwnerId ID
-    dispatch(getOrderDetailId({ id: orderId }))
+    dispatch(getOrderId({ id: orderId }))
       .then((response) => {
         const orderDetails = response.payload.data;
-        setSelectedEditOrder(orderDetails);
+        setSelectedDetailOrder(orderDetails);
         setOpenModal(true);
       })
       .catch((error) => {
@@ -225,16 +227,15 @@ const OrdersInprogress = (props) => {
         return fullnameData[params.value] || "";
       },
     },
-    { field: "departure", headerName: "Địa Chỉ", width: 140, key: "departure" },
     {
       field: "customerNote",
       headerName: "Ghi Chú của Customer",
-      width: 120,
+      width: 160,
       key: "customerNote",
     },
     {
       field: "createdAt",
-      headerName: "Date",
+      headerName: "Ngày Tạo Đơn",
       width: 100,
       key: "createdAt",
       valueGetter: (params) =>
@@ -484,11 +485,13 @@ const OrdersInprogress = (props) => {
         openModal={openModal}
         setOpenModal={setOpenModal}
         onClose={() => setOpenModal(false)}
-        selectedEditOrder={selectedEditOrder}
+        selectedDetailOrder={selectedDetailOrder}
         loading={loading}
       ></ModalDetail>
 
+
       <ModalEdit
+      
         openEditModal={openEditModal}
         setOpenEditModal={setOpenEditModal}
         selectedEditOrder={selectedEditOrder}

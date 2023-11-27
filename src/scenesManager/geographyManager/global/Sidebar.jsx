@@ -48,6 +48,9 @@ const Item = ({ title, to, icon, selected, setSelected, subItems }) => {
       active={selected === title}
       style={{
         color: colors.grey[100],
+        backgroundColor: selected === title ? colors.blue[100] : 'transparent', 
+        // Change colors.blue[500] to your desired background color 
+        borderRadius: '20px', 
       }}
       onClick={() => setSelected(title)}
       icon={icon}

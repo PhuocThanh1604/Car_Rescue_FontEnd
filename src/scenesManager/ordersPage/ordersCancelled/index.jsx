@@ -239,7 +239,7 @@ const handleDetailClick = (orderId) => {
     },
     {
       field: "createdAt",
-      headerName: "Date",
+      headerName: "Ngày Tạo Đơn",
       width: 140,
       key: "createdAt",
       valueGetter: (params) =>

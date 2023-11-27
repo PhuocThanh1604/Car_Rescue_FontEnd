@@ -58,6 +58,7 @@ const Orders = (props) => {
   const [data, setData] = useState([]);
   const [fullnameData, setFullnameData] = useState({});
 
+
   const handleSearchChange = (event) => {
     const value = event.target.value.toLowerCase();
     setSearchText(value);
@@ -109,11 +110,7 @@ const Orders = (props) => {
     }
   };
 
-  if (orders) {
-    orders.forEach((rescueVehicleOwner) => {
-      // Đây bạn có thể truy cập và xử lý dữ liệu từng đối tượng khách hàng ở đây
-    });
-  }
+ 
 
   useEffect(() => {
     setLoading(true);
@@ -208,7 +205,6 @@ const Orders = (props) => {
         return fullnameData[params.value] || "";
       },
     },
-    { field: "departure", headerName: "Địa Chỉ", width: 140, key: "departure" },
     {
       field: "customerNote",
       headerName: "Ghi Chú của Customer",
@@ -217,7 +213,7 @@ const Orders = (props) => {
     },
     {
       field: "createdAt",
-      headerName: "Date",
+      headerName: "Ngày Tạo Đơn",
       width: 140,
       key: "createdAt",
       valueGetter: (params) =>

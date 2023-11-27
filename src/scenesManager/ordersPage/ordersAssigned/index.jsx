@@ -235,7 +235,6 @@ const OrdersAssigned = (props) => {
         return fullnameData[params.value] || "";
       },
     },
-    { field: "departure", headerName: "Địa Chỉ", width: 140, key: "departure" },
     {
       field: "customerNote",
       headerName: "Ghi Chú của Customer",
@@ -244,7 +243,7 @@ const OrdersAssigned = (props) => {
     },
     {
       field: "createdAt",
-      headerName: "Date",
+      headerName: "Ngày Tạo Đơn",
       width: 140,
       key: "createdAt",
       valueGetter: (params) =>

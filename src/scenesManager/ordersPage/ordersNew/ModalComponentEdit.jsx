@@ -64,7 +64,6 @@ const ModalEdit = ({
 }) => {
   const dispatch = useDispatch();
   const orders = useSelector((state) => state.order.orders);
-
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [edit, setEdit] = useState({});
@@ -126,6 +125,8 @@ const ModalEdit = ({
     }
   }
 
+  
+  const iconColor = { color: colors.blueAccent[500] };
   useEffect(() => {
     if (edit.departure) {
       fetchAddress("departure", edit.departure);
@@ -780,7 +781,7 @@ const ModalEdit = ({
                                   readOnly: true, // If you don't want it to be editable, make it read-only
                                 }}
                               />
-                              <PersonRoundedIcon />
+                              <PersonRoundedIcon style={iconColor}/>
                               <strong>Khách Hàng: </strong>{" "}
                               <Typography
                                 variant="body1"
@@ -818,7 +819,7 @@ const ModalEdit = ({
                               marginRight: "2px",
                             }}
                           >
-                            <CategoryIcon /> <strong>Loại cứu hộ: </strong>{" "}
+                            <CategoryIcon style={iconColor} /> <strong>Loại cứu hộ: </strong>{" "}
                             <Box
                               width="30%"
                               ml="4px"
@@ -852,7 +853,7 @@ const ModalEdit = ({
                               fontSize: "1rem",
                             }}
                           >
-                            <WatchLaterRoundedIcon />{" "}
+                            <WatchLaterRoundedIcon style={iconColor}/>{" "}
                             <strong>Ngày tạo: </strong>
                             <Typography
                               variant="h5"
@@ -877,7 +878,7 @@ const ModalEdit = ({
                               marginRight: "2px",
                             }}
                           >
-                            <PlaceIcon />
+                            <PlaceIcon style={iconColor}/>
                             <strong>Địa điểm xe hư: </strong>{" "}
                             <Typography
                               variant="h5"
@@ -902,7 +903,7 @@ const ModalEdit = ({
                               marginRight: "2px",
                             }}
                           >
-                            <PlaceIcon /> <strong>Địa điểm muốn đến: </strong>{" "}
+                            <PlaceIcon style={iconColor}/> <strong>Địa điểm muốn đến: </strong>{" "}
                             <Tooltip title={edit.destination}>
                               <Typography
                                 variant="h5"
@@ -940,7 +941,7 @@ const ModalEdit = ({
                               marginRight: "2px",
                             }}
                           >
-                            <MapRoundedIcon /> <strong>Khu vực: </strong>{" "}
+                            <MapRoundedIcon style={iconColor}/> <strong>Khu vực: </strong>{" "}
                             <Typography
                               variant="h5"
                               sx={{
@@ -965,7 +966,7 @@ const ModalEdit = ({
                               marginRight: "2px",
                             }}
                           >
-                            <MarkChatUnreadRoundedIcon />{" "}
+                            <MarkChatUnreadRoundedIcon style={iconColor}/>{" "}
                             <strong>Ghi chú: </strong>
                             <Typography
                               variant="h5"
@@ -991,7 +992,7 @@ const ModalEdit = ({
                               marginRight: "2px",
                             }}
                           >
-                            <PaymentIcon /> <strong>Thanh toán:</strong>{" "}
+                            <PaymentIcon style={iconColor}/> <strong>Thanh toán:</strong>{" "}
                             <Typography
                               variant="h5"
                               sx={{
@@ -1015,7 +1016,7 @@ const ModalEdit = ({
                               marginRight: "2px",
                             }}
                           >
-                            <AddShoppingCartIcon />{" "}
+                            <AddShoppingCartIcon style={iconColor}/>{" "}
                             <strong>Dịch vụ đã chọn:</strong>{" "}
                             <Typography
                               variant="h5"
@@ -1105,7 +1106,7 @@ const ModalEdit = ({
                                         gap: 1, // Khoảng cách giữa icon và văn bản
                                       }}
                                     >
-                                      <PersonRoundedIcon />
+                                      <PersonRoundedIcon style={iconColor}/>
                                       <Typography variant="body1">
                                         Tên: {technicianDetails.fullname}
                                       </Typography>
@@ -1118,7 +1119,7 @@ const ModalEdit = ({
                                         gap: 1, // Khoảng cách giữa icon và văn bản
                                       }}
                                     >
-                                      <PlaceIcon />
+                                      <PlaceIcon style={iconColor}/>
                                       <Typography variant="body1">
                                         Địa chỉ: {technicianDetails.address}
                                       </Typography>
@@ -1131,7 +1132,7 @@ const ModalEdit = ({
                                         gap: 1, // Khoảng cách giữa icon và văn bản
                                       }}
                                     >
-                                      <PhoneRoundedIcon />
+                                      <PhoneRoundedIcon style={iconColor}/>
                                       <Typography variant="body1">
                                         Số điện thoại: {technicianDetails.phone}
                                       </Typography>
@@ -1146,7 +1147,7 @@ const ModalEdit = ({
                                       marginTop: "10px",
                                     }}
                                   >
-                                    <CheckCircleRoundedIcon />
+                                    <CheckCircleRoundedIcon style={iconColor}/>
                                     <Typography variant="body1">
                                       Trạng thái:
                                     </Typography>
@@ -1249,7 +1250,7 @@ const ModalEdit = ({
                                       marginBottom: 2, // Thêm khoảng cách dưới cùng cho mỗi Box
                                     }}
                                   >
-                                    <SourceRoundedIcon />
+                                    <SourceRoundedIcon style={iconColor}/>
                                     <Typography variant="body1">
                                       Mã xe: {vehicleDetails.vinNumber}
                                     </Typography>
@@ -1262,7 +1263,7 @@ const ModalEdit = ({
                                       marginBottom: 2, // Thêm khoảng cách dưới cùng cho mỗi Box
                                     }}
                                   >
-                                    <ReceiptRoundedIcon />
+                                    <ReceiptRoundedIcon style={iconColor}/>
                                     <Typography variant="body1">
                                       Biển số xe: {vehicleDetails.licensePlate}
                                     </Typography>
@@ -1275,7 +1276,7 @@ const ModalEdit = ({
                                       marginBottom: 2, // Thêm khoảng cách dưới cùng cho mỗi Box
                                     }}
                                   >
-                                    <CategoryRounded />
+                                    <CategoryRounded style={iconColor}/>
                                     <Typography variant="body1">
                                       Loại xe: {vehicleDetails.type}
                                     </Typography>
@@ -1288,7 +1289,7 @@ const ModalEdit = ({
                                       marginBottom: 2, // Thêm khoảng cách dưới cùng cho mỗi Box
                                     }}
                                   >
-                                    <TimeToLeaveIcon />
+                                    <TimeToLeaveIcon style={iconColor}/>
                                     <Typography variant="body1">
                                       Hiệu xe: {vehicleDetails.manufacturer}
                                     </Typography>
@@ -1301,7 +1302,7 @@ const ModalEdit = ({
                                       marginBottom: 2, // Thêm khoảng cách dưới cùng cho mỗi Box
                                     }}
                                   >
-                                    <CalendarTodayIcon />
+                                    <CalendarTodayIcon style={iconColor}/>
                                     <Typography variant="body1">
                                       Đời xe: {vehicleDetails.manufacturingYear}
                                     </Typography>
@@ -1389,7 +1390,7 @@ const ModalEdit = ({
                               alignItems: "center",
                             }}
                           >
-                            <PersonRoundedIcon />
+                            <PersonRoundedIcon style={iconColor}/>
                             <Typography variant="h6">
                               <strong> Tên Chủ Xe: </strong>
                               {dataCustomer[edit.customerId]?.fullname ||
@@ -1413,7 +1414,7 @@ const ModalEdit = ({
                               gap: 1,
                             }}
                           >
-                            <ReceiptRoundedIcon />
+                            <ReceiptRoundedIcon style={iconColor}/>
                             <Typography variant="h6">Biển Số: </Typography>
                             {dataCar[edit.carId]?.licensePlate || "Đang tải..."}
                           </Box>
@@ -1425,7 +1426,7 @@ const ModalEdit = ({
                               gap: 1,
                             }}
                           >
-                            <TimeToLeaveIcon />
+                            <TimeToLeaveIcon style={iconColor}/>
                             <Typography variant="h6">Hãng Xe: </Typography>
                             {dataCar[edit.carId]?.manufacturer || "Đang tải..."}
                           </Box>
@@ -1437,7 +1438,7 @@ const ModalEdit = ({
                               gap: 1,
                             }}
                           >
-                            <CategoryRounded />
+                            <CategoryRounded style={iconColor}/>
                             <Typography variant="h6">Loại Xe: </Typography>
                             {dataModel || "Đang tải..."}
 
@@ -1450,7 +1451,7 @@ const ModalEdit = ({
                               gap: 1,
                             }}
                           >
-                            <CalendarTodayIcon />
+                            <CalendarTodayIcon style={iconColor}/>
                             <Typography variant="h6">Năm: </Typography>
                             {dataCar[edit.carId]?.manufacturingYear ||
                               "Đang tải..."}
@@ -1462,7 +1463,7 @@ const ModalEdit = ({
                               gap: 1,
                             }}
                           >
-                            <CalendarTodayIcon />
+                            <CalendarTodayIcon style={iconColor}/>
                             <Typography variant="h6">Màu: </Typography>
                             {dataCar[edit.carId]?.color || "Đang tải..."}
                           </Box>

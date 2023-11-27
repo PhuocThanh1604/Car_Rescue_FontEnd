@@ -311,11 +311,15 @@ const Orders = (props) => {
     setPage(0);
   };
 
-  const filteredOrdersPagination = filteredOrders.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
-  );
+  let filteredOrdersPagination = [];
 
+  if (Array.isArray(filteredOrders)) {
+    filteredOrdersPagination = filteredOrders.slice(
+      page * rowsPerPage,
+      page * rowsPerPage + rowsPerPage
+    );
+  }
+  
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   // eslint-disable-next-line no-sparse-arrays
@@ -332,21 +336,7 @@ const Orders = (props) => {
         );
       },
     },
-    // {
-    //   field: "departure",
-    //   headerName: "Địa Chỉ",
-    //   width: 240,
-    //   renderCell: (params) => {
-    //     if (params.value) {
-    //       return formattedAddresses[params.value] ? (
-    //         formattedAddresses[params.value]
-    //       ) : (
-    //         <CircularProgress size={20} />
-    //       );
-    //     }
-    //     return ""; // Trả về chuỗi rỗng nếu không có địa chỉ
-    //   },
-    // },
+
     {
       field: "customerNote",
       headerName: "Ghi Chú của Customer",
@@ -355,13 +345,13 @@ const Orders = (props) => {
     },
     {
       field: "createdAt",
-      headerName: "Date",
+      headerName: "Ngày Tạo Đơn",
       width: 140,
       key: "createdAt",
       valueGetter: (params) =>
       moment(params.row.createdAt)
         .tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
-        .add(11, 'hours') // Adding 3 hours (you can adjust this number as needed)
+        .add(7, 'hours') // Adding 3 hours (you can adjust this number as needed)
         .format("DD-MM-YYYY HH:mm:ss")
     },
     {
@@ -493,12 +483,7 @@ const Orders = (props) => {
                 <MenuItem key="rescueType-fixing" value="Fixing">
                   Sửa Chữa Tại Chỗ
                 </MenuItem>
-                <MenuItem key="rescueType-fixing" value="Fixing">
-                  Lái Xe Về
-                </MenuItem>
-                <MenuItem key="rescueType-fixing" value="Fixing">
-                  Chở Xe
-                </MenuItem>
+                
               </Select>
             </FormControl>
 

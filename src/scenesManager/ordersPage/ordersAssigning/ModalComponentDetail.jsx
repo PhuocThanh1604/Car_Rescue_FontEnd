@@ -23,23 +23,29 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { styled } from "@mui/material/styles";
+import { styled, useTheme } from "@mui/material/styles";
 import TimeToLeaveIcon from "@mui/icons-material/TimeToLeave";
 import { getCustomerId } from "../../../redux/customerSlice";
 import { useDispatch } from "react-redux";
 import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
 import TimerIcon from "@mui/icons-material/Timer";
 import CakeIcon from "@mui/icons-material/Cake";
-import MapIcon from '@mui/icons-material/Map';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
 import { getTechnicianId } from "../../../redux/technicianSlice";
 import { getVehicleId } from "../../../redux/vehicleSlice";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import ReceiptRoundedIcon from "@mui/icons-material/ReceiptRounded";
+import PinDropIcon from '@mui/icons-material/PinDrop';
 import { CategoryRounded } from "@mui/icons-material";
 import { getRescueVehicleOwnerId } from "../../../redux/rescueVehicleOwnerSlice";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import CreditScoreIcon from "@mui/icons-material/CreditScore";
+import { getFormattedAddressGG, getOrderDetailId } from "../../../redux/orderSlice";
+import { tokens } from "../../../theme";
+import { getServiceId } from "../../../redux/serviceSlice";
 const MyModal = (props) => {
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
   const { openModal, setOpenModal, selectedEditOrder } = props;
   const dispatch = useDispatch();
   const [collapse, setCollapse] = useState(false);
@@ -48,9 +54,122 @@ const MyModal = (props) => {
     technician: {},
     vehicle: {},
   });
-
+  const [loading, setLoading] = useState(false);
+  const [formattedAddresses, setFormattedAddresses] = useState({});
   const [dataRescueVehicleOwner, setDataRescueVehicleOwner] = useState({});
   const [rescueVehicleOwnerId, setRescueVehicleOwnerId] = useState({});
+  const [firstServiceName, setFirstServiceName] = useState([]);
+  const iconColor = { color: colors.blueAccent[500] };
+
+   
+  useEffect(() => {
+    if (selectedEditOrder && selectedEditOrder.departure) {
+      fetchAddress("departure", selectedEditOrder.departure);
+    }
+    if (selectedEditOrder && selectedEditOrder.destination) {
+      fetchAddress("destination", selectedEditOrder.destination);
+    }
+    if (selectedEditOrder && selectedEditOrder.id) {
+      fetchOrderDetail(selectedEditOrder.id);
+    }
+  }, [selectedEditOrder]);
+  
+  const fetchAddress = async (addressType, addressValue) => {
+    console.log("latlng" + addressValue)
+    if (!addressValue ) {
+      return; // Trả về nếu order không tồn tại hoặc địa chỉ đã được lưu trữ
+    }
+
+    const matches = /lat:\s*([^,]+),\s*long:\s*([^,]+)/.exec(addressValue);
+    console.log(matches)
+    if (matches && matches.length === 3) {
+      const [, lat, lng] = matches;
+
+      if (!isNaN(lat) && !isNaN(lng)) {
+        console.log("Latitude:", lat, "Longitude:", lng);
+        try {
+          const response = await dispatch(getFormattedAddressGG({ lat, lng }));
+          console.log(response);
+          const formattedAddress =
+            response.payload.results[0].formatted_address;
+            console.log(formattedAddress);
+            setFormattedAddresses(prevAddresses => ({
+              ...prevAddresses,
+              [addressType]: formattedAddress
+            }));
+        } catch (error) {
+          console.error(
+            "Error fetching address:",
+            error.response ? error.response : error
+          );
+        } finally {
+          setLoading(false); // Đảm bảo loading được đặt lại thành false dù có lỗi
+        }
+      }
+    }
+  };
+   //Hiển thị 1 dịch vụ đầu tiên
+
+   const fetchOrderDetail = (orderId) => {
+    console.log(orderId);
+    // Make sure you have a check to prevent unnecessary API calls
+    if (orderId) {
+      dispatch(getOrderDetailId({ id: orderId }))
+        .then((response) => {
+          const data = response.payload.data;
+          if (data && Array.isArray(data)) {
+            const serviceIds = data.map((item) => item.serviceId);
+
+            // Tạo mảng promises để gọi API lấy thông tin từng serviceId
+            const servicePromises = serviceIds.map((serviceId) => {
+              return dispatch(getServiceId({ id: serviceId }))
+                .then((serviceResponse) => {
+                  const serviceName = serviceResponse.payload.data.name;
+                  console.log(
+                    `ServiceId: ${serviceId}, ServiceName: ${serviceName}`
+                  );
+                  return {
+                    serviceId,
+                    serviceName,
+                  };
+                })
+                .catch((serviceError) => {
+                  console.error(
+                    `Error while fetching service data for serviceId ${serviceId}:`,
+                    serviceError
+                  );
+                  return null;
+                });
+            });
+
+            // Sử dụng Promise.all để chờ tất cả các promises hoàn thành
+            Promise.all(servicePromises)
+              .then((serviceData) => {
+                // Truy cập serviceName đầu tiên trong danh sách dịch vụ
+                const firstServiceName =
+                  serviceData[0]?.serviceName || "Không có thông tin";
+
+                // Cập nhật chỉ serviceName đầu tiên vào state
+                setFirstServiceName(firstServiceName);
+              })
+              .catch((error) => {
+                console.error(
+                  "Error while processing service data promises:",
+                  error
+                );
+              });
+          } else {
+            console.error(
+              "Service data not found in the API response or data is not an array."
+            );
+          }
+        })
+        .catch((error) => {
+          console.error("Error while fetching service data detail:", error);
+        });
+    }
+  };
+ 
   // Lưu giá trị vào một biến
   useEffect(() => {
     if (selectedEditOrder && selectedEditOrder.vehicleId) {
@@ -237,7 +356,7 @@ const MyModal = (props) => {
               <Close />
             </IconButton>
 
-            <Typography variant="h4" component="h2" id="book-detail-modal">
+            <Typography variant="h4" component="h2" id="book-detail-modal" sx={{textAlign:"center"}}>
               Thông Tin Chi Tiết Đơn Hàng Đang Điều Phối
             </Typography>
 
@@ -269,7 +388,7 @@ const MyModal = (props) => {
                             marginRight: "2px",
                           }}
                         >
-                          <PersonRoundedIcon />
+                          <PersonRoundedIcon style={iconColor}/>
                           <strong>Tên:</strong>
                           <Typography
                             variant="h6"
@@ -296,7 +415,7 @@ const MyModal = (props) => {
                             marginRight: "2px",
                           }}
                         >
-                          <PeopleAltRoundedIcon />
+                          <PeopleAltRoundedIcon  style={iconColor}/>
                           <strong>Giới Tính:</strong>
                           <Typography
                             variant="h6"
@@ -323,7 +442,7 @@ const MyModal = (props) => {
                             marginRight: "2px",
                           }}
                         >
-                          <PhoneRoundedIcon /> <strong>SĐT:</strong>
+                          <PhoneRoundedIcon  style={iconColor}/> <strong>SĐT:</strong>
                           <Typography
                             variant="h6"
                             sx={{
@@ -349,7 +468,7 @@ const MyModal = (props) => {
                             marginRight: "2px",
                           }}
                         >
-                          <PlaceIcon /> <strong>Địa chỉ:</strong>
+                          <PlaceIcon  style={iconColor}/> <strong>Địa chỉ:</strong>
                           <Typography
                             variant="h6"
                             sx={{
@@ -374,7 +493,7 @@ const MyModal = (props) => {
                             fontSize: "1rem",
                           }}
                         >
-                          <CakeIcon /> <strong>Ngày sinh: </strong>
+                          <CakeIcon  style={iconColor}/> <strong>Ngày sinh: </strong>
                           <Typography
                             variant="h6"
                             sx={{
@@ -414,8 +533,8 @@ const MyModal = (props) => {
                               fontSize: "1rem",
                             }}
                           >
-                            <TimerIcon />
-                            <strong>Thời gian bắt đầu: </strong>
+                            <LocationOnIcon  style={iconColor}/>
+                            <strong>Địa chỉ xe hư: </strong>
                             <Typography
                               variant="h6"
                               component="span"
@@ -429,7 +548,7 @@ const MyModal = (props) => {
                                 flex: 1,
                               }}
                             >
-                              {formattedDateStart || "Đang cập nhật"}
+                              {formattedAddresses.departure || "Đang cập nhật"}
                             </Typography>
                           </Typography>
                           <Typography
@@ -440,8 +559,8 @@ const MyModal = (props) => {
                               fontSize: "1rem",
                             }}
                           >
-                            <TimerIcon />
-                            <strong>Thời gian kết thúc: </strong>
+                            <PinDropIcon  style={iconColor}/>
+                            <strong>Địa chỉ đến: </strong>
                             <Typography
                               variant="h6"
                               component="span"
@@ -455,36 +574,11 @@ const MyModal = (props) => {
                                 flex: 1,
                               }}
                             >
-                              {formattedDateEnd || "Đang cập nhật"}
+                               {formattedAddresses.destination || "Đang cập nhật"}
                             </Typography>
                           </Typography>
 
-                          <Typography
-                            variant="body1"
-                            component="p"
-                            sx={{
-                              marginBottom: "8px",
-                              fontSize: "1rem",
-                            }}
-                          >
-                            <MapIcon />
-                            <strong>Khu vực: </strong>
-                            <Typography
-                              variant="h6"
-                              component="span"
-                              sx={{
-                                padding: "8px",
-                                borderRadius: "4px",
-                                marginLeft: "4px",
-                                wordWrap: "break-word",
-                                overflowWrap: "break-word",
-                                whiteSpace: "normal",
-                                flex: 1,
-                              }}
-                            >
-                              {selectedEditOrder.area||"khu vực 1"}
-                            </Typography>
-                          </Typography>
+                     
                           <Typography
                             variant="body1"
                             component="p"
@@ -496,8 +590,8 @@ const MyModal = (props) => {
                               marginRight: "2px",
                             }}
                           >
-                            <AssignmentIcon />{" "}
-                            <strong>Dịch vụ đã sử dụng:</strong>
+                            <AssignmentIcon  style={iconColor}/>{" "}
+                            <strong>Dịch vụ đã chọn:</strong>
                             <Typography
                               variant="h6"
                               sx={{
@@ -507,38 +601,9 @@ const MyModal = (props) => {
                               }}
                             >
                               {" "}
-                              {data.customer[selectedEditOrder.customerId]
-                                ?.address || "Không có thông tin"}
+                              {firstServiceName}
                             </Typography>
                           </Typography>
-
-                          <Typography
-                            variant="body1"
-                            component="p"
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              marginBottom: "8px", // Thêm khoảng cách dưới cùng của dòng
-                              fontSize: "1rem",
-                              marginRight: "2px",
-                            }}
-                          >
-                            <CreditScoreIcon />{" "}
-                            <strong>Tổng tiền đã thanh toán:</strong>
-                            <Typography
-                              variant="h6"
-                              sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                marginLeft: "10px",
-                              }}
-                            >
-                              {" "}
-                              {data.customer[selectedEditOrder.customerId]
-                                ?.address || "Không có thông tin"}
-                            </Typography>
-                          </Typography>
-
                         
                         </StyledGrid1>
                       </Grid>
@@ -628,7 +693,7 @@ const MyModal = (props) => {
                               gap: 1, // Khoảng cách giữa icon và văn bản
                             }}
                           >
-                            <PeopleAltRoundedIcon />
+                            <PeopleAltRoundedIcon  style={iconColor}/>
                             <Typography variant="h6">
                               Giới Tính:{" "}
                               {data.technician[selectedEditOrder.technicianId]
@@ -642,7 +707,7 @@ const MyModal = (props) => {
                               gap: 1, // Khoảng cách giữa icon và văn bản
                             }}
                           >
-                            <PhoneRoundedIcon />
+                            <PhoneRoundedIcon  style={iconColor}/>
                             <Typography variant="h6">
                               SĐT:{" "}
                               {data.technician[selectedEditOrder.technicianId]
@@ -656,7 +721,7 @@ const MyModal = (props) => {
                               gap: 1, // Khoảng cách giữa icon và văn bản
                             }}
                           >
-                            <PlaceIcon />
+                            <PlaceIcon  style={iconColor} />
                             <Typography variant="h6">
                               Địa Chỉ:{" "}
                               {data.technician[selectedEditOrder.technicianId]
@@ -671,7 +736,7 @@ const MyModal = (props) => {
                               gap: 1, // Khoảng cách giữa icon và văn bản
                             }}
                           >
-                            <MapRoundedIcon />
+                            <MapRoundedIcon  style={iconColor} />
                             <Typography variant="h6">
                               Khu vực:{" "}
                               {data.technician[selectedEditOrder.technicianId]
@@ -731,7 +796,7 @@ const MyModal = (props) => {
                               gap: 1, // Khoảng cách giữa icon và văn bản
                             }}
                           >
-                            <ReceiptRoundedIcon />
+                            <ReceiptRoundedIcon  style={iconColor}/>
                             <Typography variant="h6">
                               Biển Số:{" "}
                               {data.vehicle[selectedEditOrder.vehicleId]
@@ -746,7 +811,7 @@ const MyModal = (props) => {
                               gap: 1, // Khoảng cách giữa icon và văn bản
                             }}
                           >
-                            <TimeToLeaveIcon />
+                            <TimeToLeaveIcon  style={iconColor}/>
                             <Typography variant="h6">
                               Hãng Xe:{" "}
                               {data.vehicle[selectedEditOrder.vehicleId]
@@ -760,7 +825,7 @@ const MyModal = (props) => {
                               gap: 1, // Khoảng cách giữa icon và văn bản
                             }}
                           >
-                            <CategoryRounded />
+                            <CategoryRounded  style={iconColor}/>
                             <Typography variant="h6">
                               Loại Xe:{" "}
                               {data.vehicle[selectedEditOrder.vehicleId]
@@ -775,7 +840,7 @@ const MyModal = (props) => {
                               gap: 1, // Khoảng cách giữa icon và văn bản
                             }}
                           >
-                            <CalendarTodayIcon />
+                            <CalendarTodayIcon  style={iconColor}/>
                             <Typography variant="h6">
                               Năm:{" "}
                               {data.vehicle[selectedEditOrder.vehicleId]

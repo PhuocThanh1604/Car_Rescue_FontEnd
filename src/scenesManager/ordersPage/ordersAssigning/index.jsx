@@ -253,22 +253,21 @@ const OrdersAssigning = (props) => {
     {
       field: "customerId",
       headerName: "Tên Khách Hàng",
-      width: 100,
+      width: 140,
       valueGetter: (params) => {
         // Get the fullname from the state based on customerId
         return fullnameData[params.value] || "";
       },
     },
-    { field: "departure", headerName: "Địa Chỉ", width: 140, key: "departure" },
     {
       field: "customerNote",
       headerName: "Ghi Chú của Customer",
-      width: 120,
+      width: 140,
       key: "customerNote",
     },
     {
       field: "createdAt",
-      headerName: "Date",
+      headerName: "Ngày Tạo Đơn",
       width: 140,
       key: "createdAt",
       valueGetter: (params) =>
