@@ -223,10 +223,11 @@ const OrdersInprogress = (props) => {
     setPage(0);
   };
 
-  const filteredOrdersPagination = filteredOrders.slice(
+  const filteredOrdersPagination =filteredOrders&& filteredOrders.slice(
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
   );
+  
 
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);

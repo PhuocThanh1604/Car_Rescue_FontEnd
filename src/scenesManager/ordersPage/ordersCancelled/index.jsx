@@ -220,10 +220,14 @@ const handleDetailClick = (orderId) => {
     setPage(0);
   };
 
-  const filteredOrdersPagination = filteredOrders.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
-  );
+  let filteredOrdersPagination = [];
+
+  if (Array.isArray(filteredOrders)) {
+    filteredOrdersPagination =filteredOrders && filteredOrders.slice(
+      page * rowsPerPage,
+      page * rowsPerPage + rowsPerPage
+    );
+  }
 
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);

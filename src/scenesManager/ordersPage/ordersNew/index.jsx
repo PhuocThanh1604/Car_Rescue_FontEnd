@@ -296,8 +296,6 @@ const Orders = (props) => {
     }
   };
 
-  
-
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -310,7 +308,7 @@ const Orders = (props) => {
   let filteredOrdersPagination = [];
 
   if (Array.isArray(filteredOrders)) {
-    filteredOrdersPagination = filteredOrders.slice(
+    filteredOrdersPagination =filteredOrders && filteredOrders.slice(
       page * rowsPerPage,
       page * rowsPerPage + rowsPerPage
     );

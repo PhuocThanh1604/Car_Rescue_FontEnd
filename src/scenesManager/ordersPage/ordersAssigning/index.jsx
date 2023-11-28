@@ -257,7 +257,7 @@ const OrdersAssigning = (props) => {
     setPage(0);
   };
 
-  const filteredOrdersPagination = filteredOrders.slice(
+  const filteredOrdersPagination =filteredOrders&& filteredOrders.slice(
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
   );

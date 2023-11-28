@@ -64,7 +64,7 @@ const Orders = (props) => {
     const value = event.target.value.toLowerCase();
     setSearchText(value);
 
-    // Filter the orders based on the entered search queryddđsss
+    // Filter the orders based on the entered search query
     const filteredOrders = orders.filter((order) => {
       const nameMatch =
         fullnameData[order.customerId] && // Check if fullname data is available
@@ -199,10 +199,15 @@ const fetchFullname = (customerId) => {
     setPage(0);
   };
 
-  const filteredOrdersPagination = filteredOrders.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
-  );
+
+  let filteredOrdersPagination = [];
+
+  if (Array.isArray(filteredOrders)) {
+    filteredOrdersPagination =filteredOrders && filteredOrders.slice(
+      page * rowsPerPage,
+      page * rowsPerPage + rowsPerPage
+    );
+  }
 
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);

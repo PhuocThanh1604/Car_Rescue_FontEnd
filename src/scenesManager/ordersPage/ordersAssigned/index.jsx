@@ -130,11 +130,6 @@ const OrdersAssigned = (props) => {
     }
   };
 
-  if (orders) {
-    orders.forEach((rescueVehicleOwner) => {
-      // Đây bạn có thể truy cập và xử lý dữ liệu từng đối tượng khách hàng ở đây
-    });
-  }
 
   useEffect(() => {
     setLoading(true);
@@ -233,7 +228,7 @@ const OrdersAssigned = (props) => {
     setPage(0);
   };
 
-  const filteredOrdersPagination = filteredOrders.slice(
+  const filteredOrdersPagination = filteredOrders&& filteredOrders.slice(
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
   );
