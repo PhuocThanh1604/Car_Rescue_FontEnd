@@ -21,8 +21,6 @@ import {
   Grid,
 } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
-
-import { tokens } from "../../theme";
 import Header from "../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
 import ModalDetail from "./ModalComponentDetail";
@@ -37,12 +35,10 @@ import { CategoryRounded } from "@mui/icons-material";
 import {
   createAcceptRegisterVehicle,
   fetchVehicleWatting,
+  getVehicleId,
 } from "../../redux/vehicleSlice";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
-import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
-import Collapse from "@mui/material/Collapse";
 import TimerIcon from "@mui/icons-material/Timer";
 import "react-responsive-carousel/lib/styles/carousel.min.css"; // Import the carousel styles
 import ReceiptRoundedIcon from "@mui/icons-material/ReceiptRounded";
@@ -54,10 +50,14 @@ import PhoneRoundedIcon from "@mui/icons-material/PhoneRounded";
 import PeopleAltRoundedIcon from "@mui/icons-material/PeopleAltRounded";
 import PlaceIcon from "@mui/icons-material/Place";
 import CustomTablePagination from "../../components/TablePagination";
+import { tokens } from "../../theme";
 const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
 const Vehicles = (props) => {
   const dispatch = useDispatch();
   const vehicles = useSelector((state) => state.vehicle.vehicles);
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
+  const iconColor = { color: colors.blueAccent[500] };
   const [openEditModal, setOpenEditModal] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [filterOption, setFilterOption] = useState("Status");
@@ -77,27 +77,13 @@ const Vehicles = (props) => {
   const [vehicleId, setVehicleId] = useState(null);
   const [openConfirmModal, setOpenConfirmModal] = useState(false);
   const [detailedData, setDetailedData] = useState(null);
+  const [vehicleDetail, setVehicleDetail] = useState({});
 
   const [collapse, setCollapse] = useState(false);
   const [isAccepted, setIsAccepted] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [dataRescueVehicleOwner, setDataRescueVehicleOwner] = useState({});
-  const [rescueVehicleOwnerId, setRescueVehicleOwnerId] = useState({});
 
-  //GetdadaRescueVehicleOwner
-
-  useEffect(() => {
-    // Kiểm tra xem detailedData có phải là mảng và có phần tử đầu tiên hay không
-    if (
-      Array.isArray(detailedData) &&
-      detailedData.length > 0 &&
-      detailedData[0].rvoid
-    ) {
-      fetchRescueVehicleOwner(detailedData[0].rvoid);
-    }
-  }, [detailedData]);
-
-  //GetdadaCustomer
   const fetchRescueVehicleOwner = (vehicleRvoidId) => {
     console.log(vehicleRvoidId);
     // Make sure you have a check to prevent unnecessary API calls
@@ -133,22 +119,30 @@ const Vehicles = (props) => {
     setCollapse(!collapse);
   };
 
-  //hàm chấp nhận đaăn kí xe gọi modal
   const handleConfirm = (orderId) => {
-    try {
-      // Gửi orderId về máy chủ ở đây
-      console.log("Sending vehicleID to server: ", orderId);
-
-      // Thực hiện tải lại dữ liệu sau khi hoàn thành xử lý
-      // Tùy thuộc vào cách bạn tải lại dữ liệu
-      setVehicleId(orderId);
-      // Đóng modal và đặt lại orderId
-      setOpenConfirmModal(true);
-    } catch (error) {
-      // Xử lý lỗi (nếu có)
-      console.error("Lỗi khi xử lý:", error);
+    console.log(orderId);
+    // Make sure you have a check to prevent unnecessary API calls
+    if (orderId) {
+      dispatch(getVehicleId({ id: orderId }))
+        .then((response) => {
+          const data = response.payload.data;
+          console.log(data);
+          if (data) {
+            setVehicleId(data.id);
+            setVehicleDetail(data)
+            fetchRescueVehicleOwner(data.rvoid)
+            setOpenConfirmModal(true);
+            reloadVehicle()
+          } else {
+            console.error("Service name not found in the API response.");
+          }
+        })
+        .catch((error) => {
+          console.error("Error while fetching service data:", error);
+        });
     }
   };
+
   //Hủy đăng kí xe
   const handleCancel = () => {
     // Đóng modal và đặt lại orderId
@@ -230,9 +224,9 @@ const Vehicles = (props) => {
 
     if (selectedStatusOption === "type") {
       // Hiển thị tất cả các trạng thái
-      setFilteredVehicles(vehicles);
+      setFilteredVehicles(vehicles); // Sử dụng dữ liệu gốc khi không lọc
     } else {
-      // Lọc sản phẩm dựa trên giá trị trạng thái
+      // Lọc dữ liệu gốc dựa trên giá trị trạng thái
       const filteredVehicles = vehicles.filter(
         (vehicle) => vehicle.type === selectedStatusOption
       );
@@ -254,24 +248,25 @@ const Vehicles = (props) => {
     }
   }, [vehicles]);
 
-  useEffect(() => {
-    if (Array.isArray(vehicles)) {
-      const filteredVehicles = vehicles.filter((vehicle) => {
-        const nameMatch =
-          vehicle.fullname &&
-          vehicle.fullname.toLowerCase().includes(searchText.toLowerCase());
-        const filterMatch =
-          filterOption === "type" ||
-          (filterOption === "Xe cẩu" && vehicle.type === "Xe cẩu") ||
-          (filterOption === "Xe chở" && vehicle.type === "Xe chở") ||
-          (filterOption === "Xe kéo" && vehicle.type === "Xe kéo");
-        return nameMatch && filterMatch;
-      });
-      setFilteredVehicles(filteredVehicles);
-    } else {
-      setFilteredVehicles([]);
-    }
-  }, [vehicles, searchText, filterOption]);
+// Thay đổi hàm useEffect để lọc từ dữ liệu gốc
+useEffect(() => {
+  if (Array.isArray(vehicles)) {
+    const filteredVehicles = vehicles.filter((vehicle) => {
+      const nameMatch =
+        vehicle.vinNumber &&
+        vehicle.vinNumber.toLowerCase().includes(searchText.toLowerCase());
+      const filterMatch =
+        filterOption === "type" ||
+        (filterOption === "Xe cẩu" && vehicle.type === "Xe cẩu") ||
+        (filterOption === "Xe chở" && vehicle.type === "Xe chở") ||
+        (filterOption === "Xe kéo" && vehicle.type === "Xe kéo");
+      return nameMatch && filterMatch;
+    });
+    setFilteredVehicles(filteredVehicles);
+  } else {
+    setFilteredVehicles([]);
+  }
+}, [vehicles, searchText, filterOption]);
 
   useEffect(() => {
     setLoading(true);
@@ -280,6 +275,7 @@ const Vehicles = (props) => {
         // Đã lấy dữ liệu thành công
         const data = response.payload.data;
         if (data) {
+          console.log(data)
           setData(data);
           setFilteredVehicles(data);
           setDetailedData(data);
@@ -308,8 +304,6 @@ const Vehicles = (props) => {
     page * rowsPerPage + rowsPerPage
   );
 
-  const theme = useTheme();
-  const colors = tokens(theme.palette.mode);
   // eslint-disable-next-line no-sparse-arrays
   const columns = [
     {
@@ -324,7 +318,8 @@ const Vehicles = (props) => {
       width: 100,
       key: "licensePlate",
     },
-    { field: "type", headerName: "Loại Xe ", width: 140, key: "type" },
+
+    { field: "type", headerName: "Loại Xe", width: 140, key: "type" },
     {
       field: "manufacturer",
       headerName: "Hiệu xe  ",
@@ -361,8 +356,8 @@ const Vehicles = (props) => {
 
     {
       field: "acceptOrder",
-      headerName: "Trạng Thái Đơn",
-      width: 60,
+      headerName: "Chấp nhận xe ",
+      width: 120,
       renderCell: (params) => (
         <IconButton
           variant="contained"
@@ -538,13 +533,13 @@ const Vehicles = (props) => {
       >
         <DialogTitle
           id="alert-dialog-title"
-          sx={{ color: "indigo", fontSize: "24px" }}
+          sx={{ color: "indigo", fontSize: "24px", textAlign:"center" }}
         >
           Xác nhận đăng kí vào hệ hống
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            {detailedData !== null ? (
+            {vehicleDetail  ? (
               <div>
                 <Card>
                   <CardMedia>
@@ -562,11 +557,11 @@ const Vehicles = (props) => {
                           marginBottom: "5px",
                         }}
                         onClick={() =>
-                          handleImageClick(data.carRegistrationBack)
+                          handleImageClick(vehicleDetail.carRegistrationBack)
                         }
                       >
                         <img
-                          src={detailedData.carRegistrationBack}
+                          src={vehicleDetail.carRegistrationBack}
                           alt="Car Back"
                           style={{
                             width: imageWidth,
@@ -583,7 +578,7 @@ const Vehicles = (props) => {
                         }}
                       >
                         <img
-                          src={detailedData.carRegistrationFont}
+                          src={vehicleDetail.carRegistrationFont}
                           alt="Car Front"
                           style={{
                             width: imageWidth,
@@ -600,7 +595,7 @@ const Vehicles = (props) => {
                         }}
                       >
                         <img
-                          src={detailedData.image}
+                          src={vehicleDetail.image}
                           alt="Car Front"
                           style={{
                             width: imageWidth,
@@ -622,7 +617,7 @@ const Vehicles = (props) => {
                         >
                           Thông tin chủ xe
                         </Typography>
-
+                       
                         <Box
                           sx={{
                             display: "flex",
@@ -630,10 +625,10 @@ const Vehicles = (props) => {
                             gap: 1, // Khoảng cách giữa icon và văn bản
                           }}
                         >
-                          <PersonRoundedIcon />
+                          <PersonRoundedIcon style={iconColor}/>
                           <Typography variant="h6">
                             <strong>Chủ xe: </strong>{" "}
-                            {dataRescueVehicleOwner[detailedData[0]?.rvoid]
+                            {dataRescueVehicleOwner[vehicleDetail.rvoid]
                               ?.fullname || "Không có thông tin"}
                           </Typography>
                         </Box>
@@ -644,10 +639,10 @@ const Vehicles = (props) => {
                             gap: 1, // Khoảng cách giữa icon và văn bản
                           }}
                         >
-                          <PhoneRoundedIcon />
+                          <PhoneRoundedIcon style={iconColor}/>
                           <Typography variant="h6">
                             <strong>SĐT: </strong>{" "}
-                            {dataRescueVehicleOwner[detailedData[0]?.rvoid]
+                            {dataRescueVehicleOwner[vehicleDetail?.rvoid]
                               ?.phone || "Không có thông tin"}
                           </Typography>
                         </Box>
@@ -659,10 +654,10 @@ const Vehicles = (props) => {
                             gap: 1, // Khoảng cách giữa icon và văn bản
                           }}
                         >
-                          <PeopleAltRoundedIcon />
+                          <PeopleAltRoundedIcon style={iconColor}/>
                           <Typography variant="h6">
                             <strong>Giới tính: </strong>{" "}
-                            {dataRescueVehicleOwner[detailedData[0]?.rvoid]
+                            {dataRescueVehicleOwner[vehicleDetail?.rvoid]
                               ?.sex || "Không có thông tin"}
                           </Typography>
                         </Box>
@@ -673,10 +668,10 @@ const Vehicles = (props) => {
                             gap: 1, // Khoảng cách giữa icon và văn bản
                           }}
                         >
-                          <PlaceIcon />
+                          <PlaceIcon style={iconColor}/>
                           <Typography variant="h6">
                             <strong>Địa chỉ: </strong>{" "}
-                            {dataRescueVehicleOwner[detailedData[0]?.rvoid]
+                            {dataRescueVehicleOwner[vehicleDetail?.rvoid]
                               ?.address || "Không có thông tin"}
                           </Typography>
                         </Box>
@@ -688,10 +683,10 @@ const Vehicles = (props) => {
                             gap: 1, // Khoảng cách giữa icon và văn bản
                           }}
                         >
-                          <MapRoundedIcon />
+                          <MapRoundedIcon style={iconColor}/>
                           <Typography variant="h6">
                             <strong>Khu vực: </strong>{" "}
-                            {dataRescueVehicleOwner[detailedData[0]?.rvoid]
+                            {dataRescueVehicleOwner[vehicleDetail?.rvoid]
                               ?.area || "Chưa cập nhật"}
                           </Typography>
                         </Box>
@@ -716,10 +711,10 @@ const Vehicles = (props) => {
                             gap: 1, // Khoảng cách giữa icon và văn bản
                           }}
                         >
-                          <ReceiptRoundedIcon />
+                          <ReceiptRoundedIcon  style={iconColor}/>
                           <Typography variant="h6">
                             Biển Số:{" "}
-                            {detailedData[0].licensePlate ||
+                            {vehicleDetail.licensePlate ||
                               "Không có thông tin"}
                           </Typography>
                         </Box>
@@ -731,10 +726,10 @@ const Vehicles = (props) => {
                             gap: 1, // Khoảng cách giữa icon và văn bản
                           }}
                         >
-                          <CategoryRounded />
+                          <CategoryRounded style={iconColor}/>
                           <Typography variant="h6">
                             Loại Xe:{" "}
-                            {detailedData[0].type || "Không có thông tin"}
+                            {vehicleDetail.type || "Không có thông tin"}
                           </Typography>
                         </Box>
 
@@ -745,10 +740,10 @@ const Vehicles = (props) => {
                             gap: 1, // Khoảng cách giữa icon và văn bản
                           }}
                         >
-                          <CalendarTodayIcon />
+                          <CalendarTodayIcon style={iconColor}/>
                           <Typography variant="h6">
                             Đời xe:{" "}
-                            {detailedData[0].manufacturingYear ||
+                            {vehicleDetail.manufacturingYear ||
                               "Không có thông tin"}
                           </Typography>
                         </Box>
@@ -759,10 +754,10 @@ const Vehicles = (props) => {
                             gap: 1, // Khoảng cách giữa icon và văn bản
                           }}
                         >
-                          <ReceiptRoundedIcon />
+                          <ReceiptRoundedIcon style={iconColor}/>
                           <Typography variant="h6">
                             Hãng xe:{" "}
-                            {detailedData[0].manufacturer ||
+                            {vehicleDetail.manufacturer ||
                               "Không có thông tin"}
                           </Typography>
                         </Box>
@@ -773,10 +768,10 @@ const Vehicles = (props) => {
                             gap: 1, // Khoảng cách giữa icon và văn bản
                           }}
                         >
-                          <ReceiptRoundedIcon />
+                          <ReceiptRoundedIcon style={iconColor}/>
                           <Typography variant="h6">
                             Số khung xe:{" "}
-                            {detailedData[0].vinNumber || "Không có thông tin"}
+                            {vehicleDetail.vinNumber || "Không có thông tin"}
                           </Typography>
                         </Box>
 
@@ -787,7 +782,7 @@ const Vehicles = (props) => {
                             gap: 1, // Khoảng cách giữa các phần tử
                           }}
                         >
-                          <TimerIcon />
+                          <TimerIcon style={iconColor}/>
                           <Typography variant="h6">Trạng Thái: </Typography>
                           <Box
                             style={{
@@ -799,43 +794,12 @@ const Vehicles = (props) => {
                               borderRadius: "5px",
                             }}
                           >
-                            {detailedData[0].status || "Không có thông tin"}
+                            {vehicleDetail.status || "Không có thông tin"}
                           </Box>
                         </Box>
                       </CardContent>
                     </Grid>
                   </Grid>
-                  {/* <CardActions className="card-action-dense">
-                    <Box
-                      sx={{
-                        width: "100%",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                      }}
-                    >
-                      <Button onClick={handleClick}>Thông Tin Chủ Xe</Button>
-                      <IconButton size="small" onClick={handleClick}>
-                        {collapse ? (
-                          <ArrowDropDownIcon sx={{ fontSize: "1.875rem" }} />
-                        ) : (
-                          <ArrowDropUpIcon sx={{ fontSize: "1.875rem" }} />
-                        )}
-                      </IconButton>
-                    </Box>
-                  </CardActions> */}
-                  {/* <Collapse in={collapse}>
-                    <Divider sx={{ margin: 0 }} />
-                    <CardContent>
-                      <Typography variant="h6" sx={{ marginBottom: 2 }}>
-                        Chủ Xe: {detailedData[0].rvoid}
-                      </Typography>
-
-                      <Typography variant="body2">
-                        Status: {detailedData[0].status}
-                      </Typography>
-                    </CardContent>
-                  </Collapse> */}
                 </Card>
               </div>
             ) : (

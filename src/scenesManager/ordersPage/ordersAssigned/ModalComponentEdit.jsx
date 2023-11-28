@@ -246,11 +246,11 @@ const ModalEdit = ({
                           <em>None</em>
                         </MenuItem>
                         <MenuItem value="Không cần nữa">Không cần nữa</MenuItem>
-                        <MenuItem value="Đặt nhầm mặt hàng">
-                          Đặt nhầm mặt hàng
+                        <MenuItem value="Đặt nhầm đơn hàng">
+                          Đặt nhầm đơn hàng
                         </MenuItem>
-                        <MenuItem value="Thay đổi địa chỉ giao hàng">
-                          Thay đổi địa chỉ giao hàng
+                        <MenuItem value="Thay đổi địa chỉ đơn hàng">
+                          Thay đổi địa chỉ đơn hàng
                         </MenuItem>
                         <MenuItem value="Đơn hàng chậm trễ">
                           Đơn hàng chậm trễ

@@ -137,21 +137,7 @@ export const updateStatusRescueVehicleOwner = createAsyncThunk(
   }
 );
 
-export const deleteRescueVehicleOwner = createAsyncThunk(
-  "vehicles/delete",
-  async ({ id }) => {
-    try {
-      const response = await axios.post(
-        `https://rescuecapstoneapi.azurewebsites.net/api/RescueVehicleOwner/Delete?id=${id}`
-      );
-      const data = response.data;
-      return data;
-    } catch (error) {
-      console.error("Failed to delete rescueVehicleOwner:", error);
-      throw error;
-    }
-  }
-);
+
 export const createAcceptRegisterVehicle = createAsyncThunk(
   "vehicles/createAcceptRegisterVehicle",
   async ({ id, boolean }) => {
@@ -240,7 +226,13 @@ const rescueVehicleOwnerSlice = createSlice({
         state.vehicles = action.payload.data;
       })
       .addCase(createAcceptRegisterVehicle.fulfilled, (state, action) => {
-        state.vehicles.push(action.payload);
+        const responseData = action.payload.data; // Kiểm tra loại dữ liệu trả về từ action.payload
+        if (Array.isArray(responseData)) {
+          state.vehicles = [...state.vehicles, ...responseData]; // Nối dữ liệu vào state.vehicles nếu là một mảng
+        } else {
+          // Xử lý dữ liệu trả về nếu không phải là mảng
+          // Ví dụ: state.vehicles = [responseData];
+        }
       })
       .addCase(createAcceptRegisterVehicle.pending, (state) => {
         state.status = "loading";

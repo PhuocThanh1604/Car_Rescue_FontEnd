@@ -260,11 +260,11 @@ const ModalCancel = ({
                           <em>None</em>
                         </MenuItem>
                         <MenuItem value="Không cần nữa">Không cần nữa</MenuItem>
-                        <MenuItem value="Đặt nhầm mặt hàng">
-                          Đặt nhầm mặt hàng
+                        <MenuItem value="Đặt nhầm đơn hàng">
+                          Đặt nhầm đơn hàng
                         </MenuItem>
-                        <MenuItem value="Thay đổi địa chỉ giao hàng">
-                          Thay đổi địa chỉ giao hàng
+                        <MenuItem value="Thay đổi địa chỉ đơn hàng">
+                          Thay đổi địa chỉ đơn hàng
                         </MenuItem>
                         <MenuItem value="Đơn hàng chậm trễ">
                           Đơn hàng chậm trễ
@@ -273,53 +273,9 @@ const ModalCancel = ({
                       </Select>
                     </FormControl>
 
-                    {/* <TextField
-                      name="cancellationReason"
-                      label="Lý do hủy đơn"
-                      value={cancellationReason}
-                      onChange={(event) => {
-                        setCancellationReason(event.target.value);
-                      }}
-                      fullWidth
-                      margin="normal"
-                    /> */}
+            
                   </CardContent>
-                  {/* <CardContent>
-                    <TextField
-                      name="id"
-                      label="id"
-                      value={edit.id}
-                      onChange={(event) => {
-                        // Check if it's coming from selectedEditRescuseVehicleOwner and prevent changes
-                        if (!selectedCancelOrder) {
-                          handleInputChange(event);
-                        }
-                      }}
-                      fullWidth
-                      margin="normal"
-                      style={{ display: "none" }}
-                    />
-
-                    <Typography sx={{ display: "none" }}>
-                      {selectedCancelOrder.rescueType}
-                    </Typography>
-
-                    <FormControl fullWidth variant="filled">
-                      <InputLabel id="rescueType-label">
-                        Loại Hình Thức Cứu Hộ
-                      </InputLabel>
-                      <Select
-                        labelId="rescueType-label"
-                        id="rescueType"
-                        name="rescueType"
-                        value={typeRescue}
-                        onChange={checkRescueTypeChange}
-                      >
-                        <MenuItem value="Towing">Xe Kéo</MenuItem>
-                        <MenuItem value="Fixing">Sửa Tại Chỗ Cơ Bản</MenuItem>
-                      </Select>
-                    </FormControl>
-                  </CardContent> */}
+                
 
                   <Box
                     sx={{

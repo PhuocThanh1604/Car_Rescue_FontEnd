@@ -22,6 +22,7 @@ import CakeIcon from "@mui/icons-material/Cake";
 import TimerIcon from "@mui/icons-material/Timer";
 import {
   addServiceForTechnicians,
+  calculatePayment,
   fetchOrdersInprogress,
   getFormattedAddressGG,
   getOrderDetailId,
@@ -49,10 +50,11 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
     quantity: null, // Giá trị ban đầu của quantity từ order
     // Các thuộc tính khác của order
   });
-    // Lấy thời gian hiện tại
-    const currentDateTime = moment();
+  // Lấy thời gian hiện tại
+  const currentDateTime = moment();
+  
   const [orderDetailIdService, setOrderDetailIdService] = useState([]);
-  const [orderDetailId, setOrderDetailId] = useState("");
+  const [orderCalateId, setOrderCalateId] = useState(null);
   const [isSuccess, setIsSuccess] = useState(false);
   const [initialFormState, setInitialFormState] = useState({});
   const [fullnameValue, setFullnameValue] = useState("");
@@ -86,6 +88,9 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
     if (selectedEditOrder && selectedEditOrder[0].orderId) {
       fetchOrder(selectedEditOrder[0].orderId);
     }
+    if (selectedEditOrder && selectedEditOrder[0].orderId) {
+      setOrderCalateId(selectedEditOrder[0].orderId);
+    }
     if (dataOrder && dataOrder.departure) {
       fetchAddress("departure", dataOrder.departure);
     }
@@ -95,24 +100,19 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
   }, [selectedEditOrder]);
 
   const fetchAddress = async (addressType, addressValue) => {
-    console.log("latlng" + addressValue);
     if (!addressValue) {
       return; // Trả về nếu order không tồn tại hoặc địa chỉ đã được lưu trữ
     }
 
     const matches = /lat:\s*([^,]+),\s*long:\s*([^,]+)/.exec(addressValue);
-    console.log(matches);
     if (matches && matches.length === 3) {
       const [, lat, lng] = matches;
 
       if (!isNaN(lat) && !isNaN(lng)) {
-        console.log("Latitude:", lat, "Longitude:", lng);
         try {
           const response = await dispatch(getFormattedAddressGG({ lat, lng }));
-          console.log(response);
           const formattedAddress =
             response.payload.results[0].formatted_address;
-          console.log(formattedAddress);
           setFormattedAddresses((prevAddresses) => ({
             ...prevAddresses,
             [addressType]: formattedAddress,
@@ -150,6 +150,20 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
         });
     }
   };
+  const calatePayemnt = (orderId) => {
+    // Make sure you have a check to prevent unnecessary API calls
+    if (orderId) {
+      dispatch(calculatePayment({ id: orderId }))
+        .then((response) => {
+          const data = response.payload;
+          console.log(data);
+        })
+        .catch((error) => {
+          console.error("Error while fetching service data detail:", error);
+        });
+    }
+  };
+  
   // //hanldeQuantityupdate
   //CHECK DUPLICATE NAME SERVICE
   const checkDuplicateSerivce = (newValue) => {
@@ -264,11 +278,6 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
       }
       return updatedIds;
     });
-
-    console.log(
-      `Quantity người dùng đã nhập cho orderId ${orderId}:`,
-      newQuantity
-    );
   };
 
   useEffect(() => {
@@ -354,6 +363,7 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
     }
   };
   const handleUpdateService = () => {
+    console.log(orderCalateId);
     if (!selectedEditOrder || !edit) {
       toast.error("Không có thêm nhật dịch vụ");
       return;
@@ -364,11 +374,9 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
         const updatedOrder = selectedEditOrder.find(
           (order) => order.id === orderDetailId
         );
-
         if (!updatedOrder) {
           return null; // Trường hợp không tìm thấy orderDetailId trong selectedEditOrder
         }
-
         const updatedQuantity =
           orderQuantities[updatedOrder.id] !== undefined
             ? orderQuantities[updatedOrder.id]
@@ -393,14 +401,26 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
       console.log(hasChanges);
 
       if (hasChanges) {
+        setTimeout(() => {
         dispatch(updateServiceForTechnicians(updatedEdit))
-          .then(() => {
-            toast.success("Cập nhật dịch vụ thành công");
-            setIsSuccess(true);
-            handleClose();
-            setQuantity(null);
-            setSelectedService(null);
-            reloadOrderInprogress();
+          .then((res) => {
+            if (res.payload.status === 201) {
+              toast.success("Cập nhật dịch vụ thành công");
+              setTimeout(2000);
+              console.log(orderCalateId);
+              if (!orderCalateId) {
+                setOrderCalateId(updatedEdit.orderDetailId); // Lưu orderId khi update thành công
+              }
+              calatePayemnt(orderCalateId)
+              setIsSuccess(true);
+              handleClose();
+              setQuantity(null);
+              setSelectedService(null);
+              reloadOrderInprogress();
+            } else {
+              toast.error("Cập nhật dịch vụ không thành công");
+            }
+            
           })
           .catch((error) => {
             if (
@@ -418,6 +438,7 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
               toast.error("Lỗi khi thêm dịch vụ.");
             }
           });
+        }, 1000);
       } else {
         toast.info("Không có thay đổi để lưu.");
         handleClose();
@@ -468,7 +489,6 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
   }, [selectedEditOrder]);
 
   const fetchServiceName = (serviceId) => {
-    console.log(serviceId);
     // Make sure you have a check to prevent unnecessary API calls
     if (!nameService[serviceId]) {
       dispatch(getServiceId({ id: serviceId }))
@@ -489,15 +509,15 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
     }
   };
 
-
-
-  
   const formatDateTime = (dateTime) => {
     if (!dateTime) return "Đang cập nhật";
-    return moment(dateTime).tz("Asia/Ho_Chi_Minh").add(7,'hours').format('DD/MM/YYYY HH:mm:ss');
+    return moment(dateTime)
+      .tz("Asia/Ho_Chi_Minh")
+      .add(7, "hours")
+      .format("DD/MM/YYYY HH:mm:ss");
     // Set the time zone to Vietnam's ICT
   };
-  
+
   return (
     <>
       <ToastContainer />
@@ -581,10 +601,10 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
                             marginLeft: "10px",
                           }}
                         >
-                          {formattedAddresses.departure||"Đang cập nhật"}
+                          {formattedAddresses.departure || "Đang cập nhật"}
                         </Typography>
                       </Typography>
-                  
+
                       <Typography
                         variant="body1"
                         component="p"
@@ -609,7 +629,7 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
                           }}
                         >
                           {}
-                          {formattedAddresses.destination||"Đang cập nhật"}
+                          {formattedAddresses.destination || "Đang cập nhật"}
                         </Typography>
                       </Typography>
                       <Typography
@@ -635,10 +655,12 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
                             flex: 1,
                           }}
                         >
-                           {formatDateTime(dataOrder.startTime || "Đang cập nhật")}
+                          {formatDateTime(
+                            dataOrder.startTime || "Đang cập nhật"
+                          )}
                         </Typography>
                       </Typography>
-                
+
                       <Typography
                         variant="body1"
                         component="p"
@@ -759,7 +781,7 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
                             InputProps={{
                               startAdornment: (
                                 <InputAdornment position="start">
-                                  <AccountBalanceWalletIcon style={iconColor}  />
+                                  <AccountBalanceWalletIcon style={iconColor} />
                                 </InputAdornment>
                               ),
                               endAdornment: (

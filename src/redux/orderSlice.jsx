@@ -39,8 +39,6 @@ export const fetchOrders = createAsyncThunk("orders/fetchOrders", async () => {
   }
 });
 
-
-
 export const fetchOrdersNew = createAsyncThunk(
   "orders/fetchOrdersNew",
   async () => {
@@ -97,7 +95,9 @@ export const fetchDashboard = createAsyncThunk(
     const storageKey = "fetchDashboard";
     try {
       removeFromStorage(storageKey);
-      const response = await axios.get("https://rescuecapstoneapi.azurewebsites.net/api/Dashboard/GetDashboard");
+      const response = await axios.get(
+        "https://rescuecapstoneapi.azurewebsites.net/api/Dashboard/GetDashboard"
+      );
       const data = response.data;
       saveToStorage(storageKey, data);
       console.log("Response data:", data); // Log the response data for debugging
@@ -496,6 +496,27 @@ export const updateServiceForTechnicians = createAsyncThunk(
     }
   }
 );
+export const calculatePayment = createAsyncThunk(
+  "orders/calculatePayment",
+  async ({ id }) => {
+    try {
+      const response = await axios.post(
+        `https://rescuecapstoneapi.azurewebsites.net/api/Order/CalculatePayment?id=${id}`,
+        id,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return response.data; // Chỉ trả về dữ liệu từ response
+    } catch (error) {
+      console.error("Failed to calculate Payment:", error.response.message);
+      throw error.response.status || error.response.message;
+    }
+  }
+);
+
 export const sendNotification = createAsyncThunk(
   "orders/sendNotification",
   async (notificationData) => {
@@ -521,27 +542,24 @@ export const sendNotification = createAsyncThunk(
   }
 );
 
-export const sendSMS= createAsyncThunk(
-  "orders/sendSMS",
-  async (data) => {
-    try {
-      const res = await axios.post(
-        "https://rescuecapstoneapi.azurewebsites.net/api/SMS/Send-SMS",
-        data,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      console.log(data);
-      return res.data;
-    } catch (error) {
-      console.error("Failed to create send sms to customer:", error.res);
-      throw error.res.status || error.res.message;
-    }
+export const sendSMS = createAsyncThunk("orders/sendSMS", async (data) => {
+  try {
+    const res = await axios.post(
+      "https://rescuecapstoneapi.azurewebsites.net/api/SMS/Send-SMS",
+      data,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    console.log(data);
+    return res.data;
+  } catch (error) {
+    console.error("Failed to create send sms to customer:", error.res);
+    throw error.res.status || error.res.message;
   }
-);
+});
 export const getPaymentId = createAsyncThunk(
   "orders/getPaymentId",
   async ({ id }) => {
@@ -564,10 +582,9 @@ export const getPaymentId = createAsyncThunk(
 );
 export const getCarById = createAsyncThunk(
   "orders/getCarById",
-  async ({ id} ) => {
-    console.log("carId: "+ id)
+  async ({ id }) => {
+    console.log("carId: " + id);
     try {
-      
       const response = await axios.get(
         `https://rescuecapstoneapi.azurewebsites.net/api/Car/Get?id=${id}`
       );
@@ -666,6 +683,9 @@ const orderSlice = createSlice({
         state.orders = action.payload.data;
       })
       .addCase(getFeedbackOfOrderId.fulfilled, (state, action) => {
+        state.orderData = action.payload.data;
+      })
+      .addCase(calculatePayment.fulfilled, (state, action) => {
         state.orderData = action.payload.data;
       })
       .addCase(createAcceptOrder.fulfilled, (state, action) => {

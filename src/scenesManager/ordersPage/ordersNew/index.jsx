@@ -61,8 +61,6 @@ const Orders = (props) => {
   const [rescueVehicles, setRescueVehicles] = useState([]); // Tạo một state mới cho danh sách xe cứu hộ
   const [selectedOrderFormattedAddress, setSelectedOrderFormattedAddress] =
     useState("");
-
-
   const handleDataUpdated = () => {
     reloadOrdersNew();
   };

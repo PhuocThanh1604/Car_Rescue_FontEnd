@@ -66,6 +66,7 @@ const ModalEdit = ({
   const orders = useSelector((state) => state.order.orders);
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+  const iconColor = { color: colors.blueAccent[500] };
   const [edit, setEdit] = useState({});
   const [data, setData] = useState([]);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -125,8 +126,7 @@ const ModalEdit = ({
     }
   }
 
-  
-  const iconColor = { color: colors.blueAccent[500] };
+
   useEffect(() => {
     if (edit.departure) {
       fetchAddress("departure", edit.departure);

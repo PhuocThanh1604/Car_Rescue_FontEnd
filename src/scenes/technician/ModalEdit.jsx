@@ -279,16 +279,7 @@ const ModalEdit = ({
                     disabled
                     style={{ display: "none" }}
                   />
- 
-                  {/* <TextField
-                    name="avatar"
-                    label="Hình Ảnh"
-                    type="text"
-                    value={edit.avatar || ""}
-                    onChange={handleInputChange}
-                    fullWidth
-                    margin="normal"
-                  /> */}
+
                   <FormControl fullWidth sx={{ marginTop: 1 }}>
                     <InputLabel id="demo-simple-select-label">
                       Giới Tính

@@ -438,7 +438,7 @@ const MyModal = (props) => {
                                 flex: 1,
                               }}
                             >
-                             {selectedDetailOrder.endTime || "Đang cập nhật"}
+                           {(selectedDetailOrder.endTime || "Đang cập nhật")}
                             </Typography>
                           </Typography>
 

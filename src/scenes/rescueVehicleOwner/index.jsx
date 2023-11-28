@@ -334,7 +334,6 @@ const RescueVehicleOwners = (props) => {
             onChange={() => {
               const newStatus =
                 params.value === "ACTIVE" ? "INACTIVE" : "ACTIVE"; // Toggle the status
-
               // Lấy ID, fullname và status từ dữ liệu cột
               const rescueVehicleOwnerId = params.row.id;
               const fullname = params.row.fullname;

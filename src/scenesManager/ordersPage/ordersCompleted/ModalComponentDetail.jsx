@@ -350,10 +350,10 @@ const MyModal = (props) => {
     const dateEnd = new Date(selectedEditOrder.startTime);
     formattedDateStart = `${dateStart.getDate()}/${
       dateStart.getMonth() + 1
-    }/${dateStart.getFullYear()} ${dateStart.getHours()}:${dateStart.getMinutes()}`;
+    }/${dateStart.getFullYear()} ${dateStart.getHours()+7}:${dateStart.getMinutes()}`;
     formattedDateEnd = `${dateEnd.getDate()}/${
       dateEnd.getMonth() + 1
-    }/${dateEnd.getFullYear()} ${dateEnd.getHours()}:${dateEnd.getMinutes()}`;
+    }/${dateEnd.getFullYear()} ${dateEnd.getHours()+7}:${dateEnd.getMinutes()}`;
   }
   function formatDate(dateString) {
     const date = new Date(dateString);
