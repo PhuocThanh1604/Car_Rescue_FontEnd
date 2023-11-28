@@ -197,8 +197,6 @@ const Orders = (props) => {
     }
   };
 
-  // ...
-
   useEffect(() => {
     const uniqueCustomerIds = [...new Set(data.map((row) => row.customerId))];
     const uniqueDepartures = [...new Set(data.map((row) => row.departure))];
@@ -231,6 +229,27 @@ const Orders = (props) => {
     fetchFullNames(uniqueCustomerIds);
     // debouncedFetchAddresses(uniqueDepartures);
   }, [data, formattedAddresses, fullnameData]);
+  const fetchFullname = (customerId) => {
+    if (!fullnameData[customerId]) {
+      dispatch(getCustomerIdFullName({ id: customerId }))
+        .then((response) => {
+          const data = response.payload.data;
+          if (data && data.fullname) {
+            // Update the state with the fetched fullname
+            setFullnameData((prevData) => ({
+              ...prevData,
+              [customerId]: data.fullname,
+            }));
+          } else {
+            console.error("Fullname not found in the API response.");
+          }
+        })
+        .catch((error) => {
+          console.error("Error while fetching customer data:", error);
+        });
+    }
+    // You can use your existing code to fetch the fullname
+  };
   function debounce(func, wait) {
     let timeout;
     return function () {
@@ -277,27 +296,7 @@ const Orders = (props) => {
     }
   };
 
-  const fetchFullname = (customerId) => {
-    if (!fullnameData[customerId]) {
-      dispatch(getCustomerIdFullName({ id: customerId }))
-        .then((response) => {
-          const data = response.payload.data;
-          if (data && data.fullname) {
-            // Update the state with the fetched fullname
-            setFullnameData((prevData) => ({
-              ...prevData,
-              [customerId]: data.fullname,
-            }));
-          } else {
-            console.error("Fullname not found in the API response.");
-          }
-        })
-        .catch((error) => {
-          console.error("Error while fetching customer data:", error);
-        });
-    }
-    // You can use your existing code to fetch the fullname
-  };
+  
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);

@@ -39,30 +39,6 @@ export const fetchOrders = createAsyncThunk("orders/fetchOrders", async () => {
   }
 });
 
-// export const fetchOrdersNew = createAsyncThunk(
-//   "orders/fetchOrdersNew",
-//   async () => {
-//     const storageKey = "ordersNew";
-//     try {
-//       removeFromStorage(storageKey);
-//       const response = await axios.get("https://rescuecapstoneapi.azurewebsites.net/api/Order/GetAllOrderNew");
-//       let data = response.data;
-
-//       if (data.length > 0 && data[0].createdAt) {
-//         // Sort the orders by createdAt as string in descending order
-//         data.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-//       }
-
-//       console.log("Sorted orders:", data);
-//       saveToStorage(storageKey, data);
-//       return data;
-//     } catch (response) {
-//       console.error("Failed to retrieve orders:", response.status, response.message);
-//       throw response.status || response.message;
-//     }
-//   }
-// );
-
 
 
 export const fetchOrdersNew = createAsyncThunk(
@@ -181,7 +157,7 @@ export const fetchOrdersAssigned = createAsyncThunk(
 export const fetchOrdersCancelled = createAsyncThunk(
   "orders/fetchOrdersCancelled",
   async () => {
-    const storageKey = "ordersCanneclled";
+    const storageKey = "ordersCancelled";
     try {
       removeFromStorage(storageKey);
       const response = await axios.get(
@@ -193,7 +169,7 @@ export const fetchOrdersCancelled = createAsyncThunk(
       return data;
     } catch (response) {
       console.error(
-        "Failed to retrieve Orders Assigned:",
+        "Failed to retrieve Orders Cancelled:",
         response.status,
         response.message
       );
