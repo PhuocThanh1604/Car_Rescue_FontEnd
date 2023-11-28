@@ -22,12 +22,11 @@ import "react-toastify/dist/ReactToastify.css";
 import SearchIcon from "@mui/icons-material/Search";
 import InputBase from "@mui/material/InputBase";
 import moment from "moment";
-import { fetchOrdersInprogress, fetchOrdersNew, getOrderDetailId, getOrderId } from "../../../redux/orderSlice";
+import { fetchOrdersInprogress, getOrderDetailId, getOrderId } from "../../../redux/orderSlice";
 import { getCustomerIdFullName } from "../../../redux/customerSlice";
 import CreditScoreIcon from "@mui/icons-material/CreditScore";
 import AddCardIcon from "@mui/icons-material/AddCard";
 import RepeatOnIcon from "@mui/icons-material/RepeatOn";
-import BuildIcon from "@mui/icons-material/Build";
 import SupportIcon from "@mui/icons-material/Support";
 import HandymanIcon from "@mui/icons-material/Handyman";
 import AddchartIcon from '@mui/icons-material/Addchart';
@@ -90,19 +89,26 @@ const OrdersInprogress = (props) => {
   };
   const handleDateFilterChange = () => {
     if (startDate && endDate) {
-      const filteredrescueVehicleOwners = orders.filter((user) => {
-        const orderDate = moment(user.createAt).format("YYYY-MM-DD");
-        const isAfterStartDate = moment(orderDate).isSameOrAfter(startDate);
-        const isBeforeEndDate = moment(orderDate).isSameOrBefore(endDate);
+      // Format startDate and endDate to the beginning of the day in the specified time zone
+      const formattedStartDate = moment(startDate).tz("Asia/Ho_Chi_Minh").add(7, 'hours').startOf('day');
+      const formattedEndDate = moment(endDate).tz("Asia/Ho_Chi_Minh").add(7, 'hours').startOf('day');
+  
+      const filteredOrders = orders.filter((order) => {
+        // Adjust the order createdAt date to the same time zone
+        const orderDate = moment(order.createdAt).tz("Asia/Ho_Chi_Minh").add(7, 'hours').startOf('day');
+  
+        const isAfterStartDate = orderDate.isSameOrAfter(formattedStartDate, "day");
+        const isBeforeEndDate = orderDate.isSameOrBefore(formattedEndDate, "day");
+        
         return isAfterStartDate && isBeforeEndDate;
       });
-      setFilteredOrders(filteredrescueVehicleOwners);
+  
+      setFilteredOrders(filteredOrders);
       setFilterOption("Date");
     } else {
       setFilteredOrders(orders);
     }
   };
-
 
   useEffect(() => {
     setLoading(true);
@@ -400,38 +406,48 @@ const OrdersInprogress = (props) => {
           </FormControl>
   
 
-        <Box display="flex" alignItems="center" className="startDate-box">
-          <TextField
-            label="Từ ngày"
-            type="date"
-            value={startDate || ""}
-            onChange={(event) => setStartDate(event.target.value)}
-            InputLabelProps={{
-              shrink: true,
-            }}
-            onBlur={handleDateFilterChange}
-            inputProps={{
-              max: moment().format("YYYY-MM-DD"), // Set the maximum selectable date as today
-            }}
-            sx={{ ml: 4, mr: 2 }}
-          />
-        </Box>
+         {/*Fillter date*/}
+         <Box display="flex" alignItems="center" className="startDate-box">
+              <TextField
+                label="Từ ngày"
+                type="date"
+                value={startDate || ""}
+                onChange={(event) => {
+                  setStartDate(event.target.value);
+                  // handleDateFilterChange(); // Gọi hàm lọc ngay khi ngày tháng thay đổi
+                }}
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                onBlur={handleDateFilterChange}
+                inputProps={{
+                  max: moment().tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
+                  .add(7, 'hours') // Adding 3 hours (you can adjust this number as needed)
+                  .format("DD-MM-YYYY"), // Set the maximum selectable date as today
+                }}
+                sx={{ ml: 4, mr: 2 }}
+              />
+            </Box>
 
-        <Box display="flex" alignItems="center" className="endtDate-box">
-          <TextField
-            label="Đến ngày"
-            type="date"
-            value={endDate || ""}
-            onChange={(event) => setEndDate(event.target.value)}
-            InputLabelProps={{
-              shrink: true,
-            }}
-            onBlur={handleDateFilterChange}
-            inputProps={{
-              max: moment().format("YYYY-MM-DD"), // Set the maximum selectable date as today
-            }}
-          />
-        </Box>
+            <Box display="flex" alignItems="center" className="endtDate-box">
+              <TextField
+                label="Đến ngày"
+                type="date"
+                value={endDate || ""}
+                onChange={(event) => {
+                  setEndDate(event.target.value);
+                }}
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                onBlur={handleDateFilterChange}
+                inputProps={{
+                  max: moment().tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
+                  .add(7, 'hours') // Adding 3 hours (you can adjust this number as needed)
+                  .format("DD-MM-YYYY"), // Set the maximum selectable date as today
+                }}
+              />
+            </Box>
       </Box>
 
       <Box

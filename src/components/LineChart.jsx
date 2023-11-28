@@ -31,7 +31,7 @@ const formatCurrency = (value) => {
         if (apiData.revenue && apiData.revenue.length > 0) {
           // Assuming apiData.revenue is an array of numbers for each month
           const transformedData = {
-            id: "apiData", // or a suitable identifier
+            id: "Data", // or a suitable identifier
             color: "#4cceac", // replace with actual color
             data: apiData.revenue.map((value, index) => ({
               x: `Tháng ${index + 1}`,

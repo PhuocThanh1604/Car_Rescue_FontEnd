@@ -132,12 +132,12 @@ const Orders = (props) => {
   const handleDateFilterChange = () => {
     if (startDate && endDate) {
       // Format startDate and endDate to the beginning of the day in the specified time zone
-      const formattedStartDate = moment(startDate).tz("Asia/Ho_Chi_Minh").startOf('day');
-      const formattedEndDate = moment(endDate).tz("Asia/Ho_Chi_Minh").startOf('day');
+      const formattedStartDate = moment(startDate).tz("Asia/Ho_Chi_Minh").add(7, 'hours').startOf('day');
+      const formattedEndDate = moment(endDate).tz("Asia/Ho_Chi_Minh").add(7, 'hours').startOf('day');
   
       const filteredOrders = orders.filter((order) => {
         // Adjust the order createdAt date to the same time zone
-        const orderDate = moment(order.createdAt).tz("Asia/Ho_Chi_Minh").startOf('day');
+        const orderDate = moment(order.createdAt).tz("Asia/Ho_Chi_Minh").add(7, 'hours').startOf('day');
   
         const isAfterStartDate = orderDate.isSameOrAfter(formattedStartDate, "day");
         const isBeforeEndDate = orderDate.isSameOrBefore(formattedEndDate, "day");
@@ -439,9 +439,7 @@ const Orders = (props) => {
 
   return (
     <Box m="5px">
-      {loading ? (
-        <Typography>Loading...</Typography> // Hiển thị thông báo loading
-      ) : (
+     
         <>
           <Header
             title="Danh Sách Đơn Hàng Mới"
@@ -591,7 +589,7 @@ const Orders = (props) => {
 
           <ToastContainer />
         </>
-      )}
+   
     </Box>
   );
 };

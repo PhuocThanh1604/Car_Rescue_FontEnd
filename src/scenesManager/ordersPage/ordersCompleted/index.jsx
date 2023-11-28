@@ -97,19 +97,26 @@ const Orders = (props) => {
 
   const handleDateFilterChange = () => {
     if (startDate && endDate) {
-      const filteredrescueVehicleOwners = orders.filter((user) => {
-        const orderDate = moment(user.createAt).format("YYYY-MM-DD");
-        const isAfterStartDate = moment(orderDate).isSameOrAfter(startDate);
-        const isBeforeEndDate = moment(orderDate).isSameOrBefore(endDate);
+      // Format startDate and endDate to the beginning of the day in the specified time zone
+      const formattedStartDate = moment(startDate).tz("Asia/Ho_Chi_Minh").add(7, 'hours').startOf('day');
+      const formattedEndDate = moment(endDate).tz("Asia/Ho_Chi_Minh").add(7, 'hours').startOf('day');
+  
+      const filteredOrders = orders.filter((order) => {
+        // Adjust the order createdAt date to the same time zone
+        const orderDate = moment(order.createdAt).tz("Asia/Ho_Chi_Minh").add(7, 'hours').startOf('day');
+  
+        const isAfterStartDate = orderDate.isSameOrAfter(formattedStartDate, "day");
+        const isBeforeEndDate = orderDate.isSameOrBefore(formattedEndDate, "day");
+        
         return isAfterStartDate && isBeforeEndDate;
       });
-      setFilteredOrders(filteredrescueVehicleOwners);
+  
+      setFilteredOrders(filteredOrders);
       setFilterOption("Date");
     } else {
       setFilteredOrders(orders);
     }
   };
-
  
 
   useEffect(() => {
@@ -199,7 +206,7 @@ const Orders = (props) => {
     {
       field: "customerId",
       headerName: "Tên Khách Hàng",
-      width: 100,
+      width: 160,
       valueGetter: (params) => {
         // Get the fullname from the state based on customerId
         return fullnameData[params.value] || "";
@@ -208,7 +215,7 @@ const Orders = (props) => {
     {
       field: "customerNote",
       headerName: "Ghi Chú của Customer",
-      width: 120,
+      width: 160,
       key: "customerNote",
     },
     {
@@ -359,38 +366,48 @@ const Orders = (props) => {
           </Select>
         </FormControl>
 
-        <Box display="flex" alignItems="center" className="startDate-box">
-          <TextField
-            label="Từ ngày"
-            type="date"
-            value={startDate || ""}
-            onChange={(event) => setStartDate(event.target.value)}
-            InputLabelProps={{
-              shrink: true,
-            }}
-            onBlur={handleDateFilterChange}
-            inputProps={{
-              max: moment().format("YYYY-MM-DD"), // Set the maximum selectable date as today
-            }}
-            sx={{ ml: 4, mr: 2 }}
-          />
-        </Box>
+         {/*Fillter date*/}
+         <Box display="flex" alignItems="center" className="startDate-box">
+              <TextField
+                label="Từ ngày"
+                type="date"
+                value={startDate || ""}
+                onChange={(event) => {
+                  setStartDate(event.target.value);
+                  // handleDateFilterChange(); // Gọi hàm lọc ngay khi ngày tháng thay đổi
+                }}
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                onBlur={handleDateFilterChange}
+                inputProps={{
+                  max: moment().tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
+                  .add(7, 'hours') // Adding 3 hours (you can adjust this number as needed)
+                  .format("DD-MM-YYYY"), // Set the maximum selectable date as today
+                }}
+                sx={{ ml: 4, mr: 2 }}
+              />
+            </Box>
 
-        <Box display="flex" alignItems="center" className="endtDate-box">
-          <TextField
-            label="Đến ngày"
-            type="date"
-            value={endDate || ""}
-            onChange={(event) => setEndDate(event.target.value)}
-            InputLabelProps={{
-              shrink: true,
-            }}
-            onBlur={handleDateFilterChange}
-            inputProps={{
-              max: moment().format("YYYY-MM-DD"), // Set the maximum selectable date as today
-            }}
-          />
-        </Box>
+            <Box display="flex" alignItems="center" className="endtDate-box">
+              <TextField
+                label="Đến ngày"
+                type="date"
+                value={endDate || ""}
+                onChange={(event) => {
+                  setEndDate(event.target.value);
+                }}
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                onBlur={handleDateFilterChange}
+                inputProps={{
+                  max: moment().tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
+                  .add(7, 'hours') // Adding 3 hours (you can adjust this number as needed)
+                  .format("DD-MM-YYYY"), // Set the maximum selectable date as today
+                }}
+              />
+            </Box>
       </Box>
 
       <Box
