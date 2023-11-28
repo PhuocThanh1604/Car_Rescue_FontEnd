@@ -13,6 +13,7 @@ import {
   Divider,
   Grid,
   IconButton,
+  useTheme,
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
 import PeopleAltRoundedIcon from "@mui/icons-material/PeopleAltRounded";
@@ -40,6 +41,7 @@ import { getRescueVehicleOwnerId } from "../../../redux/rescueVehicleOwnerSlice"
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import CreditScoreIcon from "@mui/icons-material/CreditScore";
 import moment from "moment";
+import { tokens } from "../../../theme";
 const MyModal = (props) => {
   const { openModal, setOpenModal, selectedDetailOrder } = props;
   const dispatch = useDispatch();
@@ -49,7 +51,9 @@ const MyModal = (props) => {
     technician: {},
     vehicle: {},
   });
-
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
+  const iconColor = { color: colors.blueAccent[500] };
   const [dataRescueVehicleOwner, setDataRescueVehicleOwner] = useState({});
   const [rescueVehicleOwnerId, setRescueVehicleOwnerId] = useState({});
   // Lưu giá trị vào một biến
@@ -251,7 +255,7 @@ const MyModal = (props) => {
                             marginRight: "2px",
                           }}
                         >
-                          <PersonRoundedIcon />
+                          <PersonRoundedIcon style={iconColor}/>
                           <strong>Tên:</strong>
                           <Typography
                             variant="h6"
@@ -278,7 +282,7 @@ const MyModal = (props) => {
                             marginRight: "2px",
                           }}
                         >
-                          <PeopleAltRoundedIcon />
+                          <PeopleAltRoundedIcon style={iconColor}/>
                           <strong>Giới Tính:</strong>
                           <Typography
                             variant="h6"
@@ -305,7 +309,7 @@ const MyModal = (props) => {
                             marginRight: "2px",
                           }}
                         >
-                          <PhoneRoundedIcon /> <strong>SĐT:</strong>
+                          <PhoneRoundedIcon style={iconColor}/> <strong>SĐT:</strong>
                           <Typography
                             variant="h6"
                             sx={{
@@ -331,7 +335,7 @@ const MyModal = (props) => {
                             marginRight: "2px",
                           }}
                         >
-                          <PlaceIcon /> <strong>Địa chỉ:</strong>
+                          <PlaceIcon style={iconColor}/> <strong>Địa chỉ:</strong>
                           <Typography
                             variant="h6"
                             sx={{
@@ -356,7 +360,7 @@ const MyModal = (props) => {
                             fontSize: "1rem",
                           }}
                         >
-                          <CakeIcon /> <strong>Ngày sinh: </strong>
+                          <CakeIcon style={iconColor}/> <strong>Ngày sinh: </strong>
                           <Typography
                             variant="h6"
                             sx={{
@@ -393,7 +397,7 @@ const MyModal = (props) => {
                               fontSize: "1rem",
                             }}
                           >
-                            <TimerIcon />
+                            <TimerIcon style={iconColor}/>
                             <strong>Thời gian bắt đầu: </strong>
                             <Typography
                               variant="h6"
@@ -419,7 +423,7 @@ const MyModal = (props) => {
                               fontSize: "1rem",
                             }}
                           >
-                            <TimerIcon />
+                            <TimerIcon style={iconColor}/>
                             <strong>Thời gian kết thúc: </strong>
                             <Typography
                               variant="h6"
@@ -446,7 +450,7 @@ const MyModal = (props) => {
                               fontSize: "1rem",
                             }}
                           >
-                            <MapIcon />
+                            <MapIcon style={iconColor}/>
                             <strong>Khu vực: </strong>
                             <Typography
                               variant="h6"
@@ -477,7 +481,7 @@ const MyModal = (props) => {
                               marginRight: "2px",
                             }}
                           >
-                            <CreditScoreIcon />{" "}
+                            <CreditScoreIcon style={iconColor}/>{" "}
                             <strong>Tổng tiền đã thanh toán:</strong>
                             <Typography
                               variant="h6"
@@ -488,8 +492,7 @@ const MyModal = (props) => {
                               }}
                             >
                               {" "}
-                              {data.customer[selectedDetailOrder.customerId]
-                                ?.address || "Không có thông tin"}
+                              { "Chưa thanh toán"}
                             </Typography>
                           </Typography>
 
@@ -582,7 +585,7 @@ const MyModal = (props) => {
                               gap: 1, // Khoảng cách giữa icon và văn bản
                             }}
                           >
-                            <PeopleAltRoundedIcon />
+                            <PeopleAltRoundedIcon style={iconColor}/>
                             <Typography variant="h6">
                               Giới Tính:{" "}
                               {data.technician[selectedDetailOrder.technicianId]
@@ -596,7 +599,7 @@ const MyModal = (props) => {
                               gap: 1, // Khoảng cách giữa icon và văn bản
                             }}
                           >
-                            <PhoneRoundedIcon />
+                            <PhoneRoundedIcon style={iconColor}/>
                             <Typography variant="h6">
                               SĐT:{" "}
                               {data.technician[selectedDetailOrder.technicianId]
@@ -610,7 +613,7 @@ const MyModal = (props) => {
                               gap: 1, // Khoảng cách giữa icon và văn bản
                             }}
                           >
-                            <PlaceIcon />
+                            <PlaceIcon style={iconColor}/>
                             <Typography variant="h6">
                               Địa Chỉ:{" "}
                               {data.technician[selectedDetailOrder.technicianId]
@@ -625,7 +628,7 @@ const MyModal = (props) => {
                               gap: 1, // Khoảng cách giữa icon và văn bản
                             }}
                           >
-                            <MapRoundedIcon />
+                            <MapRoundedIcon style={iconColor}/>
                             <Typography variant="h6">
                               Khu vực:{" "}
                               {data.technician[selectedDetailOrder.technicianId]
@@ -685,7 +688,7 @@ const MyModal = (props) => {
                               gap: 1, // Khoảng cách giữa icon và văn bản
                             }}
                           >
-                            <ReceiptRoundedIcon />
+                            <ReceiptRoundedIcon style={iconColor}/>
                             <Typography variant="h6">
                               Biển Số:{" "}
                               {data.vehicle[selectedDetailOrder.vehicleId]
@@ -700,7 +703,7 @@ const MyModal = (props) => {
                               gap: 1, // Khoảng cách giữa icon và văn bản
                             }}
                           >
-                            <TimeToLeaveIcon />
+                            <TimeToLeaveIcon style={iconColor}/>
                             <Typography variant="h6">
                               Hãng Xe:{" "}
                               {data.vehicle[selectedDetailOrder.vehicleId]
@@ -714,7 +717,7 @@ const MyModal = (props) => {
                               gap: 1, // Khoảng cách giữa icon và văn bản
                             }}
                           >
-                            <CategoryRounded />
+                            <CategoryRounded style={iconColor}/>
                             <Typography variant="h6">
                               Loại Xe:{" "}
                               {data.vehicle[selectedDetailOrder.vehicleId]
@@ -729,7 +732,7 @@ const MyModal = (props) => {
                               gap: 1, // Khoảng cách giữa icon và văn bản
                             }}
                           >
-                            <CalendarTodayIcon />
+                            <CalendarTodayIcon style={iconColor}/>
                             <Typography variant="h6">
                               Năm:{" "}
                               {data.vehicle[selectedDetailOrder.vehicleId]

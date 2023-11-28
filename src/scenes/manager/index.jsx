@@ -247,6 +247,17 @@ const Managers = (props) => {
     },
     { field: "address", headerName: "Địa Chỉ", width: 160, key: "address" },
     {
+      field: "createdAt",
+      headerName: "Ngày Tạo",
+      width: 140,
+      key: "createdAt",
+      valueGetter: (params) =>
+        moment(params.row.createdAt)
+          .tz("Asia/Ho_Chi_Minh")
+          .add(7, "hours")
+          .format("DD-MM-YYYY")
+    },
+    {
       field: "phone",
       headerName: "Số Điện Thoại",
       width: 100,

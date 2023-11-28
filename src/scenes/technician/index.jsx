@@ -15,7 +15,7 @@ import { tokens } from "../../theme";
 import Header from "../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
 import { Edit, FilterList, Search } from "@mui/icons-material";
-import ModalEdit from "./ModalComponentEdit";
+import ModalEdit from "./ModalEdit";
 import ToggleButton from "./ToggleButton";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -27,8 +27,8 @@ import { fetchTechnicians, getTechnicianId } from "../../redux/technicianSlice";
 import CustomTablePagination from "../../components/TablePagination";
 import AddCardIcon from "@mui/icons-material/AddCard";
 import RepeatOnIcon from "@mui/icons-material/RepeatOn";
-import PersonOffIcon from '@mui/icons-material/PersonOff';
-import HowToRegIcon from '@mui/icons-material/HowToReg';
+import PersonOffIcon from "@mui/icons-material/PersonOff";
+import HowToRegIcon from "@mui/icons-material/HowToReg";
 const Technicians = (props) => {
   const dispatch = useDispatch();
   const technicians = useSelector((state) => state.technician.technicians);
@@ -113,19 +113,22 @@ const Technicians = (props) => {
   };
 
   useEffect(() => {
-    const filteredtechnicians = technicians
+    const filteredTechnicians = technicians
       ? technicians.filter((technician) => {
-          const nameMatch = technician.fullname
-            .toLowerCase()
-            .includes(searchText.toLowerCase());
+          const hasFullName =
+            technician &&
+            technician.fullname && // Kiểm tra technician không phải undefined và có thuộc tính fullname
+            technician.fullname
+              .toLowerCase()
+              .includes(searchText.toLowerCase());
           const filterMatch =
             filterOption === "Status" ||
             (filterOption === "ACTIVE" && technician.status === "ACTIVE") ||
             (filterOption === "INACTIVE" && technician.status === "INACTIVE");
-          return nameMatch && filterMatch;
+          return hasFullName && filterMatch;
         })
       : [];
-    setFilteredTechnicians(filteredtechnicians);
+    setFilteredTechnicians(filteredTechnicians);
   }, [technicians, searchText, filterOption]);
 
   useEffect(() => {
@@ -174,7 +177,7 @@ const Technicians = (props) => {
     {
       field: "sex",
       headerName: "Gioi Tính",
-      width: 30,
+      width: 50,
       key: "sex",
     },
     { field: "address", headerName: "Địa Chỉ", width: 120, key: "address" },
@@ -197,13 +200,27 @@ const Technicians = (props) => {
       },
     },
     {
-      field: "publicDate",
-      headerName: "Date",
-      width: 100,
-      key: "status",
+      field: "createdAt",
+      headerName: "Ngày Tạo",
+      width: 140,
+      key: "createdAt",
       valueGetter: (params) =>
-        moment(params.row.createAt).utcOffset(7).format("DD-MM-YYYY"),
+        moment(params.row.createdAt)
+          .tz("Asia/Ho_Chi_Minh")
+          .add(7, "hours")
+          .format("DD-MM-YYYY")
     },
+    // {
+    //   field: "createdAt",
+    //   headerName: "Ngày Update",
+    //   width: 140,
+    //   key: "createdAt",
+    //   valueGetter: (params) =>
+    //     moment(params.row.updateAt)
+    //       .tz("Asia/Ho_Chi_Minh")
+    //       .add(7, "hours")
+    //       .format("DD-MM-YYYY HH:mm:ss"),
+    // },
     {
       field: "avatar",
       headerName: "Hình ảnh",
@@ -260,8 +277,7 @@ const Technicians = (props) => {
         );
       },
     },
-   
-    
+
     {
       field: "update",
       headerName: "Update",

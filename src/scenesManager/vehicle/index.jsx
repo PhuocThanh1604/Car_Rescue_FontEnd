@@ -17,10 +17,8 @@ import {
   Card,
   CardMedia,
   CardContent,
-
   Divider,
   Grid,
-
 } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 
@@ -189,12 +187,12 @@ const Vehicles = (props) => {
         setOpenConfirmModal(false);
         setIsSuccess(true);
         reloadVehicle();
-            // Check if accept is true or false
-            if (accept) {
-              toast.success("Chấp nhận xe thành công.");
-            } else {
-              toast.error("Không đồng chấp nhận xe vào hệ thống ");
-            }
+        // Check if accept is true or false
+        if (accept) {
+          toast.success("Chấp nhận xe thành công.");
+        } else {
+          toast.error("Không đồng chấp nhận xe vào hệ thống ");
+        }
       })
       .catch((error) => {
         console.error(
@@ -245,31 +243,35 @@ const Vehicles = (props) => {
   useEffect(() => {
     if (Array.isArray(vehicles)) {
       const vehicleId = vehicles.id; // Xem xét lại điều này, có vẻ như vehicles.id không đúng
-      const vehicleToEdit = vehicles.find(vehicle => vehicle.id === vehicleId);
-  
+      const vehicleToEdit = vehicles.find(
+        (vehicle) => vehicle.id === vehicleId
+      );
+
       if (vehicleToEdit) {
         setEditStatus(vehicleToEdit);
         setInitialFormState(vehicleToEdit);
       }
     }
   }, [vehicles]);
-  
 
   useEffect(() => {
     if (Array.isArray(vehicles)) {
-      const filteredVehicles = vehicles.filter(vehicle => {
-        const nameMatch = vehicle.fullname && vehicle.fullname.toLowerCase().includes(searchText.toLowerCase());
-        const filterMatch = filterOption === "type" ||
-          (filterOption === "Crane" && vehicle.type === "Crane") ||
-          (filterOption === "Towing" && vehicle.type === "Towing");
+      const filteredVehicles = vehicles.filter((vehicle) => {
+        const nameMatch =
+          vehicle.fullname &&
+          vehicle.fullname.toLowerCase().includes(searchText.toLowerCase());
+        const filterMatch =
+          filterOption === "type" ||
+          (filterOption === "Xe cẩu" && vehicle.type === "Xe cẩu") ||
+          (filterOption === "Xe chở" && vehicle.type === "Xe chở") ||
+          (filterOption === "Xe kéo" && vehicle.type === "Xe kéo");
         return nameMatch && filterMatch;
       });
       setFilteredVehicles(filteredVehicles);
     } else {
       setFilteredVehicles([]);
     }
-  }, [vehicles, searchText, filterOption])
-  
+  }, [vehicles, searchText, filterOption]);
 
   useEffect(() => {
     setLoading(true);
@@ -410,11 +412,14 @@ const Vehicles = (props) => {
               <MenuItem key="type-all" value="type">
                 Loại Xe
               </MenuItem>
-              <MenuItem key="type-crane" value="Crane">
-                Xe Cẩu
-              </MenuItem>
-              <MenuItem key="type-towing" value="Towing">
+              <MenuItem key="type-crane" value="Xe kéo">
                 Xe Kéo
+              </MenuItem>
+              <MenuItem key="type-towing" value="Xe chở">
+                Xe chở
+              </MenuItem>
+              <MenuItem key="type-towing" value="Xe cẩu">
+                Xe Cẩu
               </MenuItem>
             </Select>
           </FormControl>
@@ -556,7 +561,9 @@ const Vehicles = (props) => {
                           alignItems: "center",
                           marginBottom: "5px",
                         }}
-                        onClick={() => handleImageClick(data.carRegistrationBack)}
+                        onClick={() =>
+                          handleImageClick(data.carRegistrationBack)
+                        }
                       >
                         <img
                           src={detailedData.carRegistrationBack}
@@ -615,7 +622,6 @@ const Vehicles = (props) => {
                         >
                           Thông tin chủ xe
                         </Typography>
-                    
 
                         <Box
                           sx={{
@@ -624,9 +630,9 @@ const Vehicles = (props) => {
                             gap: 1, // Khoảng cách giữa icon và văn bản
                           }}
                         >
-                           <PersonRoundedIcon />
+                          <PersonRoundedIcon />
                           <Typography variant="h6">
-                          <strong>Chủ xe: </strong>{" "}
+                            <strong>Chủ xe: </strong>{" "}
                             {dataRescueVehicleOwner[detailedData[0]?.rvoid]
                               ?.fullname || "Không có thông tin"}
                           </Typography>
@@ -638,14 +644,14 @@ const Vehicles = (props) => {
                             gap: 1, // Khoảng cách giữa icon và văn bản
                           }}
                         >
-                           <PhoneRoundedIcon />
+                          <PhoneRoundedIcon />
                           <Typography variant="h6">
-                          <strong>SĐT: </strong>{" "}
-                          {dataRescueVehicleOwner[detailedData[0]?.rvoid]
+                            <strong>SĐT: </strong>{" "}
+                            {dataRescueVehicleOwner[detailedData[0]?.rvoid]
                               ?.phone || "Không có thông tin"}
                           </Typography>
                         </Box>
-                   
+
                         <Box
                           sx={{
                             display: "flex",
@@ -653,10 +659,10 @@ const Vehicles = (props) => {
                             gap: 1, // Khoảng cách giữa icon và văn bản
                           }}
                         >
-                           <PeopleAltRoundedIcon />
+                          <PeopleAltRoundedIcon />
                           <Typography variant="h6">
-                          <strong>Giới tính: </strong>{" "}
-                          {dataRescueVehicleOwner[detailedData[0]?.rvoid]
+                            <strong>Giới tính: </strong>{" "}
+                            {dataRescueVehicleOwner[detailedData[0]?.rvoid]
                               ?.sex || "Không có thông tin"}
                           </Typography>
                         </Box>
@@ -667,11 +673,10 @@ const Vehicles = (props) => {
                             gap: 1, // Khoảng cách giữa icon và văn bản
                           }}
                         >
-                           <PlaceIcon />
+                          <PlaceIcon />
                           <Typography variant="h6">
-                          <strong>Địa chỉ: </strong>{" "}
-                         
-                          {dataRescueVehicleOwner[detailedData[0]?.rvoid]
+                            <strong>Địa chỉ: </strong>{" "}
+                            {dataRescueVehicleOwner[detailedData[0]?.rvoid]
                               ?.address || "Không có thông tin"}
                           </Typography>
                         </Box>
@@ -683,15 +688,13 @@ const Vehicles = (props) => {
                             gap: 1, // Khoảng cách giữa icon và văn bản
                           }}
                         >
-                           <MapRoundedIcon />
+                          <MapRoundedIcon />
                           <Typography variant="h6">
-                          <strong>Khu vực: </strong>{" "}
-                         
-                          {dataRescueVehicleOwner[detailedData[0]?.rvoid]
+                            <strong>Khu vực: </strong>{" "}
+                            {dataRescueVehicleOwner[detailedData[0]?.rvoid]
                               ?.area || "Chưa cập nhật"}
                           </Typography>
                         </Box>
-                  
                       </CardContent>
                     </Grid>
                     <Grid item xs={1}>

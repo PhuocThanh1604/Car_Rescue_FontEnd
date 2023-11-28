@@ -48,6 +48,8 @@ const Addtechnician = () => {
     avatar: yup.string().required("Required"),
     birthdate: yup.date().required("Required"), // Date validation
     accountId: yup.string().required("Required"),
+    createAt: yup.date().required("Required"),
+    area: yup.string().required("Required"),
   });
   const statusOptions = ["ACTIVE", "INACTIVE"];
   const initialValues = {
@@ -59,6 +61,8 @@ const Addtechnician = () => {
     phone: "",
     avatar: "",
     accountId: "",
+    createAt:new Date(),
+    area:""
   };
 
   // Tạo ref để lưu trữ tham chiếu đến formik
@@ -71,11 +75,17 @@ const Addtechnician = () => {
     console.log("Dữ liệu đã nhập:", technician);
     dispatch(createTechnician(values))
       .then((response) => {
-        console.log(response);
-        toast.success("Tạo Tài Khoản Thành Công");
+        if (response.payload.status ==="Success"){
+          toast.success("Tạo Tài Khoản Thành Công");
 
-        // Đặt lại giá trị của formik về giá trị ban đầu (rỗng)
-        formikRef.current.resetForm();
+          // Đặt lại giá trị của formik về giá trị ban đầu (rỗng)
+          formikRef.current.resetForm();
+        }else
+        {
+          toast.error("Tạo Tài Khoản không Thành Công vui lòng thử lại");
+
+        }
+     
       })
       .catch((error) => {
         if (error.response && error.response.data) {
@@ -147,6 +157,22 @@ const Addtechnician = () => {
                 helperText={touched.fullname && errors.fullname}
                 sx={{ gridColumn: "span 1" }}
               />
+              
+              <FormControl fullWidth variant="filled">
+                <InputLabel id="area-label">Khu Vực</InputLabel>
+                <Select
+                  labelId="area-label"
+                  id="area"
+                  name="area"
+                  value={values.area}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  error={touched.area && errors.area ? true : false}
+                >
+                  <MenuItem value="1">1</MenuItem>
+                  <MenuItem value="2">2</MenuItem>
+                </Select>
+              </FormControl>
               <Grid container spacing={4} alignItems="center" marginBottom={2}>
                 <Grid item xs={6}>
                   <Grid container spacing={1} alignItems="center">

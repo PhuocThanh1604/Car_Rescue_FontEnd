@@ -46,6 +46,7 @@ const AddCustomer = () => {
     avatar: yup.string(),
     birthdate: yup.date(), // Date validation
     accountId: yup.string(),
+    date: yup.date().required("Required"), 
   });
   const statusOptions = ["ACTIVE", "Unactive"];
   const initialValues = {
@@ -57,6 +58,7 @@ const AddCustomer = () => {
     phone: "",
     avatar: "",
     accountId: "",
+    date: new Date(),
   };
 
   // Tạo ref để lưu trữ tham chiếu đến formik

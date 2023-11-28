@@ -49,7 +49,9 @@ const AddRescueVehicleOwner = () => {
     phone: yup.string().required("Required"),
     avatar: yup.string().required("Required"),
     birthdate: yup.date().required("Required"), // Date validation
+    date: yup.date().required("Required"), // Date validation
     accountId: yup.string().required("Required"),
+
   });
   const statusOptions = ["ACTIVE", "INACTIVE"];
   const initialValues = {
@@ -61,6 +63,8 @@ const AddRescueVehicleOwner = () => {
     phone: "",
     avatar: "",
     accountId: "",
+    date: new Date(),
+    
   };
 
   // Tạo ref để lưu trữ tham chiếu đến formik
@@ -73,11 +77,15 @@ const AddRescueVehicleOwner = () => {
     console.log("Dữ liệu đã nhập:", rescueVehicleOwner);
     dispatch(createRescueVehicleOwner(values))
       .then((response) => {
-        console.log(response);
-        toast.success("Tạo Quản Lí Thành Công");
+        if (response.payload.status ==="Success"){
+          toast.success("Tạo Tài Khoản Thành Công");
 
-        // Đặt lại giá trị của formik về giá trị ban đầu (rỗng)
-        formikRef.current.resetForm();
+          formikRef.current.resetForm();
+        }else
+        {
+          toast.error("Tạo Tài Khoản không Thành Công vui lòng thử lại");
+
+        }
       })
       .catch((error) => {
         if (error.response && error.response.data) {

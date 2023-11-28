@@ -12,22 +12,32 @@ import {
   Autocomplete,
   Divider,
   useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
+import PlaceIcon from "@mui/icons-material/Place";
+import CakeIcon from "@mui/icons-material/Cake";
+import TimerIcon from "@mui/icons-material/Timer";
 import {
   addServiceForTechnicians,
   fetchOrdersInprogress,
+  getFormattedAddressGG,
   getOrderDetailId,
+  getOrderId,
   updateServiceForTechnicians,
 } from "../../../redux/orderSlice";
+import AssignmentIcon from "@mui/icons-material/Assignment";
 import { fetchServices, getServiceId } from "../../../redux/serviceSlice";
 import AddIcon from "@mui/icons-material/Add";
 import InputAdornment from "@mui/material/InputAdornment";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import { Formik } from "formik";
 import * as yup from "yup";
+import { tokens } from "../../../theme";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
+import moment from "moment";
 const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
   const dispatch = useDispatch();
   const orders = useSelector((state) => state.order.orders);
@@ -39,8 +49,10 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
     quantity: null, // Giá trị ban đầu của quantity từ order
     // Các thuộc tính khác của order
   });
+    // Lấy thời gian hiện tại
+    const currentDateTime = moment();
   const [orderDetailIdService, setOrderDetailIdService] = useState([]);
-  const [orderDetailId, setOrderDetailId] = useState('');
+  const [orderDetailId, setOrderDetailId] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
   const [initialFormState, setInitialFormState] = useState({});
   const [fullnameValue, setFullnameValue] = useState("");
@@ -52,6 +64,7 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
   const [selectedService, setSelectedService] = useState(null);
   const [nameService, setNameService] = useState({});
   const [serviceId, setServiceId] = useState([]);
+  const [dataOrder, setDataOrder] = useState([]);
   const [quantity, setQuantity] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const checkoutSchema = yup.object().shape({
@@ -64,7 +77,79 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
     service: [],
   };
   const [orderQuantities, setOrderQuantities] = useState({});
+  const [formattedAddresses, setFormattedAddresses] = useState({});
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
+  const iconColor = { color: colors.blueAccent[500] };
 
+  useEffect(() => {
+    if (selectedEditOrder && selectedEditOrder[0].orderId) {
+      fetchOrder(selectedEditOrder[0].orderId);
+    }
+    if (dataOrder && dataOrder.departure) {
+      fetchAddress("departure", dataOrder.departure);
+    }
+    if (dataOrder && dataOrder.destination) {
+      fetchAddress("destination", dataOrder.destination);
+    }
+  }, [selectedEditOrder]);
+
+  const fetchAddress = async (addressType, addressValue) => {
+    console.log("latlng" + addressValue);
+    if (!addressValue) {
+      return; // Trả về nếu order không tồn tại hoặc địa chỉ đã được lưu trữ
+    }
+
+    const matches = /lat:\s*([^,]+),\s*long:\s*([^,]+)/.exec(addressValue);
+    console.log(matches);
+    if (matches && matches.length === 3) {
+      const [, lat, lng] = matches;
+
+      if (!isNaN(lat) && !isNaN(lng)) {
+        console.log("Latitude:", lat, "Longitude:", lng);
+        try {
+          const response = await dispatch(getFormattedAddressGG({ lat, lng }));
+          console.log(response);
+          const formattedAddress =
+            response.payload.results[0].formatted_address;
+          console.log(formattedAddress);
+          setFormattedAddresses((prevAddresses) => ({
+            ...prevAddresses,
+            [addressType]: formattedAddress,
+          }));
+        } catch (error) {
+          console.error(
+            "Error fetching address:",
+            error.response ? error.response : error
+          );
+        } finally {
+          setLoading(false); // Đảm bảo loading được đặt lại thành false dù có lỗi
+        }
+      }
+    }
+  };
+  //Hiển thị 1 dịch vụ đầu tiên
+
+  const fetchOrder = (orderId) => {
+    console.log(orderId);
+    // Make sure you have a check to prevent unnecessary API calls
+    if (orderId) {
+      dispatch(getOrderId({ id: orderId }))
+        .then((response) => {
+          const data = response.payload.data;
+          if (data) {
+            setDataOrder(data);
+          } else {
+            console.error(
+              "Service data not found in the API response or data is not an array."
+            );
+          }
+        })
+        .catch((error) => {
+          console.error("Error while fetching service data detail:", error);
+        });
+    }
+  };
   // //hanldeQuantityupdate
   //CHECK DUPLICATE NAME SERVICE
   const checkDuplicateSerivce = (newValue) => {
@@ -126,7 +211,7 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
     setSelectedOrderDetails();
     setOrderQuantitiesForEdit();
   }, [selectedEditOrder, orders]);
-  
+
   //hàm lấy select service
   useEffect(() => {
     const getServices = async () => {
@@ -153,54 +238,23 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
     getServices();
   }, [dispatch]);
 
-  // const handleInputChange = (event, orderId) => {
-  //   const { value } = event.target;
-  //   setOrderQuantities((prevOrderQuantities) => ({
-  //     ...prevOrderQuantities,
-  //     [orderId]: value,
-  //   }));
-  //   setIsEditing(true);
-  //   setOrderDetailIdService((prevOrderDetailIdService) => {
-  //     const updatedIds = [...prevOrderDetailIdService];
-  //     const index = updatedIds.findIndex((id) => id === orderId);
-  //     if (index !== -1) {
-  //       // Nếu đã tồn tại orderId trong mảng, cập nhật giá trị mới
-  //       updatedIds[index] = orderId;
-  //     } else {
-  //       // Nếu chưa tồn tại orderId trong mảng, thêm vào mảng
-  //       updatedIds.push(orderId);
-  //     }
-  //     return updatedIds;
-  //   });
-  //   console.log(`Quantity người dùng đã nhập cho orderId ${orderId}:`, value);
-  // };
-
-
   const [totalForOrder, setTotalForOrder] = useState({});
 
-const updateTotalForOrder = (orderId, newTotal) => {
-  setTotalForOrder((prevTotals) => ({
-    ...prevTotals,
-    [orderId]: newTotal,
-  }));
-};
+  const updateTotalForOrder = (orderId, newTotal) => {
+    setTotalForOrder((prevTotals) => ({
+      ...prevTotals,
+      [orderId]: newTotal,
+    }));
+  };
   const handleInputChange = (event, orderId) => {
     const newQuantity = event.target.value;
-  
+
     // Cập nhật số lượng và lưu trữ
     setOrderQuantities((prevOrderQuantities) => ({
       ...prevOrderQuantities,
       [orderId]: newQuantity,
     }));
-  
-    // Tính toán tổng tiền mới
-    // const order = orders.find(o => o.id === orderId);
-    // const newTotal = order.unitPrice * newQuantity;
-  
-    // Cập nhật tổng tiền vào state hoặc context tương ứng
-    // updateTotalForOrder(orderId, newTotal);
-  
-    // Cập nhật trạng thái chỉnh sửa và ID dịch vụ
+
     setIsEditing(true);
     setOrderDetailIdService((prevOrderDetailIdService) => {
       const updatedIds = [...prevOrderDetailIdService];
@@ -210,12 +264,13 @@ const updateTotalForOrder = (orderId, newTotal) => {
       }
       return updatedIds;
     });
-  
-    console.log(`Quantity người dùng đã nhập cho orderId ${orderId}:`, newQuantity);
-  };
-  
 
-  
+    console.log(
+      `Quantity người dùng đã nhập cho orderId ${orderId}:`,
+      newQuantity
+    );
+  };
+
   useEffect(() => {
     if (!isEditing) {
       setEdit((prevEdit) => ({
@@ -303,32 +358,40 @@ const updateTotalForOrder = (orderId, newTotal) => {
       toast.error("Không có thêm nhật dịch vụ");
       return;
     }
-  
-    const updatedEdits = orderDetailIdService.map((orderDetailId) => {
-      const updatedOrder = selectedEditOrder.find((order) => order.id === orderDetailId);
-  
-      if (!updatedOrder) {
-        return null; // Trường hợp không tìm thấy orderDetailId trong selectedEditOrder
-      }
-  
-      const updatedQuantity = orderQuantities[updatedOrder.id] !== undefined ? orderQuantities[updatedOrder.id] : updatedOrder.quantity;
-      const { serviceId } = updatedOrder;
-      const selectedServiceName = nameService[serviceId]; // Lấy tên dịch vụ từ serviceId
-  
-      const updatedEdit = {
-        orderDetailId: orderDetailId,
-        service: selectedServiceName,
-        quantity: updatedQuantity,
-      };
-  
-      return updatedEdit;
-    }).filter((updatedEdit) => updatedEdit !== null); // Lọc bỏ các phần tử null trong mảng
-  
+
+    const updatedEdits = orderDetailIdService
+      .map((orderDetailId) => {
+        const updatedOrder = selectedEditOrder.find(
+          (order) => order.id === orderDetailId
+        );
+
+        if (!updatedOrder) {
+          return null; // Trường hợp không tìm thấy orderDetailId trong selectedEditOrder
+        }
+
+        const updatedQuantity =
+          orderQuantities[updatedOrder.id] !== undefined
+            ? orderQuantities[updatedOrder.id]
+            : updatedOrder.quantity;
+        const { serviceId } = updatedOrder;
+        const selectedServiceName = nameService[serviceId]; // Lấy tên dịch vụ từ serviceId
+
+        const updatedEdit = {
+          orderDetailId: orderDetailId,
+          service: selectedServiceName,
+          quantity: updatedQuantity,
+        };
+
+        return updatedEdit;
+      })
+      .filter((updatedEdit) => updatedEdit !== null); // Lọc bỏ các phần tử null trong mảng
+
     // Tiến hành dispatch update cho từng updatedEdit trong mảng updatedEdits
     updatedEdits.forEach((updatedEdit) => {
-      const hasChanges = JSON.stringify(updatedEdit) !== JSON.stringify(initialFormState);
+      const hasChanges =
+        JSON.stringify(updatedEdit) !== JSON.stringify(initialFormState);
       console.log(hasChanges);
-  
+
       if (hasChanges) {
         dispatch(updateServiceForTechnicians(updatedEdit))
           .then(() => {
@@ -340,7 +403,11 @@ const updateTotalForOrder = (orderId, newTotal) => {
             reloadOrderInprogress();
           })
           .catch((error) => {
-            if (error.response && error.response.data && error.response.data.errors) {
+            if (
+              error.response &&
+              error.response.data &&
+              error.response.data.errors
+            ) {
               const serviceErrors = error.response.data.errors.Service;
               if (serviceErrors && serviceErrors.length > 0) {
                 console.log(serviceErrors);
@@ -357,7 +424,6 @@ const updateTotalForOrder = (orderId, newTotal) => {
       }
     });
   };
-  
 
   const reloadOrderDetail = (orderId) => {
     console.log(orderId);
@@ -422,6 +488,16 @@ const updateTotalForOrder = (orderId, newTotal) => {
         });
     }
   };
+
+
+
+  
+  const formatDateTime = (dateTime) => {
+    if (!dateTime) return "Đang cập nhật";
+    return moment(dateTime).tz("Asia/Ho_Chi_Minh").add(7,'hours').format('DD/MM/YYYY HH:mm:ss');
+    // Set the time zone to Vietnam's ICT
+  };
+  
   return (
     <>
       <ToastContainer />
@@ -480,8 +556,119 @@ const updateTotalForOrder = (orderId, newTotal) => {
                 <Card>
                   <CardContent>
                     <CardContent>
+                      <Typography variant="h5" sx={{ marginBottom: 2 }}>
+                        Thông Tin đơn hàng
+                      </Typography>
+
+                      <Typography
+                        variant="body1"
+                        component="p"
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          marginBottom: "8px", // Thêm khoảng cách dưới cùng của dòng
+                          fontSize: "1rem",
+                          marginRight: "2px",
+                        }}
+                      >
+                        <PlaceIcon style={iconColor} />{" "}
+                        <strong>Địa chỉ xe hư:</strong>
+                        <Typography
+                          variant="h6"
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            marginLeft: "10px",
+                          }}
+                        >
+                          {formattedAddresses.departure||"Đang cập nhật"}
+                        </Typography>
+                      </Typography>
+                  
+                      <Typography
+                        variant="body1"
+                        component="p"
+                        sx={{
+                          marginBottom: "8px",
+                          fontSize: "1rem",
+                        }}
+                      >
+                        <LocationOnIcon style={iconColor} />
+                        <strong>Địa chỉ xe hư: </strong>
+                        <Typography
+                          variant="h6"
+                          component="span"
+                          sx={{
+                            padding: "8px",
+                            borderRadius: "4px",
+                            marginLeft: "4px",
+                            wordWrap: "break-word",
+                            overflowWrap: "break-word",
+                            whiteSpace: "normal",
+                            flex: 1,
+                          }}
+                        >
+                          {}
+                          {formattedAddresses.destination||"Đang cập nhật"}
+                        </Typography>
+                      </Typography>
+                      <Typography
+                        variant="body1"
+                        component="p"
+                        sx={{
+                          marginBottom: "8px",
+                          fontSize: "1rem",
+                        }}
+                      >
+                        <TimerIcon style={iconColor} />
+                        <strong>Thời gian bắt đầu: </strong>
+                        <Typography
+                          variant="h6"
+                          component="span"
+                          sx={{
+                            padding: "8px",
+                            borderRadius: "4px",
+                            marginLeft: "4px",
+                            wordWrap: "break-word",
+                            overflowWrap: "break-word",
+                            whiteSpace: "normal",
+                            flex: 1,
+                          }}
+                        >
+                           {formatDateTime(dataOrder.startTime || "Đang cập nhật")}
+                        </Typography>
+                      </Typography>
+                
+                      <Typography
+                        variant="body1"
+                        component="p"
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          marginBottom: "8px", // Thêm khoảng cách dưới cùng của dòng
+                          fontSize: "1rem",
+                          marginRight: "2px",
+                        }}
+                      >
+                        <AssignmentIcon style={iconColor} />{" "}
+                        <strong>Ghi chú kỹ thuật viên:</strong>
+                        <Typography
+                          variant="h6"
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            marginLeft: "10px",
+                          }}
+                        >
+                          {" "}
+                          {dataOrder.staffNote || "Không có thông tin"}
+                        </Typography>
+                      </Typography>
+                    </CardContent>
+                    {/* 
+                    <CardContent>
                       <Typography variant="h6" sx={{ marginBottom: 2 }}>
-                        orderDetailId: {selectedEditOrder[0].id}
+                        orderDetailId: {dataOrder.id}
                       </Typography>
                       <Typography variant="body2">
                         orderId:{selectedEditOrder[0].orderId}
@@ -496,7 +683,7 @@ const updateTotalForOrder = (orderId, newTotal) => {
                         Tổng:{selectedEditOrder[0].tOtal}
                         <span> VNĐ</span>
                       </Typography>
-                    </CardContent>
+                    </CardContent> */}
                     <TextField
                       name="id"
                       label="id"
@@ -572,7 +759,7 @@ const updateTotalForOrder = (orderId, newTotal) => {
                             InputProps={{
                               startAdornment: (
                                 <InputAdornment position="start">
-                                  <AccountBalanceWalletIcon />
+                                  <AccountBalanceWalletIcon style={iconColor}  />
                                 </InputAdornment>
                               ),
                               endAdornment: (

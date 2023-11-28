@@ -61,7 +61,7 @@ const AddRescueVehicleOwner = () => {
     phone: "",
     avatar: "",
     accountId: "",
-    createAt: "",
+    createAt: new Date(),
     area:""
   };
 
@@ -79,11 +79,16 @@ const AddRescueVehicleOwner = () => {
     console.log("Dữ liệu đã nhập:", rescueVehicleOwner);
     dispatch(createRescueVehicleOwner(values))
       .then((response) => {
-        console.log(response);
-        toast.success("Tạo Tài Khoản Thành Công");
+        if (response.payload.status ==="Success"){
+          toast.success("Tạo Tài Khoản Thành Công");
 
-        // Đặt lại giá trị của formik về giá trị ban đầu (rỗng)
-        formikRef.current.resetForm();
+          // Đặt lại giá trị của formik về giá trị ban đầu (rỗng)
+          formikRef.current.resetForm();
+        }else
+        {
+          toast.error("Tạo Tài Khoản không Thành Công vui lòng thử lại");
+
+        }
       })
       .catch((error) => {
         if (error.response && error.response.data) {
@@ -272,19 +277,7 @@ const AddRescueVehicleOwner = () => {
                 helperText={touched.birthdate && errors.birthdate}
                 sx={{ gridColumn: "span 2" }}
               />
-              <TextField
-                fullWidth
-                variant="filled"
-                type="date"
-                label="Ngày Tạo"
-                onBlur={handleBlur}
-                onChange={handleChange}
-                value={values.createAt}
-                name="createAt"
-                error={touched.createAt && errors.createAt ? true : false}
-                helperText={touched.createAt && errors.createAt}
-                sx={{ gridColumn: "span 2" }}
-              />
+        
               <Box sx={{ minWidth: 120 }}>
                 <FormControl
                   fullWidth

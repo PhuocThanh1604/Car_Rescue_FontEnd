@@ -18,13 +18,13 @@ const CreateAccount = () => {
   const checkoutSchema = yup.object().shape({
     email: yup.string().email("Invalid email").required("Required"),
     password: yup.string().required("Required"),
-    date: yup.date().required("Required"), // Date validation
+    date: yup.date().required("Required"), 
   });
   //Bien khoi tao
   const initialValues = {
     email: "",
     password: "",
-    date: "",
+    date: new Date(),
   };
 
   // Tạo ref để lưu trữ tham chiếu đến formik
@@ -106,19 +106,6 @@ const CreateAccount = () => {
                 name="password"
                 error={touched.password && errors.password ? true : false}
                 helperText={touched.password && errors.password}
-                sx={{ gridColumn: "span 2" }}
-              />
-              <TextField
-                fullWidth
-                variant="filled"
-                type="date"
-                label="Date"
-                onBlur={handleBlur}
-                onChange={handleChange}
-                value={values.date}
-                name="date"
-                error={touched.date && errors.date ? true : false}
-                helperText={touched.date && errors.date}
                 sx={{ gridColumn: "span 2" }}
               />
             </Box>

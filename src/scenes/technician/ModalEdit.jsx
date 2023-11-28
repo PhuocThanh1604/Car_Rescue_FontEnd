@@ -48,6 +48,16 @@ const ModalEdit = ({
     }));
   };
 
+  const getCurrentDateISOString = () => {
+    const date = new Date();
+    return date.toISOString();
+  };
+  
+
+  useEffect(() => {
+    const currentDate = getCurrentDateISOString();
+  }, []);
+
   const reloadTechnicians = () => {
     dispatch(fetchTechnicians())
       .then((response) => {
@@ -90,6 +100,7 @@ const ModalEdit = ({
     console.log(setEdit);
   };
   const handleSaveClick = () => {
+
     if (!selectedEditTechnician || !edit) {
       toast.error("Không có thông tin kỹ thuật viên để cập nhật.");
       return;
@@ -114,8 +125,10 @@ const ModalEdit = ({
         
         return;
       }
+      const currentDate = getCurrentDateISOString();
+      const dataToSend = { ...edit, updatedAt: currentDate };
       // Gửi yêu cầu cập nhật lên máy chủ
-      dispatch(editTechnician({ data: edit }))
+      dispatch(editTechnician({ data: dataToSend }))
         .then(() => {
           setIsSuccess(true);
           toast.success("Cập nhật thành công.");
@@ -218,6 +231,7 @@ const ModalEdit = ({
                     margin="normal"
                     style={{ display: "none" }}
                   />
+                     
                   <TextField
                     name="fullname"
                     label="Họ Và Tên"
@@ -297,7 +311,28 @@ const ModalEdit = ({
                       </MenuItem>
                     </Select>
                   </FormControl>
- 
+                  <FormControl fullWidth sx={{ marginTop: 1 }}>
+                      <InputLabel id="demo-simple-select-label">
+                        Khu Vực
+                      </InputLabel>
+                      <Select
+                        labelId="demo-simple-select-label"
+                        id="demo-simple-select"
+                        value={edit.area || ""}
+                        onChange={handleInputChange}
+                        variant="outlined"
+                        className="filter-select"
+                        name="area"
+                        label="Khu vực"
+                      >
+                        <MenuItem key="area-1" value="1">
+                          1
+                        </MenuItem>
+                        <MenuItem key="area-2" value="2">
+                        2
+                        </MenuItem>
+                      </Select>
+                    </FormControl>
                   <TextField
                     name="phone"
                     label="Số Điện Thoại"

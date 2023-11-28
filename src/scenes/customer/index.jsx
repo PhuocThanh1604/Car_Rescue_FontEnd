@@ -183,7 +183,10 @@ const Customers = (props) => {
       width: 150,
       key: "status",
       valueGetter: (params) =>
-        moment(params.row.createAt).utcOffset(7).format("DD-MM-YYYY"),
+        moment(params.row.createAt).tz("Asia/Ho_Chi_Minh")
+        .add(7, "hours")
+        .format("DD-MM-YYYY"),
+       
     },
     {
       field: "avatar",
