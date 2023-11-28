@@ -126,12 +126,6 @@ const handleDetailClick = (orderId) => {
     }
   };
 
-  if (orders) {
-    orders.forEach((rescueVehicleOwner) => {
-      // Đây bạn có thể truy cập và xử lý dữ liệu từng đối tượng khách hàng ở đây
-    });
-  }
-
   useEffect(() => {
     setLoading(true);
     dispatch(fetchOrdersCancelled())

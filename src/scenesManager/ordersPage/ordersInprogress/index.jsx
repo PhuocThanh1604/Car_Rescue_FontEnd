@@ -173,38 +173,46 @@ const OrdersInprogress = (props) => {
       });
   };
 
-  const fetchFullname = (customerId) => {
-    // You can use your existing code to fetch the fullname
-    dispatch(getCustomerIdFullName({ id: customerId }))
-      .then((response) => {
-        const data = response.payload.data;
-        if (data && data.fullname) {
-          // Update the state with the fetched fullname
-          setFullnameData((prevData) => ({
-            ...prevData,
-            [customerId]: data.fullname,
-          }));
-        } else {
-          console.error("Không tìm thấy tên đầy đủ trong phản hồi API..");
-        }
-      })
-      .catch((error) => {
-        console.error("Lỗi khi tìm nạp dữ liệu khách hàng:", error);
-      });
-  };
-
 
   // Use an effect to fetch the fullname when the component mounts or customerId changes
   useEffect(() => {
-    // Assuming you have an array of data, iterate through it and fetch fullnames
-    data.forEach((row) => {
-      const customerId = row.customerId;
-      // Check if you have already fetched the fullname to avoid duplicate requests
-      if (!fullnameData[customerId]) {
-        fetchFullname(customerId);
-      }
-    });
+    const uniqueCustomerIds = [...new Set(data.map((row) => row.customerId))];
+
+    const fetchFullNames = async (customerIds) => {
+      const uniqueCustomerIdsToFetch = customerIds.filter(
+        (customerId) => !fullnameData[customerId]
+      );
+
+      const fetchPromises = uniqueCustomerIdsToFetch.map((customerId) =>
+        fetchFullname(customerId)
+      );
+
+      await Promise.all(fetchPromises);
+    };
+    fetchFullNames(uniqueCustomerIds);
+    // debouncedFetchAddresses(uniqueDepartures);
   }, [data, fullnameData]);
+  const fetchFullname = (customerId) => {
+    if (!fullnameData[customerId]) {
+      dispatch(getCustomerIdFullName({ id: customerId }))
+        .then((response) => {
+          const data = response.payload.data;
+          if (data && data.fullname) {
+            // Update the state with the fetched fullname
+            setFullnameData((prevData) => ({
+              ...prevData,
+              [customerId]: data.fullname,
+            }));
+          } else {
+            console.error("Fullname not found in the API response.");
+          }
+        })
+        .catch((error) => {
+          console.error("Error while fetching customer data:", error);
+        });
+    }
+    // You can use your existing code to fetch the fullname
+  };
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);

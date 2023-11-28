@@ -64,7 +64,7 @@ const Orders = (props) => {
     const value = event.target.value.toLowerCase();
     setSearchText(value);
 
-    // Filter the orders based on the entered search query
+    // Filter the orders based on the entered search queryddđsss
     const filteredOrders = orders.filter((order) => {
       const nameMatch =
         fullnameData[order.customerId] && // Check if fullname data is available
