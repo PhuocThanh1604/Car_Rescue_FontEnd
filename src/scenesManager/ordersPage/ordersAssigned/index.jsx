@@ -228,11 +228,14 @@ const OrdersAssigned = (props) => {
     setPage(0);
   };
 
-  const filteredOrdersPagination = filteredOrders&& filteredOrders.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
-  );
+  let filteredOrdersPagination = [];
 
+  if (Array.isArray(filteredOrders)) {
+    filteredOrdersPagination =filteredOrders && filteredOrders.slice(
+      page * rowsPerPage,
+      page * rowsPerPage + rowsPerPage
+    );
+  }
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   // eslint-disable-next-line no-sparse-arrays

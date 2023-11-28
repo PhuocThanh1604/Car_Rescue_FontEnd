@@ -62,12 +62,7 @@ const Orders = (props) => {
   const [selectedOrderFormattedAddress, setSelectedOrderFormattedAddress] =
     useState("");
 
-  // useEffect(() => {
-  //   if (!data || data.length === 0) {
-  //     fetchOrdersNew();
-  //   }
-  // }, [data]); // Chỉ gọi API nếu 'data' rỗng hoặc chưa được tải
-  //Reload data after assigning
+
   const handleDataUpdated = () => {
     reloadOrdersNew();
   };
@@ -316,7 +311,6 @@ const Orders = (props) => {
   
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  // eslint-disable-next-line no-sparse-arrays
   const columns = [
     {
       field: "customerId",

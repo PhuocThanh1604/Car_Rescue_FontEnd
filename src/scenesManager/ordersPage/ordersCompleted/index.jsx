@@ -63,9 +63,8 @@ const Orders = (props) => {
   const handleSearchChange = (event) => {
     const value = event.target.value.toLowerCase();
     setSearchText(value);
-
     // Filter the orders based on the entered search query
-    const filteredOrders = orders.filter((order) => {
+    const filteredOrders = (orders || []).filter((order) => {
       const nameMatch =
         fullnameData[order.customerId] && // Check if fullname data is available
         fullnameData[order.customerId].toLowerCase().includes(value);
@@ -79,7 +78,7 @@ const Orders = (props) => {
 
     setFilteredOrders(filteredOrders);
   };
-
+  
   const handleFilterChange = (event) => {
     const selectedStatusOption = event.target.value;
     setFilterOption(selectedStatusOption);
@@ -88,6 +87,8 @@ const Orders = (props) => {
       // Hiển thị tất cả các trạng thái
       setFilteredOrders(orders);
     } else {
+
+      
       // Lọc sản phẩm dựa trên giá trị trạng thái
       const filteredOrders = orders.filter(
         (order) => order.rescueType === selectedStatusOption
@@ -95,6 +96,7 @@ const Orders = (props) => {
       setFilteredOrders(filteredOrders);
     }
   };
+  
 
   const handleDateFilterChange = () => {
     if (startDate && endDate) {
@@ -267,6 +269,7 @@ const fetchFullname = (customerId) => {
                 : rescueType === "Towing"
             }
           >
+            {rescueType === "repair" && <BuildIcon />}
             {rescueType === "Towing" && <SupportIcon />}
             {rescueType === "Fixing" && <HandymanIcon />}
             <Typography color={colors.grey[100]} sx={{ ml: "8px" }}>
