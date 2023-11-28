@@ -127,9 +127,10 @@ const MyModal = (props) => {
     }
   };
 
-  // Hiển thị tất cả dịch vụ
+  // Hiển thị tất cả dịch vụ và quantity
   const fetchOrderDetail = (orderId) => {
     console.log(orderId);
+    setServiceNames(null);
     // Make sure you have a check to prevent unnecessary API calls
     if (orderId) {
       dispatch(getOrderDetailId({ id: orderId }))
@@ -137,86 +138,44 @@ const MyModal = (props) => {
           const data = response.payload.data;
           console.log(data);
           if (data && Array.isArray(data)) {
-            const serviceIds = data.map((item) => item.serviceId);
-            console.log(serviceIds);
+            const serviceDetails = data.map((item) => ({
+              serviceId: item.serviceId,
+              quantity: item.quantity,
+            }));
 
-            // Tạo mảng promises để gọi API lấy thông tin từng serviceId
-            const servicePromises = serviceIds.map((serviceId) => {
-              return dispatch(getServiceId({ id: serviceId }))
-                .then((serviceResponse) => {
-                  const serviceName = serviceResponse.payload.data.name;
-                  console.log(
-                    `ServiceId: ${serviceId}, ServiceName: ${serviceName}`
-                  );
-                  return {
-                    serviceId,
-                    serviceName,
-                  };
-                })
-                .catch((serviceError) => {
-                  console.error(
-                    `Error while fetching service data for serviceId ${serviceId}:`,
-                    serviceError
-                  );
-                  return null;
-                });
-            });
+            // Tạo mảng promises để gọi API lấy thông tin từng serviceId và quantity
+            const servicePromises = serviceDetails.map(
+              ({ serviceId, quantity }) => {
+                return dispatch(getServiceId({ id: serviceId }))
+                  .then((serviceResponse) => {
+                    const serviceName = serviceResponse.payload.data.name;
+                    console.log(
+                      `ServiceId: ${serviceId}, ServiceName: ${serviceName}, Quantity: ${quantity}`
+                    );
+                    return { serviceName, quantity };
+                  })
+                  .catch((serviceError) => {
+                    console.error(
+                      `Error while fetching service data for serviceId ${serviceId}:`,
+                      serviceError
+                    );
+                    return null;
+                  });
+              }
+            );
 
             // Sử dụng Promise.all để chờ tất cả các promises hoàn thành
             Promise.all(servicePromises)
               .then((serviceData) => {
-                const serviceCounts = {};
-                const duplicatedServiceNames = {};
-
-                serviceData.forEach((service) => {
-                  if (service) {
-                    serviceCounts[service.serviceName] =
-                      (serviceCounts[service.serviceName] || 0) + 1;
-
-                    if (serviceCounts[service.serviceName] > 1) {
-                      duplicatedServiceNames[service.serviceName] =
-                        serviceCounts[service.serviceName];
-                    }
-                  }
-                });
-
-                // Log số lần serviceName bị trùng ID
-                // Log số lần serviceName bị trùng ID
-                console.log("Số lần serviceName bị trùng ID:");
-                for (const serviceName in duplicatedServiceNames) {
-                  if (
-                    Object.prototype.hasOwnProperty.call(
-                      duplicatedServiceNames,
-                      serviceName
-                    )
-                  ) {
-                    console.log(
-                      `${serviceName}: ${duplicatedServiceNames[serviceName]} lần`
-                    );
-                  }
-                }
-
-                // Hiển thị số lần serviceName xuất hiện trong dữ liệu render
-                const updatedServiceNames = serviceData.reduce(
-                  (accumulator, currentService) => {
-                    if (currentService) {
-                      const { serviceId, serviceName } = currentService;
-                      const updatedServiceName =
-                        serviceCounts[serviceName] > 1
-                          ? `${serviceName} (${serviceCounts[serviceName]} lần)`
-                          : serviceName || "Không có thông tin";
-
-                      accumulator[serviceId] = updatedServiceName;
-                    }
-                    return accumulator;
-                  },
-                  { ...(serviceNames[orderId] || {}) }
+                // Log tất cả serviceName và quantity từ API
+                console.log(
+                  "Tất cả serviceName và quantity từ API:",
+                  serviceData
                 );
-
-                // Cập nhật danh sách serviceName vào state
+                // Cập nhật state với serviceNames và quantity đã lấy được từ API
                 setServiceNames((prevServiceNames) => ({
                   ...prevServiceNames,
-                  [orderId]: updatedServiceNames,
+                  [orderId]: serviceData,
                 }));
               })
               .catch((error) => {
@@ -732,6 +691,7 @@ const MyModal = (props) => {
                               {formattedAddresses.departure || "Đang cập nhật"}
                             </Typography>
                           </Typography>
+
                           <Typography
                             variant="body1"
                             component="p"
@@ -777,33 +737,36 @@ const MyModal = (props) => {
                                 flex: 1,
                               }}
                             >
-                              {Object.entries(serviceNames).map(
-                                ([orderId, serviceData], index) => {
-                                  const allServices = Object.entries(
-                                    serviceData
-                                  ).map(
-                                    ([serviceId, serviceName], innerIndex) => (
-                                      <React.Fragment key={serviceId}>
-                                        {serviceName || "Không có thông tin"}
-                                        {innerIndex <
-                                          Object.entries(serviceData).length -
-                                            1 && ", "}
-                                        {/* Add comma if it's not the last service in serviceData */}
-                                      </React.Fragment>
-                                    )
-                                  );
+                              {serviceNames
+                                ? Object.values(serviceNames).map(
+                                    (serviceData, index) => {
+                                      const allServices = serviceData.map(
+                                        (
+                                          { serviceName, quantity },
+                                          innerIndex
+                                        ) => (
+                                          <React.Fragment key={innerIndex}>
+                                            {serviceName ||
+                                              "Không có thông tin"}{" "}
+                                            ({quantity})
+                                            {innerIndex <
+                                              serviceData.length - 1 && ", "}
+                                          </React.Fragment>
+                                        )
+                                      );
 
-                                  return (
-                                    <React.Fragment key={orderId}>
-                                      {allServices}
-                                      {index <
-                                        Object.entries(serviceNames).length -
-                                          1 && <br />}
-                                      {/* Add <br /> if it's not the last service in serviceNames */}
-                                    </React.Fragment>
-                                  );
-                                }
-                              )}
+                                      return (
+                                        <React.Fragment key={index}>
+                                          {allServices}
+                                          {index <
+                                            Object.values(serviceNames).length -
+                                              1 && <br />}
+                                          {/* Add <br /> if it's not the last service in serviceNames */}
+                                        </React.Fragment>
+                                      );
+                                    }
+                                  )
+                                : "Không có thông tin"}
                             </Typography>
                           </Typography>
 
