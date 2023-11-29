@@ -21,6 +21,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { createAccount, getAccountEmail } from "../../redux/accountSlice";
 import { createRescueVehicleOwner } from "../../redux/rescueVehicleOwnerSlice";
 import UploadImageField from "../../components/uploadImage";
+import { createManager } from "../../redux/managerSlice";
 
 const AddRescueVehicleOwner = () => {
   const dispatch = useDispatch();
@@ -75,11 +76,10 @@ const AddRescueVehicleOwner = () => {
     setSelectedAccount(null);
     // In ra tất cả dữ liệu đã nhập
     console.log("Dữ liệu đã nhập:", rescueVehicleOwner);
-    dispatch(createRescueVehicleOwner(values))
+    dispatch(createManager(values))
       .then((response) => {
         if (response.payload.status ==="Success"){
-          toast.success("Tạo Tài Khoản Thành Công");
-
+          toast.success("Tạo Tài Khoản Manager Thành Công")
           formikRef.current.resetForm();
         }else
         {

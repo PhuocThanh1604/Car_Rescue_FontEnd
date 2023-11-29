@@ -1,5 +1,3 @@
-
-
 import React, { useEffect, useState } from "react";
 import {
   Box,
@@ -16,7 +14,7 @@ import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import Header from "../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
-import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange';
+import CurrencyExchangeIcon from "@mui/icons-material/CurrencyExchange";
 import ModalEdit from "./ModalComponentEdit";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -31,8 +29,8 @@ import { getTransactionOfWalletId } from "../../redux/transactionsSlice";
 import AddCardIcon from "@mui/icons-material/AddCard";
 import CreditScoreIcon from "@mui/icons-material/CreditScore";
 import RepeatOnIcon from "@mui/icons-material/RepeatOn";
-import CreditCardOffIcon from '@mui/icons-material/CreditCardOff';
-import AssuredWorkloadIcon from '@mui/icons-material/AssuredWorkload';
+import CreditCardOffIcon from "@mui/icons-material/CreditCardOff";
+import AssuredWorkloadIcon from "@mui/icons-material/AssuredWorkload";
 const TransactionDetails = () => {
   const { id } = useParams();
   console.log("Selected Wallet ID in TransactionDetails:", id);
@@ -41,7 +39,7 @@ const TransactionDetails = () => {
   const transactions = useSelector((state) => state.transaction.transactions);
   const [openEditModal, setOpenEditModal] = useState(false);
   const [searchText, setSearchText] = useState("");
-  const [filterOption, setFilterOption] = useState("Status");
+  const [filterOption, setFilterOption] = useState("Type");
   const [openModal, setOpenModal] = useState(false);
   const [selectedEditTechnician, setselectedEditTechnician] = useState(null);
   const [page, setPage] = useState(0);
@@ -68,53 +66,115 @@ const TransactionDetails = () => {
     setSearchText(value);
   };
 
-  const handleDateFilterChange = () => {
-    if (startDate && endDate) {
-      const filteredTransactionDetail = transactions
-        ? transactions.filter((user) => {
-            const orderDate = moment(user.createAt).format("YYYY-MM-DD");
-            const isAfterStartDate = moment(orderDate).isSameOrAfter(startDate);
-            const isBeforeEndDate = moment(orderDate).isSameOrBefore(endDate);
-            return isAfterStartDate && isBeforeEndDate;
-          })
-        : [];
-      setFilteredTransactionDetail(filteredTransactionDetail);
-      setFilterOption("Date");
-    } else {
-      setFilteredTransactionDetail(transactions);
-    }
+  // const handleDateFilterChange = () => {
+  //   if (startDate && endDate) {
+  //     const filteredTransactionDetail = transactions
+  //       ? transactions.filter((user) => {
+  //           const orderDate = moment(user.createAt).format("YYYY-MM-DD");
+  //           const isAfterStartDate = moment(orderDate).isSameOrAfter(startDate);
+  //           const isBeforeEndDate = moment(orderDate).isSameOrBefore(endDate);
+  //           return isAfterStartDate && isBeforeEndDate;
+  //         })
+  //       : [];
+  //     setFilteredTransactionDetail(filteredTransactionDetail);
+  //     setFilterOption("Date");
+  //   } else {
+  //     setFilteredTransactionDetail(transactions);
+  //   }
+  // };
+
+  const handleStartDateChange = (event) => {
+    const selectedStartDate = event.target.value;
+    setStartDate(selectedStartDate);
   };
 
+  const handleEndDateChange = (event) => {
+    const selectedEndDate = event.target.value;
+    setEndDate(selectedEndDate);
+  };
+  // const handleDateFilterChange = () => {
+  //   if (startDate && endDate) {
+  //     // Format startDate and endDate to the beginning of the day in the specified time zone
+  //     const formattedStartDate = moment(startDate)
+  //       .tz("Asia/Ho_Chi_Minh")
+  //       .add(7, "hours")
+  //       .startOf("day");
+  //     const formattedEndDate = moment(endDate)
+  //       .tz("Asia/Ho_Chi_Minh")
+  //       .add(7, "hours")
+  //       .startOf("day");
+
+  //     const filteredTransactionDetail = transactions
+  //       ? transactions.filter((order) => {
+  //           // Adjust the order createdAt date to the same time zone
+  //           const orderDate = moment(order.createdAt)
+  //             .tz("Asia/Ho_Chi_Minh")
+  //             .add(7, "hours")
+  //             .startOf("day");
+
+  //           const isAfterStartDate = orderDate.isSameOrAfter(
+  //             formattedStartDate,
+  //             "day"
+  //           );
+  //           const isBeforeEndDate = orderDate.isSameOrBefore(
+  //             formattedEndDate,
+  //             "day"
+  //           );
+
+  //           return isAfterStartDate && isBeforeEndDate;
+  //         })
+  //       : [];
+
+  //     setFilteredTransactionDetail(filteredTransactionDetail);
+  //     setFilterOption("Date");
+  //   } else {
+  //     setFilteredTransactionDetail(transactions);
+  //   }
+  // };
   const handleFilterChange = (event) => {
-    const selectedStatusOption = event.target.value;
-    setFilterOption(selectedStatusOption);
-
-    if (selectedStatusOption === "Status") {
-      // Hiển thị tất cả các trạng thái
+    const selectedOption = event.target.value;
+    setFilterOption(selectedOption);
+  
+    if (selectedOption === "Type") {
+      // Reset the filter to show all transactions
       setFilteredTransactionDetail(transactions);
     } else {
-      // Lọc sản phẩm dựa trên giá trị trạng thái
-      const filteredTransaction = transactions.filter(
-        (transactionDetail) => transactionDetail.status === selectedStatusOption
+      // Filter by the selected type (Withdraw or Deposit)
+      const filtered = transactions.filter(
+        (transactionDetail) => transactionDetail.type === selectedOption
       );
-      setFilteredTransactionDetail(filteredTransaction);
+      setFilteredTransactionDetail(filtered);
     }
   };
+  
+  
+  useEffect(() => {
+    const filtered = transactions.filter((transaction) => {
+      const matchesType = filterOption === "Type" || transaction.type === filterOption;
+      return matchesType ;
+    });
+  
+    setFilteredTransactionDetail(filtered);
+  }, [transactions, searchText, filterOption]);
+  
+  
 
   const handleDeleteClick = (technician) => {
     setSelectedtechnician(technician);
     setOpenDeleteModal(true);
   };
 
+
   useEffect(() => {
+
     const filteredTransactionDetail = transactions
       ? transactions.filter((technician) => {
-       
           const filterMatch =
             filterOption === "Status" ||
-            (filterOption === "ACTIVE" && technician.status === "ACTIVE") ||
-            (filterOption === "INACTIVE" && technician.status === "INACTIVE");
-          return  filterMatch;
+            (filterOption === "NEW" && technician.status === "NEW") ||
+            (filterOption === "COMPLETED" && technician.status === "COMPLETED")||
+            (filterOption === "FAILD" && technician.status === "FAILD");
+          return filterMatch;
         })
       : [];
     setFilteredTransactionDetail(filteredTransactionDetail);
@@ -122,17 +182,13 @@ const TransactionDetails = () => {
 
   useEffect(() => {
     setLoading(true);
-    console.log("id" + id);
-    // Pass the 'id' to the API request as a parameter
     dispatch(getTransactionOfWalletId({ id }))
       .then((response) => {
-        // Successfully fetched data
         const responseData = response.payload.data;
-        console.log("responseData detail" + responseData);
+        console.log("responseData detail", responseData);
         if (responseData) {
-          setData(responseData);
           setFilteredTransactionDetail(responseData);
-          // Handle the data as needed
+          setData(responseData); // Store all data for future reference
         }
       })
       .catch((error) => {
@@ -142,6 +198,76 @@ const TransactionDetails = () => {
         setLoading(false);
       });
   }, [dispatch, id]);
+
+  // Handling changes in filterOption, searchText, startDate, endDate
+  useEffect(() => {
+    // Applying filters when filter options change or search text or date range is updated
+    const applyFilters = () => {
+      let filteredData = data; // Using stored data which has all transactions
+      if (searchText) {
+        filteredData = filteredData.filter((transaction) =>
+          transaction.some((field) =>
+            String(field).toLowerCase().includes(searchText.toLowerCase())
+          )
+        );
+      }
+
+      if (filterOption !== "Type") {
+        filteredData = filteredData.filter(
+          (transaction) => transaction.type === filterOption
+        );
+      }
+
+      if (startDate && endDate) {
+        const formattedStartDate = moment(startDate)
+        .tz("Asia/Ho_Chi_Minh")
+        .add(7, "hours")
+        .startOf("day");
+      const formattedEndDate = moment(endDate)
+        .tz("Asia/Ho_Chi_Minh")
+        .add(7, "hours")
+        .startOf("day");
+
+      filteredData = filteredData.filter((transaction) => {
+        const orderDate = moment(transaction.createdAt)
+          .tz("Asia/Ho_Chi_Minh")
+          .add(7, "hours")
+          .startOf("day");
+
+        return (
+          orderDate.isSameOrAfter(formattedStartDate, "day") &&
+          orderDate.isSameOrBefore(formattedEndDate, "day")
+        );
+      });
+      }
+
+      setFilteredTransactionDetail(filteredData);
+    };
+
+    applyFilters();
+  }, [searchText, filterOption, startDate, endDate, data]);
+  // useEffect(() => {
+  //   setLoading(true);
+  //   console.log("id" + id);
+  
+  //   dispatch(getTransactionOfWalletId({ id }))
+  //     .then((response) => {
+  //       const responseData = response.payload.data;
+  //       console.log("responseData detail", responseData);
+  
+  //       if (responseData) {
+  //         setFilteredTransactionDetail(responseData);
+  //       }
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error fetching data:", error);
+  //     })
+  //     .finally(() => {
+  //       setLoading(false);
+  //     });
+  // }, [dispatch, id]);
+  
+  
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -206,7 +332,6 @@ const TransactionDetails = () => {
                 : type === "Deposit"
                 ? colors.purpleAccent[200]
                 : colors.purpleAccent[200]
-          
             }
           >
             {type === "Withdraw" && <CurrencyExchangeIcon />}
@@ -240,11 +365,14 @@ const TransactionDetails = () => {
 
     {
       field: "createdAt",
-      headerName: "Date",
-      width: 100,
-      key: "status",
+      headerName: "Ngày Tạo Đơn",
+      width: 140,
+      key: "createdAt",
       valueGetter: (params) =>
-        moment(params.row.createAt).utcOffset(7).format("DD-MM-YYYY"),
+        moment(params.row.createdAt)
+          .tz("Asia/Ho_Chi_Minh")
+          .add(7, "hours")
+          .format("DD-MM-YYYY HH:mm:ss"),
     },
     {
       field: "status",
@@ -285,11 +413,7 @@ const TransactionDetails = () => {
 
   return (
     <Box m="10px">
-      <Header
-        title="Chi tiết đơn hàng"
-    
-      walletId={"WalletId: "+id}
-      />
+      <Header title="Chi tiết đơn hàng" walletId={"WalletId: " + id} />
       <Box display="flex" className="box" left={0}>
         <Box display="flex" borderRadius="5px" border={1} marginRight={2}>
           <InputBase
@@ -314,30 +438,38 @@ const TransactionDetails = () => {
               variant="outlined"
               className="filter-select"
             >
-              <MenuItem key="status-all" value="Status">
-                Trạng Thái
+              <MenuItem key="type-all" value="Type">
+                Hình thức
               </MenuItem>
-              <MenuItem key="status-active" value="ACTIVE">
-                Hoạt Động
+              <MenuItem key="type-withdraw" value="Withdraw">
+                Rút tiền
               </MenuItem>
-              <MenuItem key="status-INACTIVE" value="INACTIVE">
-                Không Hoạt Động
+              <MenuItem key="type-deposit" value="Deposit">
+                Nạp tiền
               </MenuItem>
+              {/* Add more MenuItem options if needed */}
             </Select>
           </FormControl>
         </Box>
+
         <Box display="flex" alignItems="center" className="startDate-box">
           <TextField
             label="Từ ngày"
             type="date"
             value={startDate || ""}
-            onChange={(event) => setStartDate(event.target.value)}
+            onChange={(event) => {
+              setStartDate(event.target.value);
+              // handleDateFilterChange(); // Gọi hàm lọc ngay khi ngày tháng thay đổi
+            }}
             InputLabelProps={{
               shrink: true,
             }}
-            onBlur={handleDateFilterChange}
+            onBlur={handleStartDateChange}
             inputProps={{
-              max: moment().format("YYYY-MM-DD"), // Set the maximum selectable date as today
+              max: moment()
+                .tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
+                .add(7, "hours") // Adding 3 hours (you can adjust this number as needed)
+                .format("DD-MM-YYYY"), // Set the maximum selectable date as today
             }}
             sx={{ ml: 4, mr: 2 }}
           />
@@ -348,13 +480,18 @@ const TransactionDetails = () => {
             label="Đến ngày"
             type="date"
             value={endDate || ""}
-            onChange={(event) => setEndDate(event.target.value)}
+            onChange={(event) => {
+              setEndDate(event.target.value);
+            }}
             InputLabelProps={{
               shrink: true,
             }}
-            onBlur={handleDateFilterChange}
+            onBlur={handleEndDateChange }
             inputProps={{
-              max: moment().format("YYYY-MM-DD"), // Set the maximum selectable date as today
+              max: moment()
+                .tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
+                .add(7, "hours") // Adding 3 hours (you can adjust this number as needed)
+                .format("DD-MM-YYYY"), // Set the maximum selectable date as today
             }}
           />
         </Box>
@@ -433,9 +570,7 @@ const TransactionDetails = () => {
               boxShadow: 24,
               borderRadius: 16,
             }}
-          >
-   
-          </Box>
+          ></Box>
         </Fade>
       </Modal>
     </Box>

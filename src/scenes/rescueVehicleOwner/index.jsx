@@ -273,7 +273,7 @@ const RescueVehicleOwners = (props) => {
         moment(params.row.createdAt)
           .tz("Asia/Ho_Chi_Minh")
           .add(7, "hours")
-          .format("DD-MM-YYYY")
+          .format("DD-MM-YYYY"),
     },
     {
       field: "phone",
@@ -367,12 +367,7 @@ const RescueVehicleOwners = (props) => {
     <Box m="5px">
       <Header title="Chủ Xe Cứu Hộ" subtitle="Danh sách chủ xe cứu hộ" />
       <Box display="flex" className="box" left={0}>
-        <Box
-          display="flex"
-          borderRadius="5px"
-          border={1}
-          marginRight={2} 
-        >
+        <Box display="flex" borderRadius="5px" border={1} marginRight={2}>
           <InputBase
             sx={{ ml: 4, flex: 1 }}
             placeholder="Tìm kiếm"
@@ -383,7 +378,6 @@ const RescueVehicleOwners = (props) => {
             <SearchIcon />
           </IconButton>
         </Box>
-
 
         <ToastContainer />
         <Box display="flex" alignItems="center" className="filter-box">
@@ -492,7 +486,6 @@ const RescueVehicleOwners = (props) => {
           loading={loading}
         />
       </Box>
-  
 
       <ModalEdit
         openEditModal={openEditModal}
@@ -517,9 +510,7 @@ const RescueVehicleOwners = (props) => {
               boxShadow: 24,
               borderRadius: 16,
             }}
-          >
-           
-          </Box>
+          ></Box>
         </Fade>
       </Modal>
     </Box>

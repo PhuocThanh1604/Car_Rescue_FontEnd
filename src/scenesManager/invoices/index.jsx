@@ -14,6 +14,9 @@ import {
   Card,
   CardContent,
   Grid,
+  FormControl,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
@@ -60,7 +63,7 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
   const navigate = useNavigate();
   const transactions = useSelector((state) => state.transaction.transactions);
   const [searchText, setSearchText] = useState("");
-  const [filterOption, setFilterOption] = useState("Status");
+  const [filterOption, setFilterOption] = useState("Type");
   const [openModal, setOpenModal] = useState(false);
   const [filteredTransaction, setFilteredTransaction] = useState([]);
   const [page, setPage] = useState(0);
@@ -180,15 +183,41 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
     const value = event.target.value || ""; // Use an empty string if the value is null
     setSearchText(value);
   };
+
   const handleDateFilterChange = () => {
     if (startDate && endDate) {
-      const filteredVehicles = transactions.filter((user) => {
-        const orderDate = moment(user.createAt).format("YYYY-MM-DD");
-        const isAfterStartDate = moment(orderDate).isSameOrAfter(startDate);
-        const isBeforeEndDate = moment(orderDate).isSameOrBefore(endDate);
-        return isAfterStartDate && isBeforeEndDate;
-      });
-      setFilteredTransaction(filteredVehicles);
+      // Format startDate and endDate to the beginning of the day in the specified time zone
+      const formattedStartDate = moment(startDate)
+        .tz("Asia/Ho_Chi_Minh")
+        .add(7, "hours")
+        .startOf("day");
+      const formattedEndDate = moment(endDate)
+        .tz("Asia/Ho_Chi_Minh")
+        .add(7, "hours")
+        .startOf("day");
+
+      const filteredTransactionDetail = transactions
+        ? transactions.filter((order) => {
+            // Adjust the order createdAt date to the same time zone
+            const orderDate = moment(order.createdAt)
+              .tz("Asia/Ho_Chi_Minh")
+              .add(7, "hours")
+              .startOf("day");
+
+            const isAfterStartDate = orderDate.isSameOrAfter(
+              formattedStartDate,
+              "day"
+            );
+            const isBeforeEndDate = orderDate.isSameOrBefore(
+              formattedEndDate,
+              "day"
+            );
+
+            return isAfterStartDate && isBeforeEndDate;
+          })
+        : [];
+
+        setFilteredTransaction(filteredTransaction);
       setFilterOption("Date");
     } else {
       setFilteredTransaction(transactions);
@@ -208,6 +237,32 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
       }
     }
   }, [transactions]);
+  const handleFilterChange = (event) => {
+    const selectedOption = event.target.value;
+    setFilterOption(selectedOption);
+  
+    if (selectedOption === "Type") {
+      // Reset the filter to show all transactions
+      setFilteredTransaction(transactions);
+    } else {
+      // Filter by the selected type
+      const filteredByType = transactions.filter(
+        (transactionDetail) => transactionDetail.type === selectedOption
+      );
+      setFilteredTransaction(filteredByType);
+    }
+  };
+  useEffect(() => {
+    // Giả sử bạn cũng muốn lọc dựa trên searchText
+    const filteredTransactionDetail = transactions.filter((transaction) => {
+      const matchesType = filterOption === "Type" || transaction.type === filterOption;
+      const matchesSearch = searchText === "" || transaction.someField.includes(searchText); // Thay 'someField' bằng trường dữ liệu thích hợp
+      return matchesType && matchesSearch;
+    });
+  
+    setFilteredTransaction(filteredTransactionDetail);
+  }, [transactions, searchText, filterOption]);
+  
 
   // Function để chuyển đổi thời gian sang múi giờ Việt Nam
   const convertToVietnamTime = (createdAt) => {
@@ -371,8 +426,6 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
       .tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
       .add(7, 'hours') // Adding 3 hours (you can adjust this number as needed)
       .format("DD-MM-YYYY HH:mm:ss"),
-
-        
     },
     {
       field: "status",
@@ -466,19 +519,48 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
         </Box>
 
         <ToastContainer />
+        <Box display="flex" alignItems="center" className="filter-box">
+          <FormControl fullWidth>
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={filterOption}
+              onChange={handleFilterChange}
+              variant="outlined"
+              className="filter-select"
+            >
+              <MenuItem key="type-all" value="Type">
+                Hình thức
+              </MenuItem>
+              <MenuItem key="type-withdraw" value="Withdraw">
+                Rút tiền
+              </MenuItem>
+              <MenuItem key="type-deposit" value="Deposit">
+                Nạp tiền
+              </MenuItem>
+              {/* Add more MenuItem options if needed */}
+            </Select>
+          </FormControl>
+        </Box>
 
         <Box display="flex" alignItems="center" className="startDate-box">
           <TextField
             label="Từ ngày"
             type="date"
             value={startDate || ""}
-            onChange={(event) => setStartDate(event.target.value)}
+            onChange={(event) => {
+              setStartDate(event.target.value);
+              // handleDateFilterChange(); // Gọi hàm lọc ngay khi ngày tháng thay đổi
+            }}
             InputLabelProps={{
               shrink: true,
             }}
             onBlur={handleDateFilterChange}
             inputProps={{
-              max: moment().format("YYYY-MM-DD"), // Set the maximum selectable date as today
+              max: moment()
+                .tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
+                .add(7, "hours") // Adding 3 hours (you can adjust this number as needed)
+                .format("DD-MM-YYYY"), // Set the maximum selectable date as today
             }}
             sx={{ ml: 4, mr: 2 }}
           />
@@ -489,13 +571,18 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
             label="Đến ngày"
             type="date"
             value={endDate || ""}
-            onChange={(event) => setEndDate(event.target.value)}
+            onChange={(event) => {
+              setEndDate(event.target.value);
+            }}
             InputLabelProps={{
               shrink: true,
             }}
             onBlur={handleDateFilterChange}
             inputProps={{
-              max: moment().format("YYYY-MM-DD"), // Set the maximum selectable date as today
+              max: moment()
+                .tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
+                .add(7, "hours") // Adding 3 hours (you can adjust this number as needed)
+                .format("DD-MM-YYYY"), // Set the maximum selectable date as today
             }}
           />
         </Box>

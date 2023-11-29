@@ -134,9 +134,9 @@ const Managers = (props) => {
   useEffect(() => {
     const filteredManagers = managers
       ? managers.filter((manager) => {
-          const nameMatch = manager.fullname
-            .toLowerCase()
-            .includes(searchText.toLowerCase());
+          const nameMatch =
+            manager.fullname &&
+            manager.fullname.toLowerCase().includes(searchText.toLowerCase());
           const filterMatch =
             filterOption === "Status" ||
             (filterOption === "ACTIVE" && manager.status === "ACTIVE") ||
@@ -146,6 +146,7 @@ const Managers = (props) => {
       : [];
     setFilteredManagers(filteredManagers);
   }, [managers, searchText, filterOption]);
+  
 
   const reloadRescueVehicleOwners = () => {
     dispatch(fetchManagers())

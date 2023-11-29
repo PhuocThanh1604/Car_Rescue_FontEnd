@@ -1,23 +1,20 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 // import { managerDataService } from '../services/managerService';
 import axios from "axios";
+import { v4 as uuidv4 } from "uuid";
 
 export const createManager = createAsyncThunk(
   "managers/create",
   async (manager) => {
     try {
-      // Trích xuất genreName từ mảng genres
-      const genreName = manager.genres[0]?.genreName;
-      // const url = manager.bookImages[0]?.url;
-      // Tạo payload mới với genreName đã trích xuất
-      const payload = {
+      const id = uuidv4();
+      const managerData = {
         ...manager,
-        genres: [{ genreName }],
+        id: id,
       };
-
       const res = await axios.post(
-        "https://secondhandbookstoreapi.azurewebsites.net/api/Books/Create",
-        payload,
+        "https://rescuecapstoneapi.azurewebsites.net/api/Manager/Create",
+        managerData,
         {
           headers: {
             "Content-Type": "application/json",

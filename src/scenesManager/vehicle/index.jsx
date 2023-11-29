@@ -60,7 +60,7 @@ const Vehicles = (props) => {
   const iconColor = { color: colors.blueAccent[500] };
   const [openEditModal, setOpenEditModal] = useState(false);
   const [searchText, setSearchText] = useState("");
-  const [filterOption, setFilterOption] = useState("Status");
+  const [filterOption, setFilterOption] = useState("Type");
   const [openModal, setOpenModal] = useState(false);
   const [selectedBook, setSelectedBook] = useState(null);
   const [selectedEditVehicle, setSelectedEditVehicle] = useState(null);
@@ -256,7 +256,7 @@ useEffect(() => {
         vehicle.vinNumber &&
         vehicle.vinNumber.toLowerCase().includes(searchText.toLowerCase());
       const filterMatch =
-        filterOption === "type" ||
+        filterOption === "Type" ||
         (filterOption === "Xe cẩu" && vehicle.type === "Xe cẩu") ||
         (filterOption === "Xe chở" && vehicle.type === "Xe chở") ||
         (filterOption === "Xe kéo" && vehicle.type === "Xe kéo");
@@ -404,7 +404,7 @@ useEffect(() => {
               variant="outlined"
               className="filter-select"
             >
-              <MenuItem key="type-all" value="type">
+              <MenuItem key="type-all" value="Type">
                 Loại Xe
               </MenuItem>
               <MenuItem key="type-crane" value="Xe kéo">

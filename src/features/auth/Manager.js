@@ -103,6 +103,7 @@ const Manager = () => {
               <ToastContainer />
               {/* <AuthProvider> */}
               <Routes>
+                
                 <Route path="/client" element={<Dashboard />} />
                 <Route path="/manager/payments" element={<Payment />} />
                 {/* <Route path="/manager/invoices" element={<Invoices />} /> */}
