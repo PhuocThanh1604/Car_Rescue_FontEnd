@@ -155,17 +155,16 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
       createAcceptWithdrawRequest({ id: transactionId, boolean: accept })
     )
       .then(() => {
-        
         setTransactionId(transactionId);
         setOpenConfirmModal(false);
         setIsSuccess(true);
         reloadTrsansaction();
-           // Check if accept is true or false
-           if (accept) {
-            toast.success("Chấp nhận rút tiền ví thành công.");
-          } else {
-            toast.error("Không đồng ý rút tiền ví.");
-          }
+        // Check if accept is true or false
+        if (accept) {
+          toast.success("Chấp nhận rút tiền ví thành công.");
+        } else {
+          toast.error("Không đồng ý rút tiền ví.");
+        }
       })
       .catch((error) => {
         console.error(
@@ -217,7 +216,7 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
           })
         : [];
 
-        setFilteredTransaction(filteredTransaction);
+      setFilteredTransaction(filteredTransaction);
       setFilterOption("Date");
     } else {
       setFilteredTransaction(transactions);
@@ -240,7 +239,7 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
   const handleFilterChange = (event) => {
     const selectedOption = event.target.value;
     setFilterOption(selectedOption);
-  
+
     if (selectedOption === "Type") {
       // Reset the filter to show all transactions
       setFilteredTransaction(transactions);
@@ -255,14 +254,15 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
   useEffect(() => {
     // Giả sử bạn cũng muốn lọc dựa trên searchText
     const filteredTransactionDetail = transactions.filter((transaction) => {
-      const matchesType = filterOption === "Type" || transaction.type === filterOption;
-      const matchesSearch = searchText === "" || transaction.someField.includes(searchText); // Thay 'someField' bằng trường dữ liệu thích hợp
+      const matchesType =
+        filterOption === "Type" || transaction.type === filterOption;
+      const matchesSearch =
+        searchText === "" || transaction.someField.includes(searchText); // Thay 'someField' bằng trường dữ liệu thích hợp
       return matchesType && matchesSearch;
     });
-  
+
     setFilteredTransaction(filteredTransactionDetail);
   }, [transactions, searchText, filterOption]);
-  
 
   // Function để chuyển đổi thời gian sang múi giờ Việt Nam
   const convertToVietnamTime = (createdAt) => {
@@ -318,10 +318,20 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
     setPage(0);
   };
 
-  const filteredVehiclePagination = filteredTransaction.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
-  );
+  // const filteredVehiclePagination = filteredTransaction.slice(
+  //   page * rowsPerPage,
+  //   page * rowsPerPage + rowsPerPage
+  // );
+  let filteredVehiclePagination = [];
+
+  if (Array.isArray(filteredTransaction)) {
+    filteredVehiclePagination =
+      filteredTransaction &&
+      filteredTransaction.slice(
+        page * rowsPerPage,
+        page * rowsPerPage + rowsPerPage
+      );
+  }
 
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -422,10 +432,10 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
       headerName: "Ngày giao dịch",
       width: 160,
       valueGetter: (params) =>
-      moment(params.row.createdAt)
-      .tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
-      .add(7, 'hours') // Adding 3 hours (you can adjust this number as needed)
-      .format("DD-MM-YYYY HH:mm:ss"),
+        moment(params.row.createdAt)
+          .tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
+          .add(7, "hours") // Adding 3 hours (you can adjust this number as needed)
+          .format("DD-MM-YYYY HH:mm:ss"),
     },
     {
       field: "status",
@@ -620,7 +630,10 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
         }}
       >
         <DataGrid
-          rows={filteredVehiclePagination} // Thêm id nếu không có
+          rows={filteredVehiclePagination.map((row, index) => ({
+            ...row,
+            id: row.id || `temp-id-${index}`, // Generate temporary ID if 'id' is missing
+          }))}
           columns={columns}
           getRowId={(row) => row.id}
           autoHeight
@@ -685,12 +698,12 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
                           component="span" // Sử dụng Box như là một span
                           sx={{
                             color: "red",
-                           
                           }}
                         >
-                        {formatToVND(
-                          detailedData.transactionAmount || "Không có thông tin"
-                        )}
+                          {formatToVND(
+                            detailedData.transactionAmount ||
+                              "Không có thông tin"
+                          )}
                         </Box>
                       </Typography>
                     </Box>
