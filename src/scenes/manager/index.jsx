@@ -23,8 +23,7 @@ import {
 } from "../../redux/managerSlice";
 import { Edit, FilterList, Search } from "@mui/icons-material";
 import { Delete } from "@mui/icons-material";
-import ModalDetail from "./ModalComponentDetail";
-import ModalEdit from "./ModalComponentEdit";
+import ModalEdit from "./ModalDetail";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Fade from "@mui/material/Fade";
@@ -345,36 +344,21 @@ const Managers = (props) => {
       ),
       key: "update",
     },
-    // {
-    //   field: 'delete',
-    //   headerName: 'Xóa',
-    //   width: 60,
-    //   renderCell: (params) => (
-    //     <IconButton
-    //       variant="contained"
-    //       color="secondary"
-    //       onClick={() => handleDeleteClick(params.row)}
-    //       {...(loading ? { loading: true } : {})} // Conditionally include the loading attribute
-    //       comingsoon={loading ? 1 : 0}
 
-    //     >
-    //       <DeleteOutline />
-    //     </IconButton>
-    //   ),
-    //   key: 'deleted',
-    // },
   ];
 
   return (
-    <Box m="10px">
+    <Box ml="50px" mr="50px" mb="auto">
       <Header title="Quản lí" subtitle="Danh sách quản lí" />
 
       <Box display="flex" className="box" left={0}>
       <Box
-          display="flex"
-          borderRadius="5px"
-          border={1}
-          marginRight={2} 
+       display="flex"
+       borderRadius="6px"
+       border={1}
+       marginRight={2}
+       marginLeft={2}
+       width={500}
         >
           <InputBase
             sx={{ ml: 4, flex: 1 }}
@@ -445,36 +429,40 @@ const Managers = (props) => {
       </Box>
 
       <Box
-        m="40px 0 0 0"
-        height="75vh"
-        sx={{
-          "& .MuiDataGrid-root": {
-            border: "none",
-          },
-          "& .MuiDataGrid-cell": {
-            borderBottom: "none",
-          },
-          "& .name-column--cell": {
-            color: colors.greenAccent[300],
-          },
-          "& .MuiDataGrid-columnHeaders": {
-            backgroundColor: colors.blueAccent[700],
-            borderBottom: "none",
-          },
-          "& .MuiDataGrid-virtualScroller": {
-            backgroundColor: colors.primary[400],
-          },
-          "& .MuiDataGrid-footerContainer": {
-            display: "none",
-          },
-          "& .MuiCheckbox-root": {
-            color: `${colors.greenAccent[200]} !important`,
-          },
-          "& .MuiDataGrid-row": {
-            borderBottom: "none",
-          },
-        }}
-      >
+          m="10px 0 0 0"
+          height="auto"
+          sx={{
+            fontSize: "20px",
+            padding: "20px",
+            borderRadius: "20px",
+            boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.4)",
+            "& .MuiDataGrid-root": {
+              border: "none",
+            },
+            "& .MuiDataGrid-cell": {
+              borderBottom: "none",
+            },
+            "& .name-column--cell": {
+              color: colors.greenAccent[300],
+            },
+            "& .MuiDataGrid-columnHeaders": {
+              backgroundColor: colors.orange[50],
+              borderBottom: "none",
+            },
+            "& .MuiDataGrid-virtualScroller": {
+              backgroundColor: colors.white[50],
+            },
+            "& .MuiDataGrid-footerContainer": {
+              display: "none",
+            },
+            "& .MuiCheckbox-root": {
+              color: `${colors.greenAccent[200]} !important`,
+            },
+            "& .MuiDataGrid-row": {
+              borderBottom: "none",
+            },
+          }}
+        >
         <DataGrid
           rows={filteredmanagersPagination} // Thêm id nếu không có
           columns={columns}

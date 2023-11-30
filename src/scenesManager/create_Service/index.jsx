@@ -131,7 +131,7 @@ const AddService = () => {
             >
               <TextField
                 fullWidth
-                variant="filled"
+                variant="outlined"
                 type="text"
                 label="Tên Dịch Vụ"
                 onBlur={handleBlur}
@@ -144,7 +144,7 @@ const AddService = () => {
               />
               <TextField
                 fullWidth
-                variant="filled"
+                variant="outlined"
                 type="text"
                 label="Mô Tả Dịch Vụ"
                 onBlur={handleBlur}
@@ -157,7 +157,7 @@ const AddService = () => {
               />
               <TextField
                 fullWidth
-                variant="filled"
+                variant="outlined"
                 type="number"
                 label="Giá Dịch Vụ"
                 onBlur={handleBlur}
@@ -170,7 +170,7 @@ const AddService = () => {
               />
               <TextField
                 fullWidth
-                variant="filled"
+                variant="outlined"
                 type="text"
                 label="Id Của Manager"
                 onBlur={handleBlur}
@@ -182,25 +182,16 @@ const AddService = () => {
                 sx={{ gridColumn: "span 1" }}
                 style={{ display: "none" }}
               />
-              {/* <TextField
-                fullWidth
-                variant="filled"
-                type="text"
-                label="Loại Dịch Vụ"
-                onBlur={handleBlur}
-                onChange={handleChange}
-                value={values.type}
-                name="type"
-                error={touched.type && errors.type ? true : false}
-                helperText={touched.type && errors.type}
-                sx={{ gridColumn: "span 1" }}
-              /> */}
+      
               
 
-              <FormControl fullWidth variant="filled">
-                <InputLabel id="type-label">Loại Dịch Vụ</InputLabel>
+              <FormControl fullWidth >
+                <InputLabel id="demo-simple-select-label">Loại Dịch Vụ</InputLabel>
                 <Select
-                  labelId="type-label"
+                  labelId="demo-simple-select-label"
+
+                  variant="outlined"
+                  label="Loại Dịch Vụ"
                   id="type"
                   name="type"
                   value={values.type}
@@ -213,19 +204,6 @@ const AddService = () => {
                 </Select>
               </FormControl>
 
-              {/* <TextField
-                fullWidth
-                variant="filled"
-                type="date"
-                label="Ngày Sinh"
-                onBlur={handleBlur}
-                onChange={handleChange}
-                value={values.birthdate}
-                name="birthdate"
-                error={touched.birthdate && errors.birthdate ? true : false}
-                helperText={touched.birthdate && errors.birthdate}
-                sx={{ gridColumn: "span 2" }}
-              /> */}
               <Box sx={{ minWidth: 120 }}>
                 <FormControl
                   fullWidth

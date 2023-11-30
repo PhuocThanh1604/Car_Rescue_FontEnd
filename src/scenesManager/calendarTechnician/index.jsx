@@ -271,9 +271,10 @@ const CalendarTechnician = () => {
     return (
       <Box
         flex="1 1 20%"
-        backgroundColor={colors.primary[400]}
+        backgroundColor={colors.white[50]}
         p="10px"
-        borderRadius="4px"
+        borderRadius="16px"
+        boxShadow="0 0 10px 0 rgba( 0, 0, 0, 0.1)"
       >
         <Typography variant="h5" sx={{ marginBottom: "10px" }}>
           Sự kiện
@@ -319,7 +320,7 @@ const CalendarTechnician = () => {
       />
       <Box sx={{ display: "flex", justifyContent: "space-between" }}>
         {renderSidebar()}
-        <Box flex="1 1 100%" ml="10px">
+        <Box flex="1 1 100%" ml="10px" >
           <FullCalendar
             height="80vh"
             plugins={[

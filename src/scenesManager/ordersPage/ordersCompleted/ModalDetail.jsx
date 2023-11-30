@@ -681,7 +681,7 @@ const MyModal = (props) => {
                               component="span"
                               sx={{
                                 padding: "8px",
-                                marginLeft: "2px",
+                                marginLeft: "14px",
                                 wordWrap: "break-word",
                                 overflowWrap: "break-word",
                                 whiteSpace: "normal",
@@ -707,7 +707,6 @@ const MyModal = (props) => {
                               component="span"
                               sx={{
                                 padding: "8px",
-                                marginLeft: "2px",
                                 wordWrap: "break-word",
                                 overflowWrap: "break-word",
                                 whiteSpace: "normal",

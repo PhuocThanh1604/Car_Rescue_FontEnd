@@ -21,7 +21,8 @@ import Header from "../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import LocalPhoneIcon from '@mui/icons-material/LocalPhone';
+import LocalPhoneIcon from "@mui/icons-material/LocalPhone";
+import AddIcon from "@mui/icons-material/Add";
 import {
   createOrderOffline,
   createOrderOfflineFixing,
@@ -30,18 +31,15 @@ import {
 import { fetchServices } from "../../redux/serviceSlice";
 import { fetchCustomers } from "../../redux/customerSlice";
 import EditLocationAltIcon from "@mui/icons-material/EditLocationAlt";
-import GoogleMapReact from "google-map-react";
 import PlacesAutocomplete, {
   geocodeByAddress,
   getLatLng,
-  geocodeByPlaceId,
 } from "react-places-autocomplete";
 import Map from "./google";
 const CreateOrderOffline = () => {
   const dispatch = useDispatch();
   const orders = useSelector((state) => state.order.orders);
   const isNonMobile = useMediaQuery("(min-width:600px)");
-  const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedService, setSelectedService] = useState(null);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
@@ -226,7 +224,7 @@ const CreateOrderOffline = () => {
     area: "",
     customerId: "",
     service: [],
-    carId:""
+    carId: "",
   };
 
   // Tạo ref để lưu trữ tham chiếu đến formik
@@ -261,11 +259,11 @@ const CreateOrderOffline = () => {
   //     });
   // };
   const handleFormSubmit = (values, { resetForm }) => {
-    console.log(values.nameCustomer)
+    console.log(values.nameCustomer);
     const initialPhoneNumber = "+84";
     const customer_name = values.nameCustomer;
     const service = values.service;
-    const order_phone = initialPhoneNumber+values.to;
+    const order_phone = initialPhoneNumber + values.to;
     const type_payment = values.paymentMethod;
     const sms_message = `Xin chào ${customer_name}!  \nDịch vụ: ${service}\nĐơn hàng: ${order_phone} 
      của bạn đã được nhận và đang được xử lý. Hình thức thanh toán: ${type_payment}. Cảm ơn bạn đã mua hàng!`;
@@ -282,7 +280,7 @@ const CreateOrderOffline = () => {
             toast.warn("Hiện tại không có kỹ thuật viên vui lòng đợi");
           } else {
             const smsData = {
-              to:order_phone,
+              to: order_phone,
               body: sms_message,
             };
             dispatch(sendSMS(smsData))
@@ -337,7 +335,7 @@ const CreateOrderOffline = () => {
               });
             toast.success("Tạo Đơn Hàng Towing Thành Công");
           }
-          setIsDestinationSelected(false)
+          setIsDestinationSelected(false);
           formikRef.current.setFieldValue("nameCustomer", "");
           formikRef.current.setFieldValue("to", "");
           formikRef.current.setFieldValue("distance", "");
@@ -431,9 +429,28 @@ const CreateOrderOffline = () => {
           handleSubmit,
         }) => (
           <form onSubmit={handleSubmit}>
-            <Box display="flex" justifyContent="left" mb="20px">
-              <Button type="submit" color="secondary" variant="contained">
-                Tạo Dơn Hàng Offline
+            <Box
+              display="flex"
+              justifyContent="left"
+              alignItems="center"
+              mb="20px"
+             
+            >
+              <Button 
+                type="submit"
+                color="secondary"
+                variant="contained"
+                disableElevation
+                sx={{
+                  color: "black", // Change 'green' to your desired text color
+                  "& .MuiSvgIcon-root": {
+                    color: "black", // Change 'blue' to your desired icon color
+                    marginLeft: "4px", // Adjust the space between icon and text
+                    fontWeight:"bold"
+                  },
+                }}
+              >
+                <AddIcon /> Tạo Đơn Hàng Offline
               </Button>
             </Box>
             <Box
@@ -444,9 +461,9 @@ const CreateOrderOffline = () => {
                 "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
               }}
             >
-                   <TextField
+              <TextField
                 fullWidth
-                variant="filled"
+               variant="outlined"
                 type="text"
                 label="Ghi Chú Từ Khách Hàng"
                 onBlur={handleBlur}
@@ -457,11 +474,11 @@ const CreateOrderOffline = () => {
                   touched.customerNote && errors.customerNote ? true : false
                 }
                 helperText={touched.customerNote && errors.customerNote}
-                sx={{ gridColumn: "span 2" , display:"none" }}
+                sx={{ gridColumn: "span 2", display: "none" }}
               />
               <TextField
                 fullWidth
-                variant="filled"
+               variant="outlined"
                 type="text"
                 label="Ghi Chú Từ Khách Hàng"
                 onBlur={handleBlur}
@@ -474,16 +491,18 @@ const CreateOrderOffline = () => {
                 helperText={touched.customerNote && errors.customerNote}
                 sx={{ gridColumn: "span 2" }}
               />
-               <TextField
+              <TextField
                 fullWidth
-                variant="filled"
+               variant="outlined"
                 type="text"
                 label="Tên Khách Hàng"
                 onBlur={handleBlur}
                 onChange={handleChange}
                 value={values.nameCustomer}
                 name="nameCustomer"
-                error={touched.nameCustomer && errors.nameCustomer ? true : false}
+                error={
+                  touched.nameCustomer && errors.nameCustomer ? true : false
+                }
                 helperText={touched.nameCustomer && errors.nameCustomer}
                 sx={{ gridColumn: "span 2" }}
               />
@@ -523,7 +542,7 @@ const CreateOrderOffline = () => {
               />
               {/* <TextField
                 fullWidth
-                variant="filled"
+               variant="outlined"
                 type="text"
                 label="SĐT Khách Hàng"
                 onBlur={handleBlur}
@@ -534,8 +553,8 @@ const CreateOrderOffline = () => {
                 helperText={touched.to && errors.to}
                 sx={{ gridColumn: "span 2" }}
               /> */}
-
-              <FormControl fullWidth variant="filled">
+   
+              <FormControl fullWidth >
                 <InputLabel id="rescueType-label">
                   Loại Hình Thức Cứu Hộ
                 </InputLabel>
@@ -543,6 +562,8 @@ const CreateOrderOffline = () => {
                   labelId="rescueType-label"
                   id="rescueType"
                   name="rescueType"
+                  label="Loại Hình Thức Cứu Hộ"
+                  variant="outlined"
                   value={values.rescueType}
                   onChange={(event) => {
                     handleChange(event); // Gọi handleChange của Formik
@@ -572,7 +593,7 @@ const CreateOrderOffline = () => {
                   <TextField
                     {...params}
                     label="Danh Sách Dịch Vụ"
-                    variant="filled"
+                   variant="outlined"
                     onBlur={handleBlur}
                     error={touched.service && errors.service ? true : false}
                     helperText={touched.service && errors.service}
@@ -598,7 +619,7 @@ const CreateOrderOffline = () => {
                     <TextField
                       {...params}
                       label="Danh Sách Khách Hàng"
-                      variant="filled"
+                     variant="outlined"
                       onBlur={handleBlur}
                       error={
                         touched.customerId && errors.customerId ? true : false
@@ -622,12 +643,14 @@ const CreateOrderOffline = () => {
                 <Map onLocationSelected={handleMapLocationSelected} />
               </Modal>
 
-              <FormControl fullWidth variant="filled">
+              <FormControl fullWidth >
                 <InputLabel id="area-label">Khu Vực</InputLabel>
                 <Select
                   labelId="area-label"
                   id="area"
                   name="area"
+                  label="Khu Vực"
+                  variant="outlined"
                   value={values.area}
                   onChange={handleChange}
                   onBlur={handleBlur}
@@ -637,8 +660,7 @@ const CreateOrderOffline = () => {
                   <MenuItem value="2">2</MenuItem>
                 </Select>
               </FormControl>
-
-              <FormControl fullWidth variant="filled">
+              <FormControl fullWidth>
                 <InputLabel id="paymentMethod-label">
                   Phương Thức Thanh Toán
                 </InputLabel>
@@ -646,6 +668,8 @@ const CreateOrderOffline = () => {
                   labelId="paymentMethod-label"
                   id="paymentMethod"
                   name="paymentMethod"
+                  variant="outlined"
+                  label="Phương Thức Thanh Toán"
                   value={values.paymentMethod}
                   onChange={handleChange}
                   onBlur={handleBlur}
@@ -660,7 +684,7 @@ const CreateOrderOffline = () => {
 
               {/* <TextField
                 fullWidth
-                variant="filled"
+               variant="outlined"
                 type="text"
                 label="Khoảng cách "
                 onBlur={handleBlur}
@@ -683,7 +707,7 @@ const CreateOrderOffline = () => {
                     <TextField
                       {...getInputProps({
                         placeholder: "Nhập địa chỉ xe hư",
-                        variant: "filled",
+                        variant: "outlined",
                         fullWidth: true,
                         InputProps: {
                           endAdornment: (
@@ -744,7 +768,7 @@ const CreateOrderOffline = () => {
                         <TextField
                           {...getInputProps({
                             placeholder: "Nhập địa chỉ kéo đến",
-                            variant: "filled",
+                            variant: "outlined",
                             fullWidth: true,
                             InputProps: {
                               endAdornment: (
@@ -795,7 +819,7 @@ const CreateOrderOffline = () => {
               {isDestinationSelected && (
                 <TextField
                   fullWidth
-                  variant="filled"
+                 variant="outlined"
                   type="text"
                   label="Khoảng cách "
                   onBlur={handleBlur}
@@ -813,7 +837,7 @@ const CreateOrderOffline = () => {
 
               {/* <TextField
                 fullWidth
-                variant="filled"
+               variant="outlined"
                 type="text"
                 label="Khoảng cách "
                 onBlur={handleBlur}

@@ -16,9 +16,9 @@ import { tokens } from "../../../theme";
 import Header from "../../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
 import { Edit } from "@mui/icons-material";
-import ModalDetail from "./ModalComponentDetail";
-import ModalEdit from "./ModalComponentEdit";
-// import CustomTablePagination from "./TablePagination";
+import ModalDetail from "./ModalDetail";
+import ModalEdit from "./ModalEdit";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import SearchIcon from "@mui/icons-material/Search";
@@ -31,7 +31,7 @@ import AddCardIcon from "@mui/icons-material/AddCard";
 import RepeatOnIcon from "@mui/icons-material/RepeatOn";
 import SupportIcon from "@mui/icons-material/Support";
 import HandymanIcon from "@mui/icons-material/Handyman";
-import CancelIcon from '@mui/icons-material/Cancel';
+import CancelIcon from "@mui/icons-material/Cancel";
 import InfoIcon from "@mui/icons-material/Info";
 import { useLocation } from "react-router-dom";
 import CustomTablePagination from "../../../components/TablePagination";
@@ -57,7 +57,7 @@ const OrdersAssigning = (props) => {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]);
   const [fullnameData, setFullnameData] = useState({});
-
+  const [isHovered, setIsHovered] = useState(false);
 
   const handleDataUpdated = () => {
     reloadOrdersAssigning();
@@ -128,19 +128,34 @@ const OrdersAssigning = (props) => {
   const handleDateFilterChange = () => {
     if (startDate && endDate) {
       // Format startDate and endDate to the beginning of the day in the specified time zone
-      const formattedStartDate = moment(startDate).tz("Asia/Ho_Chi_Minh").add(7, 'hours').startOf('day');
-      const formattedEndDate = moment(endDate).tz("Asia/Ho_Chi_Minh").add(7, 'hours').startOf('day');
-  
+      const formattedStartDate = moment(startDate)
+        .tz("Asia/Ho_Chi_Minh")
+        .add(7, "hours")
+        .startOf("day");
+      const formattedEndDate = moment(endDate)
+        .tz("Asia/Ho_Chi_Minh")
+        .add(7, "hours")
+        .startOf("day");
+
       const filteredOrders = orders.filter((order) => {
         // Adjust the order createdAt date to the same time zone
-        const orderDate = moment(order.createdAt).tz("Asia/Ho_Chi_Minh").add(7, 'hours').startOf('day');
-  
-        const isAfterStartDate = orderDate.isSameOrAfter(formattedStartDate, "day");
-        const isBeforeEndDate = orderDate.isSameOrBefore(formattedEndDate, "day");
-        
+        const orderDate = moment(order.createdAt)
+          .tz("Asia/Ho_Chi_Minh")
+          .add(7, "hours")
+          .startOf("day");
+
+        const isAfterStartDate = orderDate.isSameOrAfter(
+          formattedStartDate,
+          "day"
+        );
+        const isBeforeEndDate = orderDate.isSameOrBefore(
+          formattedEndDate,
+          "day"
+        );
+
         return isAfterStartDate && isBeforeEndDate;
       });
-  
+
       setFilteredOrders(filteredOrders);
       setFilterOption("Date");
     } else {
@@ -179,7 +194,7 @@ const OrdersAssigning = (props) => {
         console.error("Lỗi khi lấy thông tin đơn hàng mới:", error);
       });
   };
-  const handleCancelOrder  = (orderId) => {
+  const handleCancelOrder = (orderId) => {
     console.log(orderId);
     // Fetch the rescueVehicleOwnerId details based on the selected rescueVehicleOwnerId ID
     dispatch(getOrderId({ id: orderId }))
@@ -208,8 +223,6 @@ const OrdersAssigning = (props) => {
         console.error("Lỗi khi tải lại danh sách đơn hàng:", error);
       });
   };
-
-
 
   // Use an effect to fetch the fullname when the component mounts or customerId changes
   useEffect(() => {
@@ -260,10 +273,12 @@ const OrdersAssigning = (props) => {
   let filteredOrdersPagination = [];
 
   if (Array.isArray(filteredOrders)) {
-    filteredOrdersPagination =filteredOrders && filteredOrders.slice(
-      page * rowsPerPage,
-      page * rowsPerPage + rowsPerPage
-    );
+    filteredOrdersPagination =
+      filteredOrders &&
+      filteredOrders.slice(
+        page * rowsPerPage,
+        page * rowsPerPage + rowsPerPage
+      );
   }
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -284,20 +299,22 @@ const OrdersAssigning = (props) => {
     {
       field: "customerNote",
       headerName: "Ghi Chú của Customer",
-      width: 140,
+      width: 200,
       key: "customerNote",
     },
+
     {
       field: "createdAt",
       headerName: "Ngày Tạo Đơn",
       width: 140,
       key: "createdAt",
       valueGetter: (params) =>
-      moment(params.row.createdAt)
-        .tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
-        .add(7, 'hours') // Adding 3 hours (you can adjust this number as needed)
-        .format("DD-MM-YYYY HH:mm:ss")
+        moment(params.row.createdAt)
+          .tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
+          .add(7, "hours") // Adding 3 hours (you can adjust this number as needed)
+          .format("DD-MM-YYYY HH:mm:ss"),
     },
+    { field: "area", headerName: "khu vực", width: 60, key: "area" },
     {
       field: "rescueType",
       headerName: "Hình Thức",
@@ -306,49 +323,50 @@ const OrdersAssigning = (props) => {
       renderCell: ({ row: { rescueType } }) => {
         return (
           <Box
-            width="80%"
+            width="auto"
             m="0 auto"
-            p="4px"
+            p="2px"
             display="flex"
             justifyContent="center"
             fontSize={10}
-            borderRadius={8} // Corrected prop name from "buserRadius" to "borderRadius"
+            borderRadius={2}
             backgroundColor={
               rescueType === "Fixing"
-                ? colors.greenAccent[700]
-                : rescueType === "repair"
-                ? colors.grey[800]
+                ? colors.yellowAccent[400]
                 : colors.grey[800]
-                ? colors.redAccent[700]
+                ? colors.redAccent[600]
                 : rescueType === "Towing"
+            }
+            color={
+              rescueType === "Towing"
+                ? colors.redAccent[300]
+                : colors.yellowAccent[700]
             }
           >
             {rescueType === "Towing" && <SupportIcon />}
             {rescueType === "Fixing" && <HandymanIcon />}
-            <Typography color={colors.grey[100]} sx={{ ml: "8px" }}>
+            <Typography color="inherit" sx={{ ml: "1px", fontWeight: "bold" }}>
               {rescueType}
             </Typography>
           </Box>
         );
       },
     },
-    { field: "area", headerName: "khu vực", width: 60, key: "area" },
 
     {
       field: "status",
       headerName: "Trạng Thái",
-      width: 150,
+      width: 100,
       key: "status",
       renderCell: ({ row: { status } }) => {
         return (
           <Box
-            width="80%"
+            width="auto"
+            p="4px"
             m="0 auto"
-            p="2px"
             display="flex"
             justifyContent="center"
-            fontSize={10}
-            borderRadius={8} // Corrected prop name from "buserRadius" to "borderRadius"
+            borderRadius={2}
             backgroundColor={
               status === "NEW"
                 ? colors.greenAccent[700]
@@ -358,11 +376,13 @@ const OrdersAssigning = (props) => {
                 ? colors.blueAccent[700]
                 : status === "COMPLETED"
             }
+            color={
+              status === "ASSIGNED"
+                ? colors.greenAccent[300]
+                : colors.yellowAccent[700]
+            }
           >
-            {status === "NEW" && <AddCardIcon />}
-            {status === "COMPLETED" && <CreditScoreIcon />}
-            {status === "ASSIGNED" && <RepeatOnIcon />}
-            <Typography color={colors.grey[100]} sx={{ ml: "8px" }}>
+            <Typography color="inherit" sx={{ ml: "1px", fontWeight: "bold" }}>
               {status}
             </Typography>
           </Box>
@@ -373,30 +393,36 @@ const OrdersAssigning = (props) => {
     {
       field: "update",
       headerName: "Cập Nhật",
-      width: 70,
+      width: 100,
       renderCell: (params) => (
-        <IconButton
-          variant="contained"
-          color="error"
-          onClick={() => handleUpdateClick(params.row.id)}
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            "&:hover": {
+              cursor: "pointer",
+              // Thay đổi màu sắc hoặc hiệu ứng khác khi hover vào Box
+              backgroundColor:"lightgray",
+
+              borderRadius: "4px",
+            },
+          }}
         >
-          <Edit style={{ color: "red" }} />
-        </IconButton>
-      ),
-      key: "update",
-    },
-    {
-      field: "cancel",
-      headerName: "Hủy Đơn",
-      width: 60,
-      renderCell: (params) => (
-        <IconButton
-          variant="contained"
-          color="error"
-          onClick={() => handleCancelOrder(params.row.id)}
-        >
-          <CancelIcon style={{ color: "red" }} />
-        </IconButton>
+          <IconButton
+            onClick={() => handleUpdateClick(params.row.id)}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            <Edit style={{ color: "indigo" }} />
+            <Typography
+              variant="body1"
+              sx={{ fontWeight: "bold", marginLeft: "5px" }}
+              onClick={() => handleUpdateClick(params.row.id)}
+            >
+              {"Cập Nhật"}
+            </Typography>
+          </IconButton>
+        </Box>
       ),
       key: "update",
     },
@@ -406,27 +432,96 @@ const OrdersAssigning = (props) => {
       width: 120,
       renderCell: (params) => (
         <Grid container justifyContent="center" alignItems="center">
-          <IconButton
-            color="indigo"
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              "&:hover": {
+                cursor: "pointer",
+                // Thay đổi màu sắc hoặc hiệu ứng khác khi hover vào Box
+                backgroundColor: "lightgray",
+                padding: "4px",
+                borderRadius: "4px",
+              },
+            }}
             onClick={() => handleDetailClickDetail(params.row.id)}
-            aria-label="Chi Tiết Đơn Hàng"
           >
-            <InfoIcon />
-          </IconButton>
+            <VisibilityIcon
+              color="indigo"
+              onClick={() => handleDetailClickDetail(params.row.id)}
+              aria-label="Chi Tiết Đơn Hàng"
+              onMouseEnter={() => setIsHovered(true)}
+              onMouseLeave={() => setIsHovered(false)}
+            />
+            <Typography
+              variant="body1"
+              sx={{ fontWeight: "bold", marginLeft: "5px" }}
+              onClick={() => handleDetailClickDetail(params.row.id)}
+            >
+              {"Xem Chi Tiết"}
+            </Typography>
+          </Box>
         </Grid>
       ),
-      key: "bookDetail",
+      key: "orderDetails",
     },
+    {
+      field: "cancel",
+      headerName: "Hủy Đơn",
+      width: 100,
+      renderCell: (params) => (
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            "&:hover": {
+              cursor: "pointer",
+              // Thay đổi màu sắc hoặc hiệu ứng khác khi hover vào Box
+              backgroundColor: colors.redAccent[800],
+
+              borderRadius: "4px",
+            },
+          }}
+        >
+          <IconButton
+            variant="contained"
+            color="error"
+            onClick={() => handleCancelOrder(params.row.id)}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            <CancelIcon style={{ color: "red" }} />
+            <Typography
+              variant="body1"
+              sx={{ fontWeight: "bold", marginLeft: "5px" }}
+              onClick={() => handleCancelOrder(params.row.id)}
+            >
+              {"Hủy Đơn"}
+            </Typography>
+          </IconButton>
+        </Box>
+      ),
+      key: "update",
+    },
+  
+  
   ];
 
   return (
-    <Box m="5px">
+    <Box ml="50px" mr="50px" mb="auto">
       <Header
         title="Danh Sách Đơn Hàng Đang Được Điều Phối"
         subtitle="Danh sách chi tiết đơn hàng"
       />
       <Box display="flex" className="box" left={0}>
-        <Box display="flex" borderRadius="5px" border={1} marginRight={2}>
+        <Box
+          display="flex"
+          borderRadius="6px"
+          border={1}
+          marginRight={2}
+          marginLeft={2}
+          width={500}
+        >
           <InputBase
             sx={{ ml: 4, flex: 1 }}
             placeholder="Tìm kiếm"
@@ -461,54 +556,60 @@ const OrdersAssigning = (props) => {
           </Select>
         </FormControl>
 
-           {/*Fillter date*/}
-      <Box display="flex" alignItems="center" className="startDate-box">
-              <TextField
-                label="Từ ngày"
-                type="date"
-                value={startDate || ""}
-                onChange={(event) => {
-                  setStartDate(event.target.value);
-                  // handleDateFilterChange(); // Gọi hàm lọc ngay khi ngày tháng thay đổi
-                }}
-                InputLabelProps={{
-                  shrink: true,
-                }}
-                onBlur={handleDateFilterChange}
-                inputProps={{
-                  max: moment().tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
-                  .add(7, 'hours') // Adding 3 hours (you can adjust this number as needed)
-                  .format("DD-MM-YYYY"), // Set the maximum selectable date as today
-                }}
-                sx={{ ml: 4, mr: 2 }}
-              />
-            </Box>
+        {/*Fillter date*/}
+        <Box display="flex" alignItems="center" className="startDate-box">
+          <TextField
+            label="Từ ngày"
+            type="date"
+            value={startDate || ""}
+            onChange={(event) => {
+              setStartDate(event.target.value);
+              // handleDateFilterChange(); // Gọi hàm lọc ngay khi ngày tháng thay đổi
+            }}
+            InputLabelProps={{
+              shrink: true,
+            }}
+            onBlur={handleDateFilterChange}
+            inputProps={{
+              max: moment()
+                .tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
+                .add(7, "hours") // Adding 3 hours (you can adjust this number as needed)
+                .format("DD-MM-YYYY"), // Set the maximum selectable date as today
+            }}
+            sx={{ ml: 4, mr: 2 }}
+          />
+        </Box>
 
-            <Box display="flex" alignItems="center" className="endtDate-box">
-              <TextField
-                label="Đến ngày"
-                type="date"
-                value={endDate || ""}
-                onChange={(event) => {
-                  setEndDate(event.target.value);
-                }}
-                InputLabelProps={{
-                  shrink: true,
-                }}
-                onBlur={handleDateFilterChange}
-                inputProps={{
-                  max: moment().tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
-                  .add(7, 'hours') // Adding 3 hours (you can adjust this number as needed)
-                  .format("DD-MM-YYYY"), // Set the maximum selectable date as today
-                }}
-              />
-            </Box>
+        <Box display="flex" alignItems="center" className="endtDate-box">
+          <TextField
+            label="Đến ngày"
+            type="date"
+            value={endDate || ""}
+            onChange={(event) => {
+              setEndDate(event.target.value);
+            }}
+            InputLabelProps={{
+              shrink: true,
+            }}
+            onBlur={handleDateFilterChange}
+            inputProps={{
+              max: moment()
+                .tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
+                .add(7, "hours") // Adding 3 hours (you can adjust this number as needed)
+                .format("DD-MM-YYYY"), // Set the maximum selectable date as today
+            }}
+          />
+        </Box>
       </Box>
 
       <Box
         m="10px 0 0 0"
-        height="75vh"
+        height="auto"
         sx={{
+          fontSize: "20px",
+          padding: "20px",
+          borderRadius: "20px",
+          boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.4)",
           "& .MuiDataGrid-root": {
             border: "none",
           },
@@ -519,11 +620,11 @@ const OrdersAssigning = (props) => {
             color: colors.greenAccent[300],
           },
           "& .MuiDataGrid-columnHeaders": {
-            backgroundColor: colors.blueAccent[700],
+            backgroundColor: colors.orange[50],
             borderBottom: "none",
           },
           "& .MuiDataGrid-virtualScroller": {
-            backgroundColor: colors.primary[400],
+            backgroundColor: colors.white[50],
           },
           "& .MuiDataGrid-footerContainer": {
             display: "none",
@@ -555,7 +656,8 @@ const OrdersAssigning = (props) => {
           loading={loading}
         />
       </Box>
-         <ModalDetail
+
+      <ModalDetail
         openModal={openModal}
         setOpenModal={setOpenModal}
         onClose={() => setOpenModal(false)}

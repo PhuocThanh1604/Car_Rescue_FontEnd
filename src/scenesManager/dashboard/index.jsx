@@ -181,7 +181,7 @@ const Dashboard = () => {
   // }, [orders, customer]);
 
   return (
-    <Box marginLeft={2} marginRight={1}>
+    <Box marginLeft={6} marginRight={6}>
       {/* HEADER */}
       <Box display="flex" justifyContent="space-between" alignItems="center">
         <Header
@@ -215,10 +215,13 @@ const Dashboard = () => {
         {/* ROW 1 */}
         <Box
           gridColumn="span 3"
-          backgroundColor={colors.primary[400]}
           display="flex"
           alignItems="center"
           justifyContent="center"
+          backgroundColor={colors.white[50]} 
+          borderRadius="12px"
+          boxShadow="0px 0px 1px 1px rgba(0, 0, 0, 0.1)"
+          
         >
           <Box width="100%" m="0 30px">
             <Box display="flex" justifyContent="space-between">
@@ -259,10 +262,12 @@ const Dashboard = () => {
 
         <Box
           gridColumn="span 3"
-          backgroundColor={colors.primary[400]}
           display="flex"
           alignItems="center"
           justifyContent="center"
+          backgroundColor={colors.white[50]} 
+          borderRadius="12px"
+          boxShadow="0px 0px 1px 1px rgba(0, 0, 0, 0.1)"
         >
           <Box width="100%" m="0 30px">
             <Box display="flex" justifyContent="space-between">
@@ -283,10 +288,11 @@ const Dashboard = () => {
                   variant="determinate"
                   value={data.partners}
                   sx={{ color: colors.greenAccent[500] }}
+                  
                 />
               </Box>
             </Box>
-            <Box display="flex" justifyContent="space-between" mt="2px">
+            <Box display="flex" justifyContent="space-between" mt="2px" >
               <Typography variant="h5" sx={{ color: colors.greenAccent[500] }}>
                 Đối Tác
               </Typography>
@@ -302,10 +308,12 @@ const Dashboard = () => {
         </Box>
         <Box
           gridColumn="span 3"
-          backgroundColor={colors.primary[400]}
           display="flex"
           alignItems="center"
           justifyContent="center"
+          backgroundColor={colors.white[50]} 
+          borderRadius="12px"
+          boxShadow="0px 0px 1px 1px rgba(0, 0, 0, 0.1)"
         >
           <Box width="100%" m="0 30px">
             <Box display="flex" justifyContent="space-between">
@@ -345,10 +353,13 @@ const Dashboard = () => {
         </Box>
         <Box
           gridColumn="span 3"
-          backgroundColor={colors.primary[400]}
           display="flex"
           alignItems="center"
           justifyContent="center"
+          backgroundColor={colors.white[50]} 
+          borderRadius="12px"
+          boxShadow="0px 0px 1px 1px rgba(0, 0, 0, 0.1)"
+          
         >
           <Box width="100%" m="0 30px">
             <Box display="flex" justifyContent="space-between">
@@ -392,7 +403,10 @@ const Dashboard = () => {
         <Box
           gridColumn="span 12"
           gridRow="span 2"
-          backgroundColor={colors.primary[400]}
+          backgroundColor={colors.white[50]} 
+          borderRadius="12px"
+          boxShadow="0px 0px 1px 1px rgba(0, 0, 0, 0.1)"
+
         >
           <Box
             mt="25px"
@@ -442,8 +456,10 @@ const Dashboard = () => {
         <Box
           gridColumn="span 4"
           gridRow="span 2"
-          backgroundColor={colors.primary[400]}
           overflow="auto"
+          backgroundColor={colors.white[50]} 
+          borderRadius="12px"
+          boxShadow="0px 0px 1px 1px rgba(0, 0, 0, 0.1)"
         >
           <Box
             display="flex"
@@ -499,8 +515,10 @@ const Dashboard = () => {
         <Box
           gridColumn="span 4"
           gridRow="span 2"
-          backgroundColor={colors.primary[400]}
           p="30px"
+          backgroundColor={colors.white[50]} 
+          borderRadius="12px"
+          boxShadow="0px 0px 1px 1px rgba(0, 0, 0, 0.1)"
         >
           <Typography variant="h5" fontWeight="600">
             Giao dịch
@@ -528,7 +546,10 @@ const Dashboard = () => {
         <Box
           gridColumn="span 4"
           gridRow="span 2"
-          backgroundColor={colors.primary[400]}
+               p="30px"
+          backgroundColor={colors.white[50]} 
+          borderRadius="12px"
+          boxShadow="0px 0px 1px 1px rgba(0, 0, 0, 0.1)"
         >
           <Typography
             variant="h5"

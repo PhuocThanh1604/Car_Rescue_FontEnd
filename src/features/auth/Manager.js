@@ -89,7 +89,7 @@ const Manager = () => {
     <ColorModeContext.Provider value={colorMode}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <div className="app">
+        <div className="app" >
           <ToastContainer />
           <Topbar setIsSidebar={setIsSidebar} />
           <main className="content" style={{ display: "flex", height: "auto" }}>

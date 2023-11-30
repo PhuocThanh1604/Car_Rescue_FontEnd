@@ -15,17 +15,16 @@ import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import Header from "../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
-import { Edit, FilterList, Search } from "@mui/icons-material";
+import { Edit } from "@mui/icons-material";
 import SupportIcon from "@mui/icons-material/Support";
 import HandymanIcon from "@mui/icons-material/Handyman";
-import ModalEdit from "./ModalComponentEdit";
+import ModalEdit from "./ModalEdit";
 import ToggleButton from "./ToggleButton";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Fade from "@mui/material/Fade";
 import SearchIcon from "@mui/icons-material/Search";
 import InputBase from "@mui/material/InputBase";
-import moment from "moment";
 
 import { fetchServices, getServiceId } from "../../redux/serviceSlice";
 import CustomTablePagination from "../../components/TablePagination";
@@ -151,7 +150,12 @@ const Services = (props) => {
       key: "name",
       cellClassName: "name-column--cell",
     },
-  
+    {
+      field: "description",
+      headerName: "Mô Tả",
+      width: 160,
+      key: "description",
+    },
     {
       field: "type",
       headerName: "Hình Thức",
@@ -160,13 +164,13 @@ const Services = (props) => {
       renderCell: ({ row: { type } }) => {
         return (
           <Box
-            width="80%"
+            width="auto"
             m="0 auto"
-            p="4px"
+            p="2px"
             display="flex"
             justifyContent="center"
             fontSize={10}
-            borderRadius={8} // Corrected prop name from "buserRadius" to "borderRadius"
+            borderRadius={2}
             backgroundColor={
               type === "Fixing"
                 ? colors.yellowAccent[400]
@@ -174,26 +178,58 @@ const Services = (props) => {
                 ? colors.redAccent[600]
                 : type === "Towing"
             }
+            color={
+              type === "Towing"
+                ? colors.redAccent[300]
+                : colors.yellowAccent[700]
+            }
           >
             {type === "Towing" && <SupportIcon />}
             {type === "Fixing" && <HandymanIcon />}
-            <Typography color={colors.grey[100]} sx={{ ml: "8px" }}>
+            <Typography color="inherit" sx={{ ml: "1px", fontWeight: "bold" }}>
               {type}
             </Typography>
           </Box>
         );
       },
     },
-    {
-      field: "description",
-      headerName: "Mô Tả",
-      width: 120,
-      key: "description",
-    },
+    // {
+    //   field: "type",
+    //   headerName: "Hình Thức",
+    //   width: 120,
+    //   key: "type",
+    //   renderCell: ({ row: { type } }) => {
+    //     return (
+    //       <Box
+    //         width="80%"
+    //         m="0 auto"
+    //         p="4px"
+    //         display="flex"
+    //         justifyContent="center"
+    //         fontSize={10}
+    //         borderRadius={8} // Corrected prop name from "buserRadius" to "borderRadius"
+    //         backgroundColor={
+    //           type === "Fixing"
+    //             ? colors.yellowAccent[400]
+    //             : colors.grey[800]
+    //             ? colors.redAccent[600]
+    //             : type === "Towing"
+    //         }
+    //       >
+    //         {type === "Towing" && <SupportIcon />}
+    //         {type === "Fixing" && <HandymanIcon />}
+    //         <Typography color={colors.grey[100]} sx={{ ml: "8px" }}>
+    //           {type}
+    //         </Typography>
+    //       </Box>
+    //     );
+    //   },
+    // },
+
     {
       field: "price",
       headerName: "Giá Dịch Vụ",
-      width: 100,
+      width: 120,
       key: "price",
       valueFormatter: (params) => {
         // Đảm bảo rằng params.value là một số
@@ -260,14 +296,16 @@ const Services = (props) => {
   ];
 
   return (
-    <Box m="5px">
+    <Box ml="50px" mr="50px" mb="auto">
       <Header title="Dịch Vụ" subtitle="Danh sách chi tiết dịch vụ" />
       <Box display="flex" className="box" left={0}>
       <Box
-          display="flex"
-          borderRadius="5px"
-          border={1}
-          marginRight={2} 
+            display="flex"
+            borderRadius="6px"
+            border={1}
+            marginRight={2}
+            marginLeft={2}
+            width={500}
         >
           <InputBase
             sx={{ ml: 4, flex: 1 }}
@@ -307,36 +345,40 @@ const Services = (props) => {
       </Box>
 
       <Box
-        m="10px 0 0 0"
-        height="75vh"
-        sx={{
-          "& .MuiDataGrid-root": {
-            border: "none",
-          },
-          "& .MuiDataGrid-cell": {
-            borderBottom: "none",
-          },
-          "& .name-column--cell": {
-            color: colors.greenAccent[300],
-          },
-          "& .MuiDataGrid-columnHeaders": {
-            backgroundColor: colors.blueAccent[700],
-            borderBottom: "none",
-          },
-          "& .MuiDataGrid-virtualScroller": {
-            backgroundColor: colors.primary[400],
-          },
-          "& .MuiDataGrid-footerContainer": {
-            display: "none",
-          },
-          "& .MuiCheckbox-root": {
-            color: `${colors.greenAccent[200]} !important`,
-          },
-          "& .MuiDataGrid-row": {
-            borderBottom: "none",
-          },
-        }}
-      >
+          m="10px 0 0 0"
+          height="auto"
+          sx={{
+            fontSize: "20px",
+            padding: "20px",
+            borderRadius: "20px",
+            boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.4)",
+            "& .MuiDataGrid-root": {
+              border: "none",
+            },
+            "& .MuiDataGrid-cell": {
+              borderBottom: "none",
+            },
+            "& .name-column--cell": {
+              color: colors.greenAccent[300],
+            },
+            "& .MuiDataGrid-columnHeaders": {
+              backgroundColor: colors.orange[50],
+              borderBottom: "none",
+            },
+            "& .MuiDataGrid-virtualScroller": {
+              backgroundColor: colors.white[50],
+            },
+            "& .MuiDataGrid-footerContainer": {
+              display: "none",
+            },
+            "& .MuiCheckbox-root": {
+              color: `${colors.greenAccent[200]} !important`,
+            },
+            "& .MuiDataGrid-row": {
+              borderBottom: "none",
+            },
+          }}
+        >
         <DataGrid
           rows={filteredServicesPagination} // Thêm id nếu không có
           columns={columns}

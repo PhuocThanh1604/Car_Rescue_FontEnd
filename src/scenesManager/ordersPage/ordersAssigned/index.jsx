@@ -16,9 +16,10 @@ import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../../theme";
 import Header from "../../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
-import { Edit} from "@mui/icons-material";
-import ModalDetail from "./ModalComponentDetail";
-import ModalEdit from "./ModalComponentEdit";
+
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import ModalDetail from "./ModalDetail";
+import ModalEdit from "./ModalEdit";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import SearchIcon from "@mui/icons-material/Search";
@@ -36,6 +37,7 @@ import SupportIcon from "@mui/icons-material/Support";
 import HandymanIcon from "@mui/icons-material/Handyman";
 import { useLocation } from "react-router-dom";
 import CustomTablePagination from "../../../components/TablePagination";
+import CancelIcon from "@mui/icons-material/Cancel";
 const OrdersAssigned = (props) => {
   const dispatch = useDispatch();
   const location = useLocation();
@@ -255,7 +257,7 @@ const OrdersAssigned = (props) => {
     {
       field: "customerNote",
       headerName: "Ghi Chú của Customer",
-      width: 140,
+      width: 200,
       key: "customerNote",
     },
     {
@@ -269,6 +271,7 @@ const OrdersAssigned = (props) => {
         .add(7, 'hours') // Adding 3 hours (you can adjust this number as needed)
         .format("DD-MM-YYYY HH:mm:ss")
     },
+    { field: "area", headerName: "khu vực", width: 60, key: "area" },
     {
       field: "rescueType",
       headerName: "Hình Thức",
@@ -277,84 +280,73 @@ const OrdersAssigned = (props) => {
       renderCell: ({ row: { rescueType } }) => {
         return (
           <Box
-            width="80%"
+            width="auto"
             m="0 auto"
-            p="4px"
+            p="2px"
             display="flex"
             justifyContent="center"
             fontSize={10}
-            borderRadius={8} // Corrected prop name from "buserRadius" to "borderRadius"
+            borderRadius={2}
             backgroundColor={
               rescueType === "Fixing"
-                ? colors.greenAccent[700]
-                : rescueType === "repair"
-                ? colors.grey[800]
+                ? colors.yellowAccent[400]
                 : colors.grey[800]
-                ? colors.redAccent[700]
+                ? colors.redAccent[600]
                 : rescueType === "Towing"
+            }
+            color={
+              rescueType === "Towing"
+                ? colors.redAccent[300]
+                : colors.yellowAccent[700]
             }
           >
             {rescueType === "Towing" && <SupportIcon />}
             {rescueType === "Fixing" && <HandymanIcon />}
-            <Typography color={colors.grey[100]} sx={{ ml: "8px" }}>
+            <Typography color="inherit" sx={{ ml: "1px", fontWeight: "bold" }}>
               {rescueType}
             </Typography>
           </Box>
         );
       },
     },
-    { field: "area", headerName: "khu vực", width: 60, key: "area" },
+  
 
     {
       field: "status",
       headerName: "Trạng Thái",
-      width: 150,
+      width: 100,
       key: "status",
       renderCell: ({ row: { status } }) => {
         return (
           <Box
-            width="80%"
+            width="auto"
+            p="4px"
             m="0 auto"
-            p="2px"
             display="flex"
             justifyContent="center"
-            fontSize={10}
-            borderRadius={8} // Corrected prop name from "buserRadius" to "borderRadius"
+            borderRadius={2}
             backgroundColor={
               status === "NEW"
-                ? colors.greenAccent[700]
+                ? colors.redAccent[100]
                 : status === "ASSIGNED"
                 ? colors.redAccent[700]
                 : colors.redAccent[700]
                 ? colors.blueAccent[700]
                 : status === "COMPLETED"
             }
+            color={
+              status === "ASSIGNED"
+                ? colors.redAccent[300]
+                : colors.yellowAccent[700]
+            }
           >
-            {status === "NEW" && <AddCardIcon />}
-            {status === "COMPLETED" && <CreditScoreIcon />}
-            {status === "ASSIGNED" && <RepeatOnIcon />}
-            <Typography color={colors.grey[100]} sx={{ ml: "8px" }}>
+           
+            <Typography color="inherit" sx={{ ml: "1px", fontWeight: "bold" }}>
               {status}
             </Typography>
           </Box>
         );
       },
-    },
-
-    {
-      field: "update",
-      headerName: "Cập Nhật",
-      width: 60,
-      renderCell: (params) => (
-        <IconButton
-          variant="contained"
-          color="error"
-          onClick={() => handleUpdateClick(params.row.id)}
-        >
-          <Edit style={{ color: "red" }} />
-        </IconButton>
-      ),
-      key: "update",
     },
     {
       field: "orderDetails",
@@ -362,32 +354,94 @@ const OrdersAssigned = (props) => {
       width: 120,
       renderCell: (params) => (
         <Grid container justifyContent="center" alignItems="center">
-          <IconButton
-            color="indigo"
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              "&:hover": {
+                cursor: "pointer",
+                // Thay đổi màu sắc hoặc hiệu ứng khác khi hover vào Box
+                backgroundColor: "lightgray",
+                padding: "4px",
+                borderRadius: "4px",
+              },
+            }}
             onClick={() => handleDetailClickDetail(params.row.id)}
-            aria-label="Chi Tiết Đơn Hàng"
           >
-            <InfoIcon />
-          </IconButton>
+            <VisibilityIcon
+              color="indigo"
+              onClick={() => handleDetailClickDetail(params.row.id)}
+              aria-label="Chi Tiết Đơn Hàng"
+        
+            />
+            <Typography
+              variant="body1"
+              sx={{ fontWeight: "bold", marginLeft: "5px" }}
+              onClick={() => handleDetailClickDetail(params.row.id)}
+            >
+              {"Xem Chi Tiết"}
+            </Typography>
+          </Box>
         </Grid>
       ),
-      key: "bookDetail",
+      key: "orderDetails",
     },
+    {
+      field: "cancel",
+      headerName: "Hủy Đơn",
+      width: 120,
+      renderCell: (params) => (
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            "&:hover": {
+              cursor: "pointer",
+              // Thay đổi màu sắc hoặc hiệu ứng khác khi hover vào Box
+              backgroundColor: colors.redAccent[800],
+
+              borderRadius: "6px",
+            },
+          }}
+        >
+          <IconButton
+            variant="contained"
+            color="error"
+            onClick={() => handleUpdateClick(params.row.id)}
+      
+          >
+            <CancelIcon style={{ color: "red" }} />
+            <Typography
+              variant="body1"
+              sx={{ fontWeight: "bold", marginLeft: "5px" }}
+              onClick={() => handleUpdateClick(params.row.id)}
+            >
+              {"Hủy Đơn"}
+            </Typography>
+          </IconButton>
+        </Box>
+      ),
+      key: "update",
+    },
+
+  
  
   ];
 
   return (
-    <Box m="5px">
+    <Box ml="50px" mr="50px" mb="auto">
       <Header
         title="Danh Sách Đơn Hàng Đã Được Đều Phối"
         subtitle="Danh sách chi tiết đơn hàng đã được điều phối"
       />
       <Box display="flex" className="box" left={0}>
       <Box
-          display="flex"
-          borderRadius="5px"
-          border={1}
-          marginRight={2} 
+           display="flex"
+           borderRadius="6px"
+           border={1}
+           marginRight={2}
+           marginLeft={2}
+           width={500}
         >
           <InputBase
             sx={{ ml: 4, flex: 1 }}
@@ -467,36 +521,40 @@ const OrdersAssigned = (props) => {
       </Box>
 
       <Box
-        m="10px 0 0 0"
-        height="75vh"
-        sx={{
-          "& .MuiDataGrid-root": {
-            border: "none",
-          },
-          "& .MuiDataGrid-cell": {
-            borderBottom: "none",
-          },
-          "& .name-column--cell": {
-            color: colors.greenAccent[300],
-          },
-          "& .MuiDataGrid-columnHeaders": {
-            backgroundColor: colors.blueAccent[700],
-            borderBottom: "none",
-          },
-          "& .MuiDataGrid-virtualScroller": {
-            backgroundColor: colors.primary[400],
-          },
-          "& .MuiDataGrid-footerContainer": {
-            display: "none",
-          },
-          "& .MuiCheckbox-root": {
-            color: `${colors.greenAccent[200]} !important`,
-          },
-          "& .MuiDataGrid-row": {
-            borderBottom: "none",
-          },
-        }}
-      >
+          m="10px 0 0 0"
+          height="auto"
+          sx={{
+            fontSize: "20px",
+            padding: "20px",
+            borderRadius: "20px",
+            boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.4)",
+            "& .MuiDataGrid-root": {
+              border: "none",
+            },
+            "& .MuiDataGrid-cell": {
+              borderBottom: "none",
+            },
+            "& .name-column--cell": {
+              color: colors.greenAccent[300],
+            },
+            "& .MuiDataGrid-columnHeaders": {
+              backgroundColor: colors.orange[50],
+              borderBottom: "none",
+            },
+            "& .MuiDataGrid-virtualScroller": {
+              backgroundColor: colors.white[50],
+            },
+            "& .MuiDataGrid-footerContainer": {
+              display: "none",
+            },
+            "& .MuiCheckbox-root": {
+              color: `${colors.greenAccent[200]} !important`,
+            },
+            "& .MuiDataGrid-row": {
+              borderBottom: "none",
+            },
+          }}
+        >
         <DataGrid
           rows={filteredOrdersPagination} // Thêm id nếu không có
           columns={columns}

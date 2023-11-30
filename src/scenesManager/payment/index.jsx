@@ -329,39 +329,43 @@ const Payment = () => {
   ];
 
   return (
-    <Box m="20px">
+    <Box ml="50px" mr="50px" mb="auto">
       <Header title="Payment" subtitle="Danh sách chi tiết payment " />
       <Box
-        m="40px 0 0 0"
-        height="75vh"
-        sx={{
-          "& .MuiDataGrid-root": {
-            border: "none",
-          },
-          "& .MuiDataGrid-cell": {
-            borderBottom: "none",
-          },
-          "& .name-column--cell": {
-            color: colors.greenAccent[300],
-          },
-          "& .MuiDataGrid-columnHeaders": {
-            backgroundColor: colors.blueAccent[700],
-            borderBottom: "none",
-          },
-          "& .MuiDataGrid-virtualScroller": {
-            backgroundColor: colors.primary[400],
-          },
-          "& .MuiDataGrid-footerContainer": {
-            display: "none",
-          },
-          "& .MuiCheckbox-root": {
-            color: `${colors.greenAccent[200]} !important`,
-          },
-          "& .MuiDataGrid-row": {
-            borderBottom: "none",
-          },
-        }}
-      >
+          m="10px 0 0 0"
+          height="auto"
+          sx={{
+            fontSize: "20px",
+            padding: "20px",
+            borderRadius: "20px",
+            boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.4)",
+            "& .MuiDataGrid-root": {
+              border: "none",
+            },
+            "& .MuiDataGrid-cell": {
+              borderBottom: "none",
+            },
+            "& .name-column--cell": {
+              color: colors.greenAccent[300],
+            },
+            "& .MuiDataGrid-columnHeaders": {
+              backgroundColor: colors.orange[50],
+              borderBottom: "none",
+            },
+            "& .MuiDataGrid-virtualScroller": {
+              backgroundColor: colors.white[50],
+            },
+            "& .MuiDataGrid-footerContainer": {
+              display: "none",
+            },
+            "& .MuiCheckbox-root": {
+              color: `${colors.greenAccent[200]} !important`,
+            },
+            "& .MuiDataGrid-row": {
+              borderBottom: "none",
+            },
+          }}
+        >
         <DataGrid
           rows={filteredPaymentsPagination}
           columns={columns}

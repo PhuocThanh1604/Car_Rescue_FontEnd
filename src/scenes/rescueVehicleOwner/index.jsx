@@ -14,7 +14,7 @@ import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import Header from "../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
-import ModalEdit from "./ModalComponentEdit";
+import ModalEdit from "./ModalEdit";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Fade from "@mui/material/Fade";
@@ -364,10 +364,17 @@ const RescueVehicleOwners = (props) => {
   ];
 
   return (
-    <Box m="5px">
+    <Box ml="50px" mr="50px" mb="auto">
       <Header title="Chủ Xe Cứu Hộ" subtitle="Danh sách chủ xe cứu hộ" />
       <Box display="flex" className="box" left={0}>
-        <Box display="flex" borderRadius="5px" border={1} marginRight={2}>
+        <Box
+          display="flex"
+          borderRadius="6px"
+          border={1}
+          marginRight={2}
+          marginLeft={2}
+          width={500}
+        >
           <InputBase
             sx={{ ml: 4, flex: 1 }}
             placeholder="Tìm kiếm"
@@ -435,11 +442,14 @@ const RescueVehicleOwners = (props) => {
           />
         </Box>
       </Box>
-
       <Box
         m="10px 0 0 0"
-        height="75vh"
+        height="auto"
         sx={{
+          fontSize: "20px",
+          padding: "20px",
+          borderRadius: "20px",
+          boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.4)",
           "& .MuiDataGrid-root": {
             border: "none",
           },
@@ -450,11 +460,11 @@ const RescueVehicleOwners = (props) => {
             color: colors.greenAccent[300],
           },
           "& .MuiDataGrid-columnHeaders": {
-            backgroundColor: colors.blueAccent[700],
+            backgroundColor: colors.orange[50],
             borderBottom: "none",
           },
           "& .MuiDataGrid-virtualScroller": {
-            backgroundColor: colors.primary[400],
+            backgroundColor: colors.white[50],
           },
           "& .MuiDataGrid-footerContainer": {
             display: "none",

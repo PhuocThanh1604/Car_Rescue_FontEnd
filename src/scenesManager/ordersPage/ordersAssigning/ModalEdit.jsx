@@ -252,8 +252,8 @@ const ModalEdit = ({
                     <Typography sx={{ display: "none" }}>
                       {selectedEditOrder.rescueType}
                     </Typography>
-
-                    <FormControl fullWidth variant="filled">
+                
+                    <FormControl fullWidth >
                       <InputLabel id="rescueType-label">
                         Loại Hình Thức Cứu Hộ
                       </InputLabel>
@@ -261,6 +261,8 @@ const ModalEdit = ({
                         labelId="rescueType-label"
                         id="rescueType"
                         name="rescueType"
+                        variant="outlined"
+                        label="Loại Hình Thức Cứu Hộ"
                         value={typeRescue}
                         onChange={checkRescueTypeChange}
                       >

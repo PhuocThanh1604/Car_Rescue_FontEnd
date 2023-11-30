@@ -18,7 +18,6 @@ import { Close } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
 import PlaceIcon from "@mui/icons-material/Place";
-import CakeIcon from "@mui/icons-material/Cake";
 import TimerIcon from "@mui/icons-material/Timer";
 import {
   addServiceForTechnicians,

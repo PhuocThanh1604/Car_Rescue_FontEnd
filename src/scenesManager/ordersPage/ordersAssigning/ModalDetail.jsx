@@ -541,7 +541,6 @@ const MyModal = (props) => {
                               sx={{
                                 padding: "8px",
                                 borderRadius: "4px",
-                                marginLeft: "4px",
                                 wordWrap: "break-word",
                                 overflowWrap: "break-word",
                                 whiteSpace: "normal",
@@ -567,7 +566,7 @@ const MyModal = (props) => {
                               sx={{
                                 padding: "8px",
                                 borderRadius: "4px",
-                                marginLeft: "4px",
+                                marginLeft: "10px",
                                 wordWrap: "break-word",
                                 overflowWrap: "break-word",
                                 whiteSpace: "normal",

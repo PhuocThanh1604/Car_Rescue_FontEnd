@@ -14,11 +14,11 @@ import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../../theme";
 import Header from "../../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
-import ModalEdit from "./ModalComponentEdit";
+import ModalEdit from "./ModalEdit";
 import SearchIcon from "@mui/icons-material/Search";
 import InputBase from "@mui/material/InputBase";
 import moment from "moment";
-import 'moment-timezone';
+import "moment-timezone";
 
 import {
   fetchOrdersNew,
@@ -41,6 +41,7 @@ const Orders = (props) => {
   const orders = useSelector((state) => state.order.orders);
   const location = useLocation();
   const [openEditModal, setOpenEditModal] = useState(false);
+  const [isSelected, setIsSelected] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [filterOption, setFilterOption] = useState("rescueType");
   const [openModal, setOpenModal] = useState(false);
@@ -48,7 +49,7 @@ const Orders = (props) => {
   const [selectedEditOrder, setSelectedEditOrder] = useState(null);
   const [filteredOrders, setFilteredOrders] = useState([]);
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(8);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [isSuccess, setIsSuccess] = useState(false);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
@@ -125,26 +126,41 @@ const Orders = (props) => {
   const handleDateFilterChange = () => {
     if (startDate && endDate) {
       // Format startDate and endDate to the beginning of the day in the specified time zone
-      const formattedStartDate = moment(startDate).tz("Asia/Ho_Chi_Minh").add(7, 'hours').startOf('day');
-      const formattedEndDate = moment(endDate).tz("Asia/Ho_Chi_Minh").add(7, 'hours').startOf('day');
-  
+      const formattedStartDate = moment(startDate)
+        .tz("Asia/Ho_Chi_Minh")
+        .add(7, "hours")
+        .startOf("day");
+      const formattedEndDate = moment(endDate)
+        .tz("Asia/Ho_Chi_Minh")
+        .add(7, "hours")
+        .startOf("day");
+
       const filteredOrders = orders.filter((order) => {
         // Adjust the order createdAt date to the same time zone
-        const orderDate = moment(order.createdAt).tz("Asia/Ho_Chi_Minh").add(7, 'hours').startOf('day');
-  
-        const isAfterStartDate = orderDate.isSameOrAfter(formattedStartDate, "day");
-        const isBeforeEndDate = orderDate.isSameOrBefore(formattedEndDate, "day");
-        
+        const orderDate = moment(order.createdAt)
+          .tz("Asia/Ho_Chi_Minh")
+          .add(7, "hours")
+          .startOf("day");
+
+        const isAfterStartDate = orderDate.isSameOrAfter(
+          formattedStartDate,
+          "day"
+        );
+        const isBeforeEndDate = orderDate.isSameOrBefore(
+          formattedEndDate,
+          "day"
+        );
+
         return isAfterStartDate && isBeforeEndDate;
       });
-  
+
       setFilteredOrders(filteredOrders);
       setFilterOption("Date");
     } else {
       setFilteredOrders(orders);
     }
   };
-  
+
   useEffect(() => {
     setLoading(true); // Bắt đầu với trạng thái loading
 
@@ -158,7 +174,7 @@ const Orders = (props) => {
   const handleAssignClick = (orderId) => {
     console.log(orderId);
     // Đặt trạng thái của danh sách xe cứu hộ về một mảng trống
-    setSelectedEditOrder(null)
+    setSelectedEditOrder(null);
     setRescueVehicles(null);
     // Lấy địa chỉ đã được định dạng từ state 'formattedAddresses' dựa trên 'departure'
     const orderWithDeparture = data.find((order) => order.id === orderId);
@@ -301,15 +317,23 @@ const Orders = (props) => {
   let filteredOrdersPagination = [];
 
   if (Array.isArray(filteredOrders)) {
-    filteredOrdersPagination =filteredOrders && filteredOrders.slice(
-      page * rowsPerPage,
-      page * rowsPerPage + rowsPerPage
-    );
+    filteredOrdersPagination =
+      filteredOrders &&
+      filteredOrders.slice(
+        page * rowsPerPage,
+        page * rowsPerPage + rowsPerPage
+      );
   }
-  
+
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const columns = [
+    {
+      field: "id",
+      headerName: "Order",
+      width: 100,
+      key: "id",
+    },
     {
       field: "customerId",
       headerName: "Tên Khách Hàng",
@@ -326,7 +350,7 @@ const Orders = (props) => {
     {
       field: "customerNote",
       headerName: "Ghi Chú của Customer",
-      width: 160,
+      width: 200,
       key: "customerNote",
     },
     {
@@ -335,11 +359,13 @@ const Orders = (props) => {
       width: 140,
       key: "createdAt",
       valueGetter: (params) =>
-      moment(params.row.createdAt)
-        .tz("Asia/Ho_Chi_Minh")
-        .add(7, 'hours')
-        .format("DD-MM-YYYY HH:mm:ss")
+        moment(params.row.createdAt)
+          .tz("Asia/Ho_Chi_Minh")
+          .add(7, "hours")
+          .format("DD-MM-YYYY HH:mm:ss"),
     },
+
+    { field: "area", headerName: "khu vực", width: 60, key: "area" },
     {
       field: "rescueType",
       headerName: "Hình Thức",
@@ -348,13 +374,13 @@ const Orders = (props) => {
       renderCell: ({ row: { rescueType } }) => {
         return (
           <Box
-            width="80%"
+            width="auto"
             m="0 auto"
-            p="4px"
+            p="2px"
             display="flex"
             justifyContent="center"
             fontSize={10}
-            borderRadius={8} // Corrected prop name from "buserRadius" to "borderRadius"
+            borderRadius={2}
             backgroundColor={
               rescueType === "Fixing"
                 ? colors.yellowAccent[400]
@@ -362,32 +388,35 @@ const Orders = (props) => {
                 ? colors.redAccent[600]
                 : rescueType === "Towing"
             }
+            color={
+              rescueType === "Towing"
+                ? colors.redAccent[300]
+                : colors.yellowAccent[700]
+            }
           >
             {rescueType === "Towing" && <SupportIcon />}
             {rescueType === "Fixing" && <HandymanIcon />}
-            <Typography color={colors.grey[100]} sx={{ ml: "8px" }}>
+            <Typography color="inherit" sx={{ ml: "1px", fontWeight: "bold" }}>
               {rescueType}
             </Typography>
           </Box>
         );
       },
     },
-    { field: "area", headerName: "khu vực", width: 60, key: "area" },
     {
       field: "status",
       headerName: "Trạng Thái",
-      width: 150,
+      width: 100,
       key: "status",
       renderCell: ({ row: { status } }) => {
         return (
           <Box
-            width="80%"
+            width="auto"
+            p="4px"
             m="0 auto"
-            p="2px"
             display="flex"
             justifyContent="center"
-            fontSize={10}
-            borderRadius={8} // Corrected prop name from "buserRadius" to "borderRadius"
+            borderRadius={2}
             backgroundColor={
               status === "NEW"
                 ? colors.greenAccent[700]
@@ -397,11 +426,14 @@ const Orders = (props) => {
                 ? colors.blueAccent[700]
                 : status === "COMPLETED"
             }
+            color={
+              status === "NEW"
+                ? colors.greenAccent[300]
+                : colors.yellowAccent[700]
+            }
           >
-            {status === "NEW" && <AddCardIcon />}
-            {status === "COMPLETED" && <CreditScoreIcon />}
-            {status === "ASSIGNED" && <RepeatOnIcon />}
-            <Typography color={colors.grey[100]} sx={{ ml: "8px" }}>
+           
+            <Typography color="inherit" sx={{ ml: "1px", fontWeight: "bold" }}>
               {status}
             </Typography>
           </Box>
@@ -411,176 +443,193 @@ const Orders = (props) => {
     {
       field: "update",
       headerName: "Diều Phối",
-      width: 60,
+      width: 120,
       renderCell: (params) => (
-        <IconButton variant="contained" color="error">
-          <AssignmentLateIcon
+       
+          <IconButton
             variant="contained"
-            color="error"
-            style={{ color: "orange" }}
+            backgroundColor={ colors.blueAccent[500]}
             onClick={() => handleAssignClick(params.row.id)}
-          ></AssignmentLateIcon>
-        </IconButton>
+        
+          >
+            <AssignmentLateIcon
+              style={{ color: "orange" }}
+              onClick={() => handleAssignClick(params.row.id)}
+            />
+            <Typography
+              variant="body1"
+              sx={{ ml:"1px",color: "inherit", fontWeight: "bold" }}
+  
+            >
+              Điều phối
+            </Typography>
+          </IconButton>
       ),
       key: "update",
     },
   ];
 
   return (
-    <Box m="5px">
-     
-        <>
-          <Header
-            title="Danh Sách Đơn Hàng Mới"
-            subtitle="Danh sách chi tiết đơn hàng mới"
-          />
-          <Box display="flex" className="box" left={0}>
-            <Box display="flex" borderRadius="5px" border={1} marginRight={2}>
-              <InputBase
-                sx={{ ml: 4, flex: 1 }}
-                placeholder="Tìm kiếm"
-                onChange={handleSearchChange}
-                className="search-input"
-              />
-              <IconButton type="button" sx={{ p: 1 }}>
-                <SearchIcon />
-              </IconButton>
-            </Box>
-
-            <ToastContainer />
-            <FormControl>
-              <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                value={filterOption}
-                onChange={handleFilterChange}
-                variant="outlined"
-                className="filter-select"
-                style={{ width: "150px" }}
-              >
-                <MenuItem key="rescueType-all" value="rescueType">
-                  Hình Thức
-                </MenuItem>
-                <MenuItem key="rescueType-towing" value="Towing">
-                  Kéo Xe
-                </MenuItem>
-                <MenuItem key="rescueType-fixing" value="Fixing">
-                  Sửa Chữa Tại Chỗ
-                </MenuItem>
-                
-              </Select>
-            </FormControl>
-
-            <Box display="flex" alignItems="center" className="startDate-box">
-              <TextField
-                label="Từ ngày"
-                type="date"
-                value={startDate || ""}
-                onChange={(event) => {
-                  setStartDate(event.target.value);
-                  // handleDateFilterChange(); // Gọi hàm lọc ngay khi ngày tháng thay đổi
-                }}
-                InputLabelProps={{
-                  shrink: true,
-                }}
-                onBlur={handleDateFilterChange}
-                inputProps={{
-                  max: moment().tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
-                  .add(7, 'hours') // Adding 3 hours (you can adjust this number as needed)
-                  .format("DD-MM-YYYY"), // Set the maximum selectable date as today
-                }}
-                sx={{ ml: 4, mr: 2 }}
-              />
-            </Box>
-
-            <Box display="flex" alignItems="center" className="endtDate-box">
-              <TextField
-                label="Đến ngày"
-                type="date"
-                value={endDate || ""}
-                onChange={(event) => {
-                  setEndDate(event.target.value);
-                }}
-                InputLabelProps={{
-                  shrink: true,
-                }}
-                onBlur={handleDateFilterChange}
-                inputProps={{
-                  max: moment().tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
-                  .add(7, 'hours') // Adding 3 hours (you can adjust this number as needed)
-                  .format("DD-MM-YYYY"), // Set the maximum selectable date as today
-                }}
-              />
-            </Box>
-
-            
-          </Box>
-
+    <Box ml="50px" mr="50px" mb="auto">
+      <>
+        <Header
+          title="Danh Sách Đơn Hàng Mới"
+          subtitle="Danh sách chi tiết đơn hàng mới"
+        />
+        <Box display="flex" className="box" left={0}>
           <Box
-            m="10px 0 0 0"
-            height="75vh"
-            sx={{
-              "& .MuiDataGrid-root": {
-                border: "none",
-              },
-              "& .MuiDataGrid-cell": {
-                borderBottom: "none",
-              },
-              "& .name-column--cell": {
-                color: colors.greenAccent[300],
-              },
-              "& .MuiDataGrid-columnHeaders": {
-                backgroundColor: colors.blueAccent[700],
-                borderBottom: "none",
-              },
-              "& .MuiDataGrid-virtualScroller": {
-                backgroundColor: colors.primary[400],
-              },
-              "& .MuiDataGrid-footerContainer": {
-                display: "none",
-              },
-              "& .MuiCheckbox-root": {
-                color: `${colors.greenAccent[200]} !important`,
-              },
-              "& .MuiDataGrid-row": {
-                borderBottom: "none",
-              },
-            }}
+            display="flex"
+            borderRadius="6px"
+            border={1}
+            marginRight={2}
+            marginLeft={2}
+            width={500}
           >
-            <DataGrid
-              rows={filteredOrdersPagination} // Thêm id nếu không có
-              columns={columns}
-              getRowId={(row) => row.id}
-              autoHeight
-              checkboxSelection
-              loading={loading}
-              components={{ Toolbar: GridToolbar }}
+            <InputBase
+              sx={{ ml: 2, flex: 1 }}
+              placeholder="Tìm kiếm..."
+              onChange={handleSearchChange}
+              className="search-input"
             />
-
-            <CustomTablePagination
-              count={filteredOrders.length}
-              page={page}
-              rowsPerPage={rowsPerPage}
-              onPageChange={handleChangePage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
-              loading={loading}
-            />
+            <IconButton type="button">
+              <SearchIcon />
+            </IconButton>
           </Box>
-    
-
-          <ModalEdit
-            openEditModal={openEditModal}
-            setOpenEditModal={setOpenEditModal}
-            selectedEditOrder={selectedEditOrder}
-            selectedOrderFormattedAddress={selectedOrderFormattedAddress}
-            onDataUpdated={handleDataUpdated}
-            // onClose={() => setOpenEditModal(false)}
-            loading={loading}
-          />
 
           <ToastContainer />
-        </>
-   
+          <FormControl>
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={filterOption}
+              onChange={handleFilterChange}
+              variant="outlined"
+              className="filter-select"
+              style={{ width: "150px" }}
+            >
+              <MenuItem key="rescueType-all" value="rescueType">
+                Hình Thức
+              </MenuItem>
+              <MenuItem key="rescueType-towing" value="Towing">
+                Kéo Xe
+              </MenuItem>
+              <MenuItem key="rescueType-fixing" value="Fixing">
+                Sửa Chữa Tại Chỗ
+              </MenuItem>
+            </Select>
+          </FormControl>
+
+          <Box display="flex" alignItems="center" className="startDate-box">
+            <TextField
+              label="Từ ngày"
+              type="date"
+              value={startDate || ""}
+              onChange={(event) => {
+                setStartDate(event.target.value);
+                // handleDateFilterChange(); // Gọi hàm lọc ngay khi ngày tháng thay đổi
+              }}
+              InputLabelProps={{
+                shrink: true,
+              }}
+              onBlur={handleDateFilterChange}
+              inputProps={{
+                max: moment()
+                  .tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
+                  .add(7, "hours") // Adding 3 hours (you can adjust this number as needed)
+                  .format("DD-MM-YYYY"), // Set the maximum selectable date as today
+              }}
+              sx={{ ml: 4, mr: 2 }}
+            />
+          </Box>
+
+          <Box display="flex" alignItems="center" className="endtDate-box">
+            <TextField
+              label="Đến ngày"
+              type="date"
+              value={endDate || ""}
+              onChange={(event) => {
+                setEndDate(event.target.value);
+              }}
+              InputLabelProps={{
+                shrink: true,
+              }}
+              onBlur={handleDateFilterChange}
+              inputProps={{
+                max: moment()
+                  .tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
+                  .add(7, "hours") // Adding 3 hours (you can adjust this number as needed)
+                  .format("DD-MM-YYYY"), // Set the maximum selectable date as today
+              }}
+            />
+          </Box>
+        </Box>
+
+        <Box
+          m="10px 0 0 0"
+          height="auto"
+          sx={{
+            fontSize: "20px",
+            padding: "20px",
+            borderRadius: "20px",
+            boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.4)",
+            "& .MuiDataGrid-root": {
+              border: "none",
+            },
+            "& .MuiDataGrid-cell": {
+              borderBottom: "none",
+            },
+            "& .name-column--cell": {
+              color: colors.greenAccent[300],
+            },
+            "& .MuiDataGrid-columnHeaders": {
+              backgroundColor: colors.orange[50],
+              borderBottom: "none",
+            },
+            "& .MuiDataGrid-virtualScroller": {
+              backgroundColor: colors.white[50],
+            },
+            "& .MuiDataGrid-footerContainer": {
+              display: "none",
+            },
+            "& .MuiCheckbox-root": {
+              color: `${colors.greenAccent[200]} !important`,
+            },
+            "& .MuiDataGrid-row": {
+              borderBottom: "none",
+            },
+          }}
+        >
+          <DataGrid
+            rows={filteredOrdersPagination} // Thêm id nếu không có
+            columns={columns}
+            getRowId={(row) => row.id}
+            autoHeight
+            checkboxSelection
+            loading={loading}
+            components={{ Toolbar: GridToolbar }}
+          />
+
+          <CustomTablePagination
+            count={filteredOrders.length}
+            page={page}
+            rowsPerPage={rowsPerPage}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            loading={loading}
+          />
+        </Box>
+
+        <ModalEdit
+          openEditModal={openEditModal}
+          setOpenEditModal={setOpenEditModal}
+          selectedEditOrder={selectedEditOrder}
+          selectedOrderFormattedAddress={selectedOrderFormattedAddress}
+          onDataUpdated={handleDataUpdated}
+          loading={loading}
+        />
+
+        <ToastContainer />
+      </>
     </Box>
   );
 };

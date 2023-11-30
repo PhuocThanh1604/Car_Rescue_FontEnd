@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useState } from 'react';
 import { ProSidebar, Menu, MenuItem } from 'react-pro-sidebar';
-import { Box, IconButton, Typography, useTheme } from '@mui/material';
+import { Avatar, Badge, Box, IconButton, Typography, styled, useTheme } from '@mui/material';
 import { Link } from 'react-router-dom';
 import 'react-pro-sidebar/dist/css/styles.css';
 import { tokens } from '../../../theme';
@@ -68,20 +68,38 @@ const Sidebar = () => {
       setUserRole(storedRole);
     }
   }, [user, storedRole]);
+  let admin = null;
+  const adminString = localStorage.getItem("isAdmin");
+  if (adminString) {
+    try {
+      admin = JSON.parse(adminString); // Thử phân tích chuỗi JSON
+    } catch (error) {
+      console.error("Lỗi khi phân tích chuỗi JSON:", error);
+    }
+  }
   const sidebarStyles = {
-  // Set the position to fixed
-    bottom: 0,          // Stick it to the bottom of the screen
-    top: '10px',        // Make sure it doesn't overlap the content
-    height: 'fit-content', // Adjust the height to fit the content
+  top: 0,
+    bottom: 0,
+    height: "max-height", 
   };
+  const BadgeContentSpan = styled("span")(({ theme }) => ({
+    width: 8,
+    height: 8,
+    borderRadius: "50%",
+    backgroundColor: theme.palette.success.main,
+    boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
+  }));
   return (
     <Box
       sx={{
         ...sidebarStyles,  // Apply the sidebar styles
         display: 'flex',
         height: userRole === 'admin' ? '100%' : 'auto',
-        '& .pro-sidebar-inner': {
-          background: `${colors.primary[400]} !important`,
+  
+        boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)",
+
+        "& .pro-sidebar-inner": {
+          background: `${colors.white[50]} !important`,
         },
         '& .pro-icon-wrapper': {
           backgroundColor: 'transparent !important',
@@ -123,27 +141,50 @@ const Sidebar = () => {
           </MenuItem>
 
           {!isCollapsed && (
-            <Box mb="25px">
-              <Box display="flex" justifyContent="center" alignItems="center">
-                <img
-                  alt="profile-user"
-                  width="200px"
-                  height="130px"
-                  src={`../../assets/logo-no-background.png`}
-                  style={{ cursor: 'pointer', borderRadius: '50%' }}
-                />
-              </Box>
-              <Box textAlign="center">
+            <Box
+              mb="5px"
+              textAlign="center"
+              marginLeft="30px"
+              padding="10px"
+              borderRadius="20px"
+              sx={{
+                backgroundColor: colors.orange[50],
+                transition: "margin-left 0.3s ease-in-out", // Thêm transition cho marginLeft
+                overflow: "hidden", // Tránh việc nội dung bị che mất khi collapse
+                opacity: isCollapsed ? 0 : 1, // Ẩn hiện nội dung dựa trên isCollapsed
+                width: isCollapsed ? "0" : "auto", // Thu gọn/kéo rộng theo isCollapsed
+              }}
+            >
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Badge
+                  overlap="circular"
+                  badgeContent={<BadgeContentSpan />}
+                  anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                  sx={{ padding: "1px" }}
+                >
+                  <Avatar
+                    alt="Manager"
+                    src={
+                      admin && admin.avatar
+                        ? admin.avatar
+                        : "https://c1.klipartz.com/pngpicture/823/765/sticker-png-login-icon-system-administrator-user-user-profile-icon-design-avatar-face-head.png"
+                    }
+                    sx={{ width: "2.5rem", height: "2.5rem" }}
+                  />
+                </Badge>
                 <Typography
-                  variant="h2"
+                  variant="h5"
                   color={colors.grey[100]}
                   fontWeight="bold"
-                  sx={{ m: '10px 0 0 0' }}>
-                    {userRole && `Chào: ${userRole}`}
-                </Typography>
-            
-                <Typography variant="h2" color={colors.greenAccent[500]}>
-                  Car Rescue
+                  sx={{ ml: "12px" }}
+                >
+                  {userRole && `Chào: ${userRole}`}
                 </Typography>
               </Box>
             </Box>

@@ -23,8 +23,8 @@ import {
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import Header from "../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
-import ModalDetail from "./ModalComponentDetail";
-import ModalEdit from "./ModalComponentEdit";
+import ModalDetail from "./ModalDetail";
+import ModalEdit from "./ModalEdit";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import SearchIcon from "@mui/icons-material/Search";
@@ -375,13 +375,18 @@ useEffect(() => {
   ];
 
   return (
-    <Box m="5px">
+    <Box ml="50px" mr="50px" mb="auto">
       <Header
         title="Danh Sách Xe Cứu Hộ"
         subtitle="Danh sách xe cứu hộ chờ duyệt"
       />
       <Box display="flex" className="box" left={0}>
-        <Box display="flex" borderRadius="5px" border={1} marginRight={2}>
+        <Box   display="flex"
+            borderRadius="6px"
+            border={1}
+            marginRight={2}
+            marginLeft={2}
+            width={500}>
           <InputBase
             sx={{ ml: 4, flex: 1 }}
             placeholder="Tìm kiếm"
@@ -454,36 +459,40 @@ useEffect(() => {
       </Box>
 
       <Box
-        m="10px 0 0 0"
-        height="75vh"
-        sx={{
-          "& .MuiDataGrid-root": {
-            border: "none",
-          },
-          "& .MuiDataGrid-cell": {
-            borderBottom: "none",
-          },
-          "& .name-column--cell": {
-            color: colors.greenAccent[300],
-          },
-          "& .MuiDataGrid-columnHeaders": {
-            backgroundColor: colors.blueAccent[700],
-            borderBottom: "none",
-          },
-          "& .MuiDataGrid-virtualScroller": {
-            backgroundColor: colors.primary[400],
-          },
-          "& .MuiDataGrid-footerContainer": {
-            display: "none",
-          },
-          "& .MuiCheckbox-root": {
-            color: `${colors.greenAccent[200]} !important`,
-          },
-          "& .MuiDataGrid-row": {
-            borderBottom: "none",
-          },
-        }}
-      >
+          m="10px 0 0 0"
+          height="auto"
+          sx={{
+            fontSize: "20px",
+            padding: "20px",
+            borderRadius: "20px",
+            boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.4)",
+            "& .MuiDataGrid-root": {
+              border: "none",
+            },
+            "& .MuiDataGrid-cell": {
+              borderBottom: "none",
+            },
+            "& .name-column--cell": {
+              color: colors.greenAccent[300],
+            },
+            "& .MuiDataGrid-columnHeaders": {
+              backgroundColor: colors.orange[50],
+              borderBottom: "none",
+            },
+            "& .MuiDataGrid-virtualScroller": {
+              backgroundColor: colors.white[50],
+            },
+            "& .MuiDataGrid-footerContainer": {
+              display: "none",
+            },
+            "& .MuiCheckbox-root": {
+              color: `${colors.greenAccent[200]} !important`,
+            },
+            "& .MuiDataGrid-row": {
+              borderBottom: "none",
+            },
+          }}
+        >
         <DataGrid
           rows={filteredVehiclePagination} // Thêm id nếu không có
           columns={columns}

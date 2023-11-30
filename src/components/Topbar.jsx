@@ -153,12 +153,12 @@ const Topbar = () => {
   }));
 
   return (
-    <Box display="flex" justifyContent="space-between" p={2}>
+    <Box display="flex" justifyContent="space-between" p={2} >
       {/* SEARCH BAR */}
       <Box
         display="flex"
-        backgroundColor={colors.primary[400]}
-        borderRadius="3px"
+        backgroundColor={colors.white[50]}
+        borderRadius="10px"
       >
         <InputBase sx={{ ml: 2, flex: 1 }} placeholder="Search" />
         <IconButton type="button" sx={{ p: 1 }}>
@@ -349,16 +349,32 @@ const Topbar = () => {
           </MenuItem>
         </Menu>
 
-
-        <div
+        <Box
           style={{
             display: "flex",
             alignItems: "center",
           }}
         >
           <IconButton onClick={handleMenuOpenProfile}>
-            <PersonOutlinedIcon style={{ fontSize: 30 }} />
-            {/* Đặt kích thước biểu tượng */}
+    
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              <Badge
+                overlap="circular"
+                badgeContent={<BadgeContentSpan />}
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+              >
+                <Avatar
+                  alt="Manager"
+                  src={
+                    manager && manager.avatar
+                      ? manager.avatar
+                      : "https://c1.klipartz.com/pngpicture/823/765/sticker-png-login-icon-system-administrator-user-user-profile-icon-design-avatar-face-head.png"
+                  }
+                  sx={{ width: "2.5rem", height: "2.5rem" }}
+                />
+              </Badge>
+           
+            </Box>
           </IconButton>
 
           <Menu
@@ -432,7 +448,7 @@ const Topbar = () => {
               </Box>
             </MenuItem>
           </Menu>
-        </div>
+        </Box>
       </Box>
     </Box>
   );

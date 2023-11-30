@@ -18,7 +18,6 @@ import {
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
-import { editCustomer, fetchCustomers } from "../../redux/customerSlice";
 import { ToastContainer, toast } from "react-toastify";
 import { editmanager, fetchManagers } from "../../redux/managerSlice";
 import UploadImageField from "../../components/uploadImage";

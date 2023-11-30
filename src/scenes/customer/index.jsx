@@ -18,13 +18,10 @@ import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import Header from "../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  fetchCustomers,
-  getCustomerId,
-} from "../../redux/customerSlice";
+import { fetchCustomers, getCustomerId } from "../../redux/customerSlice";
 import { Edit, FilterList, Search } from "@mui/icons-material";
-import ModalDetail from "./ModalComponentDetail";
-import ModalEdit from "./ModalComponentEdit";
+import ModalDetail from "./ModalDetail";
+import ModalEdit from "./ModalEdit";
 import ToggleButton from "./ToggleButton";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -183,10 +180,10 @@ const Customers = (props) => {
       width: 150,
       key: "status",
       valueGetter: (params) =>
-        moment(params.row.createAt).tz("Asia/Ho_Chi_Minh")
-        .add(7, "hours")
-        .format("DD-MM-YYYY"),
-       
+        moment(params.row.createAt)
+          .tz("Asia/Ho_Chi_Minh")
+          .add(7, "hours")
+          .format("DD-MM-YYYY"),
     },
     {
       field: "avatar",
@@ -252,11 +249,18 @@ const Customers = (props) => {
   ];
 
   return (
-    <Box m="10px">
+    <Box ml="50px" mr="50px" mb="auto">
       <Header title="Khách hàng" subtitle="Danh sách khách hàng" />
 
       <Box display="flex" className="box" left={0}>
-        <Box display="flex" borderRadius="5px" border={1} marginRight={2}>
+        <Box
+          display="flex"
+          borderRadius="6px"
+          border={1}
+          marginRight={2}
+          marginLeft={2}
+          width={500}
+        >
           <InputBase
             sx={{ ml: 4, flex: 1 }}
             placeholder="Tìm kiếm"
@@ -326,9 +330,13 @@ const Customers = (props) => {
       </Box>
 
       <Box
-        m="40px 0 0 0"
-        height="75vh"
+        m="10px 0 0 0"
+        height="auto"
         sx={{
+          fontSize: "20px",
+          padding: "20px",
+          borderRadius: "20px",
+          boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.4)",
           "& .MuiDataGrid-root": {
             border: "none",
           },
@@ -339,11 +347,11 @@ const Customers = (props) => {
             color: colors.greenAccent[300],
           },
           "& .MuiDataGrid-columnHeaders": {
-            backgroundColor: colors.blueAccent[700],
+            backgroundColor: colors.orange[50],
             borderBottom: "none",
           },
           "& .MuiDataGrid-virtualScroller": {
-            backgroundColor: colors.primary[400],
+            backgroundColor: colors.white[50],
           },
           "& .MuiDataGrid-footerContainer": {
             display: "none",
