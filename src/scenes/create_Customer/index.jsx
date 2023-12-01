@@ -145,7 +145,7 @@ const AddCustomer = () => {
             >
               <TextField
                 fullWidth
-                variant="filled"
+                variant="outlined"
                 type="text"
                 label="Họ Và Tên"
                 onBlur={handleBlur}
@@ -194,7 +194,7 @@ const AddCustomer = () => {
                   <TextField
                     {...params}
                     label="Danh Sách Tài Khoản"
-                    variant="filled"
+                    variant="outlined"
                     onBlur={handleBlur}
                     error={touched.accountId && errors.accountId ? true : false}
                     helperText={touched.accountId && errors.accountId}
@@ -204,7 +204,7 @@ const AddCustomer = () => {
 
               <TextField
                 fullWidth
-                variant="filled"
+                variant="outlined"
                 type="text"
                 label="sex"
                 onBlur={handleBlur}
@@ -217,7 +217,7 @@ const AddCustomer = () => {
               />
               <TextField
                 fullWidth
-                variant="filled"
+                variant="outlined"
                 type="text"
                 label="Địa Chỉ"
                 onBlur={handleBlur}
@@ -230,7 +230,7 @@ const AddCustomer = () => {
               />
               <TextField
                 fullWidth
-                variant="filled"
+                variant="outlined"
                 type="phone"
                 label="Số Điện Thoại"
                 onBlur={handleBlur}
@@ -243,7 +243,7 @@ const AddCustomer = () => {
               />
               <TextField
                 fullWidth
-                variant="filled"
+                variant="outlined"
                 type="date"
                 label="Date"
                 onBlur={handleBlur}

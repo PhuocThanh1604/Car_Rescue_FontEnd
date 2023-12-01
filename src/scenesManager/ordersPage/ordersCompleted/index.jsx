@@ -83,20 +83,24 @@ const Orders = (props) => {
   const handleFilterChange = (event) => {
     const selectedStatusOption = event.target.value;
     setFilterOption(selectedStatusOption);
-
-    if (selectedStatusOption === 'rescueType') {
-      // Hiển thị tất cả các trạng thái
-      setFilteredOrders(orders);
+  
+    if (Array.isArray(orders)) { // Kiểm tra nếu orders là một mảng
+      if (selectedStatusOption === 'rescueType') {
+        // Hiển thị tất cả các trạng thái
+        setFilteredOrders(orders);
+      } else {
+        // Lọc sản phẩm dựa trên giá trị trạng thái
+        const filteredOrders = orders.filter(
+          (order) => order.rescueType === selectedStatusOption
+        );
+        setFilteredOrders(filteredOrders);
+      }
     } else {
-
-      
-      // Lọc sản phẩm dựa trên giá trị trạng thái
-      const filteredOrders = orders.filter(
-        (order) => order.rescueType === selectedStatusOption
-      );
-      setFilteredOrders(filteredOrders);
+      // Xử lý khi orders không phải là mảng (ví dụ: không được khởi tạo)
+      console.error('Orders is not an array');
     }
   };
+  
   
 
   const handleDateFilterChange = () => {

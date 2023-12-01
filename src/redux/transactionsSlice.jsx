@@ -49,6 +49,22 @@ export const fetchTransactionsNew = createAsyncThunk(
     }
   }
 );
+
+export const fetchTransactionsAll = createAsyncThunk(
+  "transactions/fetchTransactionsAll",
+  async () => {
+    try {
+      const response = await axios.get(
+        "https://rescuecapstoneapi.azurewebsites.net/api/Transaction/GetAll"
+      );
+      const data = response.data;
+      return data;
+    } catch (error) {
+      console.error("Failed to retrieve fetch Transactions New:", error.response);
+      throw error.response.data || error.message;
+    }
+  }
+);
 export const getTransactionOfWalletId = createAsyncThunk(
   "transaction/getTransactionOfWalletId",
   async ({ id }) => {
