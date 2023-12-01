@@ -24,7 +24,6 @@ import { tokens } from "../../../theme";
 import { toast } from "react-toastify";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import PeopleAltRoundedIcon from "@mui/icons-material/PeopleAltRounded";
 import {
   createAcceptOrder,
   fetchOrdersNew,
@@ -55,6 +54,7 @@ import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 import { getServiceId } from "../../../redux/serviceSlice";
 import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
 import { getModelCarId } from "../../../redux/modelCarSlice";
+import { getRescueVehicleOwnerId } from "../../../redux/rescueVehicleOwnerSlice";
 const ModalEdit = ({
   openEditModal,
   setOpenEditModal,
@@ -84,7 +84,6 @@ const ModalEdit = ({
   const [vehicleData, setVehicleData] = useState([]);
   const [serviceNames, setServiceNames] = useState({});
   const [firstServiceName, setFirstServiceName] = useState([]);
-  // const [technicianId, setTechnicianId] = useState(null);
   const [loadingTechnician, setLoadingTechnician] = useState(true);
   const [technicianData, setTechnicianData] = useState([]);
   const [selectedTechnician, setSelectedTechnician] = useState(null);
@@ -113,7 +112,7 @@ const ModalEdit = ({
   const [dataOrder, setDataOrder] = useState({});
   const [dataDeparture, setDataDeparture] = useState({});
   const [dataModel, setDataModel] = useState("");
-  const [dataOrderDetail, setDataOrderDetail] = useState({});
+  const [fullnameRvo, setFullnameRvo] = useState({});
   const managerString = localStorage.getItem("manager");
   let manager = null;
 
@@ -133,7 +132,10 @@ const ModalEdit = ({
     if (edit.destination) {
       fetchAddress("destination", edit.destination);
     }
+
   }, [edit.departure, edit.destination]);
+
+ 
 
   const fetchAddress = async (addressType, addressValue) => {
     console.log("latlng" + addressValue);
@@ -197,19 +199,20 @@ const ModalEdit = ({
     if (selectedRescueType === "Fixing") {
       if (technicianData !== null) {
         setFilteredTechnicianData(
-          technicianData.filter((tech) => tech.status === "ACTIVE")
+          technicianData.filter((tech) => tech && tech.status === "ACTIVE")
         );
       }
       resetTowingState();
     } else if (selectedRescueType === "Towing") {
       if (vehicleData !== null) {
         setFilteredVehicleData(
-          vehicleData.filter((vehicle) => vehicle.status === "ACTIVE")
+          vehicleData.filter((vehicle) => vehicle && vehicle.status === "ACTIVE")
         );
       }
       // resetFixingState();
     }
   }, [selectedRescueType, technicianData, vehicleData]);
+  
   // useEffect(() => {
   //   if (selectedTechnician) {
   //     console.log("test tec" + selectedTechnician);
@@ -227,18 +230,46 @@ const ModalEdit = ({
 
   //Cái nay chính
   useEffect(() => {
-    if (selectedVehicle) {
+    if (selectedVehicle && vehicleData.length > 0) {
       const selectedVehicleId = selectedVehicle.id;
-      // Lọc danh sách các phương tiện dựa trên ID của phương tiện được chọn
       const filteredVehicleDetails = vehicleData.find(
         (vehicle) => vehicle.id === selectedVehicleId
       );
       setVehicleDetails(filteredVehicleDetails);
-      console.log("detail" + vehicleDetails);
     } else {
       setVehicleDetails(null);
     }
   }, [selectedVehicle, vehicleData]);
+  useEffect(() => {
+    if (vehicleDetails && vehicleDetails.rvoid) {
+      // Lưu giữ giá trị rvoid mỗi khi vehicleDetails thay đổi
+      const savedRvoid = vehicleDetails.rvoid;
+   
+      fetchRVO(savedRvoid);
+    }
+  }, [vehicleDetails]);
+  const fetchRVO = (rovId) => {
+    console.log(rovId)
+    if (!fullnameRvo[rovId]) {
+      dispatch(getRescueVehicleOwnerId({ id: rovId }))
+        .then((response) => {
+          const data = response.payload.data;
+          if (data && data.fullname) {
+            console.log(data.fullname)
+            setFullnameRvo((prevData) => ({
+              ...prevData,
+              [rovId]: data.fullname,
+            }));
+          } else {
+            console.error("Fullname not found in the API response.");
+          }
+        })
+        .catch((error) => {
+          console.error("Error while fetching customer data:", error);
+        });
+    }
+   
+  };
   // useEffect(() => {
   //   if (selectedVehicle && vehicleData) {
   //     const selectedVehicleId = selectedVehicle.id;
@@ -1404,6 +1435,19 @@ const ModalEdit = ({
                               >
                                 <Box sx={{ flex: 1 }}>
                                   <h3>Thông tin xe đã chọn</h3>
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      gap: 2,
+                                      marginBottom: 1, // Thêm khoảng cách dưới cùng cho mỗi Box
+                                    }}
+                                  >
+                                    <SourceRoundedIcon style={iconColor} />
+                                    <Typography variant="body1">
+                                     Tên Chủ Xe: {fullnameRvo[vehicleDetails.rvoid]}
+                                    </Typography>
+                                  </Box>
                                   <Box
                                     sx={{
                                       display: "flex",

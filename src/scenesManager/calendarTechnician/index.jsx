@@ -140,61 +140,7 @@ const CalendarTechnician = () => {
     }
   }, [technicianData]);
 
-  // useEffect(() => {
-  //   const getShiftData = async () => {
-  //     try {
-  //       const days = getWeekDays(new Date());
-  //       const promises = days.map((day) =>
-  //         dispatch(getShiftOfDate({ date: day })).unwrap()
-  //       );
-  //       const responses = await Promise.all(promises);
-  //       console.log(responses);
-  //       const updatedEvents = [];
-
-  //       responses.forEach((response) => {
-  //         if (response && response.data && response.data.length > 0) {
-  //           const eventData = response.data[0];
-
-  //           const eventId = createEventId();
-  //           // Tạo sự kiện từ dữ liệu nhận được từ API
-
-  //           let startHour = "00:00:00";
-  //           let endHour = "08:00:00";
-
-  //           if (eventData.type === "Midnight") {
-  //             startHour = "00:00:00";
-  //             endHour = "08:00:00";
-  //           } else if (eventData.type === "Night") {
-  //             startHour = "16:00:00";
-  //             endHour = "24:00:00"; // Kết thúc vào ngày tiếp theo
-  //           } else if (eventData.type === "Morning") {
-  //             startHour = "08:00:00";
-  //             endHour = "16:00:00";
-  //           } else {
-  //             // Xử lý các trường hợp khác của eventData.type ở đây (nếu cần)
-  //           }
-
-  //           const event = {
-  //             id: eventId,
-  //             title: eventData.type,
-  //             start: eventData.date.substring(0, 10) + "T" + startHour,
-  //             end: eventData.date.substring(0, 10) + "T" + endHour,
-  //             // Các trường thông tin khác từ API có thể được thêm vào đây
-  //           };
-
-  //           updatedEvents.push(event);
-  //         }
-  //       });
-
-  //       setInitialEvents(updatedEvents); // Cập nhật mảng sự kiện ban đầu với sự kiện mới từ API
-  //     } catch (error) {
-  //       console.error("Error fetching data for the week:", error);
-  //     }
-  //   };
-
-  //   getShiftData();
-  // }, [dispatch]);
-
+  
   function getMondayOfWeek(date) {
     const day = date.getDay() || 7; // Chuyển đổi Chủ nhật từ 0 thành 7
     if (day !== 0) {

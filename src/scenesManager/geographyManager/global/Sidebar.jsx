@@ -477,13 +477,13 @@ const Sidebar = ({ selectedWalletId, selectedItemId }) => {
               selected={selected}
               setSelected={setSelected}
             />
-            <Item
+            {/* <Item
               title="Tạo Chủ Xe Mới"
               to="manager/add/carVihecileOwner"
               icon={<PersonOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}
-            />
+            /> */}
             <Item
               title="Tạo Mẫu Xe"
               to="manager/add/modelCar"

@@ -84,7 +84,7 @@ const CreateAccount = () => {
             >
               <TextField
                 fullWidth
-                variant="filled"
+                variant="outlined"
                 type="text"
                 label="Email"
                 onBlur={handleBlur}
@@ -97,7 +97,7 @@ const CreateAccount = () => {
               />
               <TextField
                 fullWidth
-                variant="filled"
+                variant="outlined"
                 type="password"
                 label="Password"
                 onBlur={handleBlur}

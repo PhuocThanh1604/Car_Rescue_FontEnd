@@ -137,6 +137,6 @@ const serviceSlice = createSlice({
     
   },
 });
-export const { setservices, } = serviceSlice.actions;
+export const { setServices } = serviceSlice.actions;
 export default serviceSlice.reducer;
 export const { reducer } = serviceSlice;

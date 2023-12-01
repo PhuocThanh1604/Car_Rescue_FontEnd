@@ -130,34 +130,34 @@ export const updateModelCar = createAsyncThunk(
 const modelCarSlice = createSlice({
   name: "modelCar",
   initialState: {
-    modelCar: [],
+    modelCars: [],
     status: "",
   },
   reducers: {
     setModelCar: (state, action) => {
-      state.modelCar = action.payload.data;
+      state.modelCars = action.payload.data;
     },
-    updateModelCar: (state, action) => {
-      const { id, newStatus } = action.payload;
-      // Update the status of the specific RescueVehicleOwner
-      return state.map((modelCar) => {
-        if (modelCar.id === id) {
-          return { ...modelCar, status: newStatus };
-        }
-        return modelCar;
-      });
-    },
+    // updateModelCar: (state, action) => {
+    //   const { id, newStatus } = action.payload;
+    //   // Update the status of the specific RescueVehicleOwner
+    //   return state.map((modelCar) => {
+    //     if (modelCar.id === id) {
+    //       return { ...modelCar, status: newStatus };
+    //     }
+    //     return modelCar;
+    //   });
+    // },
   },
   extraReducers: (builder) => {
     builder
       .addCase(fetchModelCar.fulfilled, (state, action) => {
-        state.modelCar= action.payload.data;
+        state.modelCars= action.payload.data;
       })
       .addCase(fetchModelCar.pending, (state, action) => {
         state.status = "loading";
       })
       .addCase(createModelCar.fulfilled, (state, action) => {
-        state.modelCar.push(action.payload);
+        state.modelCars.push(action.payload);
       })
       .addCase(createModelCar.pending, (state) => {
         state.status = "loading";
@@ -166,7 +166,7 @@ const modelCarSlice = createSlice({
         state.status = "error";
       })
       .addCase(updateModelCar.fulfilled, (state, action) => {
-        state.modelCar = action.payload.data;
+        state.modelCars = action.payload.data;
       })
       .addCase(updateModelCar.pending, (state) => {
         state.status = "loading";

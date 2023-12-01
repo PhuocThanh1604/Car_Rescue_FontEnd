@@ -19,7 +19,6 @@ import {
 import { Close } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
-import UploadImageField from "../../components/uploadImage";
 import { editService, fetchServices } from "../../redux/serviceSlice";
 
 const ModalEdit = ({

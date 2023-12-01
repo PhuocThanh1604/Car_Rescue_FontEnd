@@ -15,21 +15,17 @@ import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import Header from "../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
-import { Edit, FilterList, Search } from "@mui/icons-material";
-import SupportIcon from "@mui/icons-material/Support";
-import HandymanIcon from "@mui/icons-material/Handyman";
+import { Edit } from "@mui/icons-material";
 import ModalEdit from "./ModalComponentEdit";
 import ToggleButton from "./ToggleButton";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Fade from "@mui/material/Fade";
 import SearchIcon from "@mui/icons-material/Search";
 import InputBase from "@mui/material/InputBase";
-import moment from "moment";
 
-import { fetchServices, getServiceId } from "../../redux/serviceSlice";
 import CustomTablePagination from "../../components/TablePagination";
-import { fetchModelCar } from "../../redux/modelCarSlice";
+import { fetchModelCar, getModelCarId } from "../../redux/modelCarSlice";
 const ModelCar = (props) => {
   const dispatch = useDispatch();
   const services = useSelector((state) => state.service.services);
@@ -42,7 +38,7 @@ const ModelCar = (props) => {
   const [rowsPerPage, setRowsPerPage] = useState(8);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [startDate, setStartDate] = useState(null);
+  const [selectedServiceDetails, setSelectedServiceDetails] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]);
@@ -73,9 +69,11 @@ const ModelCar = (props) => {
   const handleUpdateClick = (serviceId) => {
     console.log(serviceId); //check
     // Fetch the serviceId details based on the selected serviceId ID
-    dispatch(getServiceId({ id: serviceId })) //check
+    dispatch(getModelCarId({ id: serviceId })) //check
       .then((response) => {
-        const serviceDetails = response.payload.data; //check
+        const serviceDetails = response.payload.data;
+        console.log(serviceDetails)
+        setSelectedServiceDetails(serviceDetails);
         setSelectedEditSevice(serviceDetails);
         setOpenEditModal(true);
         setIsSuccess(true);
@@ -84,8 +82,6 @@ const ModelCar = (props) => {
         console.error("Lỗi khi lấy thông tin dịch vụ:", error);
       });
   };
-
-
 
   useEffect(() => {
     const filteredServices = services
@@ -197,7 +193,7 @@ const ModelCar = (props) => {
 
   return (
     <Box ml="50px" mr="50px" mb="auto">
-      <Header title="Dịch Vụ" subtitle="Danh sách chi tiết dịch vụ" />
+      <Header title="Mẫu Xe " subtitle="Danh sách chi tiết mẫu xe" />
       <Box display="flex" className="box" left={0}>
       <Box
             display="flex"
@@ -303,6 +299,7 @@ const ModelCar = (props) => {
         openEditModal={openEditModal}
         setOpenEditModal={setOpenEditModal}
         selectedEditService={selectedEditSevice}
+        setSelectedEditService={setSelectedServiceDetails}
         onClose={() => setOpenEditModal(false)}
         loading={loading}
       />

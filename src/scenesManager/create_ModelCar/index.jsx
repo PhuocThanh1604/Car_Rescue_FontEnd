@@ -15,7 +15,7 @@ import Header from "../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { createService } from "../../redux/serviceSlice";
+import AddIcon from "@mui/icons-material/Add";
 import { fetchManagers } from "../../redux/managerSlice";
 import { createModelCar } from "../../redux/modelCarSlice";
 
@@ -114,7 +114,7 @@ const AddModelCar = () => {
           <form onSubmit={handleSubmit}>
             <Box display="flex" justifyContent="left" mb="20px">
               <Button type="submit" color="secondary" variant="contained">
-                Tạo Hãng Xe
+              <AddIcon />  Tạo Hãng Xe
               </Button>
             </Box>
             <Box
@@ -127,7 +127,7 @@ const AddModelCar = () => {
             >
               <TextField
                 fullWidth
-                variant="filled"
+                variant="outlined"
                 type="text"
                 label="Tên Hãng Xe"
                 onBlur={handleBlur}

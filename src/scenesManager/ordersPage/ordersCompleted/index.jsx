@@ -194,7 +194,7 @@ const fetchFullname = (customerId) => {
         console.error("Error while fetching customer data:", error);
       });
   }
-  // You can use your existing code to fetch the fullname
+ 
 };
 
   const handleChangePage = (event, newPage) => {

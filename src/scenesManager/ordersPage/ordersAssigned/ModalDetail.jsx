@@ -37,11 +37,11 @@ import ReceiptRoundedIcon from "@mui/icons-material/ReceiptRounded";
 import { CategoryRounded } from "@mui/icons-material";
 import { getRescueVehicleOwnerId } from "../../../redux/rescueVehicleOwnerSlice";
 import AssignmentIcon from "@mui/icons-material/Assignment";
-import CreditScoreIcon from "@mui/icons-material/CreditScore";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
-import { getFormattedAddressGG } from "../../../redux/orderSlice";
+import { getFormattedAddressGG, getOrderDetailId } from "../../../redux/orderSlice";
 import { useTheme } from "@emotion/react";
 import { tokens } from "../../../theme";
+import { getServiceId } from "../../../redux/serviceSlice";
 const MyModal = (props) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -53,6 +53,7 @@ const MyModal = (props) => {
     technician: {},
     vehicle: {},
   });
+  const [serviceNames, setServiceNames] = useState([]);
   const [loading, setLoading] = useState(false);
   const [formattedAddresses, setFormattedAddresses] = useState({});
   const [dataRescueVehicleOwner, setDataRescueVehicleOwner] = useState({});
@@ -64,8 +65,10 @@ const MyModal = (props) => {
     if (selectedEditOrder && selectedEditOrder.departure) {
       fetchAddress("departure", selectedEditOrder.departure);
     }
+    if (selectedEditOrder && selectedEditOrder.id) {
+      fetchOrderDetail(selectedEditOrder.id);
+    }
   }, [selectedEditOrder]);
-
   const fetchAddress = async (addressType, addressValue) => {
     console.log("latlng" + addressValue);
     if (!addressValue) {
@@ -198,7 +201,74 @@ const MyModal = (props) => {
       date.getMonth() + 1
     }/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`;
   }
+  // Hiển thị tất cả dịch vụ và quantity
+  const fetchOrderDetail = (orderId) => {
+    console.log(orderId);
+    setServiceNames(null);
+    // Make sure you have a check to prevent unnecessary API calls
+    if (orderId) {
+      dispatch(getOrderDetailId({ id: orderId }))
+        .then((response) => {
+          const data = response.payload.data;
+          console.log(data);
+          if (data && Array.isArray(data)) {
+            const serviceDetails = data.map((item) => ({
+              serviceId: item.serviceId,
+              quantity: item.quantity,
+            }));
 
+            // Tạo mảng promises để gọi API lấy thông tin từng serviceId và quantity
+            const servicePromises = serviceDetails.map(
+              ({ serviceId, quantity }) => {
+                return dispatch(getServiceId({ id: serviceId }))
+                  .then((serviceResponse) => {
+                    const serviceName = serviceResponse.payload.data.name;
+                    console.log(
+                      `ServiceId: ${serviceId}, ServiceName: ${serviceName}, Quantity: ${quantity}`
+                    );
+                    return { serviceName, quantity };
+                  })
+                  .catch((serviceError) => {
+                    console.error(
+                      `Error while fetching service data for serviceId ${serviceId}:`,
+                      serviceError
+                    );
+                    return null;
+                  });
+              }
+            );
+
+            // Sử dụng Promise.all để chờ tất cả các promises hoàn thành
+            Promise.all(servicePromises)
+              .then((serviceData) => {
+                // Log tất cả serviceName và quantity từ API
+                console.log(
+                  "Tất cả serviceName và quantity từ API:",
+                  serviceData
+                );
+                // Cập nhật state với serviceNames và quantity đã lấy được từ API
+                setServiceNames((prevServiceNames) => ({
+                  ...prevServiceNames,
+                  [orderId]: serviceData,
+                }));
+              })
+              .catch((error) => {
+                console.error(
+                  "Error while processing service data promises:",
+                  error
+                );
+              });
+          } else {
+            console.error(
+              "Service data not found in the API response or data is not an array."
+            );
+          }
+        })
+        .catch((error) => {
+          console.error("Error while fetching service data detail:", error);
+        });
+    }
+  };
   const technicianInfo = selectedEditOrder &&
     selectedEditOrder.technicianId && (
       <Grid item xs={5} alignItems="center">
@@ -463,7 +533,7 @@ const MyModal = (props) => {
                       <Grid item xs={6}>
                         <StyledGrid1>
                           <Typography variant="h5" sx={{ marginBottom: 2 }}>
-                            Thông tin của đơn hàng
+                            Thông Tin Đơn Hàng
                           </Typography>
 
                           <Typography
@@ -492,30 +562,57 @@ const MyModal = (props) => {
                               {formattedAddresses.departure || "Đang cập nhật"}
                             </Typography>
                           </Typography>
+                          {/* List all services */}
                           <Typography
                             variant="body1"
                             component="p"
                             sx={{
+                              alignItems: "center",
                               marginBottom: "8px",
                               fontSize: "1rem",
+                              marginRight: "2px",
                             }}
                           >
-                            <TimerIcon style={iconColor} />
-                            <strong>Thời gian bắt đầu: </strong>
+                            <AssignmentIcon style={iconColor} />{" "}
+                            <strong>Dịch vụ đã chọn:</strong>{" "}
                             <Typography
                               variant="h6"
                               component="span"
                               sx={{
                                 padding: "8px",
-                                borderRadius: "4px",
-                                marginLeft: "4px",
-                                wordWrap: "break-word",
-                                overflowWrap: "break-word",
-                                whiteSpace: "normal",
                                 flex: 1,
                               }}
                             >
-                              {formattedDateEnd || "Đang di chuyển"}
+                              {serviceNames
+                                ? Object.values(serviceNames).map(
+                                    (serviceData, index) => {
+                                      const allServices = serviceData.map(
+                                        (
+                                          { serviceName, quantity },
+                                          innerIndex
+                                        ) => (
+                                          <React.Fragment key={innerIndex}>
+                                            {serviceName ||
+                                              "Không có thông tin"}{" "}
+                                            ({quantity})
+                                            {innerIndex <
+                                              serviceData.length - 1 && ", "}
+                                          </React.Fragment>
+                                        )
+                                      );
+
+                                      return (
+                                        <React.Fragment key={index}>
+                                          {allServices}
+                                          {index <
+                                            Object.values(serviceNames).length -
+                                              1 && <br />}
+                                          {/* Add <br /> if it's not the last service in serviceNames */}
+                                        </React.Fragment>
+                                      );
+                                    }
+                                  )
+                                : "Không có thông tin"}
                             </Typography>
                           </Typography>
 

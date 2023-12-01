@@ -300,8 +300,6 @@ const handleDetailClick = (orderId) => {
         );
       },
     },
-   
-
     {
       field: "status",
       headerName: "Trạng Thái",

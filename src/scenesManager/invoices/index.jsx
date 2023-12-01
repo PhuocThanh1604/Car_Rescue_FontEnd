@@ -17,6 +17,7 @@ import {
   FormControl,
   Select,
   MenuItem,
+  CircularProgress,
 } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
@@ -27,27 +28,19 @@ import "react-toastify/dist/ReactToastify.css";
 import SearchIcon from "@mui/icons-material/Search";
 import InputBase from "@mui/material/InputBase";
 import moment from "moment";
-import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 import { CategoryRounded } from "@mui/icons-material";
 import CurrencyExchangeIcon from "@mui/icons-material/CurrencyExchange";
 import AssuredWorkloadIcon from "@mui/icons-material/AssuredWorkload";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import PriceChangeIcon from "@mui/icons-material/PriceChange";
 import TodayIcon from "@mui/icons-material/Today";
-import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
-import Collapse from "@mui/material/Collapse";
-import TimerIcon from "@mui/icons-material/Timer";
-import ReceiptRoundedIcon from "@mui/icons-material/ReceiptRounded";
-import SwipeableViews from "react-swipeable-views";
-import { autoPlay } from "react-swipeable-views-utils";
-import { getRescueVehicleOwnerId } from "../../redux/rescueVehicleOwnerSlice";
-import MapRoundedIcon from "@mui/icons-material/MapRounded";
-import PhoneRoundedIcon from "@mui/icons-material/PhoneRounded";
-import PeopleAltRoundedIcon from "@mui/icons-material/PeopleAltRounded";
 import TextSnippetIcon from "@mui/icons-material/TextSnippet";
 import {
   createAcceptWithdrawRequest,
+  fetchTransactionsAll,
   fetchTransactionsNew,
+  getRVOOfWallet,
   getTransactionById,
   getTransactionOfWalletId,
 } from "../../redux/transactionsSlice";
@@ -56,7 +49,6 @@ import AddCardIcon from "@mui/icons-material/AddCard";
 import CreditScoreIcon from "@mui/icons-material/CreditScore";
 import RepeatOnIcon from "@mui/icons-material/RepeatOn";
 import CustomTablePagination from "../../components/TablePagination";
-import InfoIcon from "@mui/icons-material/Info";
 
 const Invoices = ({ onSelectWallet = () => {} }) => {
   const dispatch = useDispatch();
@@ -64,6 +56,7 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
   const transactions = useSelector((state) => state.transaction.transactions);
   const [searchText, setSearchText] = useState("");
   const [filterOption, setFilterOption] = useState("Type");
+  const [filterOptionStatus, setFilterOptionStatus] = useState("Status");
   const [openModal, setOpenModal] = useState(false);
   const [filteredTransaction, setFilteredTransaction] = useState([]);
   const [page, setPage] = useState(0);
@@ -79,10 +72,10 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
   const [openConfirmModal, setOpenConfirmModal] = useState(false);
   const [detailedData, setDetailedData] = useState(null);
   const [isAccepted, setIsAccepted] = useState(false);
-  const [selectedImage, setSelectedImage] = useState(null);
   const [selectedWalletId, setSelectedWalletId] = useState("");
   const [selectedItemId, setSelectedItemId] = useState(null);
   const [selectedEditOrder, setSelectedEditOrder] = useState(null);
+  const [fullnameData, setFullnameData] = useState({});
   const handleDetailClickDetail = (selectedWalletId) => {
     console.log(selectedWalletId);
     console.log("Invoices: Selected Wallet ID", selectedWalletId);
@@ -236,6 +229,20 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
       }
     }
   }, [transactions]);
+
+  const handleFilterChangeStatus = (event) => {
+    const selectedStatusOption = event.target.value;
+
+    if (selectedStatusOption === "Status") {
+      setFilteredTransaction(data); // Show all payments if "Status" is selected
+    } else {
+      const filteredTransaction = data.filter(
+        (transaction) => transaction.status === selectedStatusOption
+      );
+      setFilteredTransaction(filteredTransaction);
+    }
+    setFilterOptionStatus(selectedStatusOption);
+  };
   const handleFilterChange = (event) => {
     const selectedOption = event.target.value;
     setFilterOption(selectedOption);
@@ -264,6 +271,49 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
     setFilteredTransaction(filteredTransactionDetail);
   }, [transactions, searchText, filterOption]);
 
+
+  //Fetch fullname rvo
+  useEffect(() => {
+    // Tạo danh sách duy nhất từ walletId và chuyển đổi thành mảng
+    const uniqueWalletIds = Array.from(new Set(data.map((row) => row.walletId)));
+  
+     // Lấy thông tin đầy đủ từ uniqueWalletIds
+  const fetchFullNames = async (walletIds) => {
+    for (const walletId of walletIds) {
+      if (!fullnameData[walletId]) {
+        await fetchFullname(walletId);
+      }
+    }
+  };
+  
+    fetchFullNames(uniqueWalletIds);
+  }, [data, fullnameData]);
+  
+  const fetchFullname = (walletId) => {
+    console.log(walletId)
+    if (!fullnameData[walletId]) {
+      dispatch(getRVOOfWallet({ id: walletId }))
+        .then((response) => {
+          const data = response.payload.data;
+          if (data && data.rvo.fullname) {
+            // Update the state with the fetched fullname
+            setFullnameData((prevData) => ({
+              ...prevData,
+              [walletId]: data.rvo.fullname,
+            }
+            
+            ));
+          } else {
+            console.error("Fullname not found in the API response.");
+          }
+        })
+        .catch((error) => {
+          console.error("Error while fetching customer data:", error);
+        });
+    }
+    // You can use your existing code to fetch the fullname
+  };
+
   // Function để chuyển đổi thời gian sang múi giờ Việt Nam
   const convertToVietnamTime = (createdAt) => {
     if (!createdAt) return "Không có thông tin";
@@ -289,7 +339,7 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
 
   useEffect(() => {
     setLoading(true);
-    dispatch(fetchTransactionsNew())
+    dispatch(fetchTransactionsAll())
       .then((response) => {
         // Đã lấy dữ liệu thành công
         const data = response.payload.data;
@@ -297,7 +347,6 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
           setData(data);
           setFilteredTransaction(data);
           setDetailedData(data);
-          console.log(data);
           setLoading(false); // Đặt trạng thái loading thành false sau khi xử lý dữ liệu
         }
       })
@@ -308,10 +357,6 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
-  };
-  const handleImageClick = (image) => {
-    setSelectedImage(image);
-    // Hiển thị hình ảnh đã chọn hoặc thực hiện một hành động khác ở đây
   };
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
@@ -343,33 +388,38 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
       width: 100,
       cellClassName: "name-column--cell",
     },
+    // {
+    //   field: "walletId",
+    //   headerName: "Tên Đối Tác",
+    //   width: 220,
+    //   cellClassName: "name-column--cell",
+    //   onCellClick: (params) => {
+    //     setSelectedWalletId(params.row.walletId);
+    //     // Các hành động khác sau khi chọn walletId
+    //   },
+    // },
+
     {
       field: "walletId",
-      headerName: "walletId",
-      width: 100,
-      cellClassName: "name-column--cell",
-      onCellClick: (params) => {
-        setSelectedWalletId(params.row.walletId);
-        // Các hành động khác sau khi chọn walletId
+      headerName: "Họ Và tên",
+      width: 140,
+      renderCell: (params) => {
+        return fullnameData[params.value] ? (
+          fullnameData[params.value]
+        ) : (
+          <CircularProgress size={20} />
+        );
       },
     },
     {
-      field: "transactionAmount",
-      headerName: "Số tiền giao dịch",
-      width: 100,
-      valueFormatter: (params) => {
-        // Đảm bảo rằng params.value là một số
-        if (typeof params.value === "number") {
-          // Chuyển số thành chuỗi và định dạng theo định dạng tiền tệ VNĐ
-          const formattedPrice = params.value.toLocaleString("vi-VN", {
-            style: "currency",
-            currency: "VND",
-          });
-          return formattedPrice;
-        } else {
-          return params.value;
-        }
-      },
+      field: "createdAt",
+      headerName: "Ngày giao dịch",
+      width: 160,
+      valueGetter: (params) =>
+        moment(params.row.createdAt)
+          .tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
+          .add(7, "hours") // Adding 3 hours (you can adjust this number as needed)
+          .format("DD-MM-YYYY HH:mm:ss"),
     },
     {
       field: "type",
@@ -404,78 +454,86 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
       },
     },
     {
-      field: "totalAmount",
-      headerName: "Tổng cộng",
-      width: 100,
-      renderCell: (params) => {
-        // Đảm bảo rằng params.value là một số
-        if (typeof params.value === "number") {
-          // Chuyển số thành chuỗi và định dạng theo định dạng tiền tệ VNĐ
-          const formattedPrice = params.value.toLocaleString("vi-VN", {
-            style: "currency",
-            currency: "VND",
-          });
-
-          // Trả về phần tử Typography để render với màu xanh và giá trị tiền đã định dạng
-          return (
-            <Typography color={colors.greenAccent[500]}>
-              {formattedPrice}
-            </Typography>
-          );
-        } else {
-          return params.value;
-        }
-      },
-    },
-    {
-      field: "createdAt",
-      headerName: "Ngày giao dịch",
-      width: 160,
-      valueGetter: (params) =>
-        moment(params.row.createdAt)
-          .tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
-          .add(7, "hours") // Adding 3 hours (you can adjust this number as needed)
-          .format("DD-MM-YYYY HH:mm:ss"),
-    },
-    {
       field: "status",
       headerName: "Trạng Thái",
-      width: 150,
+      width: 100,
       key: "status",
       renderCell: ({ row: { status } }) => {
         return (
           <Box
-            width="80%"
+            width="auto"
+            p="4px"
             m="0 auto"
-            p="2px"
             display="flex"
             justifyContent="center"
-            fontSize={10}
-            borderRadius={8} // Corrected prop name from "buserRadius" to "borderRadius"
+            borderRadius={2}
             backgroundColor={
               status === "NEW"
                 ? colors.greenAccent[700]
-                : status === "ASSIGNED"
+                : status === "FAILD"
                 ? colors.redAccent[700]
                 : colors.redAccent[700]
-                ? colors.blueAccent[700]
+                ? colors.cyan[300]
                 : status === "COMPLETED"
             }
+            color={
+              status === "NEW"
+                ? colors.greenAccent[300]
+                : colors.yellowAccent[700] && status === "COMPLETED"
+                ? colors.cyan[700]
+                : colors.yellowAccent[700]
+            }
           >
-            {status === "NEW" && <AddCardIcon />}
-            {status === "COMPLETED" && <CreditScoreIcon />}
-            {status === "ASSIGNED" && <RepeatOnIcon />}
-            <Typography color={colors.grey[100]} sx={{ ml: "8px" }}>
+            <Typography color="inherit" sx={{ ml: "1px", fontWeight: "bold" }}>
               {status}
             </Typography>
           </Box>
         );
       },
     },
+
+
+    {
+      field: "orderDetails",
+      headerName: "Chi Tiết Giao Dịch",
+      width: 120,
+      renderCell: (params) => (
+        <Grid container justifyContent="center" alignItems="center">
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              "&:hover": {
+                cursor: "pointer",
+                // Thay đổi màu sắc hoặc hiệu ứng khác khi hover vào Box
+                backgroundColor: "lightgray",
+                padding: "4px",
+                borderRadius: "4px",
+              },
+            }}
+            onClick={() => handleDetailClickDetail(params.row.walletId)}
+          >
+            <VisibilityIcon
+              color="indigo"
+              onClick={() => handleDetailClickDetail(params.row.walletId)}
+              aria-label="Chi Tiết Đơn Hàng"
+            />
+            <Typography
+              variant="body1"
+              sx={{ fontWeight: "bold", marginLeft: "5px" }}
+              onClick={() => handleDetailClickDetail(params.row.walletId)}
+            >
+              {"Xem Chi Tiết"}
+            </Typography>
+          </Box>
+        </Grid>
+      ),
+      key: "orderDetails",
+    },
     {
       field: "acceptWithdraw",
       headerName: "Đơn rút ví",
-      width: 60,
+      width: 80,
       renderCell: (params) => (
         <IconButton
           variant="contained"
@@ -489,23 +547,6 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
         </IconButton>
       ),
       key: "acceptWithdraw",
-    },
-    {
-      field: "orderDetails",
-      headerName: "Chi Tiết Giao Dịch",
-      width: 120,
-      renderCell: (params) => (
-        <Grid container justifyContent="center" alignItems="center">
-          <IconButton
-            color="indigo"
-            onClick={() => handleDetailClickDetail(params.row.walletId)}
-            aria-label="Chi Tiết Giao Dịch"
-          >
-            <InfoIcon />
-          </IconButton>
-        </Grid>
-      ),
-      key: "bookDetail",
     },
   ];
 
@@ -557,6 +598,33 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
             </Select>
           </FormControl>
         </Box>
+        <Box display="flex" alignItems="center" className="filter-box" sx={{marginLeft:"20px"}}>
+          <FormControl fullWidth>
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={filterOptionStatus}
+              onChange={handleFilterChangeStatus}
+              variant="outlined"
+              className="filter-select"
+            >
+              <MenuItem key="status-all" value="Status">
+                Trạng Thái
+              </MenuItem>
+              <MenuItem key="status-new" value="NEW">
+                Mới
+              </MenuItem>
+              <MenuItem key="status-completed" value="COMPLETED">
+                Thành Công
+              </MenuItem>
+              <MenuItem key="status-faild" value="FAILD">
+                Không Thành Công
+              </MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
+
+
 
         <Box display="flex" alignItems="center" className="startDate-box">
           <TextField

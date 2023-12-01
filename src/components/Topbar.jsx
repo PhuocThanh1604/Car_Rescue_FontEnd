@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Avatar,
   Badge,
@@ -14,23 +14,19 @@ import {
 } from "@mui/material";
 import { ColorModeContext, tokens } from "../theme";
 import InputBase from "@mui/material/InputBase";
-import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
-import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
 import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined";
-import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
-import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
+import MailIcon from "@mui/icons-material/Mail";
 import SearchIcon from "@mui/icons-material/Search";
 import Menu from "@mui/material/Menu";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../redux/authSlice";
 import LogoutIcon from "@mui/icons-material/Logout";
-import PersonIcon from "@mui/icons-material/Person";
-import FolderSharedIcon from "@mui/icons-material/FolderShared";
 import BadgeIcon from "@mui/icons-material/Badge";
 import SettingsIcon from "@mui/icons-material/Settings";
-import { Logout } from "@mui/icons-material";
 import { styled, Theme } from "@mui/material/styles";
 import PerfectScrollbarComponent from "react-perfect-scrollbar";
+import { toast } from "react-toastify";
+import { onMessageListener } from "../firebase";
 
 const Topbar = () => {
   const navigate = useNavigate();
@@ -41,16 +37,50 @@ const Topbar = () => {
   const [anchorElNoti, setAnchorElNoti] = useState(null); // Notifications menu
   const [anchorElProfile, setAnchorElProfile] = useState(null); // Profile menu
   const [notifications, setNotifications] = useState([]);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
 
   const MAX_NOTIFICATIONS_DISPLAYED = 5;
+  useEffect(() => {
+    const handleMessage = (payload) => {
+      toast(
+        `Title: ${payload.notification.title}, Body: ${payload.notification.body}`,
+        {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        }
+      );
+      // Lấy thời gian hiện tại
+      const now = new Date();
+      // Cập nhật trạng thái thông báo
+      setNotifications((prevNotifications) => [
+        ...prevNotifications,
+        {
+          title: payload.notification.title,
+          body: payload.notification.body,
+          receivedTime: now.toISOString(), // Lưu thời gian nhận thông báo
+        },
+      ]);
+      setUnreadNotifications((prevUnreadCount) => prevUnreadCount + 1);
+    };
 
+    onMessageListener(handleMessage);
+
+  }, []);
   const handleMenuOpenNoti = (event) => {
     // Only display a limited number of notifications initially
     const initialNotifications = notifications.slice(
       0,
       MAX_NOTIFICATIONS_DISPLAYED
     );
+    setUnreadNotifications(0);
     setAnchorElNoti(event.currentTarget);
+    
+
     setNotifications(initialNotifications);
   };
 
@@ -86,8 +116,8 @@ const Topbar = () => {
   };
 
   const handleMenuClose = () => {
+    setUnreadNotifications(null)
     setAnchorElNoti(null);
-    setAnchorElProfile(null);
   };
   // ** Styled PerfectScrollbar component
   const PerfectScrollbar = styled(PerfectScrollbarComponent)({
@@ -153,7 +183,7 @@ const Topbar = () => {
   }));
 
   return (
-    <Box display="flex" justifyContent="space-between" p={2} >
+    <Box display="flex" justifyContent="space-between" p={2}>
       {/* SEARCH BAR */}
       <Box
         display="flex"
@@ -176,177 +206,69 @@ const Topbar = () => {
           )}
         </IconButton> */}
         <IconButton onClick={handleMenuOpenNoti}>
-          <NotificationsOutlinedIcon />
+          {/* <NotificationsOutlinedIcon /> */}
+          <Badge badgeContent={unreadNotifications} color="error"   invisible={false}>
+            <NotificationsOutlinedIcon />
+          </Badge>
         </IconButton>
         <Menu
           anchorEl={anchorElNoti}
-          open={anchorElNoti}
+          open={Boolean(anchorElNoti)}
           onClose={handleMenuClose}
           anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
           transformOrigin={{ vertical: "top", horizontal: "right" }}
         >
-          <MenuItem disableRipple>
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                width: "100%",
-              }}
-            >
-              <Typography sx={{ fontWeight: 600 }}>Notifications</Typography>
-              <Chip
-                size="small"
-                label="New"
-                color="primary"
-                sx={{
-                  height: 20,
-                  fontSize: "0.75rem",
-                  fontWeight: 500,
-                  borderRadius: "10px",
-                }}
-              />
-            </Box>
-          </MenuItem>
-          <ScrollWrapper>
-            <MenuItem onClick={handleMenuClose}>
-              <Box
-                sx={{
-                  width: "100%",
-                  display: "flex",
-                  alignItems: "center",
-                }}
-              >
-                <Avatar
-                  alt="Flora"
-                  src="https://png.pngtree.com/png-clipart/20230524/original/pngtree-congratulations-with-clap-icon-png-image_9168959.png"
-                />
-                <Box
-                  sx={{
-                    mx: 4,
-                    flex: "1 1",
-                    display: "flex",
-                    overflow: "hidden",
-                    flexDirection: "column",
-                  }}
-                >
-                  <MenuItemTitle>Congratulation Flora! 🎉</MenuItemTitle>
-                  <MenuItemSubtitle variant="body2">
-                    Won the monthly best seller badge
-                  </MenuItemSubtitle>
-                </Box>
-                <Typography variant="caption" sx={{ color: "text.disabled" }}>
-                  Today
-                </Typography>
-              </Box>
-            </MenuItem>
-            <MenuItem onClick={handleMenuClose}>
-              <Box
-                sx={{ width: "100%", display: "flex", alignItems: "center" }}
-              >
-                <img
-                  width={38}
-                  height={38}
-                  alt="paypal"
-                  src="https://storelinhtinh.com/wp-content/uploads/2022/03/kisspng-paypal-logo-brand-font-payment-paypal-logo-icon-paypal-icon-logo-png-and-vecto-5b7f273e45e8a9.9067728615350597742864.png"
-                />
-                <Box
-                  sx={{
-                    mx: 4,
-                    flex: "1 1",
-                    display: "flex",
-                    overflow: "hidden",
-                    flexDirection: "column",
-                  }}
-                >
-                  <MenuItemTitle>Paypal</MenuItemTitle>
-                  <MenuItemSubtitle variant="body2">
-                    Received Payment
-                  </MenuItemSubtitle>
-                </Box>
-                <Typography variant="caption" sx={{ color: "text.disabled" }}>
-                  25 May
-                </Typography>
-              </Box>
-            </MenuItem>
-            <MenuItem onClick={handleMenuClose}>
-              <Box
-                sx={{ width: "100%", display: "flex", alignItems: "center" }}
-              >
-                <Avatar
-                  alt="order"
-                  src="https://creazilla-store.fra1.digitaloceanspaces.com/icons/7912768/avatar-icon-md.png"
-                />
-                <Box
-                  sx={{
-                    mx: 4,
-                    flex: "1 1",
-                    display: "flex",
-                    overflow: "hidden",
-                    flexDirection: "column",
-                  }}
-                >
-                  <MenuItemTitle>Revised Order 📦</MenuItemTitle>
-                  <MenuItemSubtitle variant="body2">
-                    New order revised from john
-                  </MenuItemSubtitle>
-                </Box>
-                <Typography variant="caption" sx={{ color: "text.disabled" }}>
-                  19 Mar
-                </Typography>
-              </Box>
-            </MenuItem>
-            <MenuItem onClick={handleMenuClose}>
-              <Box
-                sx={{ width: "100%", display: "flex", alignItems: "center" }}
-              >
-                <img
-                  width={38}
-                  height={38}
-                  alt="chart"
-                  src="https://cdn-icons-png.flaticon.com/512/4541/4541461.png"
-                />
-                <Box
-                  sx={{
-                    mx: 4,
-                    flex: "1 1",
-                    display: "flex",
-                    overflow: "hidden",
-                    flexDirection: "column",
-                  }}
-                >
-                  <MenuItemTitle>
-                    Finance report has been generated
-                  </MenuItemTitle>
-                  <MenuItemSubtitle variant="body2">
-                    25 hrs ago
-                  </MenuItemSubtitle>
-                </Box>
-                <Typography variant="caption" sx={{ color: "text.disabled" }}>
-                  27 Dec
-                </Typography>
-              </Box>
-            </MenuItem>
-          </ScrollWrapper>
+          <Box>
+            <MenuItem disableRipple>Notifications</MenuItem>
 
-          <MenuItem
-            disableRipple
-            sx={{
-              borderBottom: 0,
-              borderTop: (theme) => `1px solid ${theme.palette.divider}`,
-            }}
-          >
-            <Button
-              fullWidth
-              variant="contained"
-              onClick={handleMenuClose}
-              sx={{
-                backgroundColor: "green", // Set the background color to green
-              }}
-            >
-              Read All Notifications
-            </Button>
-          </MenuItem>
+            <ScrollWrapper>
+              {notifications.map((notification, index) => (
+                <MenuItem
+                  key={index}
+                  onClick={handleMenuClose}
+                  sx={{ borderRadius: "10px" }} // Thêm borderRadius ở đây}}
+                >
+                  <Box
+                    sx={{
+                      width: "100%",
+                      display: "flex",
+                      alignItems: "center",
+                      borderRadius: "10px",
+                    }}
+                  >
+                    {/* Tùy chỉnh nội dung của thông báo tại đây */}
+                    <Avatar
+                      alt={notification.title}
+                      //  src={/* đường dẫn ảnh hoặc biểu tượng */}
+                    />
+                    <Box
+                      sx={{
+                        mx: 4,
+                        flex: "1 1",
+                        display: "flex",
+                        overflow: "hidden",
+                        flexDirection: "column",
+                      }}
+                    >
+                      <Typography variant="subtitle1">
+                        {notification.title}
+                      </Typography>
+                      <Typography variant="body2">
+                        {notification.body}
+                      </Typography>
+                    </Box>
+                    <Typography
+                      variant="caption"
+                      sx={{ color: "text.disabled" }}
+                    >
+                      {new Date(notification.receivedTime).toLocaleDateString()}{" "}
+                      {/* Hoặc định dạng thời gian khác */}
+                    </Typography>
+                  </Box>
+                </MenuItem>
+              ))}
+            </ScrollWrapper>
+          </Box>
         </Menu>
 
         <Box
@@ -356,7 +278,6 @@ const Topbar = () => {
           }}
         >
           <IconButton onClick={handleMenuOpenProfile}>
-    
             <Box sx={{ display: "flex", alignItems: "center" }}>
               <Badge
                 overlap="circular"
@@ -373,7 +294,6 @@ const Topbar = () => {
                   sx={{ width: "2.5rem", height: "2.5rem" }}
                 />
               </Badge>
-           
             </Box>
           </IconButton>
 

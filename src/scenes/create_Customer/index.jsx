@@ -18,11 +18,10 @@ import Header from "../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { createAccount, getAccountEmail } from "../../redux/accountSlice";
-import { createRescueVehicleOwner } from "../../redux/rescueVehicleOwnerSlice";
+import {  getAccountEmail } from "../../redux/accountSlice";
 import { createCustomer } from "../../redux/customerSlice";
 import UploadImageField from "../../components/uploadImage";
-
+import AddIcon from "@mui/icons-material/Add";
 const AddCustomer = () => {
   const dispatch = useDispatch();
 
@@ -132,7 +131,7 @@ const AddCustomer = () => {
           <form onSubmit={handleSubmit}>
             <Box display="flex" justifyContent="left" mb="20px">
               <Button type="submit" color="secondary" variant="contained">
-                Tạo Khách Hàng
+            <AddIcon/>Tạo Khách Hàng
               </Button>
             </Box>
             <Box
@@ -242,10 +241,10 @@ const AddCustomer = () => {
                 sx={{ gridColumn: "span 2" }}
               />
               <TextField
-                fullWidth
-                variant="outlined"
+              id="outlined-read-only-input"
+              variant="outlined"
                 type="date"
-                label="Date"
+                label="Ngày Sinh"
                 onBlur={handleBlur}
                 onChange={handleChange}
                 value={values.birthdate}

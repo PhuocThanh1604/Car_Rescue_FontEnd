@@ -19,20 +19,20 @@ import {
 import { Close } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
-import UploadImageField from "../../components/uploadImage";
 import { editService, fetchServices } from "../../redux/serviceSlice";
+import { fetchModelCar, updateModelCar } from "../../redux/modelCarSlice";
 
 const ModalEdit = ({
   openEditModal,
   setOpenEditModal,
   selectedEditService,
+  setSelectedEditService
 }) => {
   const dispatch = useDispatch();
   const services = useSelector((state) => state.service.services);
-  const [edit, setEdit] = useState({});
+  const [edit, setEdit] = useState(selectedEditService);
   const [isSuccess, setIsSuccess] = useState(false);
   const [initialFormState, setInitialFormState] = useState({});
-  const [fullnameValue, setFullnameValue] = useState("");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [filtereServices, setFilteredServices] = useState(
@@ -41,7 +41,7 @@ const ModalEdit = ({
 
   const reloadServices = () => {
     
-    dispatch(fetchServices())
+    dispatch(fetchModelCar())
     
       .then((response) => {
         const data = response.payload.data;
@@ -56,34 +56,31 @@ const ModalEdit = ({
         console.error("Lỗi khi tải lại danh sách dịch vụ:", error);
       });
   };
-
+  useEffect(() => {
+    if (isSuccess) {
+      // Gọi hàm để tải lại dữ liệu ở đây
+      // Ví dụ:
+      reloadServices();
+      // Đặt lại cờ isSuccess thành false sau khi đã xử lý tải lại dữ liệu
+      setIsSuccess(false);
+    }
+  }, [isSuccess]);
+  
   useEffect(() => {
     if (selectedEditService && services) {
-      if (selectedEditService.id) {
-        const ServiceToEditToEdit = services.find(
-          (service) =>
-          service.id === selectedEditService.id
-        );
-        if (ServiceToEditToEdit) {
-          console.log(ServiceToEditToEdit);
-          setFullnameValue(ServiceToEditToEdit.fullname);
-          setEdit(ServiceToEditToEdit);
-          setInitialFormState(ServiceToEditToEdit);
-        }
-      }
+      // ... code xử lý khác
+      setEdit(selectedEditService); // Thay đổi dòng này để sử dụng selectedEditService từ props thay vì useState
+      // ... code xử lý khác
     }
   }, [selectedEditService, services]);
-
   const handleInputChange = (event) => {
     const { name, value } = event.target;
-
-    setEdit((prevService) => ({
-      ...prevService,
+    setEdit((prevEdit) => ({
+      ...prevEdit,
       [name]: value,
     }));
-    console.log(setEdit);
   };
-
+  
   const handleSaveClick = () => {
     if (!selectedEditService || !edit) {
       toast.error("Không có thông tin dịch vụ để cập nhật.");
@@ -91,19 +88,19 @@ const ModalEdit = ({
     }
     // Kiểm tra xem có sự thay đổi trong dữ liệu so với dữ liệu ban đầu
     const hasChanges =
-      JSON.stringify(edit) !== JSON.stringify(initialFormState);
+      JSON.stringify(edit) !== JSON.stringify(selectedEditService);
 
     if (!hasChanges) {
       toast.info("Không có thay đổi để lưu.");
       handleClose();
     } else {
       // Gửi yêu cầu cập nhật lên máy chủ
-      dispatch(editService({ data: edit }))
+      dispatch(updateModelCar({ data: edit }))
         .then(() => {
-          toast.success("Cập nhật dịch vụ thành công.");
+          toast.success("Cập nhật mẫu xe thành công.");
           handleClose();
           reloadServices();
-          setIsSuccess(true);
+          setIsSuccess(true); 
         })
         .catch((error) => {
           if (error.response && error.response.data) {
@@ -126,11 +123,6 @@ const ModalEdit = ({
   if (!services) {
     return null;
   }
-  // Hàm kiểm tra URL hợp lệ
-  const isValidUrl = (url) => {
-    const regex = /^(ftp|http|https):\/\/[^ "]+$/;
-    return regex.test(url);
-  };
 
   return (
     <>
@@ -187,83 +179,27 @@ const ModalEdit = ({
 
               {selectedEditService && (
                 <Card>
+                
                   <CardContent>
                     <TextField
                       name="id"
                       label="ID"
-                      value={edit.id}
+                      value={edit && edit.id ? edit.id : ""}
                       fullWidth
                       margin="normal"
                       disabled
-                      style={{ display: "none" }}
+                      // style={{ display: "none" }}
                     />
-                        <TextField
-                      name="createdBy"
-                      label="createdBy"
-                      value={edit.createdBy}
-                      fullWidth
-                      margin="normal"
-                      disabled
-                      style={{ display: "none" }}
-                    />
+                      
                     <TextField
-                      name="name"
+                      name="model1"
                       label="Tên Dịch Vụ"
-                      value={edit.name || ""}
+                      value={edit && edit.model1 ? edit.model1 : ""}
                       onChange={handleInputChange}
                       fullWidth
                       margin="normal"
                     />
-                    <TextField
-                      name="description"
-                      label="Mô Tả"
-                      type="text"
-                      value={edit.description || ""}
-                      onChange={handleInputChange}
-                      fullWidth
-                      margin="normal"
-                    />
-                    <TextField
-                      name="price"
-                      label="Giá Tiền Dịch Vụ"
-                      type="number"
-                      value={edit.price || ""}
-                      onChange={handleInputChange}
-                      fullWidth
-                      margin="normal"
-                    />
-                    {/* <TextField
-                      name="type"
-                      type="text"
-                      label="Loại Dịch Vụ"
-                      value={edit.type || ""}
-                      onChange={handleInputChange}
-                      fullWidth
-                      margin="normal"
-                    /> */}
-                      <FormControl fullWidth sx={{ marginTop: 1 }}>
-                      <InputLabel id="demo-simple-select-label">
-                        Loại Dịch Vụ
-                      </InputLabel>
-                      <Select
-                        labelId="demo-simple-select-label"
-                        id="demo-simple-select"
-                        value={edit.type || ""}
-                        onChange={handleInputChange}
-                        variant="outlined"
-                        className="filter-select"
-                        name="type"
-                        label="type"
-                        fullWidth
-                      >
-                        <MenuItem key="status-active" value="Fixing">
-                          Fixing
-                        </MenuItem>
-                        <MenuItem key="status-INACTIVE" value="Towing">
-                          Towing
-                        </MenuItem>
-                      </Select>
-                    </FormControl>
+             
                     <FormControl fullWidth sx={{ marginTop: 1 }}>
                       <InputLabel id="demo-simple-select-label">
                         Trạng Thái
@@ -271,7 +207,7 @@ const ModalEdit = ({
                       <Select
                         labelId="demo-simple-select-label"
                         id="demo-simple-select"
-                        value={edit.status || ""}
+                        value={edit && edit.status ? edit.status : ""}
                         onChange={handleInputChange}
                         variant="outlined"
                         className="filter-select"

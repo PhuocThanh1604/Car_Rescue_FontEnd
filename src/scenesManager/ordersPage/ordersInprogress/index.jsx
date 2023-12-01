@@ -335,7 +335,44 @@ const OrdersInprogress = (props) => {
         );
       },
     },
-
+    {
+      field: "update",
+      headerName: "update",
+      width: 120,
+      renderCell: (params) => (
+        <Grid container justifyContent="center" alignItems="center">
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              "&:hover": {
+                cursor: "pointer",
+                // Thay đổi màu sắc hoặc hiệu ứng khác khi hover vào Box
+                backgroundColor: "lightgray",
+                padding: "4px",
+                borderRadius: "4px",
+              },
+            }}
+            onClick={() => handleAddServiceClick(params.row.id)}
+          >
+            <VisibilityIcon
+              color="indigo"
+              onClick={() => handleAddServiceClick(params.row.id)}
+              aria-label="Chi Tiết Đơn Hàng"
+         
+            />
+            <Typography
+              variant="body1"
+              sx={{ fontWeight: "bold", marginLeft: "5px" }}
+              onClick={() => handleAddServiceClick(params.row.id)}
+            >
+              {"update"}
+            </Typography>
+          </Box>
+        </Grid>
+      ),
+      key: "orderDetails",
+    },
     {
       field: "orderDetails",
       headerName: "Chi Tiết Đơn Hàng",

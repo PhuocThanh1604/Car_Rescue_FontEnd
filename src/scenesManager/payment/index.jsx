@@ -294,7 +294,7 @@ const Payment = () => {
     {
       field: "orderId",
       headerName: "orderId",
-      width: 140,
+      width: 120,
       cellClassName: "name-column--cell",
       onCellClick: (params) => {
         setSelectedWalletId(params.row.orderId);
@@ -315,7 +315,7 @@ const Payment = () => {
     {
       field: "method",
       headerName: "Hình thức",
-      width: 120,
+      width: 100,
       key: "type",
       renderCell: ({ row: { method } }) => {
         return (
@@ -459,7 +459,7 @@ const Payment = () => {
             onChange={handleFilterRescueMethod}
             variant="outlined"
             className="filter-select"
-            style={{ width: "150px" }}
+            style={{ width: "150px" ,marginRight:"20px"}}
           >
             <MenuItem key="method-all" value="method">
               Hình Thức

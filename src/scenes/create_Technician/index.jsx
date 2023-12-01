@@ -18,10 +18,10 @@ import Header from "../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { createAccount, getAccountEmail } from "../../redux/accountSlice";
+import {  getAccountEmail } from "../../redux/accountSlice";
 import UploadImageField from "../../components/uploadImage";
 import { createTechnician } from "../../redux/technicianSlice";
-
+import AddIcon from "@mui/icons-material/Add";
 const Addtechnician = () => {
   const dispatch = useDispatch();
   const technician = useSelector(
@@ -133,7 +133,7 @@ const Addtechnician = () => {
           <form onSubmit={handleSubmit}>
             <Box display="flex" justifyContent="left" mb="20px">
               <Button type="submit" color="secondary" variant="contained">
-                Tạo Kỹ Thuật Viên
+            <AddIcon/>    Tạo Kỹ Thuật Viên
               </Button>
             </Box>
             <Box
@@ -146,7 +146,7 @@ const Addtechnician = () => {
             >
               <TextField
                 fullWidth
-                variant="filled"
+                variant="outlined"
                 type="text"
                 label="Họ Và Tên"
                 onBlur={handleBlur}
@@ -158,7 +158,7 @@ const Addtechnician = () => {
                 sx={{ gridColumn: "span 1" }}
               />
               
-              <FormControl fullWidth variant="filled">
+              <FormControl fullWidth variant="outlined">
                 <InputLabel id="area-label">Khu Vực</InputLabel>
                 <Select
                   labelId="area-label"
@@ -211,14 +211,14 @@ const Addtechnician = () => {
                   <TextField
                     {...params}
                     label="Danh Sách Tài Khoản"
-                    variant="filled"
+                    variant="outlined"
                     onBlur={handleBlur}
                     error={touched.accountId && errors.accountId ? true : false}
                     helperText={touched.accountId && errors.accountId}
                   />
                 )}
               />
-              <FormControl fullWidth variant="filled">
+              <FormControl fullWidth variant="outlined">
                 <InputLabel id="sex-label">Giới Tính</InputLabel>
                 <Select
                   labelId="sex-label"
@@ -236,7 +236,7 @@ const Addtechnician = () => {
 
               <TextField
                 fullWidth
-                variant="filled"
+                variant="outlined"
                 type="text"
                 label="Địa Chỉ"
                 onBlur={handleBlur}
@@ -249,7 +249,7 @@ const Addtechnician = () => {
               />
               <TextField
                 fullWidth
-                variant="filled"
+                variant="outlined"
                 type="phone"
                 label="Số Điện Thoại"
                 onBlur={handleBlur}
@@ -263,7 +263,7 @@ const Addtechnician = () => {
 
               <TextField
                 fullWidth
-                variant="filled"
+                variant="outlined"
                 type="date"
                 label="Ngày Sinh"
                 onBlur={handleBlur}

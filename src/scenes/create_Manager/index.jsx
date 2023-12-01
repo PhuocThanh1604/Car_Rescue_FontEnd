@@ -18,11 +18,10 @@ import Header from "../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { createAccount, getAccountEmail } from "../../redux/accountSlice";
-import { createRescueVehicleOwner } from "../../redux/rescueVehicleOwnerSlice";
+import {  getAccountEmail } from "../../redux/accountSlice";
 import UploadImageField from "../../components/uploadImage";
 import { createManager } from "../../redux/managerSlice";
-
+import AddIcon from "@mui/icons-material/Add";
 const AddRescueVehicleOwner = () => {
   const dispatch = useDispatch();
   const rescueVehicleOwner = useSelector(
@@ -131,7 +130,7 @@ const AddRescueVehicleOwner = () => {
           <form onSubmit={handleSubmit}>
             <Box display="flex" justifyContent="left" mb="20px">
               <Button type="submit" color="secondary" variant="contained">
-                Tạo Quản Lí
+              <AddIcon />   Tạo Quản Lí
               </Button>
             </Box>
             <Box
@@ -144,7 +143,7 @@ const AddRescueVehicleOwner = () => {
             >
               <TextField
                 fullWidth
-                variant="filled"
+                variant="outlined"
                 type="text"
                 label="Họ Và Tên"
                 onBlur={handleBlur}
@@ -193,14 +192,14 @@ const AddRescueVehicleOwner = () => {
                   <TextField
                     {...params}
                     label="Danh Sách Tài Khoản"
-                    variant="filled"
+                    variant="outlined"
                     onBlur={handleBlur}
                     error={touched.accountId && errors.accountId ? true : false}
                     helperText={touched.accountId && errors.accountId}
                   />
                 )}
               />
-              <FormControl fullWidth variant="filled">
+              <FormControl fullWidth variant="outlined">
                 <InputLabel id="sex-label">Giới Tính</InputLabel>
                 <Select
                   labelId="sex-label"
@@ -218,7 +217,7 @@ const AddRescueVehicleOwner = () => {
 
               <TextField
                 fullWidth
-                variant="filled"
+                variant="outlined"
                 type="text"
                 label="Địa Chỉ"
                 onBlur={handleBlur}
@@ -231,7 +230,7 @@ const AddRescueVehicleOwner = () => {
               />
               <TextField
                 fullWidth
-                variant="filled"
+                variant="outlined"
                 type="phone"
                 label="Số Điện Thoại"
                 onBlur={handleBlur}
@@ -245,7 +244,7 @@ const AddRescueVehicleOwner = () => {
 
               <TextField
                 fullWidth
-                variant="filled"
+                variant="outlined"
                 type="date"
                 label="Ngày Sinh"
                 onBlur={handleBlur}

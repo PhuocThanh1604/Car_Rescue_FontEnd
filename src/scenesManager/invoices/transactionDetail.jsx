@@ -22,7 +22,6 @@ import Fade from "@mui/material/Fade";
 import SearchIcon from "@mui/icons-material/Search";
 import InputBase from "@mui/material/InputBase";
 import moment from "moment";
-import { fetchTechnicians, getTechnicianId } from "../../redux/technicianSlice";
 import CustomTablePagination from "../../components/TablePagination";
 import { useParams } from "react-router-dom";
 import { getTransactionOfWalletId } from "../../redux/transactionsSlice";
@@ -40,6 +39,7 @@ const TransactionDetails = () => {
   const [openEditModal, setOpenEditModal] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [filterOption, setFilterOption] = useState("Type");
+  const [filterOptionStatus, setFilterOptionStatus] = useState("Status");
   const [openModal, setOpenModal] = useState(false);
   const [selectedEditTechnician, setselectedEditTechnician] = useState(null);
   const [page, setPage] = useState(0);
@@ -147,7 +147,19 @@ const TransactionDetails = () => {
     }
   };
   
-  
+  const handleFilterChangeStatus = (event) => {
+    const selectedStatusOption = event.target.value;
+
+    if (selectedStatusOption === "Status") {
+      setFilteredTransactionDetail(data); // Show all payments if "Status" is selected
+    } else {
+      const filteredTransaction = data.filter(
+        (transaction) => transaction.status === selectedStatusOption
+      );
+      setFilteredTransactionDetail(filteredTransaction);
+    }
+    setFilterOptionStatus(selectedStatusOption);
+  };
   useEffect(() => {
     const filtered = transactions.filter((transaction) => {
       const matchesType = filterOption === "Type" || transaction.type === filterOption;
@@ -296,8 +308,7 @@ const TransactionDetails = () => {
       field: "transactionAmount",
       headerName: "Số tiền giao dịch",
       width: 100,
-      key: "transactionAmount",
-      valueFormatter: (params) => {
+      renderCell: (params) => {
         // Đảm bảo rằng params.value là một số
         if (typeof params.value === "number") {
           // Chuyển số thành chuỗi và định dạng theo định dạng tiền tệ VNĐ
@@ -305,11 +316,53 @@ const TransactionDetails = () => {
             style: "currency",
             currency: "VND",
           });
-          return formattedPrice;
+
+          // Trả về phần tử Typography để render với màu xanh và giá trị tiền đã định dạng
+          return (
+            <Typography color={colors.redAccent[500]}sx={{fontWeight:"bold"}}>
+              {formattedPrice}
+            </Typography>
+          );
         } else {
           return params.value;
         }
       },
+    },
+    {
+      field: "totalAmount",
+      headerName: "Số Dư Ví",
+      width: 100,
+      renderCell: (params) => {
+        // Đảm bảo rằng params.value là một số
+        if (typeof params.value === "number") {
+          // Chuyển số thành chuỗi và định dạng theo định dạng tiền tệ VNĐ
+          const formattedPrice = params.value.toLocaleString("vi-VN", {
+            style: "currency",
+            currency: "VND",
+          });
+
+          // Trả về phần tử Typography để render với màu xanh và giá trị tiền đã định dạng
+          return (
+            <Typography color={colors.greenAccent[500]}>
+              {formattedPrice}
+            </Typography>
+          );
+        } else {
+          return params.value;
+        }
+      },
+    },
+
+    {
+      field: "createdAt",
+      headerName: "Ngày Tạo Đơn",
+      width: 140,
+      key: "createdAt",
+      valueGetter: (params) =>
+        moment(params.row.createdAt)
+          .tz("Asia/Ho_Chi_Minh")
+          .add(7, "hours")
+          .format("DD-MM-YYYY HH:mm:ss"),
     },
     {
       field: "type",
@@ -342,37 +395,6 @@ const TransactionDetails = () => {
           </Box>
         );
       },
-    },
-    {
-      field: "totalAmount",
-      headerName: "Tổng cộng",
-      width: 100,
-      key: "totalAmount",
-      valueFormatter: (params) => {
-        // Đảm bảo rằng params.value là một số
-        if (typeof params.value === "number") {
-          // Chuyển số thành chuỗi và định dạng theo định dạng tiền tệ VNĐ
-          const formattedPrice = params.value.toLocaleString("vi-VN", {
-            style: "currency",
-            currency: "VND",
-          });
-          return formattedPrice;
-        } else {
-          return params.value;
-        }
-      },
-    },
-
-    {
-      field: "createdAt",
-      headerName: "Ngày Tạo Đơn",
-      width: 140,
-      key: "createdAt",
-      valueGetter: (params) =>
-        moment(params.row.createdAt)
-          .tz("Asia/Ho_Chi_Minh")
-          .add(7, "hours")
-          .format("DD-MM-YYYY HH:mm:ss"),
     },
     {
       field: "status",
@@ -433,6 +455,7 @@ const TransactionDetails = () => {
         </Box>
 
         <ToastContainer />
+     
         <Box display="flex" alignItems="center" className="filter-box">
           <FormControl fullWidth>
             <Select
@@ -456,7 +479,28 @@ const TransactionDetails = () => {
             </Select>
           </FormControl>
         </Box>
-
+        <Box display="flex" alignItems="center" className="filter-box"sx={{marginLeft:"20px"}}>
+          <FormControl fullWidth>
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={filterOptionStatus}
+              onChange={handleFilterChangeStatus}
+              variant="outlined"
+              className="filter-select"
+            >
+              <MenuItem key="status-all" value="Status">
+                Trạng Thái
+              </MenuItem>
+              <MenuItem key="status-new" value="NEW">
+                Mới
+              </MenuItem>
+              <MenuItem key="status-completed" value="COMPLETED">
+                Hoàn Thành
+              </MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
         <Box display="flex" alignItems="center" className="startDate-box">
           <TextField
             label="Từ ngày"

@@ -21,6 +21,7 @@ import Fade from "@mui/material/Fade";
 import SearchIcon from "@mui/icons-material/Search";
 import InputBase from "@mui/material/InputBase";
 import moment from "moment";
+import AddIcon from "@mui/icons-material/Add";
 import {
   fetchRescueVehicleOwners,
   getRescueVehicleOwnerId,

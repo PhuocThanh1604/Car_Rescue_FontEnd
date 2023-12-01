@@ -57,10 +57,12 @@ export const fetchTransactionsAll = createAsyncThunk(
       const response = await axios.get(
         "https://rescuecapstoneapi.azurewebsites.net/api/Transaction/GetAll"
       );
+      console.log(response.data)
       const data = response.data;
+      console.log(data.walletId);
       return data;
     } catch (error) {
-      console.error("Failed to retrieve fetch Transactions New:", error.response);
+      console.error("Failed to retrieve fetch Transactions All:", error.response);
       throw error.response.data || error.message;
     }
   }
@@ -101,7 +103,23 @@ export const getTransactionById = createAsyncThunk(
     }
   }
 );
-
+export const getRVOOfWallet = createAsyncThunk(
+  "transaction/getRVOOfWallet",
+  async ({ id }) => {
+  
+    try {
+      const response = await axios.get(
+        `https://rescuecapstoneapi.azurewebsites.net/api/Wallet/GetRVOOfWallet?id=${id}`
+      );
+      const data = response.data;
+      console.log(data);
+      return data;
+    } catch (error) {
+      console.error("Failed to get rescue car owner of wallet ", error.response);
+      throw error.response.data || error.message;
+    }
+  }
+);
 
 
 
@@ -124,6 +142,12 @@ const TransactionSlice = createSlice({
       .addCase(fetchTransactionsNew.pending, (state, action) => {
         state.status = "loading";
       })
+      .addCase(fetchTransactionsAll.fulfilled, (state, action) => {
+        state.transactions = action.payload.data;
+      })
+      .addCase(fetchTransactionsAll.pending, (state, action) => {
+        state.status = "loading";
+      })
       .addCase(createAcceptWithdrawRequest.fulfilled, (state, action) => {
         state.transactions.push(action.payload);
       })
@@ -137,6 +161,9 @@ const TransactionSlice = createSlice({
         state.transactionsData = action.payload.data;
       })
       .addCase(getTransactionById.fulfilled, (state, action) => {
+        state.transactionsData = action.payload.data;
+      })
+      .addCase(getRVOOfWallet.fulfilled, (state, action) => {
         state.transactionsData = action.payload.data;
       });
   },

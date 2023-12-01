@@ -78,9 +78,10 @@ const Sidebar = () => {
     }
   }
   const sidebarStyles = {
+    position: 'relative',
   top: 0,
     bottom: 0,
-    height: "max-height", 
+    height:"800px"
   };
   const BadgeContentSpan = styled("span")(({ theme }) => ({
     width: 8,
