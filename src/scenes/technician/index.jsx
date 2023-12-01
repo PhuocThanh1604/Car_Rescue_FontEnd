@@ -61,15 +61,36 @@ const Technicians = (props) => {
 
   const handleDateFilterChange = () => {
     if (startDate && endDate) {
-      const filteredtechnicians = technicians
-        ? technicians.filter((user) => {
-            const orderDate = moment(user.createAt).format("YYYY-MM-DD");
-            const isAfterStartDate = moment(orderDate).isSameOrAfter(startDate);
-            const isBeforeEndDate = moment(orderDate).isSameOrBefore(endDate);
-            return isAfterStartDate && isBeforeEndDate;
-          })
-        : [];
-      setFilteredTechnicians(filteredtechnicians);
+      // Format startDate and endDate to the beginning of the day in the specified time zone
+      const formattedStartDate = moment(startDate)
+        .tz("Asia/Ho_Chi_Minh")
+        .add(7, "hours")
+        .startOf("day");
+      const formattedEndDate = moment(endDate)
+        .tz("Asia/Ho_Chi_Minh")
+        .add(7, "hours")
+        .startOf("day");
+
+      const filteredTechnicians = technicians.filter((technician) => {
+        // Adjust the order createdAt date to the same time zone
+        const orderDate = moment(technician.createAt)
+          .tz("Asia/Ho_Chi_Minh")
+          .add(7, "hours")
+          .startOf("day");
+
+        const isAfterStartDate = orderDate.isSameOrAfter(
+          formattedStartDate,
+          "day"
+        );
+        const isBeforeEndDate = orderDate.isSameOrBefore(
+          formattedEndDate,
+          "day"
+        );
+
+        return isAfterStartDate && isBeforeEndDate;
+      });
+
+      setFilteredTechnicians(filteredTechnicians);
       setFilterOption("Date");
     } else {
       setFilteredTechnicians(technicians);
@@ -105,11 +126,6 @@ const Technicians = (props) => {
       .catch((error) => {
         console.error("Lỗi khi lấy thông tin kỹ thuật viên:", error);
       });
-  };
-
-  const handleDeleteClick = (technician) => {
-    setSelectedtechnician(technician);
-    setOpenDeleteModal(true);
   };
 
   useEffect(() => {
@@ -181,7 +197,7 @@ const Technicians = (props) => {
       key: "sex",
     },
     { field: "address", headerName: "Địa Chỉ", width: 200, key: "address" },
-    { field: "area", headerName: "Khu Vực", width: 60, key: "area" },
+
     {
       field: "phone",
       headerName: "Số Điện Thoại",
@@ -200,27 +216,18 @@ const Technicians = (props) => {
       },
     },
     {
-      field: "createdAt",
+      field: "createAt",
       headerName: "Ngày Tạo",
       width: 140,
-      key: "createdAt",
+      key: "createAt",
       valueGetter: (params) =>
-        moment(params.row.createdAt)
+        moment(params.row.createAt)
           .tz("Asia/Ho_Chi_Minh")
           .add(7, "hours")
-          .format("DD-MM-YYYY")
+          .format("DD-MM-YYYY HH:mm:ss"),
     },
-    // {
-    //   field: "createdAt",
-    //   headerName: "Ngày Update",
-    //   width: 140,
-    //   key: "createdAt",
-    //   valueGetter: (params) =>
-    //     moment(params.row.updateAt)
-    //       .tz("Asia/Ho_Chi_Minh")
-    //       .add(7, "hours")
-    //       .format("DD-MM-YYYY HH:mm:ss"),
-    // },
+    { field: "area", headerName: "Khu Vực", width: 60, key: "area" },
+
     {
       field: "avatar",
       headerName: "Hình ảnh",
@@ -242,35 +249,36 @@ const Technicians = (props) => {
         );
       },
     },
+
     {
-      field: "status2",
+      field: "status",
       headerName: "Trạng Thái",
-      width: 150,
+      width: 100,
       key: "status",
       renderCell: ({ row: { status } }) => {
         return (
           <Box
-            width="80%"
+            width="auto"
+            p="4px"
             m="0 auto"
-            p="2px"
             display="flex"
             justifyContent="center"
-            fontSize={10}
-            borderRadius={8} // Corrected prop name from "buserRadius" to "borderRadius"
+            borderRadius={2}
             backgroundColor={
               status === "ACTIVE"
-                ? colors.green[500]
+                ? colors.green[300]
                 : status === "ASSIGNED"
-                ? colors.redAccent[800]
-                : colors.redAccent[800]
-                ? colors.redAccent[500]
-                : status === "INACTIVE"
+                ? colors.redAccent[700]
+                : colors.redAccent[700]
+                ? colors.blueAccent[700]
+                : status === "COMPLETED"
+            }
+            color={
+              status === "ACTIVE" ? colors.green[800] : colors.yellowAccent[700]
             }
           >
             {status === "ACTIVE" && <HowToRegIcon />}
-            {status === "INACTIVE" && <PersonOffIcon />}
-            {status === "ASSIGNED" && <RepeatOnIcon />}
-            <Typography color={colors.grey[100]} sx={{ ml: "8px" }}>
+            <Typography color="inherit" sx={{ ml: "1px", fontWeight: "bold" }}>
               {status}
             </Typography>
           </Box>
@@ -283,13 +291,28 @@ const Technicians = (props) => {
       headerName: "Update",
       width: 60,
       renderCell: (params) => (
-        <IconButton
-          variant="contained"
-          color="error"
-          onClick={() => handleUpdateClick(params.row.id)}
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            "&:hover": {
+              cursor: "pointer",
+              // Thay đổi màu sắc hoặc hiệu ứng khác khi hover vào Box
+              backgroundColor: "lightgray",
+
+              borderRadius: "4px",
+            },
+          }}
         >
-          <Edit style={{ color: "red" }} />
-        </IconButton>
+          {" "}
+          <IconButton
+            variant="contained"
+            color="indigo"
+            onClick={() => handleUpdateClick(params.row.id)}
+          >
+            <Edit style={{ color: "indigo" }} />
+          </IconButton>
+        </Box>
       ),
       key: "update",
     },
@@ -347,13 +370,18 @@ const Technicians = (props) => {
             label="Từ ngày"
             type="date"
             value={startDate || ""}
-            onChange={(event) => setStartDate(event.target.value)}
+            onChange={(event) => {
+              setStartDate(event.target.value);
+            }}
             InputLabelProps={{
               shrink: true,
             }}
             onBlur={handleDateFilterChange}
             inputProps={{
-              max: moment().format("YYYY-MM-DD"), // Set the maximum selectable date as today
+              max: moment()
+                .tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
+                .add(7, "hours") // Adding 3 hours (you can adjust this number as needed)
+                .format("DD-MM-YYYY"), // Set the maximum selectable date as today
             }}
             sx={{ ml: 4, mr: 2 }}
           />
@@ -364,53 +392,58 @@ const Technicians = (props) => {
             label="Đến ngày"
             type="date"
             value={endDate || ""}
-            onChange={(event) => setEndDate(event.target.value)}
+            onChange={(event) => {
+              setEndDate(event.target.value);
+            }}
             InputLabelProps={{
               shrink: true,
             }}
             onBlur={handleDateFilterChange}
             inputProps={{
-              max: moment().format("YYYY-MM-DD"), // Set the maximum selectable date as today
+              max: moment()
+                .tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
+                .add(7, "hours") // Adding 3 hours (you can adjust this number as needed)
+                .format("DD-MM-YYYY"), // Set the maximum selectable date as today
             }}
           />
         </Box>
       </Box>
 
-        <Box
-          m="10px 0 0 0"
-          height="auto"
-          sx={{
-            fontSize: "20px",
-            padding: "20px",
-            borderRadius: "20px",
-            boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.4)",
-            "& .MuiDataGrid-root": {
-              border: "none",
-            },
-            "& .MuiDataGrid-cell": {
-              borderBottom: "none",
-            },
-            "& .name-column--cell": {
-              color: colors.greenAccent[300],
-            },
-            "& .MuiDataGrid-columnHeaders": {
-              backgroundColor: colors.orange[50],
-              borderBottom: "none",
-            },
-            "& .MuiDataGrid-virtualScroller": {
-              backgroundColor: colors.white[50],
-            },
-            "& .MuiDataGrid-footerContainer": {
-              display: "none",
-            },
-            "& .MuiCheckbox-root": {
-              color: `${colors.greenAccent[200]} !important`,
-            },
-            "& .MuiDataGrid-row": {
-              borderBottom: "none",
-            },
-          }}
-        >
+      <Box
+        m="10px 0 0 0"
+        height="auto"
+        sx={{
+          fontSize: "20px",
+          padding: "20px",
+          borderRadius: "20px",
+          boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.4)",
+          "& .MuiDataGrid-root": {
+            border: "none",
+          },
+          "& .MuiDataGrid-cell": {
+            borderBottom: "none",
+          },
+          "& .name-column--cell": {
+            color: colors.greenAccent[300],
+          },
+          "& .MuiDataGrid-columnHeaders": {
+            backgroundColor: colors.orange[50],
+            borderBottom: "none",
+          },
+          "& .MuiDataGrid-virtualScroller": {
+            backgroundColor: colors.white[50],
+          },
+          "& .MuiDataGrid-footerContainer": {
+            display: "none",
+          },
+          "& .MuiCheckbox-root": {
+            color: `${colors.greenAccent[200]} !important`,
+          },
+          "& .MuiDataGrid-row": {
+            borderBottom: "none",
+          },
+        }}
+      >
         <DataGrid
           rows={filteredtechniciansPagination}
           columns={columns}
@@ -453,29 +486,7 @@ const Technicians = (props) => {
               boxShadow: 24,
               borderRadius: 16,
             }}
-          >
-            {/* <Card>
-              <CardContent>
-                <Typography variant="h3">Confirm Delete</Typography>
-                <Typography>
-                  Are you sure you want to delete this book?
-                </Typography>
-              </CardContent>
-              <CardActions>
-                <Button
-                  onClick={handleConfirmDelete}
-                  variant="contained"
-                  color="error">
-                  Delete
-                </Button>
-                <Button
-                  onClick={() => setOpenDeleteModal(false)}
-                  variant="contained">
-                  Cancel
-                </Button>
-              </CardActions>
-            </Card> */}
-          </Box>
+          ></Box>
         </Fade>
       </Modal>
     </Box>

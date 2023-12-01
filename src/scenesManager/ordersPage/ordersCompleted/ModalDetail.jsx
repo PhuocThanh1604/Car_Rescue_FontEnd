@@ -94,6 +94,11 @@ const MyModal = (props) => {
     if (selectedEditOrder && selectedEditOrder.id) {
       fetchOrderDetail(selectedEditOrder.id);
     }
+    if (selectedEditOrder && selectedEditOrder.id) {
+      setOrderId(selectedEditOrder.id);
+      fetchFeedBackOfOrder(selectedEditOrder.id);
+      fetchOrder(selectedEditOrder.id);
+    }
   }, [selectedEditOrder]);
 
   const fetchAddress = async (addressType, addressValue) => {
@@ -107,10 +112,8 @@ const MyModal = (props) => {
       if (!isNaN(lat) && !isNaN(lng)) {
         try {
           const response = await dispatch(getFormattedAddressGG({ lat, lng }));
-          console.log(response);
           const formattedAddress =
             response.payload.results[0].formatted_address;
-          console.log(formattedAddress);
           setFormattedAddresses((prevAddresses) => ({
             ...prevAddresses,
             [addressType]: formattedAddress,
@@ -207,11 +210,7 @@ const MyModal = (props) => {
         fetchRescueVehicleOwner(vehicleRvoidId);
       }
 
-      if (orderId) {
-        setOrderId(orderId);
-        fetchFeedBackOfOrder(orderId);
-        fetchOrder(orderId);
-      }
+  
     }
   }, [selectedEditOrder, data.vehicle]);
 
@@ -221,7 +220,6 @@ const MyModal = (props) => {
       dispatch(getRescueVehicleOwnerId({ id: vehicleRvoidId }))
         .then((response) => {
           const data = response.payload.data;
-          console.log(data);
           if (data) {
             setDataRescueVehicleOwner((prevData) => ({
               ...prevData,
@@ -238,14 +236,16 @@ const MyModal = (props) => {
   };
 
   const fetchOrder = (orderId) => {
-    console.log(orderId);
+    console.log("orderId"+orderId);
     // Make sure you have a check to prevent unnecessary API calls
     if (orderId) {
       dispatch(getPaymentId({ id: orderId }))
         .then((response) => {
           const data = response.payload.data;
           if (data) {
+            console.log("method"+data);
             setDataPayment(data);
+          
           } else {
             console.error("Payment not found in the API response.");
           }

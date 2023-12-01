@@ -63,12 +63,35 @@ const Customers = (props) => {
   };
   const handleDateFilterChange = () => {
     if (startDate && endDate) {
-      const filteredCustomers = customers.filter((user) => {
-        const orderDate = moment(user.createAt).format("YYYY-MM-DD");
-        const isAfterStartDate = moment(orderDate).isSameOrAfter(startDate);
-        const isBeforeEndDate = moment(orderDate).isSameOrBefore(endDate);
+      // Format startDate and endDate to the beginning of the day in the specified time zone
+      const formattedStartDate = moment(startDate)
+        .tz("Asia/Ho_Chi_Minh")
+        .add(7, "hours")
+        .startOf("day");
+      const formattedEndDate = moment(endDate)
+        .tz("Asia/Ho_Chi_Minh")
+        .add(7, "hours")
+        .startOf("day");
+
+      const filteredCustomers = customers.filter((customer) => {
+        // Adjust the order createdAt date to the same time zone
+        const orderDate = moment(customer.createAt)
+          .tz("Asia/Ho_Chi_Minh")
+          .add(7, "hours")
+          .startOf("day");
+
+        const isAfterStartDate = orderDate.isSameOrAfter(
+          formattedStartDate,
+          "day"
+        );
+        const isBeforeEndDate = orderDate.isSameOrBefore(
+          formattedEndDate,
+          "day"
+        );
+
         return isAfterStartDate && isBeforeEndDate;
       });
+
       setFilteredCustomers(filteredCustomers);
       setFilterOption("Date");
     } else {
@@ -169,21 +192,42 @@ const Customers = (props) => {
     {
       field: "fullname",
       headerName: "Tên Khách Hàng",
-      width: 200,
+      width: 160,
       key: "fullname",
-      cellClassName: "name-column--cell",
     },
-
+    {
+      field: "phone",
+      headerName: "SĐT",
+      width: 100,
+      key: "phone",
+    },
+    {
+      field: "address",
+      headerName: "Địa Chỉ",
+      width: 160,
+      key: "address",
+    },
+    {
+      field: "birthdate",
+      headerName: "Ngày Sinh",
+      width: 140,
+      key: "birthdate",
+      valueGetter: (params) =>
+        moment(params.row.birthdate || "Không có thông tin")
+          .tz("Asia/Ho_Chi_Minh")
+          .add(7, "hours")
+          .format("DD-MM-YYYY HH:mm:ss"),
+    },
     {
       field: "createAt",
-      headerName: "Ngày Khởi Tạo",
-      width: 150,
-      key: "status",
+      headerName: "Ngày Tạo",
+      width: 140,
+      key: "createAt",
       valueGetter: (params) =>
         moment(params.row.createAt)
           .tz("Asia/Ho_Chi_Minh")
           .add(7, "hours")
-          .format("DD-MM-YYYY"),
+          .format("DD-MM-YYYY HH:mm:ss"),
     },
     {
       field: "avatar",
@@ -236,13 +280,28 @@ const Customers = (props) => {
       headerName: "Update",
       width: 60,
       renderCell: (params) => (
-        <IconButton
-          variant="contained"
-          color="error"
-          onClick={() => handleUpdateClick(params.row.id)}
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            "&:hover": {
+              cursor: "pointer",
+              // Thay đổi màu sắc hoặc hiệu ứng khác khi hover vào Box
+              backgroundColor: "lightgray",
+
+              borderRadius: "4px",
+            },
+          }}
         >
-          <Edit style={{ color: "red" }} />
-        </IconButton>
+          {" "}
+          <IconButton
+            variant="contained"
+            color="error"
+            onClick={() => handleUpdateClick(params.row.id)}
+          >
+            <Edit style={{ color: "indigo" }} />
+          </IconButton>{" "}
+        </Box>
       ),
       key: "update",
     },
@@ -300,13 +359,18 @@ const Customers = (props) => {
             label="Từ ngày"
             type="date"
             value={startDate || ""}
-            onChange={(event) => setStartDate(event.target.value)}
+            onChange={(event) => {
+              setStartDate(event.target.value);
+            }}
             InputLabelProps={{
               shrink: true,
             }}
             onBlur={handleDateFilterChange}
             inputProps={{
-              max: moment().format("YYYY-MM-DD"), // Set the maximum selectable date as today
+              max: moment()
+                .tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
+                .add(7, "hours") // Adding 3 hours (you can adjust this number as needed)
+                .format("DD-MM-YYYY"), // Set the maximum selectable date as today
             }}
             sx={{ ml: 4, mr: 2 }}
           />
@@ -317,13 +381,18 @@ const Customers = (props) => {
             label="Đến ngày"
             type="date"
             value={endDate || ""}
-            onChange={(event) => setEndDate(event.target.value)}
+            onChange={(event) => {
+              setEndDate(event.target.value);
+            }}
             InputLabelProps={{
               shrink: true,
             }}
             onBlur={handleDateFilterChange}
             inputProps={{
-              max: moment().format("YYYY-MM-DD"), // Set the maximum selectable date as today
+              max: moment()
+                .tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
+                .add(7, "hours") // Adding 3 hours (you can adjust this number as needed)
+                .format("DD-MM-YYYY"), // Set the maximum selectable date as today
             }}
           />
         </Box>

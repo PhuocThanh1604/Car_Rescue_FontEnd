@@ -34,6 +34,7 @@ const Services = (props) => {
   const [openEditModal, setOpenEditModal] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [filterOption, setFilterOption] = useState("Status");
+  const [filterOptionType, setFilterOptionType] = useState("type");
   const [selectedEditSevice, setSelectedEditSevice] = useState(null);
   const [filteredSerivces, setFilteredSerivces] = useState([]);
   const [page, setPage] = useState(0);
@@ -52,6 +53,25 @@ const Services = (props) => {
     const value = event.target.value || ""; // Use an empty string if the value is null
     setSearchText(value);
   };
+
+  const handleFilterRescueType = (event) => {
+    const selectedResuceOption = event.target.value;
+    setFilterOptionType(selectedResuceOption);
+
+    if (!Array.isArray(services) || !services.length) {
+      return;
+    }
+
+    let filteredServices;
+    if (selectedResuceOption === "type") {
+      filteredServices = [...services]; // Hiển thị tất cả các dịch vụ
+    } else {
+      filteredServices = services.filter(
+        (service) => service.type === selectedResuceOption
+      );
+    }
+    setFilteredSerivces(filteredServices); // Cập nhật danh sách dịch vụ đã lọc
+};
 
   const handleFilterChange = (event) => {
     const selectedStatusOption = event.target.value;
@@ -84,22 +104,31 @@ const Services = (props) => {
   };
 
 
+// Trong hàm useEffect
+useEffect(() => {
+  const filteredServices = services
+    ? services.filter((service) => {
+        const nameMatch =
+          service.name &&
+          service.name.toLowerCase().includes(searchText.toLowerCase());
+        const filterMatch =
+          filterOption === "Status" ||
+          (filterOption === "ACTIVE" && service.status === "ACTIVE") ||
+          (filterOption === "INACTIVE" && service.status === "INACTIVE");
 
-  useEffect(() => {
-    const filteredServices = services
-      ? services.filter((service) => {
-          const nameMatch =
-            service.name &&
-            service.name.toLowerCase().includes(searchText.toLowerCase());
-          const filterMatch =
-            filterOption === "Status" ||
-            (filterOption === "ACTIVE" && service.status === "ACTIVE") ||
-            (filterOption === "INACTIVE" && service.status === "INACTIVE");
-          return nameMatch && filterMatch;
-        })
-      : [];
-    setFilteredSerivces(filteredServices);
-  }, [services, searchText, filterOption]);
+        const filterMatchType =
+          filterOptionType === "type" ||
+          (filterOptionType === "Fixing" && service.type === "Fixing") || // Sửa lại tên trường từ rescueType thành type
+          (filterOptionType === "Towing" && service.type === "Towing");
+
+        return nameMatch && filterMatch && filterMatchType;
+      })
+    : [];
+    console.log(filteredServices);
+  setFilteredSerivces(filteredServices);
+}, [services, searchText, filterOption, filterOptionType]);
+
+
 
   if (services) {
     services.forEach((service) => {
@@ -193,38 +222,7 @@ const Services = (props) => {
         );
       },
     },
-    // {
-    //   field: "type",
-    //   headerName: "Hình Thức",
-    //   width: 120,
-    //   key: "type",
-    //   renderCell: ({ row: { type } }) => {
-    //     return (
-    //       <Box
-    //         width="80%"
-    //         m="0 auto"
-    //         p="4px"
-    //         display="flex"
-    //         justifyContent="center"
-    //         fontSize={10}
-    //         borderRadius={8} // Corrected prop name from "buserRadius" to "borderRadius"
-    //         backgroundColor={
-    //           type === "Fixing"
-    //             ? colors.yellowAccent[400]
-    //             : colors.grey[800]
-    //             ? colors.redAccent[600]
-    //             : type === "Towing"
-    //         }
-    //       >
-    //         {type === "Towing" && <SupportIcon />}
-    //         {type === "Fixing" && <HandymanIcon />}
-    //         <Typography color={colors.grey[100]} sx={{ ml: "8px" }}>
-    //           {type}
-    //         </Typography>
-    //       </Box>
-    //     );
-    //   },
-    // },
+
 
     {
       field: "price",
@@ -245,14 +243,7 @@ const Services = (props) => {
         }
       },
     },
-    // {
-    //   field: "publicDate",
-    //   headerName: "Date",
-    //   width: 100,
-    //   key: "status",
-    //   valueGetter: (params) =>
-    //     moment(params.row.createAt).utcOffset(7).format("DD-MM-YYYY"),
-    // },
+
     {
       field: "status",
       headerName: "Trạng Thái",
@@ -283,13 +274,26 @@ const Services = (props) => {
       headerName: "Cập Nhật",
       width: 60,
       renderCell: (params) => (
-        <IconButton
-          variant="contained"
-          color="error"
-          onClick={() => handleUpdateClick(params.row.id)}
-        >
-          <Edit style={{ color: "red" }} />
-        </IconButton>
+        <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          "&:hover": {
+            cursor: "pointer",
+            // Thay đổi màu sắc hoặc hiệu ứng khác khi hover vào Box
+            backgroundColor: "lightgray",
+
+            borderRadius: "4px",
+          },
+        }}
+      >       <IconButton
+      variant="contained"
+      color="error"
+      onClick={() => handleUpdateClick(params.row.id)}
+    >
+      <Edit style={{ color: "indigo" }} />
+    </IconButton></Box>
+ 
       ),
       key: "update",
     },
@@ -319,6 +323,27 @@ const Services = (props) => {
         </Box>
 
         <ToastContainer />
+        <FormControl>
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={filterOptionType}
+              onChange={handleFilterRescueType}
+              variant="outlined"
+              className="filter-select"
+              style={{ width: "150px" ,marginRight:"10px"}}
+            >
+              <MenuItem key="type-all" value="type">
+                Hình Thức
+              </MenuItem>
+              <MenuItem key="type-towing" value="Towing">
+                Kéo Xe
+              </MenuItem>
+              <MenuItem key="type-fixing" value="Fixing">
+                Sửa Chữa Tại Chỗ
+              </MenuItem>
+            </Select>
+          </FormControl>
         <Box display="flex" alignItems="center" className="filter-box">
           <FormControl fullWidth>
             <Select
@@ -423,27 +448,7 @@ const Services = (props) => {
               borderRadius: 16,
             }}
           >
-            {/* <Card>
-              <CardContent>
-                <Typography variant="h3">Confirm Delete</Typography>
-                <Typography>
-                  Are you sure you want to delete this book?
-                </Typography>
-              </CardContent>
-              <CardActions>
-                <Button
-                  onClick={handleConfirmDelete}
-                  variant="contained"
-                  color="error">
-                  Delete
-                </Button>
-                <Button
-                  onClick={() => setOpenDeleteModal(false)}
-                  variant="contained">
-                  Cancel
-                </Button>
-              </CardActions>
-            </Card> */}
+ 
           </Box>
         </Fade>
       </Modal>

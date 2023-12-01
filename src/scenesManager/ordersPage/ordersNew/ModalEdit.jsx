@@ -674,7 +674,7 @@ const ModalEdit = ({
   const date = new Date(edit.createdAt);
   const formattedDate = `${date.getDate()}/${
     date.getMonth() + 1
-  }/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`;
+  }/${date.getFullYear()} ${date.getHours() + 7}:${date.getMinutes()}`;
 
   return (
     <>
@@ -839,7 +839,10 @@ const ModalEdit = ({
                             >
                               {edit.rescueType === "Towing" && <SupportIcon />}
                               {edit.rescueType === "Fixing" && <HandymanIcon />}
-                              <Typography color="black">
+                              <Typography
+                                color="black"
+                                sx={{ fontWeight: "bold" }}
+                              >
                                 {edit.rescueType}
                               </Typography>
                             </Box>
@@ -855,7 +858,7 @@ const ModalEdit = ({
                             }}
                           >
                             <WatchLaterRoundedIcon style={iconColor} />{" "}
-                            <strong>Ngày tạo: </strong>
+                            <strong>Ngày tạo Đơn: </strong>
                             <Typography
                               variant="h5"
                               sx={{
@@ -870,7 +873,7 @@ const ModalEdit = ({
 
                           <Typography
                             variant="body1"
-                            component="div" 
+                            component="div"
                             sx={{
                               display: "flex",
                               marginBottom: "8px",
@@ -894,12 +897,12 @@ const ModalEdit = ({
                           </Typography>
 
                           <Typography
-                           variant="body1"
-                           component="div" 
-                           sx={{
-                             display: "flex",
-                             fontSize: "1rem",
-                           }}
+                            variant="body1"
+                            component="div"
+                            sx={{
+                              display: "flex",
+                              fontSize: "1rem",
+                            }}
                           >
                             <PlaceIcon style={iconColor} />{" "}
                             <strong
@@ -999,7 +1002,38 @@ const ModalEdit = ({
                             }}
                           >
                             <PaymentIcon style={iconColor} />{" "}
-                            <strong>Thanh toán:</strong>{" "}
+                            <strong>Phương Thức Thanh toán:</strong>{" "}
+                            <Box
+                              width="30%"
+                              ml="4px"
+                              p="2px"
+                              display="flex"
+                              justifyContent="center"
+                              fontSize={10}
+                              borderRadius={8}
+                              backgroundColor={
+                                dataOrder[edit.id]?.method === "Cash"
+                                  ? colors.lightGreen[700]
+                                  : colors.grey[800]
+                                  ? colors.lightBlue[300]
+                                  : dataOrder[edit.id]?.method === "Banking"
+                              }
+                              color={
+                                dataOrder[edit.id]?.method === "Cash"
+                                  ? colors.lightGreen[300]
+                                  : colors.yellowAccent[700] &&
+                                    dataOrder[edit.id]?.method === "Banking"
+                                  ? colors.lightBlue[700]
+                                  : colors.yellowAccent[700]
+                              }
+                            >
+                              <Typography
+                                color="black"
+                                sx={{ fontWeight: "bold" }}
+                              >
+                                {dataOrder[edit.id]?.method || "Đang tải..."}
+                              </Typography>
+                            </Box>
                             <Typography
                               variant="h5"
                               sx={{
@@ -1007,9 +1041,7 @@ const ModalEdit = ({
                                 alignItems: "center",
                                 marginLeft: "10px",
                               }}
-                            >
-                              {dataOrder[edit.id]?.method || "Đang tải..."}
-                            </Typography>
+                            ></Typography>
                           </Typography>
 
                           <Typography

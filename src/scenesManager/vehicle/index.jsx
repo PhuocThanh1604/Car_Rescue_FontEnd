@@ -424,38 +424,7 @@ useEffect(() => {
             </Select>
           </FormControl>
         </Box>
-        <Box display="flex" alignItems="center" className="startDate-box">
-          <TextField
-            label="Từ ngày"
-            type="date"
-            value={startDate || ""}
-            onChange={(event) => setStartDate(event.target.value)}
-            InputLabelProps={{
-              shrink: true,
-            }}
-            onBlur={handleDateFilterChange}
-            inputProps={{
-              max: moment().format("YYYY-MM-DD"), // Set the maximum selectable date as today
-            }}
-            sx={{ ml: 4, mr: 2 }}
-          />
-        </Box>
 
-        <Box display="flex" alignItems="center" className="endtDate-box">
-          <TextField
-            label="Đến ngày"
-            type="date"
-            value={endDate || ""}
-            onChange={(event) => setEndDate(event.target.value)}
-            InputLabelProps={{
-              shrink: true,
-            }}
-            onBlur={handleDateFilterChange}
-            inputProps={{
-              max: moment().format("YYYY-MM-DD"), // Set the maximum selectable date as today
-            }}
-          />
-        </Box>
       </Box>
 
       <Box

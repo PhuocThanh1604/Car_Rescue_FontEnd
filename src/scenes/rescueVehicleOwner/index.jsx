@@ -55,6 +55,7 @@ const RescueVehicleOwners = (props) => {
   const [data, setData] = useState([]);
   const [initialFormState, setInitialFormState] = useState({});
   const [editStatus, setEditStatus] = useState({});
+  
   useEffect(() => {
     if (isSuccess) {
     }
@@ -65,13 +66,36 @@ const RescueVehicleOwners = (props) => {
   };
   const handleDateFilterChange = () => {
     if (startDate && endDate) {
-      const filteredrescueVehicleOwners = rescueVehicleOwners.filter((user) => {
-        const orderDate = moment(user.createAt).format("YYYY-MM-DD");
-        const isAfterStartDate = moment(orderDate).isSameOrAfter(startDate);
-        const isBeforeEndDate = moment(orderDate).isSameOrBefore(endDate);
+      // Format startDate and endDate to the beginning of the day in the specified time zone
+      const formattedStartDate = moment(startDate)
+        .tz("Asia/Ho_Chi_Minh")
+        .add(7, "hours")
+        .startOf("day");
+      const formattedEndDate = moment(endDate)
+        .tz("Asia/Ho_Chi_Minh")
+        .add(7, "hours")
+        .startOf("day");
+
+      const filteredRVO = rescueVehicleOwners.filter((rescueVehicleOwner) => {
+        // Adjust the order createdAt date to the same time zone
+        const rescueVehicleOwnerDate = moment(rescueVehicleOwner.createAt)
+          .tz("Asia/Ho_Chi_Minh")
+          .add(7, "hours")
+          .startOf("day");
+
+        const isAfterStartDate = rescueVehicleOwnerDate.isSameOrAfter(
+          formattedStartDate,
+          "day"
+        );
+        const isBeforeEndDate = rescueVehicleOwnerDate.isSameOrBefore(
+          formattedEndDate,
+          "day"
+        );
+
         return isAfterStartDate && isBeforeEndDate;
       });
-      setFilteredRescueVehicleOwners(filteredrescueVehicleOwners);
+
+      setFilteredRescueVehicleOwners(filteredRVO);
       setFilterOption("Date");
     } else {
       setFilteredRescueVehicleOwners(rescueVehicleOwners);
@@ -263,17 +287,17 @@ const RescueVehicleOwners = (props) => {
       key: "fullname",
     },
     { field: "sex", headerName: "Giới Tính", width: 60, key: "sex" },
-    { field: "address", headerName: "Địa Chỉ", width: 140, key: "address" },
+    { field: "address", headerName: "Địa Chỉ", width: 160, key: "address" },
     {
-      field: "createdAt",
+      field: "createAt",
       headerName: "Ngày Tạo",
       width: 140,
-      key: "createdAt",
+      key: "createAt",
       valueGetter: (params) =>
-        moment(params.row.createdAt)
+        moment(params.row.createAt)
           .tz("Asia/Ho_Chi_Minh")
           .add(7, "hours")
-          .format("DD-MM-YYYY"),
+          .format("DD-MM-YYYY HH:mm:ss"),
     },
     {
       field: "phone",
@@ -351,13 +375,28 @@ const RescueVehicleOwners = (props) => {
       headerName: "Cập Nhật",
       width: 60,
       renderCell: (params) => (
-        <EditIcon
+        <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          "&:hover": {
+            cursor: "pointer",
+            // Thay đổi màu sắc hoặc hiệu ứng khác khi hover vào Box
+            backgroundColor:"lightgray",
+
+            borderRadius: "4px",
+          },
+        }}
+      >
+         <EditIcon
           variant="contained"
-          color="error"
+          color="indigo"
           onClick={() => handleUpdateClick(params.row.id)}
         >
           <EditIcon style={{ color: "green" }} />
         </EditIcon>
+      </Box>
+       
       ),
       key: "update",
     },
@@ -410,37 +449,48 @@ const RescueVehicleOwners = (props) => {
           </FormControl>
         </Box>
         <Box display="flex" alignItems="center" className="startDate-box">
-          <TextField
-            label="Từ ngày"
-            type="date"
-            value={startDate || ""}
-            onChange={(event) => setStartDate(event.target.value)}
-            InputLabelProps={{
-              shrink: true,
-            }}
-            onBlur={handleDateFilterChange}
-            inputProps={{
-              max: moment().format("YYYY-MM-DD"), // Set the maximum selectable date as today
-            }}
-            sx={{ ml: 4, mr: 2 }}
-          />
-        </Box>
+            <TextField
+              label="Từ ngày"
+              type="date"
+              value={startDate || ""}
+              onChange={(event) => {
+                setStartDate(event.target.value);
+     
+              }}
+              InputLabelProps={{
+                shrink: true,
+              }}
+              onBlur={handleDateFilterChange}
+              inputProps={{
+                max: moment()
+                  .tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
+                  .add(7, "hours") // Adding 3 hours (you can adjust this number as needed)
+                  .format("DD-MM-YYYY"), // Set the maximum selectable date as today
+              }}
+              sx={{ ml: 4, mr: 2 }}
+            />
+          </Box>
 
-        <Box display="flex" alignItems="center" className="endtDate-box">
-          <TextField
-            label="Đến ngày"
-            type="date"
-            value={endDate || ""}
-            onChange={(event) => setEndDate(event.target.value)}
-            InputLabelProps={{
-              shrink: true,
-            }}
-            onBlur={handleDateFilterChange}
-            inputProps={{
-              max: moment().format("YYYY-MM-DD"), // Set the maximum selectable date as today
-            }}
-          />
-        </Box>
+          <Box display="flex" alignItems="center" className="endtDate-box">
+            <TextField
+              label="Đến ngày"
+              type="date"
+              value={endDate || ""}
+              onChange={(event) => {
+                setEndDate(event.target.value);
+              }}
+              InputLabelProps={{
+                shrink: true,
+              }}
+              onBlur={handleDateFilterChange}
+              inputProps={{
+                max: moment()
+                  .tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
+                  .add(7, "hours") // Adding 3 hours (you can adjust this number as needed)
+                  .format("DD-MM-YYYY"), // Set the maximum selectable date as today
+              }}
+            />
+          </Box>
       </Box>
       <Box
         m="10px 0 0 0"

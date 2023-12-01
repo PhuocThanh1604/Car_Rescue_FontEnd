@@ -8,8 +8,12 @@ import {
   DialogContentText,
   DialogTitle,
   Divider,
+  FormControl,
   Grid,
   IconButton,
+  MenuItem,
+  Select,
+  TextField,
   Typography,
   useTheme,
 } from "@mui/material";
@@ -18,18 +22,17 @@ import { tokens } from "../../theme";
 import Header from "../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
 import moment from "moment";
-import AddCardIcon from "@mui/icons-material/AddCard";
-import CreditScoreIcon from "@mui/icons-material/CreditScore";
-import RepeatOnIcon from "@mui/icons-material/RepeatOn";
+import SearchIcon from "@mui/icons-material/Search";
+import InputBase from "@mui/material/InputBase";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import PhoneRoundedIcon from "@mui/icons-material/PhoneRounded";
-import InfoIcon from "@mui/icons-material/Info";
 import CustomTablePagination from "../../components/TablePagination";
 import { fetchPayments } from "../../redux/paymentSlice";
 import { getOrderDetailId, getPaymentId } from "../../redux/orderSlice";
 import GradingIcon from "@mui/icons-material/Grading";
 import TodayIcon from "@mui/icons-material/Today";
 import PaidIcon from "@mui/icons-material/Paid";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 const Payment = () => {
   const dispatch = useDispatch();
   const payments = useSelector((state) => state.payment.payments);
@@ -42,6 +45,8 @@ const Payment = () => {
   const [detailedData, setDetailedData] = useState(null);
   const [searchText, setSearchText] = useState("");
   const [filterOption, setFilterOption] = useState("Status");
+  const [filterOptionDate, setFilterOptionDate] = useState("Date");
+  const [filterOptionMethod, setFilterOptionMethod] = useState("method");
   const [isSuccess, setIsSuccess] = useState(false);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
@@ -78,51 +83,108 @@ const Payment = () => {
     setSearchText(value);
   };
 
-  const handleDateFilterChange = () => {
-    if (startDate && endDate) {
-      const filteredTransaction = payments
-        ? payments.filter((user) => {
-            const orderDate = moment(user.createAt).format("YYYY-MM-DD");
-            const isAfterStartDate = moment(orderDate).isSameOrAfter(startDate);
-            const isBeforeEndDate = moment(orderDate).isSameOrBefore(endDate);
-            return isAfterStartDate && isBeforeEndDate;
-          })
-        : [];
-      setFilteredPayment(filteredTransaction);
-      setFilterOption("Date");
-    } else {
-      setFilteredPayment(payments);
-    }
-  };
-
   const handleFilterChange = (event) => {
     const selectedStatusOption = event.target.value;
-    setFilterOption(selectedStatusOption);
 
     if (selectedStatusOption === "Status") {
-      // Hiển thị tất cả các trạng thái
-      setFilteredPayment(payments);
+      setFilteredPayment(data); // Show all payments if "Status" is selected
     } else {
-      // Lọc sản phẩm dựa trên giá trị trạng thái
-      const filteredTransaction = payments.filter(
+      const filteredTransaction = data.filter(
         (transaction) => transaction.status === selectedStatusOption
       );
       setFilteredPayment(filteredTransaction);
     }
+    setFilterOption(selectedStatusOption);
+  };
+
+  const handleFilterRescueMethod = (event) => {
+    const selectedMethodOption = event.target.value;
+
+    if (selectedMethodOption === "method") {
+      setFilteredPayment(data); // Show all payments if "Hình Thức" is selected
+    } else {
+      const filteredTransaction = data.filter(
+        (transaction) => transaction.method === selectedMethodOption
+      );
+      setFilteredPayment(filteredTransaction);
+    }
+    setFilterOptionMethod(selectedMethodOption);
+  };
+
+  const handleDateFilterChange = () => {
+    let filteredOrders = [...data]; // Initialize with all data
+
+    if (startDate && endDate) {
+      // Format startDate and endDate to the beginning of the day in the specified time zone
+      const formattedStartDate = moment(startDate)
+        .tz("Asia/Ho_Chi_Minh")
+        .add(7, "hours")
+        .startOf("day");
+      const formattedEndDate = moment(endDate)
+        .tz("Asia/Ho_Chi_Minh")
+        .add(7, "hours")
+        .startOf("day");
+
+      filteredOrders = filteredOrders.filter((order) => {
+        // Adjust the order createdAt date to the same time zone
+        const orderDate = moment(order.createdAt)
+          .tz("Asia/Ho_Chi_Minh")
+          .add(7, "hours")
+          .startOf("day");
+
+        const isAfterStartDate = orderDate.isSameOrAfter(
+          formattedStartDate,
+          "day"
+        );
+        const isBeforeEndDate = orderDate.isSameOrBefore(
+          formattedEndDate,
+          "day"
+        );
+
+        return isAfterStartDate && isBeforeEndDate;
+      });
+
+      setFilterOptionDate("Date");
+    }
+
+    setFilteredPayment(filteredOrders);
   };
 
   useEffect(() => {
-    const filteredTransaction = payments
-      ? payments.filter((payment) => {
-          const filterMatch =
-            filterOption === "Status" ||
-            (filterOption === "ACTIVE" && payment.status === "ACTIVE") ||
-            (filterOption === "INACTIVE" && payment.status === "INACTIVE");
-          return filterMatch;
-        })
-      : [];
-    setFilteredPayment(filteredTransaction);
-  }, [payments, searchText, filterOption]);
+    let filtered = data;
+
+    if (filterOption !== "Status") {
+      filtered = filtered.filter((item) => item.status === filterOption);
+    }
+
+    if (filterOptionMethod !== "method") {
+      filtered = filtered.filter((item) => item.method === filterOptionMethod);
+    }
+
+    if (startDate && endDate) {
+      const formattedStartDate = moment(startDate)
+        .tz("Asia/Ho_Chi_Minh")
+        .add(7, "hours")
+        .startOf("day");
+      const formattedEndDate = moment(endDate)
+        .tz("Asia/Ho_Chi_Minh")
+        .add(7, "hours")
+        .startOf("day");
+
+      filtered = filtered.filter((order) => {
+        const orderDate = moment(order.createdAt)
+          .tz("Asia/Ho_Chi_Minh")
+          .add(7, "hours")
+          .startOf("day");
+        return (
+          orderDate.isSameOrAfter(formattedStartDate, "day") &&
+          orderDate.isSameOrBefore(formattedEndDate, "day")
+        );
+      });
+    }
+
+    setFilteredPayment(filtered);
+  }, [data, filterOption, filterOptionMethod, startDate, endDate]);
 
   useEffect(() => {
     setLoading(true);
@@ -148,9 +210,6 @@ const Payment = () => {
     setOpenConfirmModal(false);
     setPaymentId(null);
   };
-  const handleSelectWallet = (id) => {
-    setSelectedWalletId(id);
-  };
 
   const reloadPayment = () => {
     dispatch(fetchPayments())
@@ -175,14 +234,14 @@ const Payment = () => {
       setOrderId(detailedData.orderId);
     }
   }, [detailedData]);
-  
+
   useEffect(() => {
     if (orderId) {
-      console.log(orderId)
+      console.log(orderId);
       fectOrderDetail(orderId);
     }
   }, [orderId]); // Thêm orderId vào danh sách phụ thuộc
-  
+
   const fectOrderDetail = (orderId) => {
     console.log(orderId);
     if (!orderId) {
@@ -193,7 +252,7 @@ const Payment = () => {
       .then((response) => {
         const data = response.payload.data;
         if (data) {
-          console.log(data.quantity)
+          console.log(data.quantity);
           setOrderDetailData(data);
           // Đặt loading thành false sau khi tải lại dữ liệu
           setLoading(false);
@@ -210,22 +269,32 @@ const Payment = () => {
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
-  const filteredPaymentsPagination = filteredPayment.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
-  );
 
+  let filteredPaymentsPagination = [];
+  if (Array.isArray(filteredPayment)) {
+    filteredPaymentsPagination =
+      filteredPayment &&
+      filteredPayment.slice(
+        page * rowsPerPage,
+        page * rowsPerPage + rowsPerPage
+      );
+  }
+  const formatDateTime = (dateTime) => {
+    if (!dateTime) return "Đang cập nhật";
+    return moment(dateTime).tz("Asia/Ho_Chi_Minh").add(7,'hours').format('DD/MM/YYYY HH:mm:ss');
+    // Set the time zone to Vietnam's ICT
+  };
   const columns = [
     {
       field: "id",
-      headerName: "id",
-      width: 100,
+      headerName: "paymentId",
+      width: 140,
       cellClassName: "name-column--cell",
     },
     {
       field: "orderId",
       headerName: "orderId",
-      width: 100,
+      width: 140,
       cellClassName: "name-column--cell",
       onCellClick: (params) => {
         setSelectedWalletId(params.row.orderId);
@@ -234,74 +303,85 @@ const Payment = () => {
     },
 
     {
-      field: "method",
-      headerName: "Hình thức",
-      width: 120,
-      key: "type",
-      // renderCell: ({ row: { type } }) => {
-      //   return (
-      //     <Box
-      //       width="86%"
-      //       m="0 auto"
-      //       p="4px"
-      //       display="flex"
-      //       justifyContent="center"
-      //       fontSize={8}
-      //       borderRadius={2} // Corrected prop name from "buserRadius" to "borderRadius"
-      //       backgroundColor={
-      //         type === "Withdraw"
-      //           ? colors.greenAccent[700]
-      //           : type === "Deposit"
-      //           ? colors.purpleAccent[200]
-      //           : colors.purpleAccent[200]
-      //       }
-      //     >
-      //       {type === "Withdraw" && <CurrencyExchangeIcon />}
-      //       {type === "Deposit" && <AssuredWorkloadIcon />}
-      //       <Typography color={colors.grey[100]} sx={{ ml: "2px" }}>
-      //         {type}
-      //       </Typography>
-      //     </Box>
-      //   );
-      // },
-    },
-    {
       field: "createdAt",
       headerName: "Ngày giao dịch",
       width: 160,
       valueGetter: (params) =>
-        moment(params.row.createdAt).tz("Asia/Ho_Chi_Minh").add(7, 'hours') .format("DD-MM-YYYY HH:mm"),
-     
+        moment(params.row.createdAt)
+          .tz("Asia/Ho_Chi_Minh")
+          .add(7, "hours")
+          .format("DD-MM-YYYY HH:mm"),
+    },
+    {
+      field: "method",
+      headerName: "Hình thức",
+      width: 120,
+      key: "type",
+      renderCell: ({ row: { method } }) => {
+        return (
+          <Box
+            width="auto"
+            p="4px"
+            m="0 auto"
+            display="flex"
+            justifyContent="center"
+            borderRadius={2}
+            backgroundColor={
+              method === "Cash"
+                ? colors.lightGreen[700]
+                : method === "Cash"
+                ? colors.redAccent[700]
+                : colors.redAccent[700]
+                ? colors.lightBlue[300]
+                : method === "Banking"
+            }
+            color={
+              method === "Cash"
+                ? colors.lightGreen[300]
+                : colors.yellowAccent[700] && method === "Banking"
+                ? colors.lightBlue[700]
+                : colors.yellowAccent[700]
+            }
+          >
+            <Typography color="inherit" sx={{ ml: "1px", fontWeight: "bold" }}>
+              {method}
+            </Typography>
+          </Box>
+        );
+      },
     },
     {
       field: "status",
       headerName: "Trạng Thái",
-      width: 150,
+      width: 100,
       key: "status",
       renderCell: ({ row: { status } }) => {
         return (
           <Box
-            width="80%"
+            width="auto"
+            p="4px"
             m="0 auto"
-            p="2px"
             display="flex"
             justifyContent="center"
-            fontSize={10}
-            borderRadius={8} // Corrected prop name from "buserRadius" to "borderRadius"
+            borderRadius={2}
             backgroundColor={
               status === "NEW"
                 ? colors.greenAccent[700]
                 : status === "ASSIGNED"
                 ? colors.redAccent[700]
                 : colors.redAccent[700]
-                ? colors.blueAccent[700]
+                ? colors.cyan[300]
                 : status === "COMPLETED"
             }
+            color={
+              status === "NEW"
+                ? colors.greenAccent[300]
+                : colors.yellowAccent[700] && status === "COMPLETED"
+                ? colors.cyan[700]
+                : colors.yellowAccent[700]
+            }
           >
-            {status === "NEW" && <AddCardIcon />}
-            {status === "COMPLETED" && <CreditScoreIcon />}
-            {status === "ASSIGNED" && <RepeatOnIcon />}
-            <Typography color={colors.grey[100]} sx={{ ml: "8px" }}>
+            <Typography color="inherit" sx={{ ml: "1px", fontWeight: "bold" }}>
               {status}
             </Typography>
           </Box>
@@ -315,57 +395,183 @@ const Payment = () => {
       width: 120,
       renderCell: (params) => (
         <Grid container justifyContent="center" alignItems="center">
-          <IconButton
-            color="indigo"
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              "&:hover": {
+                cursor: "pointer",
+                // Thay đổi màu sắc hoặc hiệu ứng khác khi hover vào Box
+                backgroundColor: "lightgray",
+                padding: "4px",
+                borderRadius: "4px",
+              },
+            }}
             onClick={() => handleClickPaymentDetail(params.row.orderId)}
-            aria-label="Chi Tiết Đơn Hàng"
           >
-            <InfoIcon />
-          </IconButton>
+            <VisibilityIcon
+              color="indigo"
+              onClick={() => handleClickPaymentDetail(params.row.orderId)}
+              aria-label="Chi Tiết Đơn Hàng"
+            />
+            <Typography
+              variant="body1"
+              sx={{ fontWeight: "bold", marginLeft: "5px" }}
+              onClick={() => handleClickPaymentDetail(params.row.orderId)}
+            >
+              {"Xem Chi Tiết"}
+            </Typography>
+          </Box>
         </Grid>
       ),
-      key: "bookDetail",
+      key: "orderDetails",
     },
   ];
 
   return (
     <Box ml="50px" mr="50px" mb="auto">
       <Header title="Payment" subtitle="Danh sách chi tiết payment " />
-      <Box
-          m="10px 0 0 0"
-          height="auto"
-          sx={{
-            fontSize: "20px",
-            padding: "20px",
-            borderRadius: "20px",
-            boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.4)",
-            "& .MuiDataGrid-root": {
-              border: "none",
-            },
-            "& .MuiDataGrid-cell": {
-              borderBottom: "none",
-            },
-            "& .name-column--cell": {
-              color: colors.greenAccent[300],
-            },
-            "& .MuiDataGrid-columnHeaders": {
-              backgroundColor: colors.orange[50],
-              borderBottom: "none",
-            },
-            "& .MuiDataGrid-virtualScroller": {
-              backgroundColor: colors.white[50],
-            },
-            "& .MuiDataGrid-footerContainer": {
-              display: "none",
-            },
-            "& .MuiCheckbox-root": {
-              color: `${colors.greenAccent[200]} !important`,
-            },
-            "& .MuiDataGrid-row": {
-              borderBottom: "none",
-            },
-          }}
+      <Box display="flex" className="box" left={0}>
+        <Box
+          display="flex"
+          borderRadius="6px"
+          border={1}
+          marginRight={2}
+          marginLeft={2}
+          width={500}
         >
+          <InputBase
+            sx={{ ml: 2, flex: 1 }}
+            placeholder="Tìm kiếm..."
+            onChange={handleSearchChange}
+            className="search-input"
+          />
+          <IconButton type="button">
+            <SearchIcon />
+          </IconButton>
+        </Box>
+
+        <FormControl>
+          <Select
+            labelId="demo-simple-select-label"
+            id="demo-simple-select"
+            value={filterOptionMethod}
+            onChange={handleFilterRescueMethod}
+            variant="outlined"
+            className="filter-select"
+            style={{ width: "150px" }}
+          >
+            <MenuItem key="method-all" value="method">
+              Hình Thức
+            </MenuItem>
+            <MenuItem key="method-Cash" value="Cash">
+              Tiền Mặt
+            </MenuItem>
+            <MenuItem key="method-Banking" value="Banking">
+              Chuyển Khoản
+            </MenuItem>
+          </Select>
+        </FormControl>
+        <Box display="flex" alignItems="center" className="filter-box">
+          <FormControl fullWidth>
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={filterOption}
+              onChange={handleFilterChange}
+              variant="outlined"
+              className="filter-select"
+            >
+              <MenuItem key="status-all" value="Status">
+                Trạng Thái
+              </MenuItem>
+              <MenuItem key="status-new" value="NEW">
+                Mới
+              </MenuItem>
+              <MenuItem key="status-completed" value="COMPLETED">
+                Hoàn Thành
+              </MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
+        <Box display="flex" alignItems="center" className="startDate-box">
+          <TextField
+            label="Từ ngày"
+            type="date"
+            value={startDate || ""}
+            onChange={(event) => {
+              setStartDate(event.target.value);
+            }}
+            InputLabelProps={{
+              shrink: true,
+            }}
+            onBlur={handleDateFilterChange}
+            inputProps={{
+              max: moment()
+                .tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
+                .add(7, "hours") // Adding 3 hours (you can adjust this number as needed)
+                .format("DD-MM-YYYY"), // Set the maximum selectable date as today
+            }}
+            sx={{ ml: 4, mr: 2 }}
+          />
+        </Box>
+
+        <Box display="flex" alignItems="center" className="endtDate-box">
+          <TextField
+            label="Đến ngày"
+            type="date"
+            value={endDate || ""}
+            onChange={(event) => {
+              setEndDate(event.target.value);
+            }}
+            InputLabelProps={{
+              shrink: true,
+            }}
+            onBlur={handleDateFilterChange}
+            inputProps={{
+              max: moment()
+                .tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
+                .add(7, "hours") // Adding 3 hours (you can adjust this number as needed)
+                .format("DD-MM-YYYY"), // Set the maximum selectable date as today
+            }}
+          />
+        </Box>
+      </Box>
+      <Box
+        m="10px 0 0 0"
+        height="auto"
+        sx={{
+          fontSize: "20px",
+          padding: "20px",
+          borderRadius: "20px",
+          boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.4)",
+          "& .MuiDataGrid-root": {
+            border: "none",
+          },
+          "& .MuiDataGrid-cell": {
+            borderBottom: "none",
+          },
+          "& .name-column--cell": {
+            color: colors.greenAccent[300],
+          },
+          "& .MuiDataGrid-columnHeaders": {
+            backgroundColor: colors.orange[50],
+            borderBottom: "none",
+          },
+          "& .MuiDataGrid-virtualScroller": {
+            backgroundColor: colors.white[50],
+          },
+          "& .MuiDataGrid-footerContainer": {
+            display: "none",
+          },
+          "& .MuiCheckbox-root": {
+            color: `${colors.greenAccent[200]} !important`,
+          },
+          "& .MuiDataGrid-row": {
+            borderBottom: "none",
+          },
+        }}
+      >
         <DataGrid
           rows={filteredPaymentsPagination}
           columns={columns}
@@ -377,7 +583,7 @@ const Payment = () => {
         />
       </Box>
       <CustomTablePagination
-        count={filteredPayment.length}
+        count={filteredPayment ? filteredPayment.length : 0}
         page={page}
         rowsPerPage={rowsPerPage}
         onPageChange={handleChangePage}
@@ -399,7 +605,11 @@ const Payment = () => {
       >
         <DialogTitle
           id="alert-dialog-title"
-          sx={{  color: colors.greenAccent[500], fontSize: "24px", textAlign: "center" }}
+          sx={{
+            color: colors.greenAccent[500],
+            fontSize: "24px",
+            textAlign: "center",
+          }}
         >
           Thông tin chi tiết payment
         </DialogTitle>
@@ -477,8 +687,8 @@ const Payment = () => {
                     >
                       <TodayIcon sx={{ color: colors.blueAccent[400] }} />
                       <Typography variant="h6">
-                        <strong>createdAt: </strong>{" "}
-                        {detailedData.createdAt || "Không có thông tin"}
+                        <strong>Ngày Giao Dịch: </strong>{" "}
+                        {formatDateTime(detailedData.createdAt) || "Không có thông tin"}
                       </Typography>
                     </Box>
                     <Box
@@ -489,14 +699,16 @@ const Payment = () => {
                       }}
                     >
                       <PaidIcon sx={{ color: colors.blueAccent[400] }} />
-                      <Typography >
-                        <strong >Tổng Tiền: </strong>{" "}
-                        {detailedData.amount
-                          ? `${detailedData.amount.toLocaleString("vi-VN", {
-                              style: "currency",
-                              currency: "VND",
-                            })}`
-                          : "Không có thông tin"}
+                      <Typography>
+                        <strong>Tổng Tiền Đã Thanh Toán: </strong>{" "}
+                        <span style={{ color: colors.redAccent[500] ,fontWeight:"bold" }}>
+                          {detailedData.amount
+                            ? `${detailedData.amount.toLocaleString("vi-VN", {
+                                style: "currency",
+                                currency: "VND",
+                              })}`
+                            : "Không có thông tin"}
+                        </span>
                       </Typography>
                     </Box>
                   </CardContent>

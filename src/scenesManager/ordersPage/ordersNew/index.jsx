@@ -25,12 +25,9 @@ import {
   getFormattedAddressGG,
   getOrderId,
 } from "../../../redux/orderSlice";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { getCustomerIdFullName } from "../../../redux/customerSlice";
-import CreditScoreIcon from "@mui/icons-material/CreditScore";
-import AddCardIcon from "@mui/icons-material/AddCard";
-import RepeatOnIcon from "@mui/icons-material/RepeatOn";
 import SupportIcon from "@mui/icons-material/Support";
 import HandymanIcon from "@mui/icons-material/Handyman";
 import AssignmentLateIcon from "@mui/icons-material/AssignmentLate";
@@ -41,11 +38,9 @@ const Orders = (props) => {
   const orders = useSelector((state) => state.order.orders);
   const location = useLocation();
   const [openEditModal, setOpenEditModal] = useState(false);
-  const [isSelected, setIsSelected] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [filterOption, setFilterOption] = useState("rescueType");
   const [openModal, setOpenModal] = useState(false);
-  const [selectedBook, setSelectedBook] = useState(null);
   const [selectedEditOrder, setSelectedEditOrder] = useState(null);
   const [filteredOrders, setFilteredOrders] = useState([]);
   const [page, setPage] = useState(0);
@@ -57,8 +52,6 @@ const Orders = (props) => {
   const [data, setData] = useState([]);
   const [fullnameData, setFullnameData] = useState({});
   const [formattedAddresses, setFormattedAddresses] = useState({});
-  const [orderId, setOrderId] = useState(null);
-  const [openConfirmModal, setOpenConfirmModal] = useState(false);
   const [rescueVehicles, setRescueVehicles] = useState([]); // Tạo một state mới cho danh sách xe cứu hộ
   const [selectedOrderFormattedAddress, setSelectedOrderFormattedAddress] =
     useState("");
@@ -526,7 +519,6 @@ const Orders = (props) => {
               value={startDate || ""}
               onChange={(event) => {
                 setStartDate(event.target.value);
-                // handleDateFilterChange(); // Gọi hàm lọc ngay khi ngày tháng thay đổi
               }}
               InputLabelProps={{
                 shrink: true,
