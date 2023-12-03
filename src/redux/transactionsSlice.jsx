@@ -70,7 +70,9 @@ export const fetchTransactionsAll = createAsyncThunk(
 export const getTransactionOfWalletId = createAsyncThunk(
   "transaction/getTransactionOfWalletId",
   async ({ id }) => {
-    console.log("tesst: "+id)
+    if (!id) {
+      return null; // Không cần gọi API nếu không có id
+    }
     try {
       const response = await axios.get(
         `https://rescuecapstoneapi.azurewebsites.net/api/Transaction/GetTransactionOfWallet?id=${id}`

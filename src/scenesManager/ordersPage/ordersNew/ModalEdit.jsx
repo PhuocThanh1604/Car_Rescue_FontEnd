@@ -55,6 +55,7 @@ import { getServiceId } from "../../../redux/serviceSlice";
 import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
 import { getModelCarId } from "../../../redux/modelCarSlice";
 import { getRescueVehicleOwnerId } from "../../../redux/rescueVehicleOwnerSlice";
+import { getAccountId } from "../../../redux/accountSlice";
 const ModalEdit = ({
   openEditModal,
   setOpenEditModal,
@@ -100,7 +101,6 @@ const ModalEdit = ({
   const [filteredVehicleData, setFilteredVehicleData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [formattedAddresses, setFormattedAddresses] = useState({});
-
   const [selectedOrderFormattedAddress, setSelectedOrderFormattedAddress] =
     useState("");
   const [customerId, setCustomerId] = useState({});
@@ -111,6 +111,10 @@ const ModalEdit = ({
   const [dataCar, setDataCar] = useState({});
   const [dataOrder, setDataOrder] = useState({});
   const [dataDeparture, setDataDeparture] = useState({});
+  const [accountId, setAccountId] = useState("");
+  
+  const [accountDeviceToken, setAccountDeviceToken] = useState("");
+
   const [dataModel, setDataModel] = useState("");
   const [fullnameRvo, setFullnameRvo] = useState({});
   const managerString = localStorage.getItem("manager");
@@ -132,10 +136,7 @@ const ModalEdit = ({
     if (edit.destination) {
       fetchAddress("destination", edit.destination);
     }
-
   }, [edit.departure, edit.destination]);
-
- 
 
   const fetchAddress = async (addressType, addressValue) => {
     console.log("latlng" + addressValue);
@@ -144,7 +145,6 @@ const ModalEdit = ({
     }
 
     const matches = /lat:\s*([^,]+),\s*long:\s*([^,]+)/.exec(addressValue);
-    console.log(matches);
     if (matches && matches.length === 3) {
       const [, lat, lng] = matches;
 
@@ -152,10 +152,8 @@ const ModalEdit = ({
         console.log("Latitude:", lat, "Longitude:", lng);
         try {
           const response = await dispatch(getFormattedAddressGG({ lat, lng }));
-          console.log(response);
           const formattedAddress =
             response.payload.results[0].formatted_address;
-          console.log(formattedAddress);
           setFormattedAddresses((prevAddresses) => ({
             ...prevAddresses,
             [addressType]: formattedAddress,
@@ -206,13 +204,15 @@ const ModalEdit = ({
     } else if (selectedRescueType === "Towing") {
       if (vehicleData !== null) {
         setFilteredVehicleData(
-          vehicleData.filter((vehicle) => vehicle && vehicle.status === "ACTIVE")
+          vehicleData.filter(
+            (vehicle) => vehicle && vehicle.status === "ACTIVE"
+          )
         );
       }
       // resetFixingState();
     }
   }, [selectedRescueType, technicianData, vehicleData]);
-  
+
   // useEffect(() => {
   //   if (selectedTechnician) {
   //     console.log("test tec" + selectedTechnician);
@@ -244,18 +244,48 @@ const ModalEdit = ({
     if (vehicleDetails && vehicleDetails.rvoid) {
       // Lưu giữ giá trị rvoid mỗi khi vehicleDetails thay đổi
       const savedRvoid = vehicleDetails.rvoid;
-   
+
       fetchRVO(savedRvoid);
     }
   }, [vehicleDetails]);
+
+  useEffect(() => {
+    if (accountId && !accountDeviceToken) {
+      fetchAccounts(accountId);
+    }
+  }, [accountId, accountDeviceToken]);
+  const fetchAccounts = (accountId) => {
+    console.log(accountId);
+    // Make sure you have a check to prevent unnecessary API calls
+    if (accountId) {
+      //lấy devices của account
+      console.log("RovId off Account " + accountId);
+      dispatch(getAccountId({ id: accountId }))
+        .then((response) => {
+          const dataAccount = response.payload.data;
+          console.log("DeviceToken of Account " + dataAccount.deviceToken);
+          if (dataAccount.deviceToken) {
+            console.log(dataAccount.deviceToken);
+            setAccountDeviceToken(dataAccount.deviceToken);
+          } else {
+            console.error("deviceToken not found in the API response.");
+          }
+        })
+        .catch((error) => {
+          console.error("Error while fetching service data detail:", error);
+        });
+    }
+  };
   const fetchRVO = (rovId) => {
-    console.log(rovId)
+    console.log(rovId);
     if (!fullnameRvo[rovId]) {
       dispatch(getRescueVehicleOwnerId({ id: rovId }))
         .then((response) => {
           const data = response.payload.data;
+          const accountId = data.accountId;
+          setAccountId(accountId);
           if (data && data.fullname) {
-            console.log(data.fullname)
+            console.log(data.fullname);
             setFullnameRvo((prevData) => ({
               ...prevData,
               [rovId]: data.fullname,
@@ -268,7 +298,6 @@ const ModalEdit = ({
           console.error("Error while fetching customer data:", error);
         });
     }
-   
   };
   // useEffect(() => {
   //   if (selectedVehicle && vehicleData) {
@@ -377,6 +406,7 @@ const ModalEdit = ({
       setFilteredOrders(orders); // Update the local state when the Redux state changes
     }
   }, [orders]);
+  //Hàm điều phối
   const handleSaveClick = () => {
     if (!selectedEditOrder || !data) {
       toast.error("Không có thông tin khách hàng để cập nhật.");
@@ -387,8 +417,8 @@ const ModalEdit = ({
     const hasChanges =
       JSON.stringify(data) !== JSON.stringify(initialFormState);
     const message = {
-      title: "Thông báo",
-      body: "Điều phối thành công",
+      title: "Thông báo đơn hàng ",
+      body: "Bạn có đơn hàng đã được điều phối tới bạn!!",
     };
     // Gửi thông báo sau khi xử lý thành công
 
@@ -418,10 +448,10 @@ const ModalEdit = ({
           setSelectedVehicel(null);
 
           const notificationData = {
-            // deviceId: "eZ3zGYZ-SU-rsFAjjsDLrS:APA91bH45eTlMbPI8GfqxllTtB4tzSgpB-9ppDGfJ4xv3FuxpbRqAj2RHcgZn-pj0JG9CGxGmi69HHTRkzNlSbOy5xuryR43BFIMtn9_l68ZfJRzfr8C55Yk2vP19Y5jjSiRHgKLMTTk", // Thay YOUR_DEVICE_ID bằng ID thiết bị cần gửi thông báo đến
-            deviceId:
-              "fb7Ts8adTSeqW2D4jsgsEe:APA91bHS0xEkeHkeK58sL9a33CLxgm00KFIY6cHJokVA8R1JO_rrinjDDbvCSLsKo01M6IvJ88q5lOWJCpf0zAU1i75lGqVaSQDa4HBFGd7Du7XnJDgCsZZUJ-4WmH0yb5AsheUp9fzm", // Thay YOUR_DEVICE_ID bằng ID thiết bị cần gửi thông báo đến
-            isAndroiodDevice: true, // true nếu là thiết bị Android, false nếu là thiết bị khác
+            // deviceId:
+            //   "fb7Ts8adTSeqW2D4jsgsEe:APA91bHS0xEkeHkeK58sL9a33CLxgm00KFIY6cHJokVA8R1JO_rrinjDDbvCSLsKo01M6IvJ88q5lOWJCpf0zAU1i75lGqVaSQDa4HBFGd7Du7XnJDgCsZZUJ-4WmH0yb5AsheUp9fzm",
+            deviceId: accountDeviceToken,
+            isAndroiodDevice: true,
             title: message.title,
             body: message.body,
           };
@@ -468,6 +498,9 @@ const ModalEdit = ({
             setFilteredTechnicianData(null);
             setSelectedVehicel(null);
             setVehicleDetails(null);
+            fetchRVO(null);
+            setAccountId(null);
+
             setFilteredOrders(data);
             // Đặt loading thành false sau khi tải lại dữ liệu
           }
@@ -670,10 +703,8 @@ const ModalEdit = ({
   //   }
   // };
 
-
-   // Hiển thị tất cả dịch vụ và quantity
-   const fetchOrderDetail = (orderId) => {
-    console.log(orderId);
+  // Hiển thị tất cả dịch vụ và quantity
+  const fetchOrderDetail = (orderId) => {
     setServiceNames(null);
     // Make sure you have a check to prevent unnecessary API calls
     if (orderId) {
@@ -1144,7 +1175,7 @@ const ModalEdit = ({
                               }}
                             ></Typography>
                           </Typography>
-                                {/* Chọn 1 dv */}
+                          {/* Chọn 1 dv */}
                           {/* <Typography
                             variant="body1"
                             component="p"
@@ -1169,8 +1200,8 @@ const ModalEdit = ({
                               {firstServiceName}
                             </Typography>
                           </Typography> */}
-                              {/* List all servicers choose */}
-                              <Typography
+                          {/* List all servicers choose */}
+                          <Typography
                             variant="body1"
                             component="p"
                             sx={{
@@ -1180,7 +1211,7 @@ const ModalEdit = ({
                               marginRight: "2px",
                             }}
                           >
-                            <AddShoppingCartIcon style={iconColor}  />{" "}
+                            <AddShoppingCartIcon style={iconColor} />{" "}
                             <strong>Dịch vụ đã chọn:</strong>{" "}
                             <Typography
                               variant="h6"
@@ -1237,8 +1268,8 @@ const ModalEdit = ({
                         // Reset các giá trị khi thay đổi loại cứu hộ
                         setSelectedVehicel(null);
                         setVehicleDetails(null);
-                        // setSelectedTechnician(null);
                         setTechnicianDetails(null);
+                        setAccountId(null);
                       }, [edit.rescueType])}
 
                       {edit.rescueType === "Fixing" && (
@@ -1445,7 +1476,8 @@ const ModalEdit = ({
                                   >
                                     <SourceRoundedIcon style={iconColor} />
                                     <Typography variant="body1">
-                                     Tên Chủ Xe: {fullnameRvo[vehicleDetails.rvoid]}
+                                      Tên Chủ Xe:{" "}
+                                      {fullnameRvo[vehicleDetails.rvoid]}
                                     </Typography>
                                   </Box>
                                   <Box

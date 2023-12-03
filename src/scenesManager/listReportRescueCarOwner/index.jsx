@@ -243,18 +243,23 @@ const ListReports = (props) => {
     dispatch(getReportAll())
       .then((response) => {
         // Đã lấy dữ liệu thành công
+        if (!response && !response.payload && !response.payload.data) {
+          setLoading(false);
+          return; // Kết thúc sớm hàm useEffect() nếu không có dữ liệu
+        } 
         const data = response.payload.data;
-        if (data) {
           console.log(data);
           setData(data);
           setFilteredVehicles(data);
-          setLoading(false); // Đặt trạng thái loading thành false sau khi xử lý dữ liệu
-        }
+      })
+      .catch((error) => {
+        setLoading(false);
       })
       .finally(() => {
         setLoading(false);
       });
   }, [dispatch]);
+
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);

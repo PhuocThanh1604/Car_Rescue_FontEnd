@@ -91,6 +91,12 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
   const iconColor = { color: colors.blueAccent[500] };
 
   useEffect(() => {
+    if (dataOrder && dataOrder.departure) {
+      fetchAddress("departure", dataOrder.departure);
+    }
+    if (dataOrder && dataOrder.destination) {
+      fetchAddress("destination", dataOrder.destination);
+    }
     if (selectedEditOrder && selectedEditOrder[0].orderId) {
       fetchOrder(selectedEditOrder[0].orderId);
       fetchPayment(selectedEditOrder[0].orderId);
@@ -98,12 +104,7 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
     if (selectedEditOrder && selectedEditOrder[0].orderId) {
       setOrderCalateId(selectedEditOrder[0].orderId);
     }
-    if (dataOrder && dataOrder.departure) {
-      fetchAddress("departure", dataOrder.departure);
-    }
-    if (dataOrder && dataOrder.destination) {
-      fetchAddress("destination", dataOrder.destination);
-    }
+ 
   }, [selectedEditOrder]);
 
   const fetchAddress = async (addressType, addressValue) => {

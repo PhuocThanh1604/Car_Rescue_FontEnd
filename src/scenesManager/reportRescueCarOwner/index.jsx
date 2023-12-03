@@ -54,6 +54,7 @@ import PeopleAltRoundedIcon from "@mui/icons-material/PeopleAltRounded";
 import PlaceIcon from "@mui/icons-material/Place";
 import CustomTablePagination from "../../components/TablePagination";
 import { tokens } from "../../theme";
+import { sendNotification } from "../../redux/orderSlice";
 const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
 const Reports = (props) => {
   const dispatch = useDispatch();
@@ -180,6 +181,14 @@ const Reports = (props) => {
     console.log(vehicleId);
     setIsAccepted(accept);
     console.log(accept);
+    const messageAccept = {
+      title: "Hệ thống đã ghi nhận báo cáo đơn hàng của bạn!!",
+      body: "Hệ thống sẽ phản hồi đến quí khách thời gian sớm nhất",
+    };
+    const messageRejected = {
+      title: "Hệ thống Không chấp nhận đơn báo cáo đơn hàng của bạn!!",
+      body: "Xin lỗi!! Bạn báo cáo của bạn không đủ điều kiện!!",
+    };
     // Fetch the VehicleId details based on the selected Vehicle ID
     dispatch(acceptReport({ id: vehicleId, boolean: accept }))
       .then(() => {
@@ -190,12 +199,49 @@ const Reports = (props) => {
         setVehicleId(vehicleId);
         setOpenConfirmModal(false);
         setIsSuccess(true);
-        // reloadVehicle();
-        // Check if accept is true or false
+      
         if (accept) {
           toast.success("Chấp nhận đơn báo cáo thành công");
+          const notificationData = {
+            deviceId:
+            "",
+            isAndroiodDevice: true,
+            title: messageAccept.title,
+            body: messageAccept.body,
+          };
+  
+          // Gửi thông báo bằng hàm sendNotification
+          dispatch(sendNotification(notificationData))
+            .then((res) => {
+              if (res.payload.message === "Notification sent successfully")
+                toast.success("Gửi thông báo thành công");
+              console.log("Gửi thông báo thành công");
+            })
+            .catch((error) => {
+              toast.error("Gửi thông không thành công vui lòng thử lại!!");
+              console.error("Lỗi khi gửi thông báo:", error);
+            });
         } else {
           toast.error("Không đồng chấp nhận xe vào hệ thống ");
+          const notificationData = {
+            deviceId:
+            "",
+            isAndroiodDevice: true,
+            title: messageRejected.title,
+            body: messageRejected.body,
+          };
+  
+          // Gửi thông báo bằng hàm sendNotification
+          dispatch(sendNotification(notificationData))
+            .then((res) => {
+              if (res.payload.message === "Notification sent successfully")
+                toast.success("Gửi thông báo đến khách hàng thành công");
+              console.log("Gửi thông báo thành công");
+            })
+            .catch((error) => {
+              toast.error("Gửi thông báo đến khách hàng không thành công!!");
+              console.error("Lỗi khi gửi thông báo:", error);
+            });
         }
       })
       .catch((error) => {

@@ -8,8 +8,7 @@ import Error4O1 from "./401";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { onMessageListener } from "../../firebase";
-import Error500 from "./500";
-import Error404 from "./404";
+
 const RequireAuth = () => {
   const MAX_NOTIFICATIONS_DISPLAYED = 5;
   const [unreadNotifications, setUnreadNotifications] = useState(0);
@@ -100,24 +99,15 @@ const RequireAuth = () => {
     }
   }
 
-  // Kiểm tra và sử dụng đối tượng manager
-  if (manager) {
-    console.log("Thông tin của manager:", manager);
-    console.log("Id của manager:", manager.id);
-  }
+
   const devicetoken1 = localStorage.getItem("deviceToken");
-  const role_user = localStorage.getItem("role_user");
-  if (role_user) {
-    
-    console.log("role_user  " + role_user);
-  }
+
   if (devicetoken1) {
     
-    console.log("Test device" + devicetoken1);
+    // console.log("Test device" + devicetoken1);
   }
 
   const thisrole = data?.role ? `Role ${data?.role}!` : "role!";
-  // Sử dụng useLocation để lấy thông tin vị trí hiện tại (đường dẫn URL) của ứng dụng
   const location = useLocation();
   const token = localStorage.getItem("access_token");
   const role = localStorage.getItem("role_user");
@@ -173,10 +163,6 @@ const RequireAuth = () => {
     return <Navigate to="/signin" state={{ from: location }} replace />;
   }
 
-  // else {
-  //   // Mặc định, chuyển hướng người dùng đến trang đăng nhập
-  //   return <Navigate to="/signin" state={{ from: location }} replace />;
-  // }
 };
 
 export default RequireAuth;

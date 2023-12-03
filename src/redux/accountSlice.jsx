@@ -58,17 +58,25 @@ export const getAccountEmail = createAsyncThunk('account/getAccount', async () =
   }
 });
 
-export const getAccountId = createAsyncThunk('account/getAccountId', async ({ id }) => {
-  try {
-    const response = await axios.get(`https://rescuecapstoneapi.azurewebsites.net/api/Account/Get?${id}`);
-    const data = response.data;
-    console.log(data);
-    return data;
-  } catch (error) {
-    console.error('Failed to get accounts:', error.response);
-    throw error.response.data || error.message;
+
+
+export const getAccountId = createAsyncThunk(
+  "account/getAccountId",
+  async ({ id }) => {
+
+    try {
+      const response = await axios.get(
+        `https://rescuecapstoneapi.azurewebsites.net/api/Account/Get?id=${id}`
+      );
+      const data = response.data;
+      console.log(data);
+      return data;
+    } catch (error) {
+      console.error("Failed to get accounts ", error.response);
+      throw error.response.data || error.message;
+    }
   }
-});
+);
 
 const accountSlice = createSlice({
   name: 'account',

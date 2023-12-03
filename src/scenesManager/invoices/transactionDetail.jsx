@@ -16,7 +16,7 @@ import Header from "../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
 import CurrencyExchangeIcon from "@mui/icons-material/CurrencyExchange";
 import ModalEdit from "./ModalComponentEdit";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Fade from "@mui/material/Fade";
 import SearchIcon from "@mui/icons-material/Search";
@@ -27,7 +27,6 @@ import { useParams } from "react-router-dom";
 import { getTransactionOfWalletId } from "../../redux/transactionsSlice";
 import AddCardIcon from "@mui/icons-material/AddCard";
 import CreditScoreIcon from "@mui/icons-material/CreditScore";
-import RepeatOnIcon from "@mui/icons-material/RepeatOn";
 import CreditCardOffIcon from "@mui/icons-material/CreditCardOff";
 import AssuredWorkloadIcon from "@mui/icons-material/AssuredWorkload";
 const TransactionDetails = () => {
@@ -40,7 +39,6 @@ const TransactionDetails = () => {
   const [searchText, setSearchText] = useState("");
   const [filterOption, setFilterOption] = useState("Type");
   const [filterOptionStatus, setFilterOptionStatus] = useState("Status");
-  const [openModal, setOpenModal] = useState(false);
   const [selectedEditTechnician, setselectedEditTechnician] = useState(null);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(8);
@@ -194,8 +192,17 @@ const TransactionDetails = () => {
 
   useEffect(() => {
     setLoading(true);
+    if (!id) {
+      setLoading(false);
+      return;
+    }
+  
     dispatch(getTransactionOfWalletId({ id }))
       .then((response) => {
+        if (!response || !response.payload || !response.payload.data) {
+          setLoading(false);
+          return;
+        }
         const responseData = response.payload.data;
         console.log("responseData detail", responseData);
         if (responseData) {
@@ -204,12 +211,12 @@ const TransactionDetails = () => {
         }
       })
       .catch((error) => {
-        console.error("Error fetching data:", error);
-      })
-      .finally(() => {
         setLoading(false);
+        console.error("Error while fetching transaction data:", error);
       });
   }, [dispatch, id]);
+  
+
 
   // Handling changes in filterOption, searchText, startDate, endDate
   useEffect(() => {

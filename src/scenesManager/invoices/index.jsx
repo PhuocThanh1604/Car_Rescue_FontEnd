@@ -38,17 +38,14 @@ import TodayIcon from "@mui/icons-material/Today";
 import TextSnippetIcon from "@mui/icons-material/TextSnippet";
 import {
   createAcceptWithdrawRequest,
-  fetchTransactionsAll,
   fetchTransactionsNew,
   getRVOOfWallet,
   getTransactionById,
   getTransactionOfWalletId,
 } from "../../redux/transactionsSlice";
 import { useNavigate } from "react-router-dom";
-import AddCardIcon from "@mui/icons-material/AddCard";
-import CreditScoreIcon from "@mui/icons-material/CreditScore";
-import RepeatOnIcon from "@mui/icons-material/RepeatOn";
 import CustomTablePagination from "../../components/TablePagination";
+import { sendNotification } from "../../redux/orderSlice";
 
 const Invoices = ({ onSelectWallet = () => {} }) => {
   const dispatch = useDispatch();
@@ -127,7 +124,6 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
     dispatch(fetchTransactionsNew())
       .then((response) => {
         const data = response.payload.data;
-
         if (data) {
           setFilteredTransaction(data);
           setLoading(false);
@@ -143,7 +139,14 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
     console.log(transactionId);
     setIsAccepted(accept);
     console.log(accept);
-    // Fetch the VehicleId details based on the selected Vehicle ID
+    const messageAccept = {
+      title: "Chấp nhận đơn rút ví kí",
+      body: "Chúc mừng xe của bạn đã đủ điều kiện vào hệ thống",
+    };
+    const messageRejected = {
+      title: "Không chấp nhận đơn rút ví đăng kí ",
+      body: "Xin lỗi!! xe của bạn không đủ điều kiện vào hệ thống!!",
+    };
     dispatch(
       createAcceptWithdrawRequest({ id: transactionId, boolean: accept })
     )
@@ -152,11 +155,52 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
         setOpenConfirmModal(false);
         setIsSuccess(true);
         reloadTrsansaction();
-        // Check if accept is true or false
+
+
+        
         if (accept) {
           toast.success("Chấp nhận rút tiền ví thành công.");
+          const notificationData = {
+            deviceId:  "",
+            isAndroiodDevice: true,
+            title: messageAccept.title,
+            body: messageAccept.body,
+          };
+
+          // Gửi thông báo bằng hàm sendNotification
+          dispatch(sendNotification(notificationData))
+            .then((res) => {
+              if (res.payload.message === "Notification sent successfully")
+                toast.success("Gửi thông báo thành công");
+              console.log("Gửi thông báo thành công");
+            })
+            .catch((error) => {
+              toast.error("Gửi thông không thành công vui lòng thử lại!!");
+              console.error("Lỗi khi gửi thông báo:", error);
+            });
         } else {
           toast.error("Không đồng ý rút tiền ví.");
+          setTransactionId(transactionId);
+          setOpenConfirmModal(false);
+          setIsSuccess(true);
+          reloadTrsansaction();
+          const notificationData = {
+            deviceId:"accountDeviceToken",
+            isAndroiodDevice: true,
+            title: messageRejected.title,
+            body: messageRejected.body,
+          };
+          // Gửi thông báo bằng hàm sendNotification
+          dispatch(sendNotification(notificationData))
+            .then((res) => {
+              if (res.payload.message === "Notification sent successfully")
+                toast.success("Gửi thông báo thành công");
+              console.log("Gửi thông báo thành công");
+            })
+            .catch((error) => {
+              toast.error("Gửi thông không thành công vui lòng thử lại!!");
+              console.error("Lỗi khi gửi thông báo:", error);
+            });
         }
       })
       .catch((error) => {
@@ -166,6 +210,8 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
         );
       });
   };
+
+
 
   useEffect(() => {
     if (isSuccess) {
@@ -339,21 +385,28 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
 
   useEffect(() => {
     setLoading(true);
-    dispatch(fetchTransactionsAll())
+    dispatch(fetchTransactionsNew())
       .then((response) => {
-        // Đã lấy dữ liệu thành công
-        const data = response.payload.data;
-        if (data) {
+
+        if (!response && !response.payload && !response.payload.data) {
+          setLoading(false);
+          return; // Kết thúc sớm hàm useEffect() nếu không có dữ liệu
+        }
+          // Đã lấy dữ liệu thành công
+          const data = response.payload.data;
           setData(data);
           setFilteredTransaction(data);
           setDetailedData(data);
-          setLoading(false); // Đặt trạng thái loading thành false sau khi xử lý dữ liệu
-        }
+      
+      })
+      .catch((error) => {
+        setLoading(false);
       })
       .finally(() => {
         setLoading(false);
       });
   }, [dispatch]);
+
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);

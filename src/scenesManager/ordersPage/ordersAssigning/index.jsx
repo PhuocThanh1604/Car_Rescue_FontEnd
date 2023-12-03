@@ -167,6 +167,10 @@ const OrdersAssigning = (props) => {
     setLoading(true);
     dispatch(fetchOrdersAssigning())
       .then((response) => {
+        if ( !response || !response.payload || !response.payload.data) {
+          setLoading(false);
+          return; // Kết thúc sớm hàm useEffect() nếu không có dữ liệu
+        }
         // Đã lấy dữ liệu thành công
         const data = response.payload.data;
         if (data) {
@@ -174,11 +178,14 @@ const OrdersAssigning = (props) => {
           setFilteredOrders(data);
           setLoading(false); // Đặt trạng thái loading thành false sau khi xử lý dữ liệu
         }
+      }).catch((error) => {
+        setLoading(false);
       })
       .finally(() => {
         setLoading(false);
       });
   }, [dispatch, location.pathname]);
+ 
 
   const handleUpdateClick = (orderId) => {
     console.log(orderId);

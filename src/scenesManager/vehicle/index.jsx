@@ -30,7 +30,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import InputBase from "@mui/material/InputBase";
 import moment from "moment";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
-import { CategoryRounded } from "@mui/icons-material";
+import { CategoryRounded, ResetTvSharp } from "@mui/icons-material";
 import {
   createAcceptRegisterVehicle,
   fetchVehicleWatting,
@@ -50,6 +50,8 @@ import PeopleAltRoundedIcon from "@mui/icons-material/PeopleAltRounded";
 import PlaceIcon from "@mui/icons-material/Place";
 import CustomTablePagination from "../../components/TablePagination";
 import { tokens } from "../../theme";
+import { sendNotification } from "../../redux/orderSlice";
+import { getAccountId } from "../../redux/accountSlice";
 const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
 const Vehicles = (props) => {
   const dispatch = useDispatch();
@@ -82,7 +84,35 @@ const Vehicles = (props) => {
   const [isAccepted, setIsAccepted] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [dataRescueVehicleOwner, setDataRescueVehicleOwner] = useState({});
-
+  const [accountId, setAccountId] = useState("");
+  const [accountDeviceToken, setAccountDeviceToken] = useState("");
+  useEffect(() => {
+    if (accountId && !accountDeviceToken) {
+      fetchAccounts(accountId);
+    }
+  }, [accountId, accountDeviceToken]);
+  const fetchAccounts = (accountId) => {
+    console.log(accountId);
+    // Make sure you have a check to prevent unnecessary API calls
+    if (accountId) {
+      //lấy devices của account
+      console.log("RovId off Account " + accountId);
+      dispatch(getAccountId({ id: accountId }))
+        .then((response) => {
+          const dataAccount = response.payload.data;
+          console.log("DeviceToken of Account " + dataAccount.deviceToken);
+          if (dataAccount.deviceToken) {
+            console.log(dataAccount.deviceToken);
+            setAccountDeviceToken(dataAccount.deviceToken);
+          } else {
+            console.error("deviceToken not found in the API response.");
+          }
+        })
+        .catch((error) => {
+          console.error("Error while fetching service data detail:", error);
+        });
+    }
+  };
   const fetchRescueVehicleOwner = (vehicleRvoidId) => {
     console.log(vehicleRvoidId);
     // Make sure you have a check to prevent unnecessary API calls
@@ -91,6 +121,8 @@ const Vehicles = (props) => {
         .then((response) => {
           const data = response.payload.data;
           console.log(data);
+          const accountId = data.accountId;
+          setAccountId(accountId);
           if (data) {
             setDataRescueVehicleOwner((prevData) => ({
               ...prevData,
@@ -128,10 +160,10 @@ const Vehicles = (props) => {
           console.log(data);
           if (data) {
             setVehicleId(data.id);
-            setVehicleDetail(data)
-            fetchRescueVehicleOwner(data.rvoid)
+            setVehicleDetail(data);
+            fetchRescueVehicleOwner(data.rvoid);
             setOpenConfirmModal(true);
-            reloadVehicle()
+            reloadVehicle();
           } else {
             console.error("Service name not found in the API response.");
           }
@@ -172,6 +204,14 @@ const Vehicles = (props) => {
     console.log(vehicleId);
     setIsAccepted(accept);
     console.log(accept);
+    const messageAccept = {
+      title: "Chấp nhận đơn đăng kí",
+      body: "Chúc mừng xe của bạn đã đủ điều kiện vào hệ thống",
+    };
+    const messageRejected = {
+      title: "Không chấp nhận đơn đăng kí ",
+      body: "Xin lỗi!! xe của bạn không đủ điều kiện vào hệ thống!!",
+    };
     // Fetch the VehicleId details based on the selected Vehicle ID
     dispatch(createAcceptRegisterVehicle({ id: vehicleId, boolean: accept }))
       .then(() => {
@@ -179,11 +219,50 @@ const Vehicles = (props) => {
         setOpenConfirmModal(false);
         setIsSuccess(true);
         reloadVehicle();
-        // Check if accept is true or false
         if (accept) {
           toast.success("Chấp nhận xe thành công.");
+          const notificationData = {
+            deviceId:
+            accountDeviceToken,
+            isAndroiodDevice: true,
+            title: messageAccept.title,
+            body: messageAccept.body,
+          };
+
+          // Gửi thông báo bằng hàm sendNotification
+          dispatch(sendNotification(notificationData))
+            .then((res) => {
+              if (res.payload.message === "Notification sent successfully")
+                toast.success("Gửi thông báo thành công");
+              console.log("Gửi thông báo thành công");
+            })
+            .catch((error) => {
+              toast.error("Gửi thông không thành công vui lòng thử lại!!");
+              console.error("Lỗi khi gửi thông báo:", error);
+            });
         } else {
           toast.error("Không đồng chấp nhận xe vào hệ thống ");
+          setVehicleId(vehicleId);
+          setOpenConfirmModal(false);
+          setIsSuccess(true);
+          reloadVehicle();
+          const notificationData = {
+            deviceId:accountDeviceToken,
+            isAndroiodDevice: true,
+            title: messageRejected.title,
+            body: messageRejected.body,
+          };
+          // Gửi thông báo bằng hàm sendNotification
+          dispatch(sendNotification(notificationData))
+            .then((res) => {
+              if (res.payload.message === "Notification sent successfully")
+                toast.success("Gửi thông báo thành công");
+              console.log("Gửi thông báo thành công");
+            })
+            .catch((error) => {
+              toast.error("Gửi thông không thành công vui lòng thử lại!!");
+              console.error("Lỗi khi gửi thông báo:", error);
+            });
         }
       })
       .catch((error) => {
@@ -246,44 +325,48 @@ const Vehicles = (props) => {
     }
   }, [vehicles]);
 
-// Thay đổi hàm useEffect để lọc từ dữ liệu gốc
-useEffect(() => {
-  if (Array.isArray(vehicles)) {
-    const filteredVehicles = vehicles.filter((vehicle) => {
-      const nameMatch =
-        vehicle.vinNumber &&
-        vehicle.vinNumber.toLowerCase().includes(searchText.toLowerCase());
-      const filterMatch =
-        filterOption === "Type" ||
-        (filterOption === "Xe cẩu" && vehicle.type === "Xe cẩu") ||
-        (filterOption === "Xe chở" && vehicle.type === "Xe chở") ||
-        (filterOption === "Xe kéo" && vehicle.type === "Xe kéo");
-      return nameMatch && filterMatch;
-    });
-    setFilteredVehicles(filteredVehicles);
-  } else {
-    setFilteredVehicles([]);
-  }
-}, [vehicles, searchText, filterOption]);
+  // Thay đổi hàm useEffect để lọc từ dữ liệu gốc
+  useEffect(() => {
+    if (Array.isArray(vehicles)) {
+      const filteredVehicles = vehicles.filter((vehicle) => {
+        const nameMatch =
+          vehicle.vinNumber &&
+          vehicle.vinNumber.toLowerCase().includes(searchText.toLowerCase());
+        const filterMatch =
+          filterOption === "Type" ||
+          (filterOption === "Xe cẩu" && vehicle.type === "Xe cẩu") ||
+          (filterOption === "Xe chở" && vehicle.type === "Xe chở") ||
+          (filterOption === "Xe kéo" && vehicle.type === "Xe kéo");
+        return nameMatch && filterMatch;
+      });
+      setFilteredVehicles(filteredVehicles);
+    } else {
+      setFilteredVehicles([]);
+    }
+  }, [vehicles, searchText, filterOption]);
 
   useEffect(() => {
     setLoading(true);
     dispatch(fetchVehicleWatting())
       .then((response) => {
-        // Đã lấy dữ liệu thành công
-        const data = response.payload.data;
-        if (data) {
-          console.log(data)
-          setData(data);
-          setFilteredVehicles(data);
-          setDetailedData(data);
-          setLoading(false); // Đặt trạng thái loading thành false sau khi xử lý dữ liệu
+        // Kiểm tra nếu response.payload tồn tại và có thuộc tính 'data'
+        if (!response.payload || !response.payload.data) {
+          setLoading(false);
+          return; // Kết thúc sớm hàm useEffect() nếu không có dữ liệu
         }
+        
+        const data = response.payload.data;
+        console.log(data);
+        setData(data);
+        setFilteredVehicles(data);
+        setDetailedData(data);
+        setLoading(false); // Đặt trạng thái loading thành false sau khi xử lý dữ liệu
       })
-      .finally(() => {
+      .catch((error) => {
         setLoading(false);
       });
   }, [dispatch]);
+  
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -379,12 +462,14 @@ useEffect(() => {
         subtitle="Danh sách xe cứu hộ chờ duyệt"
       />
       <Box display="flex" className="box" left={0}>
-        <Box   display="flex"
-            borderRadius="6px"
-            border={1}
-            marginRight={2}
-            marginLeft={2}
-            width={500}>
+        <Box
+          display="flex"
+          borderRadius="6px"
+          border={1}
+          marginRight={2}
+          marginLeft={2}
+          width={500}
+        >
           <InputBase
             sx={{ ml: 4, flex: 1 }}
             placeholder="Tìm kiếm"
@@ -422,44 +507,43 @@ useEffect(() => {
             </Select>
           </FormControl>
         </Box>
-
       </Box>
 
       <Box
-          m="10px 0 0 0"
-          height="auto"
-          sx={{
-            fontSize: "20px",
-            padding: "20px",
-            borderRadius: "20px",
-            boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.4)",
-            "& .MuiDataGrid-root": {
-              border: "none",
-            },
-            "& .MuiDataGrid-cell": {
-              borderBottom: "none",
-            },
-            "& .name-column--cell": {
-              color: colors.greenAccent[300],
-            },
-            "& .MuiDataGrid-columnHeaders": {
-              backgroundColor: colors.orange[50],
-              borderBottom: "none",
-            },
-            "& .MuiDataGrid-virtualScroller": {
-              backgroundColor: colors.white[50],
-            },
-            "& .MuiDataGrid-footerContainer": {
-              display: "none",
-            },
-            "& .MuiCheckbox-root": {
-              color: `${colors.greenAccent[200]} !important`,
-            },
-            "& .MuiDataGrid-row": {
-              borderBottom: "none",
-            },
-          }}
-        >
+        m="10px 0 0 0"
+        height="auto"
+        sx={{
+          fontSize: "20px",
+          padding: "20px",
+          borderRadius: "20px",
+          boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.4)",
+          "& .MuiDataGrid-root": {
+            border: "none",
+          },
+          "& .MuiDataGrid-cell": {
+            borderBottom: "none",
+          },
+          "& .name-column--cell": {
+            color: colors.greenAccent[300],
+          },
+          "& .MuiDataGrid-columnHeaders": {
+            backgroundColor: colors.orange[50],
+            borderBottom: "none",
+          },
+          "& .MuiDataGrid-virtualScroller": {
+            backgroundColor: colors.white[50],
+          },
+          "& .MuiDataGrid-footerContainer": {
+            display: "none",
+          },
+          "& .MuiCheckbox-root": {
+            color: `${colors.greenAccent[200]} !important`,
+          },
+          "& .MuiDataGrid-row": {
+            borderBottom: "none",
+          },
+        }}
+      >
         <DataGrid
           rows={filteredVehiclePagination} // Thêm id nếu không có
           columns={columns}
@@ -469,7 +553,6 @@ useEffect(() => {
           loading={loading}
           components={{ Toolbar: GridToolbar }}
         />
-        
 
         <CustomTablePagination
           count={filteredVehicles.length}
@@ -480,7 +563,6 @@ useEffect(() => {
           loading={loading}
         />
       </Box>
-  
 
       <ModalEdit
         openEditModal={openEditModal}
@@ -504,13 +586,13 @@ useEffect(() => {
       >
         <DialogTitle
           id="alert-dialog-title"
-          sx={{ color: "indigo", fontSize: "24px", textAlign:"center" }}
+          sx={{ color: "indigo", fontSize: "24px", textAlign: "center" }}
         >
           Xác nhận đăng kí vào hệ hống
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            {vehicleDetail  ? (
+            {vehicleDetail ? (
               <div>
                 <Card>
                   <CardMedia>
@@ -588,7 +670,7 @@ useEffect(() => {
                         >
                           Thông tin chủ xe
                         </Typography>
-                       
+
                         <Box
                           sx={{
                             display: "flex",
@@ -596,7 +678,7 @@ useEffect(() => {
                             gap: 1, // Khoảng cách giữa icon và văn bản
                           }}
                         >
-                          <PersonRoundedIcon style={iconColor}/>
+                          <PersonRoundedIcon style={iconColor} />
                           <Typography variant="h6">
                             <strong>Chủ xe: </strong>{" "}
                             {dataRescueVehicleOwner[vehicleDetail.rvoid]
@@ -610,7 +692,7 @@ useEffect(() => {
                             gap: 1, // Khoảng cách giữa icon và văn bản
                           }}
                         >
-                          <PhoneRoundedIcon style={iconColor}/>
+                          <PhoneRoundedIcon style={iconColor} />
                           <Typography variant="h6">
                             <strong>SĐT: </strong>{" "}
                             {dataRescueVehicleOwner[vehicleDetail?.rvoid]
@@ -625,7 +707,7 @@ useEffect(() => {
                             gap: 1, // Khoảng cách giữa icon và văn bản
                           }}
                         >
-                          <PeopleAltRoundedIcon style={iconColor}/>
+                          <PeopleAltRoundedIcon style={iconColor} />
                           <Typography variant="h6">
                             <strong>Giới tính: </strong>{" "}
                             {dataRescueVehicleOwner[vehicleDetail?.rvoid]
@@ -639,7 +721,7 @@ useEffect(() => {
                             gap: 1, // Khoảng cách giữa icon và văn bản
                           }}
                         >
-                          <PlaceIcon style={iconColor}/>
+                          <PlaceIcon style={iconColor} />
                           <Typography variant="h6">
                             <strong>Địa chỉ: </strong>{" "}
                             {dataRescueVehicleOwner[vehicleDetail?.rvoid]
@@ -654,7 +736,7 @@ useEffect(() => {
                             gap: 1, // Khoảng cách giữa icon và văn bản
                           }}
                         >
-                          <MapRoundedIcon style={iconColor}/>
+                          <MapRoundedIcon style={iconColor} />
                           <Typography variant="h6">
                             <strong>Khu vực: </strong>{" "}
                             {dataRescueVehicleOwner[vehicleDetail?.rvoid]
@@ -682,11 +764,10 @@ useEffect(() => {
                             gap: 1, // Khoảng cách giữa icon và văn bản
                           }}
                         >
-                          <ReceiptRoundedIcon  style={iconColor}/>
+                          <ReceiptRoundedIcon style={iconColor} />
                           <Typography variant="h6">
                             Biển Số:{" "}
-                            {vehicleDetail.licensePlate ||
-                              "Không có thông tin"}
+                            {vehicleDetail.licensePlate || "Không có thông tin"}
                           </Typography>
                         </Box>
 
@@ -697,7 +778,7 @@ useEffect(() => {
                             gap: 1, // Khoảng cách giữa icon và văn bản
                           }}
                         >
-                          <CategoryRounded style={iconColor}/>
+                          <CategoryRounded style={iconColor} />
                           <Typography variant="h6">
                             Loại Xe:{" "}
                             {vehicleDetail.type || "Không có thông tin"}
@@ -711,7 +792,7 @@ useEffect(() => {
                             gap: 1, // Khoảng cách giữa icon và văn bản
                           }}
                         >
-                          <CalendarTodayIcon style={iconColor}/>
+                          <CalendarTodayIcon style={iconColor} />
                           <Typography variant="h6">
                             Đời xe:{" "}
                             {vehicleDetail.manufacturingYear ||
@@ -725,11 +806,10 @@ useEffect(() => {
                             gap: 1, // Khoảng cách giữa icon và văn bản
                           }}
                         >
-                          <ReceiptRoundedIcon style={iconColor}/>
+                          <ReceiptRoundedIcon style={iconColor} />
                           <Typography variant="h6">
                             Hãng xe:{" "}
-                            {vehicleDetail.manufacturer ||
-                              "Không có thông tin"}
+                            {vehicleDetail.manufacturer || "Không có thông tin"}
                           </Typography>
                         </Box>
                         <Box
@@ -739,7 +819,7 @@ useEffect(() => {
                             gap: 1, // Khoảng cách giữa icon và văn bản
                           }}
                         >
-                          <ReceiptRoundedIcon style={iconColor}/>
+                          <ReceiptRoundedIcon style={iconColor} />
                           <Typography variant="h6">
                             Số khung xe:{" "}
                             {vehicleDetail.vinNumber || "Không có thông tin"}
@@ -753,7 +833,7 @@ useEffect(() => {
                             gap: 1, // Khoảng cách giữa các phần tử
                           }}
                         >
-                          <TimerIcon style={iconColor}/>
+                          <TimerIcon style={iconColor} />
                           <Typography variant="h6">Trạng Thái: </Typography>
                           <Box
                             style={{

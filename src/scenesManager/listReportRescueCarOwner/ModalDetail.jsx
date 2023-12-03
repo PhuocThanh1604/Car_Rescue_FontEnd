@@ -1204,7 +1204,7 @@ const MyModal = (props) => {
                           </Grid>
                         </Grid>
 
-                        {/*iMAGE*/}
+                       
                       </Grid>
                     </Box>
                   </CardContent>
