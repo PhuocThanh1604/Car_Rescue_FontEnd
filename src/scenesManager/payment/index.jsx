@@ -288,13 +288,13 @@ const Payment = () => {
     {
       field: "id",
       headerName: "paymentId",
-      width: 140,
+      width: 260,
       cellClassName: "name-column--cell",
     },
     {
       field: "orderId",
       headerName: "orderId",
-      width: 120,
+      width: 260,
       cellClassName: "name-column--cell",
       onCellClick: (params) => {
         setSelectedWalletId(params.row.orderId);

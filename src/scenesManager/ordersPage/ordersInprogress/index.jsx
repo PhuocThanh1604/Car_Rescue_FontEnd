@@ -28,6 +28,8 @@ import SupportIcon from "@mui/icons-material/Support";
 import HandymanIcon from "@mui/icons-material/Handyman";
 import { useLocation } from "react-router-dom";
 import CustomTablePagination from "../../../components/TablePagination";
+import AssignmentIcon from '@mui/icons-material/Assignment';
+
 const OrdersInprogress = (props) => {
   const dispatch = useDispatch();
   const location = useLocation();
@@ -337,7 +339,7 @@ const OrdersInprogress = (props) => {
     },
     {
       field: "update",
-      headerName: "update",
+      headerName: "Dịch Vụ",
       width: 120,
       renderCell: (params) => (
         <Grid container justifyContent="center" alignItems="center">
@@ -355,8 +357,8 @@ const OrdersInprogress = (props) => {
             }}
             onClick={() => handleAddServiceClick(params.row.id)}
           >
-            <VisibilityIcon
-              color="indigo"
+            <AssignmentIcon
+              sx={{color:colors.grey[700]}}
               onClick={() => handleAddServiceClick(params.row.id)}
               aria-label="Chi Tiết Đơn Hàng"
          
@@ -366,7 +368,7 @@ const OrdersInprogress = (props) => {
               sx={{ fontWeight: "bold", marginLeft: "5px" }}
               onClick={() => handleAddServiceClick(params.row.id)}
             >
-              {"update"}
+              {"Dịch Vụ"}
             </Typography>
           </Box>
         </Grid>

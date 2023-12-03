@@ -15,7 +15,6 @@ import {
 import { ColorModeContext, tokens } from "../theme";
 import InputBase from "@mui/material/InputBase";
 import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined";
-import MailIcon from "@mui/icons-material/Mail";
 import SearchIcon from "@mui/icons-material/Search";
 import Menu from "@mui/material/Menu";
 import { useNavigate } from "react-router-dom";
@@ -33,7 +32,7 @@ const Topbar = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const colorMode = useContext(ColorModeContext);
-
+  const [anchorEl, setAnchorEl] = useState(null);
   const [anchorElNoti, setAnchorElNoti] = useState(null); // Notifications menu
   const [anchorElProfile, setAnchorElProfile] = useState(null); // Profile menu
   const [notifications, setNotifications] = useState([]);
@@ -54,36 +53,48 @@ const Topbar = () => {
           progress: undefined,
         }
       );
+
       // Lấy thời gian hiện tại
       const now = new Date();
+
       // Cập nhật trạng thái thông báo
-      setNotifications((prevNotifications) => [
-        ...prevNotifications,
-        {
-          title: payload.notification.title,
-          body: payload.notification.body,
-          receivedTime: now.toISOString(), // Lưu thời gian nhận thông báo
-        },
-      ]);
+      setNotifications((prevNotifications) => {
+        const updatedNotifications = [
+          {
+            title: payload.notification.title,
+            body: payload.notification.body,
+            image: payload.notification.image,
+            receivedTime: now.toISOString(),
+          },
+          ...prevNotifications, // Thêm thông báo mới vào đầu mảng
+        ];
+
+        // Giới hạn số lượng thông báo hiển thị
+        const limitedNotifications = updatedNotifications.slice(0, MAX_NOTIFICATIONS_DISPLAYED);
+
+        localStorage.setItem("notifications", JSON.stringify(limitedNotifications));
+
+        return limitedNotifications;
+      });
+
       setUnreadNotifications((prevUnreadCount) => prevUnreadCount + 1);
     };
 
     onMessageListener(handleMessage);
-
   }, []);
-  const handleMenuOpenNoti = (event) => {
-    // Only display a limited number of notifications initially
-    const initialNotifications = notifications.slice(
-      0,
-      MAX_NOTIFICATIONS_DISPLAYED
-    );
-    setUnreadNotifications(0);
-    setAnchorElNoti(event.currentTarget);
-    
 
+  const handleMenuOpenNoti = (event) => {
+    const savedNotifications = localStorage.getItem("notifications");
+    const unreadNotificationsCount = localStorage.getItem("unreadNotificationsCount");
+    const parsedNotifications = savedNotifications ? JSON.parse(savedNotifications) : [];
+    const initialNotifications = parsedNotifications.slice(0, MAX_NOTIFICATIONS_DISPLAYED);
+  
+    setUnreadNotifications(unreadNotificationsCount);
+    setAnchorElNoti(event.currentTarget);
     setNotifications(initialNotifications);
   };
-
+  
+  
   // Lấy đối tượng manager từ localStorage
   const managerString = localStorage.getItem("manager");
   const isAdmin = localStorage.getItem("isAdmin") === "true";
@@ -114,9 +125,15 @@ const Topbar = () => {
   const handleMenuOpenProfile = (event) => {
     setAnchorElProfile(event.currentTarget);
   };
+  const handleMenuOpenProfileClose = (event) => {
+    setAnchorElProfile(null);
+  };
 
   const handleMenuClose = () => {
-    setUnreadNotifications(null)
+    localStorage.removeItem("unreadNotificationsCount")
+    setAnchorElNoti(null);
+  };
+  const handleDropdownClose = () => {
     setAnchorElNoti(null);
   };
   // ** Styled PerfectScrollbar component
@@ -181,6 +198,7 @@ const Topbar = () => {
     backgroundColor: theme.palette.success.main,
     boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
   }));
+  // Hàm render thông báo
 
   return (
     <Box display="flex" justifyContent="space-between" p={2}>
@@ -205,9 +223,19 @@ const Topbar = () => {
             <LightModeOutlinedIcon />
           )}
         </IconButton> */}
-        <IconButton onClick={handleMenuOpenNoti}>
-          {/* <NotificationsOutlinedIcon /> */}
-          <Badge badgeContent={unreadNotifications} color="error"   invisible={false}>
+
+     
+        <IconButton
+          color="inherit"
+          aria-haspopup="true"
+          aria-controls="customized-menu"
+          onClick={handleMenuOpenNoti}
+        >
+          <Badge
+            badgeContent={unreadNotifications}
+            color="error"
+            invisible={false}
+          >
             <NotificationsOutlinedIcon />
           </Badge>
         </IconButton>
@@ -218,11 +246,38 @@ const Topbar = () => {
           anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
           transformOrigin={{ vertical: "top", horizontal: "right" }}
         >
-          <Box>
-            <MenuItem disableRipple>Notifications</MenuItem>
+          {/* <MenuItem disableRipple sx={{textAlign:"center"}}>Notifications</MenuItem> */}
 
-            <ScrollWrapper>
-              {notifications.map((notification, index) => (
+          <MenuItem disableRipple>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                width: "100%",
+              }}
+            >
+              <Typography sx={{ fontWeight: 600 }}>Notifications</Typography>
+              <Chip
+                size="small"
+                label={"New " + notifications.length}
+                color="primary"
+                sx={{
+                  height: 20,
+                  fontSize: "0.75rem",
+                  fontWeight: 500,
+                  borderRadius: "10px",
+                  backgroundColor: colors.amber[500],
+                }}
+              />
+            </Box>
+          </MenuItem>
+
+          <ScrollWrapper>
+          {notifications.map((notification, index) => (
+              <Box
+                sx={{ width: "100%", display: "flex", alignItems: "center" }}
+              >
                 <MenuItem
                   key={index}
                   onClick={handleMenuClose}
@@ -236,11 +291,7 @@ const Topbar = () => {
                       borderRadius: "10px",
                     }}
                   >
-                    {/* Tùy chỉnh nội dung của thông báo tại đây */}
-                    <Avatar
-                      alt={notification.title}
-                      //  src={/* đường dẫn ảnh hoặc biểu tượng */}
-                    />
+                    <Avatar alt={notification.title} src={notification.image} />
                     <Box
                       sx={{
                         mx: 4,
@@ -250,25 +301,40 @@ const Topbar = () => {
                         flexDirection: "column",
                       }}
                     >
-                      <Typography variant="subtitle1">
-                        {notification.title}
-                      </Typography>
-                      <Typography variant="body2">
+                      <MenuItemTitle> {notification.title}</MenuItemTitle>
+                      <MenuItemSubtitle variant="body2">
+                        {" "}
                         {notification.body}
-                      </Typography>
+                      </MenuItemSubtitle>
                     </Box>
                     <Typography
                       variant="caption"
                       sx={{ color: "text.disabled" }}
                     >
+                      Today{" "}
                       {new Date(notification.receivedTime).toLocaleDateString()}{" "}
-                      {/* Hoặc định dạng thời gian khác */}
                     </Typography>
                   </Box>
                 </MenuItem>
-              ))}
-            </ScrollWrapper>
-          </Box>
+              </Box>
+            ))}
+          </ScrollWrapper>
+          <MenuItem
+            disableRipple
+            sx={{
+              py: 3.5,
+              borderBottom: 0,
+            }}
+          >
+            <Button
+              fullWidth
+              variant="contained"
+              onClick={handleDropdownClose}
+              sx={{ background: colors.greenAccent[500] }}
+            >
+              Read All Notifications
+            </Button>
+          </MenuItem>
         </Menu>
 
         <Box
@@ -300,7 +366,7 @@ const Topbar = () => {
           <Menu
             anchorEl={anchorElProfile}
             open={Boolean(anchorElProfile)}
-            onClose={handleMenuClose}
+            onClick={handleMenuOpenProfileClose}
             sx={{ "& .MuiMenu-paper": { width: 230, marginTop: 2 } }}
             anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
             transformOrigin={{ vertical: "top", horizontal: "right" }}

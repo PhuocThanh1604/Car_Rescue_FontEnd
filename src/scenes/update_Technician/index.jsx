@@ -16,8 +16,6 @@ import Header from "../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { createAccount, getAccountEmail } from "../../redux/accountSlice";
-import { createRescueVehicleOwner } from "../../redux/rescueVehicleOwnerSlice";
 import { editTechnician } from "../../redux/technicianSlice";
 
 const UpdateTechnician = () => {

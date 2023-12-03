@@ -522,14 +522,6 @@ const fetchFullname = (customerId) => {
         selectedEditOrder={selectedEditOrder}
         loading={loading}
       ></ModalDetail>
-
-      {/* <ModalEdit
-        openEditModal={openEditModal}
-        setOpenEditModal={setOpenEditModal}
-        selectedEditRescuseVehicleOwner={selectedEditOrder}
-        onClose={() => setOpenEditModal(false)}
-        loading={loading}
-      /> */}
       <ToastContainer />
     </Box>
   );

@@ -13,6 +13,13 @@ import {
   Divider,
   useMediaQuery,
   useTheme,
+  TableContainer,
+  Table,
+  TableHead,
+  Paper,
+  TableRow,
+  TableCell,
+  TableBody,
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
@@ -26,6 +33,7 @@ import {
   getFormattedAddressGG,
   getOrderDetailId,
   getOrderId,
+  getPaymentId,
   updateServiceForTechnicians,
 } from "../../../redux/orderSlice";
 import AssignmentIcon from "@mui/icons-material/Assignment";
@@ -38,6 +46,7 @@ import * as yup from "yup";
 import { tokens } from "../../../theme";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import moment from "moment";
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
   const dispatch = useDispatch();
   const orders = useSelector((state) => state.order.orders);
@@ -47,11 +56,8 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
   });
   const [order, setOrder] = useState({
     quantity: null, // Giá trị ban đầu của quantity từ order
-    // Các thuộc tính khác của order
   });
-  // Lấy thời gian hiện tại
-  const currentDateTime = moment();
-  
+
   const [orderDetailIdService, setOrderDetailIdService] = useState([]);
   const [orderCalateId, setOrderCalateId] = useState(null);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -66,6 +72,7 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
   const [nameService, setNameService] = useState({});
   const [serviceId, setServiceId] = useState([]);
   const [dataOrder, setDataOrder] = useState([]);
+  const [dataPayment, setDataPayment] = useState([]);
   const [quantity, setQuantity] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const checkoutSchema = yup.object().shape({
@@ -86,6 +93,7 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
   useEffect(() => {
     if (selectedEditOrder && selectedEditOrder[0].orderId) {
       fetchOrder(selectedEditOrder[0].orderId);
+      fetchPayment(selectedEditOrder[0].orderId);
     }
     if (selectedEditOrder && selectedEditOrder[0].orderId) {
       setOrderCalateId(selectedEditOrder[0].orderId);
@@ -149,6 +157,26 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
         });
     }
   };
+  const fetchPayment = (orderId) => {
+    console.log(orderId);
+    // Make sure you have a check to prevent unnecessary API calls
+    if (orderId) {
+      dispatch(getPaymentId({ id: orderId }))
+        .then((response) => {
+          const data = response.payload.data;
+          if (data) {
+            setDataPayment(data);
+          } else {
+            console.error(
+              "Service data not found in the API response or data is not an array."
+            );
+          }
+        })
+        .catch((error) => {
+          console.error("Error while fetching service data detail:", error);
+        });
+    }
+  };
   const calatePayemnt = (orderId) => {
     // Make sure you have a check to prevent unnecessary API calls
     if (orderId) {
@@ -162,7 +190,7 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
         });
     }
   };
-  
+
   // //hanldeQuantityupdate
   //CHECK DUPLICATE NAME SERVICE
   const checkDuplicateSerivce = (newValue) => {
@@ -401,42 +429,41 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
 
       if (hasChanges) {
         setTimeout(() => {
-        dispatch(updateServiceForTechnicians(updatedEdit))
-          .then((res) => {
-            if (res.payload.status === 201) {
-              toast.success("Cập nhật dịch vụ thành công");
-              setTimeout(2000);
-              console.log(orderCalateId);
-              if (!orderCalateId) {
-                setOrderCalateId(updatedEdit.orderDetailId); // Lưu orderId khi update thành công
+          dispatch(updateServiceForTechnicians(updatedEdit))
+            .then((res) => {
+              if (res.payload.status === 201) {
+                toast.success("Cập nhật dịch vụ thành công");
+                setTimeout(2000);
+                console.log(orderCalateId);
+                if (!orderCalateId) {
+                  setOrderCalateId(updatedEdit.orderDetailId); // Lưu orderId khi update thành công
+                }
+                calatePayemnt(orderCalateId);
+                setIsSuccess(true);
+                handleClose();
+                setQuantity(null);
+                setSelectedService(null);
+                reloadOrderInprogress();
+              } else {
+                toast.error("Cập nhật dịch vụ không thành công");
               }
-              calatePayemnt(orderCalateId)
-              setIsSuccess(true);
-              handleClose();
-              setQuantity(null);
-              setSelectedService(null);
-              reloadOrderInprogress();
-            } else {
-              toast.error("Cập nhật dịch vụ không thành công");
-            }
-            
-          })
-          .catch((error) => {
-            if (
-              error.response &&
-              error.response.data &&
-              error.response.data.errors
-            ) {
-              const serviceErrors = error.response.data.errors.Service;
-              if (serviceErrors && serviceErrors.length > 0) {
-                console.log(serviceErrors);
+            })
+            .catch((error) => {
+              if (
+                error.response &&
+                error.response.data &&
+                error.response.data.errors
+              ) {
+                const serviceErrors = error.response.data.errors.Service;
+                if (serviceErrors && serviceErrors.length > 0) {
+                  console.log(serviceErrors);
+                }
+              } else if (error.message) {
+                toast.error(`Lỗi khi thêm dịch vụ: ${error.message}`);
+              } else {
+                toast.error("Lỗi khi thêm dịch vụ.");
               }
-            } else if (error.message) {
-              toast.error(`Lỗi khi thêm dịch vụ: ${error.message}`);
-            } else {
-              toast.error("Lỗi khi thêm dịch vụ.");
-            }
-          });
+            });
         }, 1000);
       } else {
         toast.info("Không có thay đổi để lưu.");
@@ -567,14 +594,13 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
                 align="center"
               >
                 {selectedEditOrder
-                  ? "Cập nhật dịch vụ"
+                  ? "Thông Tin Dịch Vụ"
                   : "RescuseVehicleOwner Detail"}
               </Typography>
 
               {selectedEditOrder && (
                 <Card>
                   <CardContent>
-                    <CardContent>
                       <Typography variant="h5" sx={{ marginBottom: 2 }}>
                         Thông Tin đơn hàng
                       </Typography>
@@ -613,7 +639,7 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
                         }}
                       >
                         <LocationOnIcon style={iconColor} />
-                        <strong>Địa chỉ xe hư: </strong>
+                        <strong>Địa chỉ kéo đến: </strong>
                         <Typography
                           variant="h6"
                           component="span"
@@ -686,25 +712,7 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
                         </Typography>
                       </Typography>
                     </CardContent>
-                    {/* 
-                    <CardContent>
-                      <Typography variant="h6" sx={{ marginBottom: 2 }}>
-                        orderDetailId: {dataOrder.id}
-                      </Typography>
-                      <Typography variant="body2">
-                        orderId:{selectedEditOrder[0].orderId}
-                      </Typography>
-                      <Typography variant="body2">
-                        serviceId:{selectedEditOrder[0].serviceId}
-                      </Typography>
-                      <Typography variant="body2">
-                        Số lượng :{selectedEditOrder[0].quantity}
-                      </Typography>
-                      <Typography variant="body2">
-                        Tổng:{selectedEditOrder[0].tOtal}
-                        <span> VNĐ</span>
-                      </Typography>
-                    </CardContent> */}
+                 
                     <TextField
                       name="id"
                       label="id"
@@ -719,85 +727,68 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
                       margin="normal"
                       style={{ display: "none" }}
                     />
-                  </CardContent>
                   <Divider />
-                  {selectedEditOrder &&
-                    selectedEditOrder.length > 0 &&
-                    selectedEditOrder.map((order, index) => (
-                      <div key={order.id || index}>
-                        <TextField
-                          name="id"
-                          label="id"
-                          value={order.id}
-                          // onChange={(event) => {
-                          //   const updatedOrderId = event.target.value;
-                          //   // Cập nhật giá trị orderId vào orderDetailIdService
-                          //   setOrderDetailIdSerivce(updatedOrderId);
-                          // }}
-                          style={{ display: "none" }}
-                        />
-                        <div
-                          style={{
+                  <TableContainer component={Paper}>
+                    <Table>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>Tên dịch vụ</TableCell>
+                          <TableCell>Số lượng</TableCell>
+                          <TableCell>Tổng cộng</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {selectedEditOrder &&
+                          selectedEditOrder.length > 0 &&
+                          selectedEditOrder.map((order, index) => (
+                            <TableRow key={order.id || index}>
+                              <TableCell>
+                                {nameService[order.serviceId] || ""}
+                              </TableCell>
+                              <TableCell>
+                                {orderQuantities[order.id] !== undefined
+                                  ? orderQuantities[order.id]
+                                  : ""}
+                              </TableCell>
+                              <TableCell sx={{fontWeight:"bold"}}>
+                                {order.tOtal
+                                  ? `${order.tOtal.toLocaleString()} VNĐ`
+                                  : ""}
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                      </TableBody>
+                    </Table>
+
+                    <Typography
+                        variant="body1"
+                        component="p"
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          marginBottom: "8px", // Thêm khoảng cách dưới cùng của dòng
+                          fontSize: "1rem",
+                          margin: "20px",
+                        }}
+                      >
+                        <ShoppingCartIcon style={iconColor} />{" "}
+                        <strong>Tổng cộng tất cả chi phí :</strong>
+                        <Typography
+                          variant="h6"
+                          sx={{
                             display: "flex",
                             alignItems: "center",
-                            justifyContent: "space-between", // This will add space between the children
-                            marginLeft: "16px",
-                            marginRight: "12px",
+                            marginLeft: "10px",
+                            fontWeight:"bold"
                           }}
                         >
-                          <TextField
-                            variant="outlined"
-                            label="Tên dịch vụ"
-                            value={nameService[order.serviceId] || ""}
-                            fullWidth
-                            margin="normal"
-                            style={{ marginRight: "10px", flex: "1" }}
-                            InputProps={{
-                              readOnly: true, // If you don't want it to be editable, make it read-only
-                            }}
-                          />
+                          {dataPayment.amount ? `${dataPayment.amount.toLocaleString()} VNĐ`
+                                  : ""}
+                        </Typography>
+                      </Typography>
+                  </TableContainer>
 
-                          <TextField
-                            name="quantity"
-                            label="Số lượng"
-                            type="number"
-                            value={
-                              orderQuantities[order.id] !== undefined
-                                ? orderQuantities[order.id]
-                                : ""
-                            }
-                            onChange={(event) =>
-                              handleInputChange(event, order.id)
-                            }
-                            fullWidth
-                            margin="normal"
-                            style={{ marginLeft: "10px", flex: "1" }}
-                          />
-                          <TextField
-                            variant="outlined"
-                            label="Total"
-                            value={order.tOtal || ""}
-                            InputProps={{
-                              startAdornment: (
-                                <InputAdornment position="start">
-                                  <AccountBalanceWalletIcon style={iconColor} />
-                                </InputAdornment>
-                              ),
-                              endAdornment: (
-                                <InputAdornment position="end">
-                                  VNĐ
-                                </InputAdornment>
-                              ),
-                            }}
-                            fullWidth
-                            margin="normal"
-                            style={{ marginLeft: "10px", flex: "1" }}
-                          />
-                        </div>
-                      </div>
-                    ))}
-
-                  <Formik
+                  {/* <Formik
                     onSubmit={handleAddService}
                     initialValues={initialValues}
                     validationSchema={checkoutSchema}
@@ -885,9 +876,9 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
                         </form>
                       );
                     }}
-                  </Formik>
-                  <Divider />
-                  <Box
+                  </Formik> */}
+                  {/* <Divider /> */}
+                  {/* <Box
                     sx={{
                       display: "flex",
                       justifyContent: "center",
@@ -902,7 +893,7 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
                     >
                       Cập Nhật Dịch Vụ
                     </Button>
-                  </Box>
+                  </Box> */}
                 </Card>
               )}
             </Box>

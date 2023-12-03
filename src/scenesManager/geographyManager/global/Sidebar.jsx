@@ -94,6 +94,7 @@ const Sidebar = ({ selectedWalletId, selectedItemId }) => {
   const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 768);
   const [showSubItems, setShowSubItems] = useState(false);
   const [showSubItemsTransaction, setShowSubItemsTransaction] = useState(false);
+  const [showSubItemsReport, setShowSubItemsReport] = useState(false);
   const [showSubItemsRescue, setShowSubItemsRescue] = useState(false);
   const [showSubItemsSchedule, setShowSubItemsSchedule] = useState(false);
 
@@ -134,6 +135,10 @@ const Sidebar = ({ selectedWalletId, selectedItemId }) => {
   const handleTransactionClick = () => {
     // Toggle the visibility of sub-items
     setShowSubItemsTransaction(!showSubItemsTransaction);
+  };
+  const handleReportClick = () => {
+    // Toggle the visibility of sub-items
+    setShowSubItemsReport(!showSubItemsReport);
   };
   const handleRescuseClick = () => {
     // Toggle the visibility of sub-items
@@ -369,7 +374,7 @@ const Sidebar = ({ selectedWalletId, selectedItemId }) => {
                   selected={selected}
                   setSelected={setSelected}
                 />{" "}
-                {/* Add more sub-items as needed */}
+            
               </div>
             )}
             {shouldShowItem && (
@@ -447,6 +452,40 @@ const Sidebar = ({ selectedWalletId, selectedItemId }) => {
                   selected={selected}
                   setSelected={setSelected}
                 />{" "}
+              </div>
+            )}
+             <MenuItem
+              onClick={handleReportClick}
+              icon={<ReceiptOutlinedIcon />}
+              style={{
+                color: colors.grey[100],
+                // Add a conditional class to indicate if this item is selected
+                backgroundColor:
+                  selectedItemId === "yourItemId"
+                    ? "selectedColor"
+                    : "defaultColor",
+              }}
+            >
+              <Typography>Các Loại Báo Cáo</Typography>
+              <Link to="#" />
+            </MenuItem>
+            {showSubItemsReport && (
+              <div style={{ marginLeft: "20px" }}>
+                <Item
+                  title="Đơn Báo Cáo"
+                  to="manager/reports"
+                  icon={<ListIcon />}
+                  selected={selected}
+                  setSelected={setSelected}
+                />
+                <Item
+                  title="Danh Sách Báo Cáo"
+                  to="manager/listReport"
+                  icon={<ListIcon />}
+                  selected={selected}
+                  setSelected={setSelected}
+                />
+           
               </div>
             )}
             <Typography

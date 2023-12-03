@@ -38,10 +38,11 @@ import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import TransactionDetails from "../../scenesManager/invoices/transactionDetail";
 import Payment from "../../scenesManager/payment";
-import Notification from "../../components/Notification";
 import ModelCar from "../../scenesManager/modelCar";
 import AddModelCar from "../../scenesManager/create_ModelCar";
 import { onMessageListener } from "../../firebase";
+import Reports from "../../scenesManager/reportRescueCarOwner";
+import ListReports from "../../scenesManager/listReportRescueCarOwner";
 
 const Manager = () => {
   const user = useSelector(selectCurrentUser);
@@ -81,7 +82,7 @@ const Manager = () => {
         }
       );
     };
-
+    
     onMessageListener(handleMessage);
   }, []);
 
@@ -106,6 +107,8 @@ const Manager = () => {
                 
                 <Route path="/client" element={<Dashboard />} />
                 <Route path="/manager/payments" element={<Payment />} />
+                <Route path="/manager/reports" element={<Reports />} />
+                <Route path="/manager/listReport" element={<ListReports />} />
                 {/* <Route path="/manager/invoices" element={<Invoices />} /> */}
                 <Route
                   path="/manager/invoices/:id"

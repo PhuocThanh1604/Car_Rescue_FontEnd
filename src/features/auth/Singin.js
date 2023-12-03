@@ -57,9 +57,6 @@ export default function SignInSide() {
   const [singin, { isLoading }] = useLoginMutation();
   const dispatch = useDispatch();
 
-  // useEffect(() => {
-  //   userRef.current.focus();
-  // }, []);
 
   useEffect(() => {
     setErrMsg("");

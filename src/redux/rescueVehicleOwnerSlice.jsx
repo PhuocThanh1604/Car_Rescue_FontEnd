@@ -59,7 +59,7 @@ export const fetchRescueVehicleOwners = createAsyncThunk(
 export const getRescueVehicleOwnerId = createAsyncThunk(
   "rescueVehicleOwner/getRescueVehicleOwnerId",
   async ({ id }) => {
-    const storageKey = "getRescueVehicleOwnerId_" + id;;
+    const storageKey = "getRescueVehicleOwnerId_" + id;
     const storedData = getFromStorage(storageKey);
     if (storedData) {
       return storedData;
@@ -122,22 +122,76 @@ export const updateStatusRescueVehicleOwner = createAsyncThunk(
   }
 );
 
-export const deleteRescueVehicleOwner = createAsyncThunk(
-  "rescueVehicleOwner/delete",
-  async ({ id }) => {
+export const getReportAllNew = createAsyncThunk(
+  "rescueVehicleOwners/getReportAllNew",
+  async () => {
     try {
-      const response = await axios.post(
-        `https://rescuecapstoneapi.azurewebsites.net/api/RescueVehicleOwner/Delete?id=${id}`
+      const response = await axios.get(
+        "https://rescuecapstoneapi.azurewebsites.net/api/Report/GetAllNew"
       );
       const data = response.data;
       return data;
     } catch (error) {
-      console.error("Failed to delete rescueVehicleOwner:", error.response);
+      console.error("Failed to retrieve get all report new:", error);
+      throw error;
+    }
+  }
+);
+export const getReportAll = createAsyncThunk(
+  "rescueVehicleOwners/getReportAll",
+  async () => {
+    try {
+      const response = await axios.get(
+        "https://rescuecapstoneapi.azurewebsites.net/api/Report/GetAll"
+      );
+      const data = response.data;
+      return data;
+    } catch (error) {
+      console.error("Failed to retrieve get all report:", error);
+      throw error;
+    }
+  }
+);
+export const getReportById = createAsyncThunk(
+  "rescueVehicleOwner/getReportById",
+  async ({ id }) => {
+    try {
+      const response = await axios.get(
+        `https://rescuecapstoneapi.azurewebsites.net/api/Report/Get?id=${id}`
+      );
+      const data = response.data;
+      console.log(data);
+      return data;
+    } catch (error) {
+      console.error(
+        "Failed to get report Rescue Vehicle Owner by Id ",
+        error.response
+      );
       throw error.response.data || error.message;
     }
   }
 );
+export const acceptReport = createAsyncThunk(
+  "vehicles/acceptReport",
+  async ({ id, boolean }) => {
+    try {
+      console.log(id, boolean);
+      const response = await axios.post(
+        `https://rescuecapstoneapi.azurewebsites.net/api/Report/Accept?id=${id}&boolean=${boolean}`,
+      );
 
+      const data = response.data;
+      console.log(data);
+      return data;
+    } catch (error) {
+      console.error(
+        "Failed to create Accept Report of RVO:",
+        error.response
+      );
+      throw error.response.data || error.message;
+    }
+  }
+);
 const rescueVehicleOwnerSlice = createSlice({
   name: "rescueVehicleOwner",
   initialState: {
@@ -145,7 +199,7 @@ const rescueVehicleOwnerSlice = createSlice({
     status: "",
   },
   reducers: {
-    setrescueVehicleOwners: (state, action) => {
+    setRescueVehicleOwners: (state, action) => {
       state.rescueVehicleOwners = action.payload.data;
     },
     updateRescueVehicleOwnerStatus: (state, action) => {
@@ -159,12 +213,25 @@ const rescueVehicleOwnerSlice = createSlice({
       });
     },
   },
+
   extraReducers: (builder) => {
     builder
       .addCase(fetchRescueVehicleOwners.fulfilled, (state, action) => {
         state.rescueVehicleOwners = action.payload.data;
       })
       .addCase(fetchRescueVehicleOwners.pending, (state, action) => {
+        state.status = "loading";
+      })
+      .addCase(getReportAll.fulfilled, (state, action) => {
+        state.rescueVehicleOwners = action.payload.data;
+      })
+      .addCase(getReportAll.pending, (state, action) => {
+        state.status = "loading";
+      })
+      .addCase(getReportAllNew.fulfilled, (state, action) => {
+        state.rescueVehicleOwners = action.payload.data;
+      })
+      .addCase(getReportAllNew.pending, (state, action) => {
         state.status = "loading";
       })
       .addCase(createRescueVehicleOwner.fulfilled, (state, action) => {
@@ -197,9 +264,13 @@ const rescueVehicleOwnerSlice = createSlice({
       .addCase(getRescueVehicleOwnerId.fulfilled, (state, action) => {
         state.rescueVehicleOwnerData = action.payload.data;
       })
+      .addCase(getReportById.fulfilled, (state, action) => {
+        state.rescueVehicleOwnerData = action.payload.data;
+      });
   },
 });
-export const { updateRescueVehicleOwnerStatus } = rescueVehicleOwnerSlice.actions;
-export const { setrescueVehicleOwners } = rescueVehicleOwnerSlice.actions;
+export const { updateRescueVehicleOwnerStatus } =
+  rescueVehicleOwnerSlice.actions;
+export const { setRescueVehicleOwners } = rescueVehicleOwnerSlice.actions;
 export default rescueVehicleOwnerSlice.reducer;
 export const { reducer } = rescueVehicleOwnerSlice;

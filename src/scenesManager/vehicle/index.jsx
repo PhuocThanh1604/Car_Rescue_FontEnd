@@ -23,7 +23,6 @@ import {
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import Header from "../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
-import ModalDetail from "./ModalDetail";
 import ModalEdit from "./ModalEdit";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -159,7 +158,6 @@ const Vehicles = (props) => {
 
         if (data) {
           setFilteredVehicles(data);
-
           // Đặt loading thành false sau khi tải lại dữ liệu
           setLoading(false);
           console.log("Services reloaded:", data);
@@ -482,13 +480,7 @@ useEffect(() => {
           loading={loading}
         />
       </Box>
-      <ModalDetail
-        openModal={openModal}
-        setOpenModal={setOpenModal}
-        onClose={() => setOpenModal(false)}
-        selectedBook={selectedBook}
-        loading={loading}
-      ></ModalDetail>
+  
 
       <ModalEdit
         openEditModal={openEditModal}
