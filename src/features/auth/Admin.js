@@ -6,7 +6,6 @@ import { CssBaseline, ThemeProvider } from '@mui/material';
 import Topbar from '../../components/Topbar';
 import Sidebar from '../../scenes/geography/global/Sidebar';
 import Products from '../../scenes/products';
-// import UploadImage from './scenes/products/uploadImage';
 import AuthProvider from '../../context/AuthContext';
 import { Routes, Route } from 'react-router-dom';
 import { useSelector } from "react-redux";

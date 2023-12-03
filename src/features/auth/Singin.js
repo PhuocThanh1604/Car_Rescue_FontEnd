@@ -103,7 +103,7 @@ export default function SignInSide() {
       let redirectTo = "/welcome"; // Đường dẫn mặc định
 
       if ((userData.roles = "Admin")) {
-        redirect("/welcome");
+        redirect("/welcome222");
       } else if ((userData.roles = "Manager")) {
         redirect("/manager");
       }
