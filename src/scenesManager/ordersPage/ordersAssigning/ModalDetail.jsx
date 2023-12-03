@@ -198,7 +198,7 @@ const MyModal = (props) => {
   const handleClick = () => {
     setCollapse(!collapse);
   };
-  // Hiển thị tất cả dịch vụ và quantity
+  // Hiển thị tất cả dịch vụ và quantity// Hiển thị tất cả dịch vụ và quantity
   const fetchOrderDetail = (orderId) => {
     console.log(orderId);
     setServiceNames(null);
@@ -212,6 +212,7 @@ const MyModal = (props) => {
             const serviceDetails = data.map((item) => ({
               serviceId: item.serviceId,
               quantity: item.quantity,
+              type: null, // Thêm type vào object để lưu thông tin loại dịch vụ từ API
             }));
 
             // Tạo mảng promises để gọi API lấy thông tin từng serviceId và quantity
@@ -220,10 +221,20 @@ const MyModal = (props) => {
                 return dispatch(getServiceId({ id: serviceId }))
                   .then((serviceResponse) => {
                     const serviceName = serviceResponse.payload.data.name;
+                    const serviceType = serviceResponse.payload.data.type;
+                    let updatedQuantity = quantity;
+
+                    // Xử lý thông tin quantity dựa trên loại dịch vụ (type)
+                    if (serviceType === "Towing") {
+                      updatedQuantity += " km"; // Nếu là Towing thì thêm chuỗi ' km' vào quantity
+                    } else if (serviceType === "Fixing") {
+                      updatedQuantity = `Số lượng: ${quantity}`; // Nếu là Fixing thì sử dụng format riêng
+                    }
+
                     console.log(
-                      `ServiceId: ${serviceId}, ServiceName: ${serviceName}, Quantity: ${quantity}`
+                      `ServiceId: ${serviceId}, ServiceName: ${serviceName}, Quantity: ${updatedQuantity}`
                     );
-                    return { serviceName, quantity };
+                    return { serviceName, updatedQuantity }; // Trả về thông tin đã được xử lý
                   })
                   .catch((serviceError) => {
                     console.error(
@@ -601,13 +612,13 @@ const MyModal = (props) => {
                                     (serviceData, index) => {
                                       const allServices = serviceData.map(
                                         (
-                                          { serviceName, quantity },
+                                          { serviceName, updatedQuantity },
                                           innerIndex
                                         ) => (
                                           <React.Fragment key={innerIndex}>
                                             {serviceName ||
                                               "Không có thông tin"}{" "}
-                                            ({quantity})
+                                            ({updatedQuantity})
                                             {innerIndex <
                                               serviceData.length - 1 && ", "}
                                           </React.Fragment>
@@ -628,6 +639,8 @@ const MyModal = (props) => {
                                 : "Không có thông tin"}
                             </Typography>
                           </Typography>
+
+
                         </StyledGrid1>
                       </Grid>
                     </Grid>

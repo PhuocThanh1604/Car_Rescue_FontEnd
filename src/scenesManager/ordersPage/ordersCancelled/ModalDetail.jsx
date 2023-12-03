@@ -44,6 +44,8 @@ import CakeIcon from "@mui/icons-material/Cake"
 import TimerIcon from "@mui/icons-material/Timer";
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import { tokens } from "../../../theme";
+import { getServiceId } from "../../../redux/serviceSlice";
+import { getOrderDetailId } from "../../../redux/orderSlice";
 const MyModal = (props) => {
   const dispatch = useDispatch();
   const { openModal, setOpenModal, selectedEditOrder } = props;
@@ -54,6 +56,7 @@ const MyModal = (props) => {
     technician: {},
     vehicle: {},
   });
+  const [serviceNames, setServiceNames] = useState([]);
   const [dataRescueVehicleOwner, setDataRescueVehicleOwner] = useState({});
   const [dataFeedBack, setDataFeedBack] = useState({});
   const [rescueVehicleOwnerId, setRescueVehicleOwnerId] = useState({});
@@ -152,6 +155,85 @@ const MyModal = (props) => {
   const handleClick = () => {
     setCollapse(!collapse);
   };
+     // Hiển thị tất cả dịch vụ và quantity
+     const fetchOrderDetail = (orderId) => {
+      console.log(orderId);
+      setServiceNames(null);
+      // Make sure you have a check to prevent unnecessary API calls
+      if (orderId) {
+        dispatch(getOrderDetailId({ id: orderId }))
+          .then((response) => {
+            const data = response.payload.data;
+            console.log(data);
+            if (data && Array.isArray(data)) {
+              const serviceDetails = data.map((item) => ({
+                serviceId: item.serviceId,
+                quantity: item.quantity,
+                type: null, // Thêm type vào object để lưu thông tin loại dịch vụ từ API
+              }));
+  
+              // Tạo mảng promises để gọi API lấy thông tin từng serviceId và quantity
+              const servicePromises = serviceDetails.map(
+                ({ serviceId, quantity }) => {
+                  return dispatch(getServiceId({ id: serviceId }))
+                    .then((serviceResponse) => {
+                      const serviceName = serviceResponse.payload.data.name;
+                      const serviceType = serviceResponse.payload.data.type;
+                      let updatedQuantity = quantity;
+  
+                      // Xử lý thông tin quantity dựa trên loại dịch vụ (type)
+                      if (serviceType === "Towing") {
+                        updatedQuantity += " km"; // Nếu là Towing thì thêm chuỗi ' km' vào quantity
+                      } else if (serviceType === "Fixing") {
+                        updatedQuantity = `Số lượng: ${quantity}`; // Nếu là Fixing thì sử dụng format riêng
+                      }
+  
+                      console.log(
+                        `ServiceId: ${serviceId}, ServiceName: ${serviceName}, Quantity: ${updatedQuantity}`
+                      );
+                      return { serviceName, updatedQuantity }; // Trả về thông tin đã được xử lý
+                    })
+                    .catch((serviceError) => {
+                      console.error(
+                        `Error while fetching service data for serviceId ${serviceId}:`,
+                        serviceError
+                      );
+                      return null;
+                    });
+                }
+              );
+  
+              // Sử dụng Promise.all để chờ tất cả các promises hoàn thành
+              Promise.all(servicePromises)
+                .then((serviceData) => {
+                  // Log tất cả serviceName và quantity từ API
+                  console.log(
+                    "Tất cả serviceName và quantity từ API:",
+                    serviceData
+                  );
+                  // Cập nhật state với serviceNames và quantity đã lấy được từ API
+                  setServiceNames((prevServiceNames) => ({
+                    ...prevServiceNames,
+                    [orderId]: serviceData,
+                  }));
+                })
+                .catch((error) => {
+                  console.error(
+                    "Error while processing service data promises:",
+                    error
+                  );
+                });
+            } else {
+              console.error(
+                "Service data not found in the API response or data is not an array."
+              );
+            }
+          })
+          .catch((error) => {
+            console.error("Error while fetching service data detail:", error);
+          });
+      }
+    };
 
   const vehicleRvoidId =
     selectedEditOrder && selectedEditOrder.vehicleId
@@ -181,6 +263,7 @@ const MyModal = (props) => {
     
         return `${day}/${month}/${year}`; // Formats to dd/mm/yyyy
       }
+
   const StyledGrid1 = styled(Grid)(({ theme }) => ({
     display: "flex",
     flexDirection: "column",
@@ -538,6 +621,59 @@ const MyModal = (props) => {
                               }}
                             >
                               {selectedEditOrder.area||"khu vực 1"}
+                            </Typography>
+                          </Typography>
+
+                          <Typography
+                            variant="body1"
+                            component="p"
+                            sx={{
+                              alignItems: "center",
+                              marginBottom: "8px",
+                              fontSize: "1rem",
+                              marginRight: "2px",
+                            }}
+                          >
+                            <AssignmentIcon style={iconColor} />{" "}
+                            <strong>Dịch vụ đã chọn:</strong>{" "}
+                            <Typography
+                              variant="h6"
+                              component="span"
+                              sx={{
+                                padding: "8px",
+                                flex: 1,
+                              }}
+                            >
+                              {serviceNames
+                                ? Object.values(serviceNames).map(
+                                    (serviceData, index) => {
+                                      const allServices = serviceData.map(
+                                        (
+                                          { serviceName, updatedQuantity },
+                                          innerIndex
+                                        ) => (
+                                          <React.Fragment key={innerIndex}>
+                                            {serviceName ||
+                                              "Không có thông tin"}{" "}
+                                            ({updatedQuantity})
+                                            {innerIndex <
+                                              serviceData.length - 1 && ", "}
+                                          </React.Fragment>
+                                        )
+                                      );
+
+                                      return (
+                                        <React.Fragment key={index}>
+                                          {allServices}
+                                          {index <
+                                            Object.values(serviceNames).length -
+                                              1 && <br />}
+                                          {/* Add <br /> if it's not the last service in serviceNames */}
+                                        </React.Fragment>
+                                      );
+                                    }
+                                  )
+                                : "Không có thông tin"}
                             </Typography>
                           </Typography>
                         </StyledGrid1>

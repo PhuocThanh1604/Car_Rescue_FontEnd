@@ -15,8 +15,6 @@ const removeFromStorage = (key) => {
   localStorage.removeItem(key);
 };
 
-
-
 export const fetchWordWeeks = createAsyncThunk(
   "transactions/fetchWordWeeks",
   async () => {

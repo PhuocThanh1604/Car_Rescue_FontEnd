@@ -38,7 +38,10 @@ import { CategoryRounded } from "@mui/icons-material";
 import { getRescueVehicleOwnerId } from "../../../redux/rescueVehicleOwnerSlice";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
-import { getFormattedAddressGG, getOrderDetailId } from "../../../redux/orderSlice";
+import {
+  getFormattedAddressGG,
+  getOrderDetailId,
+} from "../../../redux/orderSlice";
 import { useTheme } from "@emotion/react";
 import { tokens } from "../../../theme";
 import { getServiceId } from "../../../redux/serviceSlice";
@@ -201,74 +204,86 @@ const MyModal = (props) => {
       date.getMonth() + 1
     }/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`;
   }
-  // Hiển thị tất cả dịch vụ và quantity
-  const fetchOrderDetail = (orderId) => {
-    console.log(orderId);
-    setServiceNames(null);
-    // Make sure you have a check to prevent unnecessary API calls
-    if (orderId) {
-      dispatch(getOrderDetailId({ id: orderId }))
-        .then((response) => {
-          const data = response.payload.data;
-          console.log(data);
-          if (data && Array.isArray(data)) {
-            const serviceDetails = data.map((item) => ({
-              serviceId: item.serviceId,
-              quantity: item.quantity,
-            }));
-
-            // Tạo mảng promises để gọi API lấy thông tin từng serviceId và quantity
-            const servicePromises = serviceDetails.map(
-              ({ serviceId, quantity }) => {
-                return dispatch(getServiceId({ id: serviceId }))
-                  .then((serviceResponse) => {
-                    const serviceName = serviceResponse.payload.data.name;
-                    console.log(
-                      `ServiceId: ${serviceId}, ServiceName: ${serviceName}, Quantity: ${quantity}`
-                    );
-                    return { serviceName, quantity };
-                  })
-                  .catch((serviceError) => {
-                    console.error(
-                      `Error while fetching service data for serviceId ${serviceId}:`,
-                      serviceError
-                    );
-                    return null;
-                  });
-              }
-            );
-
-            // Sử dụng Promise.all để chờ tất cả các promises hoàn thành
-            Promise.all(servicePromises)
-              .then((serviceData) => {
-                // Log tất cả serviceName và quantity từ API
-                console.log(
-                  "Tất cả serviceName và quantity từ API:",
-                  serviceData
-                );
-                // Cập nhật state với serviceNames và quantity đã lấy được từ API
-                setServiceNames((prevServiceNames) => ({
-                  ...prevServiceNames,
-                  [orderId]: serviceData,
-                }));
-              })
-              .catch((error) => {
-                console.error(
-                  "Error while processing service data promises:",
-                  error
-                );
-              });
-          } else {
-            console.error(
-              "Service data not found in the API response or data is not an array."
-            );
-          }
-        })
-        .catch((error) => {
-          console.error("Error while fetching service data detail:", error);
-        });
-    }
-  };
+    // Hiển thị tất cả dịch vụ và quantity
+    const fetchOrderDetail = (orderId) => {
+      console.log(orderId);
+      setServiceNames(null);
+      // Make sure you have a check to prevent unnecessary API calls
+      if (orderId) {
+        dispatch(getOrderDetailId({ id: orderId }))
+          .then((response) => {
+            const data = response.payload.data;
+            console.log(data);
+            if (data && Array.isArray(data)) {
+              const serviceDetails = data.map((item) => ({
+                serviceId: item.serviceId,
+                quantity: item.quantity,
+                type: null, // Thêm type vào object để lưu thông tin loại dịch vụ từ API
+              }));
+  
+              // Tạo mảng promises để gọi API lấy thông tin từng serviceId và quantity
+              const servicePromises = serviceDetails.map(
+                ({ serviceId, quantity }) => {
+                  return dispatch(getServiceId({ id: serviceId }))
+                    .then((serviceResponse) => {
+                      const serviceName = serviceResponse.payload.data.name;
+                      const serviceType = serviceResponse.payload.data.type;
+                      let updatedQuantity = quantity;
+  
+                      // Xử lý thông tin quantity dựa trên loại dịch vụ (type)
+                      if (serviceType === "Towing") {
+                        updatedQuantity += " km"; // Nếu là Towing thì thêm chuỗi ' km' vào quantity
+                      } else if (serviceType === "Fixing") {
+                        updatedQuantity = `Số lượng: ${quantity}`; // Nếu là Fixing thì sử dụng format riêng
+                      }
+  
+                      console.log(
+                        `ServiceId: ${serviceId}, ServiceName: ${serviceName}, Quantity: ${updatedQuantity}`
+                      );
+                      return { serviceName, updatedQuantity }; // Trả về thông tin đã được xử lý
+                    })
+                    .catch((serviceError) => {
+                      console.error(
+                        `Error while fetching service data for serviceId ${serviceId}:`,
+                        serviceError
+                      );
+                      return null;
+                    });
+                }
+              );
+  
+              // Sử dụng Promise.all để chờ tất cả các promises hoàn thành
+              Promise.all(servicePromises)
+                .then((serviceData) => {
+                  // Log tất cả serviceName và quantity từ API
+                  console.log(
+                    "Tất cả serviceName và quantity từ API:",
+                    serviceData
+                  );
+                  // Cập nhật state với serviceNames và quantity đã lấy được từ API
+                  setServiceNames((prevServiceNames) => ({
+                    ...prevServiceNames,
+                    [orderId]: serviceData,
+                  }));
+                })
+                .catch((error) => {
+                  console.error(
+                    "Error while processing service data promises:",
+                    error
+                  );
+                });
+            } else {
+              console.error(
+                "Service data not found in the API response or data is not an array."
+              );
+            }
+          })
+          .catch((error) => {
+            console.error("Error while fetching service data detail:", error);
+          });
+      }
+    };
+  
   const technicianInfo = selectedEditOrder &&
     selectedEditOrder.technicianId && (
       <Grid item xs={5} alignItems="center">
@@ -588,13 +603,13 @@ const MyModal = (props) => {
                                     (serviceData, index) => {
                                       const allServices = serviceData.map(
                                         (
-                                          { serviceName, quantity },
+                                          { serviceName, updatedQuantity },
                                           innerIndex
                                         ) => (
                                           <React.Fragment key={innerIndex}>
                                             {serviceName ||
                                               "Không có thông tin"}{" "}
-                                            ({quantity})
+                                            ({updatedQuantity})
                                             {innerIndex <
                                               serviceData.length - 1 && ", "}
                                           </React.Fragment>

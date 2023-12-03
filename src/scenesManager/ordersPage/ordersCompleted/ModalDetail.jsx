@@ -729,6 +729,7 @@ const MyModal = (props) => {
                                 "Đang cập nhật"}
                             </Typography>
                           </Typography>
+                          {/* List all service */}
                           <Typography
                             variant="body1"
                             component="p"
@@ -782,31 +783,7 @@ const MyModal = (props) => {
                             </Typography>
                           </Typography>
 
-                          {/* <Typography
-                            variant="body1"
-                            component="p"
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              marginBottom: "8px", // Thêm khoảng cách dưới cùng của dòng
-                              fontSize: "1rem",
-                              marginRight: "2px",
-                            }}
-                          >
-                            <AssignmentIcon style={iconColor} />{" "}
-                            <strong>Dịch vụ đã sử dụng:</strong>
-                            <Typography
-                              variant="h6"
-                              sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                marginLeft: "10px",
-                              }}
-                            >
-                              {" "}
-                              {firstServiceName}
-                            </Typography>
-                          </Typography> */}
+                  
 
                           <Typography
                             variant="body1"
