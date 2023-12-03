@@ -420,7 +420,7 @@ const MyModal = (props) => {
               id="book-detail-modal"
               sx={{ marginBottom: "4px", textAlign: "center" }}
             >
-              Chi tiết đơn hàng hoàn thành
+              Chi Tiết Báo Cáo Đơn Hàng
             </Typography>
 
             {selectedEditOrder && (
@@ -916,7 +916,7 @@ const MyModal = (props) => {
                       variant="h4"
                       sx={{ marginBottom: 2, textAlign: "center" }}
                     >
-                      Thông Tin Đơn Báo Cáo
+                      Thông Tin Nhân Sự Đã Thực Hiên Đơn
                     </Typography>
 
                     <Box
