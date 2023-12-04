@@ -60,46 +60,48 @@ const Technicians = (props) => {
   };
 
   const handleDateFilterChange = () => {
-    if (startDate && endDate) {
-      // Format startDate and endDate to the beginning of the day in the specified time zone
-      const formattedStartDate = moment(startDate)
+  
+    const formattedStartDate = moment(startDate)
+      .tz("Asia/Ho_Chi_Minh")
+      .add(7, "hours")
+      .startOf("day");
+    const formattedEndDate = moment(endDate)
+      .tz("Asia/Ho_Chi_Minh")
+      .add(7, "hours")
+      .startOf("day");
+  
+    const filteredTechnicians = technicians.filter((technician) => {
+      // Kiểm tra nếu dữ liệu không hợp lệ trong technician.createAt
+      if (!technician.createdAt || !moment(technician.createdAt).isValid()) {
+        // Xử lý khi dữ liệu không hợp lệ, ví dụ: loại bỏ technician này khỏi kết quả lọc
+        return false;
+      }
+  
+      const orderDate = moment(technician.createdAt)
         .tz("Asia/Ho_Chi_Minh")
         .add(7, "hours")
         .startOf("day");
-      const formattedEndDate = moment(endDate)
-        .tz("Asia/Ho_Chi_Minh")
-        .add(7, "hours")
-        .startOf("day");
-
-      const filteredTechnicians = technicians.filter((technician) => {
-        // Adjust the order createdAt date to the same time zone
-        const orderDate = moment(technician.createAt)
-          .tz("Asia/Ho_Chi_Minh")
-          .add(7, "hours")
-          .startOf("day");
-
-        const isAfterStartDate = orderDate.isSameOrAfter(
-          formattedStartDate,
-          "day"
-        );
-        const isBeforeEndDate = orderDate.isSameOrBefore(
-          formattedEndDate,
-          "day"
-        );
-
-        return isAfterStartDate && isBeforeEndDate;
-      });
-
-      setFilteredTechnicians(filteredTechnicians);
-      setFilterOption("Date");
-    } else {
-      setFilteredTechnicians(technicians);
-    }
+  
+      const isAfterStartDate = orderDate.isSameOrAfter(formattedStartDate, "day");
+      const isBeforeEndDate = orderDate.isSameOrBefore(formattedEndDate, "day");
+  
+      return isAfterStartDate && isBeforeEndDate;
+    });
+  
+    setFilteredTechnicians(filteredTechnicians);
+    setFilterOption("Date");
   };
+  
 
   const handleFilterChange = (event) => {
     const selectedStatusOption = event.target.value;
     setFilterOption(selectedStatusOption);
+    if (!Array.isArray(technicians) || technicians.length === 0) {
+      // Xử lý khi technicians không tồn tại hoặc không có dữ liệu
+      toast.error('Không có dữ liệu technicians.');
+      return;
+    }
+  
 
     if (selectedStatusOption === "Status") {
       // Hiển thị tất cả các trạng thái
@@ -124,11 +126,16 @@ const Technicians = (props) => {
         setIsSuccess(true);
       })
       .catch((error) => {
-        console.error("Lỗi khi lấy thông tin kỹ thuật viên:", error);
+        toast.error("Lỗi khi lấy thông tin kỹ thuật viên:", error);
       });
   };
 
   useEffect(() => {
+    if (!Array.isArray(technicians) ) {
+      // Xử lý khi technicians không tồn tại, không có dữ liệu hoặc searchText/filterOption không được định nghĩa
+      toast.dismiss('Dữ liệu không hợp lệ để thực hiện lọc.');
+      return;
+    }
     const filteredTechnicians = technicians
       ? technicians.filter((technician) => {
           const hasFullName =

@@ -35,6 +35,7 @@ export const createAccount = createAsyncThunk('account/createAccounts', async (a
       {
         headers: {
           'Content-Type': 'application/json',
+          // 'Authorization':`Bearer ${}`
         },
       }
     );

@@ -84,11 +84,17 @@ const MyModal = (props) => {
       currency: "VND",
     }).format(value);
   };
+
   useEffect(() => {
+    setLoading(true)
     if (selectedEditOrder && selectedEditOrder.departure) {
       fetchAddress("departure", selectedEditOrder.departure);
     }
-    if (selectedEditOrder && selectedEditOrder.destination) {
+    if (selectedEditOrder && selectedEditOrder.rescueType === "Fixing") {
+      // Đặt lại địa chỉ điểm đến nếu rescueType là Fixing
+      resetDestinationAddress();
+    } else if (selectedEditOrder && selectedEditOrder.destination) {
+      // Nếu không phải Fixing, thực hiện fetchAddress cho destination
       fetchAddress("destination", selectedEditOrder.destination);
     }
     if (selectedEditOrder && selectedEditOrder.id) {
@@ -100,6 +106,15 @@ const MyModal = (props) => {
       fetchOrder(selectedEditOrder.id);
     }
   }, [selectedEditOrder]);
+
+
+  
+  const resetDestinationAddress = () => {
+    setFormattedAddresses((prevAddresses) => ({
+      ...prevAddresses,
+      destination: null // Reset destination address to null or default value based on requirements
+    }));
+  };
 
   const fetchAddress = async (addressType, addressValue) => {
     if (!addressValue) {
@@ -726,9 +741,10 @@ const MyModal = (props) => {
                               }}
                             >
                               {formattedAddresses.destination ||
-                                "Đang cập nhật"}
+                                "Không có thông tin"}
                             </Typography>
                           </Typography>
+                          
                           {/* List all service */}
                           <Typography
                             variant="body1"

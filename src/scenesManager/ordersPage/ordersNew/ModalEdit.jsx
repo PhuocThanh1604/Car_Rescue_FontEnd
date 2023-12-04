@@ -1175,31 +1175,7 @@ const ModalEdit = ({
                               }}
                             ></Typography>
                           </Typography>
-                          {/* Chọn 1 dv */}
-                          {/* <Typography
-                            variant="body1"
-                            component="p"
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              marginBottom: "8px", // Thêm khoảng cách dưới cùng của dòng
-                              fontSize: "1rem",
-                              marginRight: "2px",
-                            }}
-                          >
-                            <AddShoppingCartIcon style={iconColor} />{" "}
-                            <strong>Dịch vụ đã chọn:</strong>{" "}
-                            <Typography
-                              variant="h5"
-                              sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                marginLeft: "10px",
-                              }}
-                            >
-                              {firstServiceName}
-                            </Typography>
-                          </Typography> */}
+                
                           {/* List all servicers choose */}
                           <Typography
                             variant="body1"
@@ -1253,6 +1229,8 @@ const ModalEdit = ({
                                 : "Không có thông tin"}
                             </Typography>
                           </Typography>
+
+                          
                         </CardContent>
                       </Card>
                     </>
@@ -1613,12 +1591,12 @@ const ModalEdit = ({
                           gap: 2,
                         }}
                       >
-                        {/* The following elements will be displayed horizontally */}
+                      
                         <Box
                           sx={{
                             display: "flex",
-                            flexDirection: "column", // Set to "column" to stack the content vertically
-                            gap: "10px", // Adjust the gap as needed
+                            flexDirection: "column",
+                            gap: "10px", 
                           }}
                         >
                           <Box

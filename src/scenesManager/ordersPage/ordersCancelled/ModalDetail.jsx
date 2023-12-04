@@ -25,7 +25,7 @@ import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import PlaceIcon from "@mui/icons-material/Place";
 import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
-import WatchLaterRoundedIcon from "@mui/icons-material/WatchLaterRounded";
+import PinDropIcon from "@mui/icons-material/PinDrop";
 import PeopleAltRoundedIcon from "@mui/icons-material/PeopleAltRounded";
 import PhoneRoundedIcon from "@mui/icons-material/PhoneRounded";
 import MapRoundedIcon from "@mui/icons-material/MapRounded";
@@ -45,7 +45,7 @@ import TimerIcon from "@mui/icons-material/Timer";
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import { tokens } from "../../../theme";
 import { getServiceId } from "../../../redux/serviceSlice";
-import { getOrderDetailId } from "../../../redux/orderSlice";
+import { getFormattedAddressGG, getOrderDetailId } from "../../../redux/orderSlice";
 const MyModal = (props) => {
   const dispatch = useDispatch();
   const { openModal, setOpenModal, selectedEditOrder } = props;
@@ -65,7 +65,61 @@ const MyModal = (props) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const iconColor = { color: colors.blueAccent[500] };
-  // Lưu giá trị vào một biến
+  const [loading, setLoading] = useState(false);
+  const [formattedAddresses, setFormattedAddresses] = useState({});
+
+  useEffect(() => {
+    setLoading(true)
+    if (selectedEditOrder && selectedEditOrder.departure) {
+      fetchAddress("departure", selectedEditOrder.departure);
+    }
+    if (selectedEditOrder && selectedEditOrder.rescueType === "Fixing") {
+      // Đặt lại địa chỉ điểm đến nếu rescueType là Fixing
+      resetDestinationAddress();
+    } else if (selectedEditOrder && selectedEditOrder.destination) {
+      // Nếu không phải Fixing, thực hiện fetchAddress cho destination
+      fetchAddress("destination", selectedEditOrder.destination);
+    }
+
+  }, [selectedEditOrder]);
+
+
+  
+  const resetDestinationAddress = () => {
+    setFormattedAddresses((prevAddresses) => ({
+      ...prevAddresses,
+      destination: null // Reset destination address to null or default value based on requirements
+    }));
+  };
+
+  const fetchAddress = async (addressType, addressValue) => {
+    if (!addressValue) {
+      return; // Trả về nếu order không tồn tại hoặc địa chỉ đã được lưu trữ
+    }
+    const matches = /lat:\s*([^,]+),\s*long:\s*([^,]+)/.exec(addressValue);
+    if (matches && matches.length === 3) {
+      const [, lat, lng] = matches;
+
+      if (!isNaN(lat) && !isNaN(lng)) {
+        try {
+          const response = await dispatch(getFormattedAddressGG({ lat, lng }));
+          const formattedAddress =
+            response.payload.results[0].formatted_address;
+          setFormattedAddresses((prevAddresses) => ({
+            ...prevAddresses,
+            [addressType]: formattedAddress,
+          }));
+        } catch (error) {
+          console.error(
+            "Error fetching address:",
+            error.response ? error.response : error
+          );
+        } finally {
+          setLoading(false); // Đảm bảo loading được đặt lại thành false dù có lỗi
+        }
+      }
+    }
+  };
   useEffect(() => {
     if (selectedEditOrder && selectedEditOrder.vehicleId) {
       const vehicleRvoidId = data.vehicle[selectedEditOrder.vehicleId]?.rvoid;
@@ -571,29 +625,51 @@ const MyModal = (props) => {
                             variant="body1"
                             component="p"
                             sx={{
-                             
-                              marginBottom: "8px", 
+                              marginBottom: "8px",
                               fontSize: "1rem",
                             }}
                           >
-                            <TimerIcon style={iconColor}/>
-                            <strong>Thời gian bắt đầu: </strong>
+                            <PlaceIcon style={iconColor} />
+                            <strong>Địa chỉ xe hư: </strong>
                             <Typography
                               variant="h6"
                               component="span"
                               sx={{
-                       
-                                padding: '8px',
-                                borderRadius: '4px',
-                                marginLeft: "4px",
-                                wordWrap: "break-word", 
-                                overflowWrap: "break-word", 
+                                padding: "8px",
+                                marginLeft: "14px",
+                                wordWrap: "break-word",
+                                overflowWrap: "break-word",
                                 whiteSpace: "normal",
                                 flex: 1,
                               }}
                             >
-                              {formattedDateStart ||"Chưa bắt đầu làm"}
-                 
+                              {formattedAddresses.departure || "Đang cập nhật"}
+                            </Typography>
+                          </Typography>
+
+                          <Typography
+                            variant="body1"
+                            component="p"
+                            sx={{
+                              marginBottom: "8px",
+                              fontSize: "1rem",
+                            }}
+                          >
+                            <PinDropIcon style={iconColor} />
+                            <strong>Địa chỉ kéo đến: </strong>
+                            <Typography
+                              variant="h6"
+                              component="span"
+                              sx={{
+                                padding: "8px",
+                                wordWrap: "break-word",
+                                overflowWrap: "break-word",
+                                whiteSpace: "normal",
+                                flex: 1,
+                              }}
+                            >
+                              {formattedAddresses.destination ||
+                                "Không có thông tin"}
                             </Typography>
                           </Typography>
 

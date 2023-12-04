@@ -14,6 +14,7 @@ import {
   Grid,
   IconButton,
   Rating,
+  Slider,
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
@@ -45,11 +46,19 @@ import { getTechnicianId } from "../../redux/technicianSlice";
 import { getVehicleId } from "../../redux/vehicleSlice";
 import { getServiceId } from "../../redux/serviceSlice";
 import { tokens } from "../../theme";
-import { getFeedbackOfOrderId, getFormattedAddressGG, getOrderDetailId, getPaymentId } from "../../redux/orderSlice";
-
+import {
+  getFeedbackOfOrderId,
+  getFormattedAddressGG,
+  getOrderDetailId,
+  getPaymentId,
+} from "../../redux/orderSlice";
+import { toast } from "react-toastify";
+import SwipeableViews from "react-swipeable-views";
+import { autoPlay } from "react-swipeable-views-utils";
+const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
 const MyModal = (props) => {
   const dispatch = useDispatch();
-  const { openModal, setOpenModal, selectedEditOrder } = props;
+  const { openModal, setOpenModal, selectedEditOrder, dataReport } = props;
   const [collapse, setCollapse] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [data, setData] = useState({
@@ -114,7 +123,7 @@ const MyModal = (props) => {
             [addressType]: formattedAddress,
           }));
         } catch (error) {
-          console.error(
+          toast.dismiss(
             "Error fetching address:",
             error.response ? error.response : error
           );
@@ -127,7 +136,6 @@ const MyModal = (props) => {
 
   // Hiển thị tất cả dịch vụ và quantity
   const fetchOrderDetail = (orderId) => {
-    console.log(orderId);
     setServiceNames(null);
     // Make sure you have a check to prevent unnecessary API calls
     if (orderId) {
@@ -147,9 +155,7 @@ const MyModal = (props) => {
                 return dispatch(getServiceId({ id: serviceId }))
                   .then((serviceResponse) => {
                     const serviceName = serviceResponse.payload.data.name;
-                    console.log(
-                      `ServiceId: ${serviceId}, ServiceName: ${serviceName}, Quantity: ${quantity}`
-                    );
+
                     return { serviceName, quantity };
                   })
                   .catch((serviceError) => {
@@ -165,19 +171,13 @@ const MyModal = (props) => {
             // Sử dụng Promise.all để chờ tất cả các promises hoàn thành
             Promise.all(servicePromises)
               .then((serviceData) => {
-                // Log tất cả serviceName và quantity từ API
-                console.log(
-                  "Tất cả serviceName và quantity từ API:",
-                  serviceData
-                );
-                // Cập nhật state với serviceNames và quantity đã lấy được từ API
                 setServiceNames((prevServiceNames) => ({
                   ...prevServiceNames,
                   [orderId]: serviceData,
                 }));
               })
               .catch((error) => {
-                console.error(
+                toast.dismiss(
                   "Error while processing service data promises:",
                   error
                 );
@@ -204,8 +204,6 @@ const MyModal = (props) => {
         setRescueVehicleOwnerId(vehicleRvoidId);
         fetchRescueVehicleOwner(vehicleRvoidId);
       }
-
-  
     }
   }, [selectedEditOrder, data.vehicle]);
 
@@ -231,18 +229,15 @@ const MyModal = (props) => {
   };
 
   const fetchOrder = (orderId) => {
-    console.log("orderId"+orderId);
     // Make sure you have a check to prevent unnecessary API calls
     if (orderId) {
       dispatch(getPaymentId({ id: orderId }))
         .then((response) => {
           const data = response.payload.data;
           if (data) {
-            console.log("method"+data);
             setDataPayment(data);
-          
           } else {
-            console.error("Payment not found in the API response.");
+            toast.dismiss("Payment not found in the API response.");
           }
         })
         .catch((error) => {
@@ -251,7 +246,6 @@ const MyModal = (props) => {
     }
   };
   const fetchFeedBackOfOrder = (orderId) => {
-    console.log(orderId);
     // Make sure you have a check to prevent unnecessary API calls
     if (orderId) {
       console.log(orderId);
@@ -266,11 +260,11 @@ const MyModal = (props) => {
               [orderId]: data,
             }));
           } else {
-            console.error("Feedback of order not found in the API response.");
+            toast.dismiss("Feedback of order not found in the API response.");
           }
         })
         .catch((error) => {
-          console.error("Error while fetching feedback data:", error);
+          toast.error("Error while fetching feedback data:", error);
         });
     }
   };
@@ -278,8 +272,10 @@ const MyModal = (props) => {
   // Lấy vehicleRvoidId từ selectedEditOrder và data.vehicle
 
   useEffect(() => {
+    if (dataReport) {
+      console.log(dataReport.image);
+    }
     if (selectedEditOrder) {
-      // Gọi API chỉ khi cần thiết
       fetchDataIfNeeded("customer", selectedEditOrder.customerId);
       fetchDataIfNeeded("technician", selectedEditOrder.technicianId);
       fetchDataIfNeeded("vehicle", selectedEditOrder.vehicleId);
@@ -345,10 +341,14 @@ const MyModal = (props) => {
     const dateEnd = new Date(selectedEditOrder.startTime);
     formattedDateStart = `${dateStart.getDate()}/${
       dateStart.getMonth() + 1
-    }/${dateStart.getFullYear()} ${dateStart.getHours()+7}:${dateStart.getMinutes()}`;
+    }/${dateStart.getFullYear()} ${
+      dateStart.getHours() + 7
+    }:${dateStart.getMinutes()}`;
     formattedDateEnd = `${dateEnd.getDate()}/${
       dateEnd.getMonth() + 1
-    }/${dateEnd.getFullYear()} ${dateEnd.getHours()+7}:${dateEnd.getMinutes()}`;
+    }/${dateEnd.getFullYear()} ${
+      dateEnd.getHours() + 7
+    }:${dateEnd.getMinutes()}`;
   }
   function formatDate(dateString) {
     const date = new Date(dateString);
@@ -373,6 +373,14 @@ const MyModal = (props) => {
       },
     },
   }));
+  const settings = {
+    dots: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+  };
+
   return (
     <Modal
       open={openModal}
@@ -437,9 +445,8 @@ const MyModal = (props) => {
                     <Grid container spacing={1} alignItems="stretch">
                       <Grid item xs={5} alignItems="center">
                         <Typography variant="h5" sx={{ marginBottom: 2 }}>
-                          Thông Tin Khách Hàng
+                          Thông Tin Khách Hàng {selectedEditOrder.image}
                         </Typography>
-
                         <Typography
                           variant="body1"
                           component="p"
@@ -466,7 +473,6 @@ const MyModal = (props) => {
                               ?.fullname || "Không có thông tin"}
                           </Typography>
                         </Typography>
-
                         <Typography
                           variant="body1"
                           component="p"
@@ -493,7 +499,6 @@ const MyModal = (props) => {
                               "Không có thông tin"}
                           </Typography>
                         </Typography>
-
                         <Typography
                           variant="body1"
                           component="p"
@@ -520,7 +525,6 @@ const MyModal = (props) => {
                               ?.phone || "Không có thông tin"}
                           </Typography>
                         </Typography>
-
                         <Typography
                           variant="body1"
                           component="p"
@@ -547,7 +551,6 @@ const MyModal = (props) => {
                               ?.address || "Không có thông tin"}
                           </Typography>
                         </Typography>
-
                         <Typography
                           variant="body1"
                           component="p"
@@ -577,6 +580,125 @@ const MyModal = (props) => {
                               : "Không có thông tin"}
                           </Typography>
                         </Typography>
+                        <Typography
+                          variant="body1"
+                          component="p"
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            marginBottom: "8px", // Thêm khoảng cách dưới cùng của dòng
+                            fontSize: "1rem",
+                          }}
+                        >
+                          <CakeIcon style={iconColor} />{" "}
+                          <strong>Hình ảnh báo cáo </strong>
+                        </Typography>
+                        <Box sx={{ flex: 1 }}>
+                          <div style={{ flex: 1 }}>
+                            <div
+                              style={{
+                                display: "flex",
+                                flexDirection: "row",
+                                justifyContent: "space-around",
+                              }}
+                            >
+                              <div
+                                style={{
+                                  width: "400px",
+                                  height: "200px",
+                                  border: "2px solid #000",
+                                  overflow: "hidden",
+                                }}
+                                onClick={() => setShowModal(true)}
+                              >
+                                <AutoPlaySwipeableViews
+                                  interval={3000} // Thời gian chuyển đổi giữa các ảnh (milisecond)
+                                  enableMouseEvents
+                                >
+                                  <div>
+                                    <img
+                                      src={
+                                        dataReport.image || "DEFAULT_IMAGE_URL"
+                                      }
+                                      alt="Hình Ảnh Của Xe"
+                                      style={{
+                                        width: "100%",
+                                        maxHeight: "200px",
+                                        objectFit: "cover",
+                                      }}
+                                    />
+                                  </div>
+                                  <div>
+                                    <img
+                                      src={
+                                        dataReport.image2 || "DEFAULT_IMAGE_URL"
+                                      }
+                                      alt="Hình Ảnh Của Xe"
+                                      style={{
+                                        width: "100%",
+                                        maxHeight: "200px",
+                                        objectFit: "cover",
+                                      }}
+                                    />
+                                  </div>
+                                </AutoPlaySwipeableViews>
+                              </div>
+                            </div>
+
+                            {showModal && (
+                              <div
+                                style={{
+                                  position: "fixed",
+                                  top: 0,
+                                  left: 0,
+                                  width: "100%",
+                                  height: "100%",
+                                  backgroundColor: "rgba(0, 0, 0, 0.7)",
+                                  display: "flex",
+                                  justifyContent: "center",
+                                  alignItems: "center",
+                                }}
+                                onClick={() => setShowModal(false)}
+                              >
+                                <div style={{ width: "80%" }}>
+                                  <AutoPlaySwipeableViews
+                                    interval={3000} // Thời gian chuyển đổi giữa các ảnh (milisecond)
+                                    enableMouseEvents
+                                  >
+                                    <div>
+                                      <img
+                                        src={
+                                          dataReport.image ||
+                                          "DEFAULT_IMAGE_URL"
+                                        }
+                                        alt="Hình Ảnh Của Xe"
+                                        style={{
+                                          width: "100%",
+                                          maxHeight: "80vh",
+                                          objectFit: "contain",
+                                        }}
+                                      />
+                                    </div>
+                                    <div>
+                                      <img
+                                        src={
+                                          dataReport.image2 ||
+                                          "DEFAULT_IMAGE_URL"
+                                        }
+                                        alt="Hình Ảnh Của Xe"
+                                        style={{
+                                          width: "100%",
+                                          maxHeight: "80vh",
+                                          objectFit: "contain",
+                                        }}
+                                      />
+                                    </div>
+                                  </AutoPlaySwipeableViews>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </Box>
                       </Grid>
                       <Grid item xs={1}>
                         <Divider
@@ -1203,8 +1325,6 @@ const MyModal = (props) => {
                             </Grid>
                           </Grid>
                         </Grid>
-
-                       
                       </Grid>
                     </Box>
                   </CardContent>

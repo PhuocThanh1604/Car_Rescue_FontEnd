@@ -15,40 +15,40 @@ const RequireAuth = () => {
 
   const saveNotificationToLocalStorage = (payload) => {
     const now = new Date();
-  
+
     const notification = {
       title: payload.notification.title,
       body: payload.notification.body,
       image: payload.notification.image,
       receivedTime: now.toISOString(),
     };
-  
+
     // Lấy danh sách thông báo từ localStorage nếu có
     const notificationsFromLocalStorage = localStorage.getItem("notifications");
     const notifications = notificationsFromLocalStorage
       ? JSON.parse(notificationsFromLocalStorage)
       : [];
-  
+
     // Thêm thông báo mới vào đầu danh sách
     notifications.unshift(notification);
-  
+
     // Giới hạn số lượng thông báo
     const limitedNotifications = notifications.slice(
       0,
       MAX_NOTIFICATIONS_DISPLAYED
     );
-  
+
     // Tăng số lượng thông báo chưa đọc lên 1
     setUnreadNotifications((prevUnreadCount) => prevUnreadCount + 1);
   };
-  
+
   useEffect(() => {
     localStorage.setItem(
       "unreadNotificationsCount",
       unreadNotifications.toString()
     );
   }, [unreadNotifications]);
-  
+
   useEffect(() => {
     const handleMessage = (payload) => {
       toast(
@@ -88,7 +88,7 @@ const RequireAuth = () => {
   }
   // Lấy đối tượng manager từ localStorage
   const managerString = localStorage.getItem("manager");
-  
+
   let manager = null;
 
   if (managerString) {
@@ -98,12 +98,13 @@ const RequireAuth = () => {
       console.error("Lỗi khi phân tích chuỗi JSON:", error);
     }
   }
+  const accessToken = localStorage.getItem("access_token");
 
+  console.log("access token : " + accessToken);
 
   const devicetoken1 = localStorage.getItem("deviceToken");
 
   if (devicetoken1) {
-    
     // console.log("Test device" + devicetoken1);
   }
 
@@ -111,11 +112,8 @@ const RequireAuth = () => {
   const location = useLocation();
   const token = localStorage.getItem("access_token");
   const role = localStorage.getItem("role_user");
-  
 
-    
   if (role) {
-
     if (role === "Admin") {
       // Nếu người dùng có role 5150, cho phép truy cập Outlet
       if (role.includes("Admin")) {
@@ -162,7 +160,6 @@ const RequireAuth = () => {
   if (!storedToken) {
     return <Navigate to="/signin" state={{ from: location }} replace />;
   }
-
 };
 
 export default RequireAuth;

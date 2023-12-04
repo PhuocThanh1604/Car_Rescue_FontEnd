@@ -54,10 +54,6 @@ const ModalEdit = ({
   };
   
 
-  useEffect(() => {
-    const currentDate = getCurrentDateISOString();
-  }, []);
-
   const reloadTechnicians = () => {
     dispatch(fetchTechnicians())
       .then((response) => {
@@ -70,25 +66,33 @@ const ModalEdit = ({
         }
       })
       .catch((error) => {
-        console.error("Lỗi khi tải lại danh sách khách hàng:", error);
+        toast.error("Lỗi khi tải lại danh sách khách hàng:", error);
       });
   };
 
   useEffect(() => {
-    if (selectedEditTechnician && technicians) {
-      if (selectedEditTechnician.id) {
-        const technicianToEdit = technicians.find(
-          ( technician) =>  technician.id === selectedEditTechnician.id
-        );
-        if (technicianToEdit) {
-          console.log("Data của Kỹ Thuật Viên "+technicianToEdit);
-          setFullnameValue(technicianToEdit.fullname);
-          setEdit(technicianToEdit);
-          setInitialFormState(technicianToEdit);
-        }
-      }
+    if (!selectedEditTechnician || !technicians || !Array.isArray(technicians)) {
+      // Xử lý khi selectedEditTechnician hoặc technicians không tồn tại hoặc không hợp lệ
+      toast.dismiss('Dữ liệu không hợp lệ để thực hiện tác vụ.');
+      return;
     }
+  
+    const technicianToEdit = technicians.find(
+      (technician) => technician.id === selectedEditTechnician.id
+    );
+  
+    if (!technicianToEdit) {
+      // Xử lý khi không tìm thấy technician để chỉnh sửa
+      toast.dismiss('Không tìm thấy thông tin kỹ thuật viên để chỉnh sửa.');
+      return;
+    }
+  
+    console.log("Data của Kỹ Thuật Viên " + technicianToEdit);
+    setFullnameValue(technicianToEdit.fullname);
+    setEdit(technicianToEdit);
+    setInitialFormState(technicianToEdit);
   }, [selectedEditTechnician, technicians]);
+  
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -155,11 +159,6 @@ const ModalEdit = ({
     // Thêm điều kiện kiểm tra nếu Technician không có giá trị
     return null;
   }
-  // Hàm kiểm tra URL hợp lệ
-  const isValidUrl = (url) => {
-    const regex = /^(ftp|http|https):\/\/[^ "]+$/;
-    return regex.test(url);
-  };
 
   return (
     <>

@@ -11,6 +11,7 @@ const getFromStorage = (key) => {
   const jsonData = localStorage.getItem(key); 
   return jsonData ? JSON.parse(jsonData) : null;
 };
+const accessToken = localStorage.getItem("access_token");
 
 export const createAcceptWithdrawRequest = createAsyncThunk(
   "vehicles/createAcceptWithdrawRequest",

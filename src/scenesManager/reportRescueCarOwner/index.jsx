@@ -199,7 +199,6 @@ const Reports = (props) => {
         setVehicleId(vehicleId);
         setOpenConfirmModal(false);
         setIsSuccess(true);
-      
         if (accept) {
           toast.success("Chấp nhận đơn báo cáo thành công");
           const notificationData = {

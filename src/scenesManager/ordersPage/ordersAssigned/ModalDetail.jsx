@@ -65,13 +65,33 @@ const MyModal = (props) => {
 
   const iconColor = { color: colors.blueAccent[500] };
   useEffect(() => {
+    setLoading(true)
     if (selectedEditOrder && selectedEditOrder.departure) {
       fetchAddress("departure", selectedEditOrder.departure);
     }
+    if (selectedEditOrder && selectedEditOrder.rescueType === "Fixing") {
+      // Đặt lại địa chỉ điểm đến nếu rescueType là Fixing
+      resetDestinationAddress();
+    } else if (selectedEditOrder && selectedEditOrder.destination) {
+      // Nếu không phải Fixing, thực hiện fetchAddress cho destination
+      fetchAddress("destination", selectedEditOrder.destination);
+    }
+  
     if (selectedEditOrder && selectedEditOrder.id) {
       fetchOrderDetail(selectedEditOrder.id);
     }
   }, [selectedEditOrder]);
+  
+  const resetDestinationAddress = () => {
+    // Đặt lại địa chỉ điểm đến
+    setFormattedAddresses(prevAddresses => ({
+      ...prevAddresses,
+      destination: null // Hoặc giá trị mặc định khác tùy thuộc vào yêu cầu
+    }));
+  };
+  
+  // Phần còn lại của hàm fetchAddress không thay đổi
+  
   const fetchAddress = async (addressType, addressValue) => {
     console.log("latlng" + addressValue);
     if (!addressValue) {
@@ -204,93 +224,86 @@ const MyModal = (props) => {
       date.getMonth() + 1
     }/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`;
   }
-    // Hiển thị tất cả dịch vụ và quantity
-    const fetchOrderDetail = (orderId) => {
-      console.log(orderId);
-      setServiceNames(null);
-      // Make sure you have a check to prevent unnecessary API calls
-      if (orderId) {
-        dispatch(getOrderDetailId({ id: orderId }))
-          .then((response) => {
-            const data = response.payload.data;
-            console.log(data);
-            if (data && Array.isArray(data)) {
-              const serviceDetails = data.map((item) => ({
-                serviceId: item.serviceId,
-                quantity: item.quantity,
-                type: null, // Thêm type vào object để lưu thông tin loại dịch vụ từ API
-              }));
-  
-              // Tạo mảng promises để gọi API lấy thông tin từng serviceId và quantity
-              const servicePromises = serviceDetails.map(
-                ({ serviceId, quantity }) => {
-                  return dispatch(getServiceId({ id: serviceId }))
-                    .then((serviceResponse) => {
-                      const serviceName = serviceResponse.payload.data.name;
-                      const serviceType = serviceResponse.payload.data.type;
-                      let updatedQuantity = quantity;
-  
-                      // Xử lý thông tin quantity dựa trên loại dịch vụ (type)
-                      if (serviceType === "Towing") {
-                        updatedQuantity += " km"; // Nếu là Towing thì thêm chuỗi ' km' vào quantity
-                      } else if (serviceType === "Fixing") {
-                        updatedQuantity = `Số lượng: ${quantity}`; // Nếu là Fixing thì sử dụng format riêng
-                      }
-  
-                      console.log(
-                        `ServiceId: ${serviceId}, ServiceName: ${serviceName}, Quantity: ${updatedQuantity}`
-                      );
-                      return { serviceName, updatedQuantity }; // Trả về thông tin đã được xử lý
-                    })
-                    .catch((serviceError) => {
-                      console.error(
-                        `Error while fetching service data for serviceId ${serviceId}:`,
-                        serviceError
-                      );
-                      return null;
-                    });
-                }
-              );
-  
-              // Sử dụng Promise.all để chờ tất cả các promises hoàn thành
-              Promise.all(servicePromises)
-                .then((serviceData) => {
-                  // Log tất cả serviceName và quantity từ API
-                  console.log(
-                    "Tất cả serviceName và quantity từ API:",
-                    serviceData
-                  );
-                  // Cập nhật state với serviceNames và quantity đã lấy được từ API
-                  setServiceNames((prevServiceNames) => ({
-                    ...prevServiceNames,
-                    [orderId]: serviceData,
-                  }));
-                })
-                .catch((error) => {
-                  console.error(
-                    "Error while processing service data promises:",
-                    error
-                  );
-                });
-            } else {
-              console.error(
-                "Service data not found in the API response or data is not an array."
-              );
-            }
-          })
-          .catch((error) => {
-            console.error("Error while fetching service data detail:", error);
-          });
-      }
-    };
-  
-  const technicianInfo = selectedEditOrder &&
-    selectedEditOrder.technicianId && (
-      <Grid item xs={5} alignItems="center">
-        <p>Không có thông tin</p>
-        {/* Đảm bảo rằng bạn đặt tất cả JSX liên quan đến thông tin kỹ thuật viên ở đây */}
-      </Grid>
-    );
+  // Hiển thị tất cả dịch vụ và quantity
+  const fetchOrderDetail = (orderId) => {
+    console.log(orderId);
+    setServiceNames(null);
+    // Make sure you have a check to prevent unnecessary API calls
+    if (orderId) {
+      dispatch(getOrderDetailId({ id: orderId }))
+        .then((response) => {
+          const data = response.payload.data;
+          console.log(data);
+          if (data && Array.isArray(data)) {
+            const serviceDetails = data.map((item) => ({
+              serviceId: item.serviceId,
+              quantity: item.quantity,
+              type: null, // Thêm type vào object để lưu thông tin loại dịch vụ từ API
+            }));
+
+            // Tạo mảng promises để gọi API lấy thông tin từng serviceId và quantity
+            const servicePromises = serviceDetails.map(
+              ({ serviceId, quantity }) => {
+                return dispatch(getServiceId({ id: serviceId }))
+                  .then((serviceResponse) => {
+                    const serviceName = serviceResponse.payload.data.name;
+                    const serviceType = serviceResponse.payload.data.type;
+                    let updatedQuantity = quantity;
+
+                    // Xử lý thông tin quantity dựa trên loại dịch vụ (type)
+                    if (serviceType === "Towing") {
+                      updatedQuantity += " km"; // Nếu là Towing thì thêm chuỗi ' km' vào quantity
+                    } else if (serviceType === "Fixing") {
+                      updatedQuantity = `Số lượng: ${quantity}`; // Nếu là Fixing thì sử dụng format riêng
+                    }
+
+                    console.log(
+                      `ServiceId: ${serviceId}, ServiceName: ${serviceName}, Quantity: ${updatedQuantity}`
+                    );
+                    return { serviceName, updatedQuantity }; // Trả về thông tin đã được xử lý
+                  })
+                  .catch((serviceError) => {
+                    console.error(
+                      `Error while fetching service data for serviceId ${serviceId}:`,
+                      serviceError
+                    );
+                    return null;
+                  });
+              }
+            );
+
+            // Sử dụng Promise.all để chờ tất cả các promises hoàn thành
+            Promise.all(servicePromises)
+              .then((serviceData) => {
+                // Log tất cả serviceName và quantity từ API
+                console.log(
+                  "Tất cả serviceName và quantity từ API:",
+                  serviceData
+                );
+                // Cập nhật state với serviceNames và quantity đã lấy được từ API
+                setServiceNames((prevServiceNames) => ({
+                  ...prevServiceNames,
+                  [orderId]: serviceData,
+                }));
+              })
+              .catch((error) => {
+                console.error(
+                  "Error while processing service data promises:",
+                  error
+                );
+              });
+          } else {
+            setLoading(false);
+            // console.error(
+            //   "Service data not found in the API response or data is not an array."
+            // );
+          }
+        })
+        .catch((error) => {
+          console.error("Error while fetching service data detail:", error);
+        });
+    }
+  };
 
   let formattedDateStart = "Không có thông tin";
   let formattedDateEnd = "Không có thông tin";
@@ -577,6 +590,35 @@ const MyModal = (props) => {
                               {formattedAddresses.departure || "Đang cập nhật"}
                             </Typography>
                           </Typography>
+
+                          <Typography
+                            variant="body1"
+                            component="p"
+                            sx={{
+                              marginBottom: "8px",
+                              fontSize: "1rem",
+                            }}
+                          >
+                            <LocationOnIcon style={iconColor} />
+                            <strong>Địa chỉ đến: </strong>
+                            <Typography
+                              variant="h6"
+                              component="span"
+                              sx={{
+                                padding: "8px",
+                                borderRadius: "4px",
+                                marginLeft: "4px",
+                                wordWrap: "break-word",
+                                overflowWrap: "break-word",
+                                whiteSpace: "normal",
+                                flex: 1,
+                              }}
+                            >
+                              {formattedAddresses.destination ||
+                                "Không có thông tin"}
+                            </Typography>
+                          </Typography>
+
                           {/* List all services */}
                           <Typography
                             variant="body1"

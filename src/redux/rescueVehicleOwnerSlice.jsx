@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
-
+const accessToken = localStorage.getItem("access_token");
 const saveToStorage = (key, data) => {
   const jsonData = JSON.stringify(data);
   localStorage.setItem(key, jsonData); // Dùng Local Storage

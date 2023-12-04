@@ -90,28 +90,69 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
   const colors = tokens(theme.palette.mode);
   const iconColor = { color: colors.blueAccent[500] };
 
-  useEffect(() => {
-    if (dataOrder && dataOrder.departure) {
-      fetchAddress("departure", dataOrder.departure);
-    }
-    if (dataOrder && dataOrder.destination) {
-      fetchAddress("destination", dataOrder.destination);
-    }
-    if (selectedEditOrder && selectedEditOrder[0].orderId) {
-      fetchOrder(selectedEditOrder[0].orderId);
-      fetchPayment(selectedEditOrder[0].orderId);
-    }
-    if (selectedEditOrder && selectedEditOrder[0].orderId) {
-      setOrderCalateId(selectedEditOrder[0].orderId);
-    }
+  
  
-  }, [selectedEditOrder]);
+  const [fixingCounter, setFixingCounter] = useState(0);
 
+  useEffect(() => {
+    setLoading(true);
+  
+    const fetchData = async () => {
+      if (dataOrder && dataOrder.departure) {
+        await fetchAddress("departure", dataOrder.departure);
+      }
+  
+      if (dataOrder) {
+        if (dataOrder.rescueType === "Fixing") {
+          if (fixingCounter === 1) {
+            resetDestinationAddress(); // Reset destination address when fixingCounter is 1
+            setLoading(false);
+          } else {
+            setFixingCounter(fixingCounter + 1);
+            setLoading(false);
+          }
+        } else if (dataOrder.destination) {
+          await fetchAddress("destination", dataOrder.destination);
+          setLoading(false);
+        }
+      }
+  
+      if (selectedEditOrder && selectedEditOrder[0].orderId) {
+        await fetchOrder(selectedEditOrder[0].orderId);
+        await fetchPayment(selectedEditOrder[0].orderId);
+        setOrderCalateId(selectedEditOrder[0].orderId);
+        setLoading(false);
+      }
+    };
+  
+    fetchData();
+  }, [selectedEditOrder, fixingCounter]);
+  
+  const resetDestinationAddress = () => {
+    setFormattedAddresses((prevAddresses) => ({
+      ...prevAddresses,
+      destination: null // Reset destination address to null or default value based on requirements
+    }));
+  };
+  
+  const handleClose = () => {
+    if (selectedEditOrder && selectedEditOrder[0]?.rescueType === "Fixing") {
+      if (fixingCounter === 1) {
+        setFixingCounter(0); // Reset the counter when closing modal
+      } else {
+        setFixingCounter(1); // Increment counter when closing modal with Fixing selected once
+      }
+    }
+    setOpenEditModal(false); // Close the modal
+  };
+  
+  // ... rest of the code remains the same
+  
+  
   const fetchAddress = async (addressType, addressValue) => {
     if (!addressValue) {
-      return; // Trả về nếu order không tồn tại hoặc địa chỉ đã được lưu trữ
+      return; 
     }
-
     const matches = /lat:\s*([^,]+),\s*long:\s*([^,]+)/.exec(addressValue);
     if (matches && matches.length === 3) {
       const [, lat, lng] = matches;
@@ -136,7 +177,7 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
       }
     }
   };
-  //Hiển thị 1 dịch vụ đầu tiên
+
 
   const fetchOrder = (orderId) => {
     console.log(orderId);
@@ -492,9 +533,7 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
         console.error("Lỗi khi tải lại chi tiết đơn:", error);
       });
   };
-  const handleClose = () => {
-    setOpenEditModal(false);
-  };
+ 
 
   useEffect(() => {
     // Ensure selectedEditOrder is not null and is an array
@@ -640,7 +679,7 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
                         }}
                       >
                         <LocationOnIcon style={iconColor} />
-                        <strong>Địa chỉ kéo đến: </strong>
+                        <strong>Địa chỉ đến: </strong>
                         <Typography
                           variant="h6"
                           component="span"
@@ -655,7 +694,7 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
                           }}
                         >
                           {}
-                          {formattedAddresses.destination || "Đang cập nhật"}
+                          {formattedAddresses.destination || "Không có thông tin"}
                         </Typography>
                       </Typography>
                       <Typography
@@ -780,7 +819,8 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
                             display: "flex",
                             alignItems: "center",
                             marginLeft: "10px",
-                            fontWeight:"bold"
+                            fontWeight:"bold",
+                            color:colors.redAccent[600]
                           }}
                         >
                           {dataPayment.amount ? `${dataPayment.amount.toLocaleString()} VNĐ`

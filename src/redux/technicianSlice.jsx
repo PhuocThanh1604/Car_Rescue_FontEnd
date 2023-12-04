@@ -14,6 +14,7 @@ const getFromStorage = (key) => {
   // const jsonData = sessionStorage.getItem(key); // Hoặc dùng Session Storage
   return jsonData ? JSON.parse(jsonData) : null;
 };
+const accessToken = localStorage.getItem("access_token");
 export const createTechnician = createAsyncThunk(
   "technicians/createTechnicians",
   async (technician) => {

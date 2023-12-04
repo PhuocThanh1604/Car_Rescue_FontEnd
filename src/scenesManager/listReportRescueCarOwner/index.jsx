@@ -51,6 +51,7 @@ const ListReports = (props) => {
   const [endDate, setEndDate] = useState(null);
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]);
+  const [dataReport, setDataReport] = useState(null);
   const [initialFormState, setInitialFormState] = useState({});
   const [editStatus, setEditStatus] = useState({});
   const [vehicleId, setVehicleId] = useState(null);
@@ -203,16 +204,16 @@ const ListReports = (props) => {
     // Fetch the rescueVehicleOwnerId details based on the selected rescueVehicleOwnerId ID
     dispatch(getReportById({ id: orderId }))
       .then((response) => {
-        const orderDetails = response.payload.data;
-        console.log(orderDetails.orderId);
-        dispatch(getOrderId({ id: orderDetails.orderId }))
+        const dataReport = response.payload.data;
+        setDataReport(dataReport)
+        dispatch(getOrderId({ id: dataReport.orderId }))
           .then((response) => {
             const orderDetail = response.payload.data;
             setSelectedEditOrder(orderDetail);
             setOpenModal(true);
           })
           .catch((error) => {
-            console.error("Lỗi khi lấy thông tin đơn hàng mới:", error);
+            toast.error("Lỗi khi lấy thông tin báo cáo:", error);
           });
       })
       .catch((error) => {
@@ -240,6 +241,7 @@ const ListReports = (props) => {
   }, [rescueVehicleOwners, searchText, filterOption]);
 
   useEffect(() => {
+    setLoading(true)
     dispatch(getReportAll())
       .then((response) => {
         // Đã lấy dữ liệu thành công
@@ -249,7 +251,7 @@ const ListReports = (props) => {
         } 
         const data = response.payload.data;
           console.log(data);
-          setData(data);
+          setData(data)
           setFilteredVehicles(data);
       })
       .catch((error) => {
@@ -319,16 +321,16 @@ const ListReports = (props) => {
             justifyContent="center"
             borderRadius={2}
             backgroundColor={
-              status === "NEW"
+              status === "FINISHED"
                 ? colors.greenAccent[700]
-                : status === "ASSIGNED"
+                : status === "INACTIVE"
                 ? colors.redAccent[700]
                 : colors.redAccent[700]
                 ? colors.blueAccent[700]
                 : status === "COMPLETED"
             }
             color={
-              status === "NEW"
+              status === "FINISHED"
                 ? colors.greenAccent[300]
                 : colors.yellowAccent[700]
             }
@@ -337,27 +339,6 @@ const ListReports = (props) => {
               {status}
             </Typography>
           </Box>
-        );
-      },
-    },
-    {
-      field: "image",
-      headerName: "Hình ảnh",
-      width: 120,
-      renderCell: (params) => {
-        const avatarSrc =
-          params.value ||
-          "https://cdn-icons-png.flaticon.com/512/6596/6596121.png"; // Đặt URL của hình mặc định ở đây
-        return (
-          <img
-            src={avatarSrc}
-            alt="Hình ảnh"
-            style={{
-              width: "40px",
-              height: "40px",
-              borderRadius: "50%", // Tạo hình tròn
-            }}
-          />
         );
       },
     },
@@ -404,8 +385,8 @@ const ListReports = (props) => {
   return (
     <Box ml="50px" mr="50px" mb="auto">
       <Header
-        title="Danh Sách Xe Cứu Hộ"
-        subtitle="Danh sách xe cứu hộ chờ duyệt"
+        title="Danh Sách Đơn Báo Cáo"
+        subtitle="Danh sách đơn báo cáo"
       />
       <Box display="flex" className="box" left={0}>
         <Box
@@ -428,7 +409,7 @@ const ListReports = (props) => {
         </Box>
 
         <ToastContainer />
-        <Box display="flex" alignItems="center" className="filter-box">
+        {/* <Box display="flex" alignItems="center" className="filter-box">
           <FormControl fullWidth>
             <Select
               labelId="demo-simple-select-label"
@@ -452,7 +433,7 @@ const ListReports = (props) => {
               </MenuItem>
             </Select>
           </FormControl>
-        </Box>
+        </Box> */}
         <Box display="flex" alignItems="center" className="startDate-box">
           <TextField
             label="Từ ngày"
@@ -557,6 +538,7 @@ const ListReports = (props) => {
         setOpenModal={setOpenModal}
         onClose={() => setOpenModal(false)}
         selectedEditOrder={selectedEditOrder}
+        dataReport={dataReport}
         loading={loading}
       ></ModalDetail>
     </Box>

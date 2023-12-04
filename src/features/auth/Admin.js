@@ -5,7 +5,6 @@ import { ColorModeContext, useMode } from '../../theme';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import Topbar from '../../components/Topbar';
 import Sidebar from '../../scenes/geography/global/Sidebar';
-import Products from '../../scenes/products';
 import AuthProvider from '../../context/AuthContext';
 import { Routes, Route } from 'react-router-dom';
 import { useSelector } from "react-redux";
@@ -47,7 +46,6 @@ const Admin = () => {
                   {/* <Route path="/admin/users" element={<User />} /> */}
                   {/* <Route path="/admin/invoices" element={<Invoices />} /> */}
         
-                  <Route path="/admin/books" element={<Products />} />
                   
                   <Route path="" element={<Customers />} />
                   {/* LIST actor */}

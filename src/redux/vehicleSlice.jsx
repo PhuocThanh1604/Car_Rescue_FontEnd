@@ -11,11 +11,7 @@ const removeFromStorage = (key) => {
   localStorage.removeItem(key);
 };
 // Hàm lấy dữ liệu từ storage
-const getFromStorage = (key) => {
-  const jsonData = localStorage.getItem(key); // Dùng Local Storage
-  // const jsonData = sessionStorage.getItem(key); // Hoặc dùng Session Storage
-  return jsonData ? JSON.parse(jsonData) : null;
-};
+const accessToken = localStorage.getItem("access_token");
 export const createRescueVehicleOwner = createAsyncThunk(
   "vehicles/createRescueVehicleOwners",
   async (rescueVehicleOwner) => {

@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 // import { serviceDataService } from '../services/serviceService';
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
+const accessToken = localStorage.getItem("access_token");
 export const createService = createAsyncThunk(
   'services/createservices',
   async (service) => {
