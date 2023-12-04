@@ -18,7 +18,7 @@ import Header from "../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import {  getAccountEmail } from "../../redux/accountSlice";
+import { getAccountEmail } from "../../redux/accountSlice";
 import UploadImageField from "../../components/uploadImage";
 import { createManager } from "../../redux/managerSlice";
 import AddIcon from "@mui/icons-material/Add";
@@ -51,9 +51,12 @@ const AddRescueVehicleOwner = () => {
     birthdate: yup.date().required("Required"), // Date validation
     date: yup.date().required("Required"), // Date validation
     accountId: yup.string().required("Required"),
-
   });
-  const statusOptions = ["ACTIVE", "INACTIVE"];
+  const statusMapping = {
+    ACTIVE: "Hoạt Động",
+    INACTIVE: "Không Hoạt Động",
+    // Thêm các trạng thái khác nếu cần thiết
+  };
   const initialValues = {
     fullname: "",
     sex: "",
@@ -64,7 +67,6 @@ const AddRescueVehicleOwner = () => {
     avatar: "",
     accountId: "",
     date: new Date(),
-    
   };
 
   // Tạo ref để lưu trữ tham chiếu đến formik
@@ -77,13 +79,11 @@ const AddRescueVehicleOwner = () => {
     console.log("Dữ liệu đã nhập:", rescueVehicleOwner);
     dispatch(createManager(values))
       .then((response) => {
-        if (response.payload.status ==="Success"){
-          toast.success("Tạo Tài Khoản Manager Thành Công")
+        if (response.payload.status === "Success") {
+          toast.success("Tạo Tài Khoản Manager Thành Công");
           formikRef.current.resetForm();
-        }else
-        {
+        } else {
           toast.error("Tạo Tài Khoản không Thành Công vui lòng thử lại");
-
         }
       })
       .catch((error) => {
@@ -130,7 +130,7 @@ const AddRescueVehicleOwner = () => {
           <form onSubmit={handleSubmit}>
             <Box display="flex" justifyContent="left" mb="20px">
               <Button type="submit" color="secondary" variant="contained">
-              <AddIcon />   Tạo Quản Lí
+                <AddIcon /> Tạo Quản Lí
               </Button>
             </Box>
             <Box
@@ -275,9 +275,9 @@ const AddRescueVehicleOwner = () => {
                     value={values.status}
                     sx={{ gridColumn: "span 4" }}
                   >
-                    {statusOptions.map((status) => (
-                      <MenuItem key={status} value={status}>
-                        {status}
+                    {Object.keys(statusMapping).map((statusKey) => (
+                      <MenuItem key={statusKey} value={statusKey}>
+                        {statusMapping[statusKey]}{" "}
                       </MenuItem>
                     ))}
                   </Select>

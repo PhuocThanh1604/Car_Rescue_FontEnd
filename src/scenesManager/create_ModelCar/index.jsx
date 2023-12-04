@@ -45,7 +45,10 @@ const AddModelCar = () => {
     model1: yup.string().required("Required"),
     status: yup.string().required("Required"),
   });
-  const statusOptions = ["ACTIVE", "INACTIVE"];
+  const statusMapping = {
+    ACTIVE: "Hoạt Động",
+    INACTIVE: "Không Hoạt Động",
+  };
   const initialValues = {
     model1: "",
     status: "",
@@ -159,9 +162,9 @@ const AddModelCar = () => {
                     value={values.status}
                     sx={{ gridColumn: "span 1" }}
                   >
-                    {statusOptions.map((status) => (
-                      <MenuItem key={status} value={status}>
-                        {status}
+                 {Object.keys(statusMapping).map((statusKey) => (
+                      <MenuItem key={statusKey} value={statusKey}>
+                        {statusMapping[statusKey]}{" "}
                       </MenuItem>
                     ))}
                   </Select>

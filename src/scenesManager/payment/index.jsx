@@ -344,7 +344,11 @@ const Payment = () => {
             }
           >
             <Typography color="inherit" sx={{ ml: "1px", fontWeight: "bold" }}>
-              {method}
+              {method === "Cash"
+                ? "Tiền Mặt"
+                : method === "Banking"
+                ? "Chuyển Khoản"
+                : method}
             </Typography>
           </Box>
         );
@@ -370,19 +374,24 @@ const Payment = () => {
                 : status === "ASSIGNED"
                 ? colors.redAccent[700]
                 : colors.redAccent[700]
-                ? colors.cyan[300]
+                ? colors.lime[300]
                 : status === "COMPLETED"
             }
             color={
               status === "NEW"
                 ? colors.greenAccent[300]
                 : colors.yellowAccent[700] && status === "COMPLETED"
-                ? colors.cyan[700]
+                ? colors.lime[700]
                 : colors.yellowAccent[700]
             }
           >
             <Typography color="inherit" sx={{ ml: "1px", fontWeight: "bold" }}>
-              {status}
+           
+              {status === "NEW"
+                ? "Mới"
+                : status === "COMPLETED"
+                ? "Hoàn Thành"
+                : status}
             </Typography>
           </Box>
         );

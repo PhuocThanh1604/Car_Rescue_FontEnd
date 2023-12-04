@@ -98,7 +98,8 @@ const ModalEdit = ({
     } else {
       // Gửi yêu cầu cập nhật lên máy chủ
       dispatch(editService({ data: edit }))
-        .then(() => {
+        .then((response) => {
+          console.log(response);
           toast.success("Cập nhật dịch vụ thành công.");
           handleClose();
           reloadServices();

@@ -274,7 +274,7 @@ const OrdersInprogress = (props) => {
     {
       field: "rescueType",
       headerName: "Hình Thức",
-      width: 120,
+      width: 140,
       key: "rescueType",
       renderCell: ({ row: { rescueType } }) => {
         return (
@@ -302,7 +302,7 @@ const OrdersInprogress = (props) => {
             {rescueType === "Towing" && <SupportIcon />}
             {rescueType === "Fixing" && <HandymanIcon />}
             <Typography color="inherit" sx={{ ml: "1px", fontWeight: "bold" }}>
-              {rescueType}
+            {rescueType === "Towing" ? "Kéo Xe" : rescueType==="Fixing" ? "Sữa Chữa Tại Chỗ":rescueType}
             </Typography>
           </Box>
         );
@@ -313,7 +313,7 @@ const OrdersInprogress = (props) => {
     {
       field: "status",
       headerName: "Trạng Thái",
-      width: 100,
+      width: 120,
       key: "status",
       renderCell: ({ row: { status } }) => {
         return (
@@ -341,7 +341,18 @@ const OrdersInprogress = (props) => {
           >
            
             <Typography color="inherit" sx={{ ml: "1px", fontWeight: "bold" }}>
-              {status}
+            {status === "NEW"
+                ? "Mới"
+                : status === "ASSIGNED"
+                ? " Đã điều phối"
+                : status === "COMPLETED"
+                ? "Hoàn thành"
+                : status === "Canneclled"
+                ? "Đã Hủy"
+                : status === "ASSIGNING"
+                ? "Đang Điều Phối" 
+                : status ==="INPROGRESS"
+                ? "Đang thực hiện":status}
             </Typography>
           </Box>
         );

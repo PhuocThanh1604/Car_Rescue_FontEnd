@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, {  useRef, useState } from "react";
 import {
   Box,
   Button,
@@ -38,8 +38,6 @@ const AddService = () => {
     }
   }
   
-
-
   const checkoutSchema = yup.object().shape({
     name: yup.string().required("Required"),
     description: yup.string(),
@@ -48,7 +46,11 @@ const AddService = () => {
     type: yup.string().required("Required"),
     createdBy: yup.string().required("Required"),
   });
-  const statusOptions = ["ACTIVE", "INACTIVE"];
+  const statusMapping = {
+    ACTIVE: "Hoạt Động",
+    INACTIVE: "Không Hoạt Động",
+    // Thêm các trạng thái khác nếu cần thiết
+  };
   const initialValues = {
     name: "",
     price: 0,
@@ -82,20 +84,6 @@ const AddService = () => {
         }
       });
   };
-  useEffect(() => {
-    dispatch(fetchManagers())
-      .then((response) => {
-        const data = response.payload.data;
-
-        if (data) {
-          setDataSelect(data);
-          setLoading(false);
-        }
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, [dispatch]);
   return (
     <Box m="20px">
       <Header title="Tạo Dịch Vụ" subtitle="Tạo Thông Tin Dịch Vụ" />
@@ -224,9 +212,9 @@ const AddService = () => {
                     value={values.status}
                     sx={{ gridColumn: "span 4" }}
                   >
-                    {statusOptions.map((status) => (
-                      <MenuItem key={status} value={status}>
-                        {status}
+                     {Object.keys(statusMapping).map((statusKey) => (
+                      <MenuItem key={statusKey} value={statusKey}>
+                        {statusMapping[statusKey]}{" "}
                       </MenuItem>
                     ))}
                   </Select>

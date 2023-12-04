@@ -345,19 +345,26 @@ const Reports = (props) => {
   useEffect(() => {
     dispatch(getReportAllNew())
       .then((response) => {
-        // Đã lấy dữ liệu thành công
-        const data = response.payload.data;
-        if (data) {
+        // Kiểm tra xem 'response.payload' và 'response.payload.data' có tồn tại không
+        if (response.payload && response.payload.data) {
+          const data = response.payload.data;
           console.log(data);
           setData(data);
           setFilteredVehicles(data);
-          setLoading(false); // Đặt trạng thái loading thành false sau khi xử lý dữ liệu
+        } else {
+          // Xử lý tình huống khi không có dữ liệu
+          toast.dismiss("Không có dữ liệu từ phản hồi");
         }
       })
+      .catch(error => {
+        // Xử lý lỗi ở đây
+        toast.dismiss("Lỗi khi lấy dữ liệu báo cáo:", error);
+      })
       .finally(() => {
-        setLoading(false);
+        setLoading(false); // Đặt trạng thái loading thành false
       });
   }, [dispatch]);
+  
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);

@@ -497,10 +497,14 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
                 : colors.purpleAccent[200]
             }
           >
-            {type === "Withdraw" && <CurrencyExchangeIcon />}
+            {type === "Rút" && <CurrencyExchangeIcon />}
             {type === "Deposit" && <AssuredWorkloadIcon />}
             <Typography color={colors.grey[100]} sx={{ ml: "2px" }}>
-              {type}
+              {type === "Withdraw"
+                ? "Mới"
+                : type === "Deposit"
+                ? "Tiền gửi"
+                : type}
             </Typography>
           </Box>
         );
@@ -538,7 +542,18 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
             }
           >
             <Typography color="inherit" sx={{ ml: "1px", fontWeight: "bold" }}>
-              {status}
+            {status === "NEW"
+                ? "Mới"
+                : status === "FAILD"
+                ? "Thất Bại"
+                : status === "COMPLETED"
+                ? "Hoàn thành"
+                : status === "Canneclled"
+                ? "Đã Hủy"
+                : status === "ASSIGNING"
+                ? "Đang Điều Phối" 
+                : status ==="INPROGRESS"
+                ? "Đang thực hiện":status}
             </Typography>
           </Box>
         );

@@ -134,6 +134,7 @@ const Managers = (props) => {
     const filteredManagers = managers
       ? managers.filter((manager) => {
           const nameMatch =
+          manager&&
             manager.fullname &&
             manager.fullname.toLowerCase().includes(searchText.toLowerCase());
           const filterMatch =

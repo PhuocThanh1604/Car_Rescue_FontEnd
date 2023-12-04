@@ -34,8 +34,6 @@ const AddCustomer = () => {
   const [currentImageUrl, setCurrentImageUrl] = useState(data.avatar || "");
   const [downloadUrl, setDownloadUrl] = useState("");
 
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [fileUrls, setFileUrls] = useState([]);
   const checkoutSchema = yup.object().shape({
     fullname: yup.string().required("Required"),
     sex: yup.string().required("Required"),
@@ -47,7 +45,11 @@ const AddCustomer = () => {
     accountId: yup.string(),
     date: yup.date().required("Required"), 
   });
-  const statusOptions = ["ACTIVE", "Unactive"];
+  const statusMapping = {
+    ACTIVE: "Hoạt Động",
+    INACTIVE: "Không Hoạt Động",
+    // Thêm các trạng thái khác nếu cần thiết
+  };
   const initialValues = {
     fullname: "",
     sex: "",
@@ -273,9 +275,9 @@ const AddCustomer = () => {
                     value={values.status}
                     sx={{ gridColumn: "span 4" }}
                   >
-                    {statusOptions.map((status) => (
-                      <MenuItem key={status} value={status}>
-                        {status}
+                       {Object.keys(statusMapping).map((statusKey) => (
+                      <MenuItem key={statusKey} value={statusKey}>
+                        {statusMapping[statusKey]}{" "}
                       </MenuItem>
                     ))}
                   </Select>

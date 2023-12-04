@@ -18,7 +18,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Edit } from "@mui/icons-material";
 import ModalEdit from "./ModalComponentEdit";
 import ToggleButton from "./ToggleButton";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Fade from "@mui/material/Fade";
 import SearchIcon from "@mui/icons-material/Search";
@@ -115,7 +115,12 @@ const ModelCar = (props) => {
           setData(data);
           setFilteredSerivces(data);
           setLoading(false); // Đặt trạng thái loading thành false sau khi xử lý dữ liệu
+        }else{
+          toast.dismiss("Không có dữ liệu từ phản hồi");
         }
+      }).catch(error => {
+        // Xử lý lỗi ở đây
+        toast.error("Lỗi khi lấy dữ liệu model:", error);
       })
       .finally(() => {
         setLoading(false);

@@ -24,7 +24,11 @@ import SearchIcon from "@mui/icons-material/Search";
 import InputBase from "@mui/material/InputBase";
 import moment from "moment";
 
-import { fetchOrdersCancelled, fetchOrdersNew, getOrderId } from "../../../redux/orderSlice";
+import {
+  fetchOrdersCancelled,
+  fetchOrdersNew,
+  getOrderId,
+} from "../../../redux/orderSlice";
 import { getCustomerIdFullName } from "../../../redux/customerSlice";
 import CreditScoreIcon from "@mui/icons-material/CreditScore";
 import AddCardIcon from "@mui/icons-material/AddCard";
@@ -54,29 +58,29 @@ const OrdersCancelled = (props) => {
   const [data, setData] = useState([]);
   const [fullnameData, setFullnameData] = useState({});
 
-//hàm detail 
-const handleDetailClick = (orderId) => {
-  console.log(orderId);
-  // Fetch the rescueVehicleOwnerId details based on the selected rescueVehicleOwnerId ID
-  dispatch(getOrderId({ id: orderId }))
-    .then((response) => {
-      const orderDetails = response.payload.data;
-      setSelectedEditOrder(orderDetails);
-      setOpenModal(true);
-    })
-    .catch((error) => {
-      console.error("Lỗi khi lấy thông tin đơn hàng mới:", error);
-    });
-};
+  //hàm detail
+  const handleDetailClick = (orderId) => {
+    console.log(orderId);
+    // Fetch the rescueVehicleOwnerId details based on the selected rescueVehicleOwnerId ID
+    dispatch(getOrderId({ id: orderId }))
+      .then((response) => {
+        const orderDetails = response.payload.data;
+        setSelectedEditOrder(orderDetails);
+        setOpenModal(true);
+      })
+      .catch((error) => {
+        console.error("Lỗi khi lấy thông tin đơn hàng mới:", error);
+      });
+  };
 
   const handleSearchChange = (event) => {
     const value = event.target.value.toLowerCase();
     setSearchText(value);
-     // Kiểm tra nếu không có dữ liệu orders hoặc fullnameData
-  if (!Array.isArray(orders) || !Object.keys(fullnameData).length) {
-    // Thực hiện xử lý khi không có dữ liệu
-    return;
-  }
+    // Kiểm tra nếu không có dữ liệu orders hoặc fullnameData
+    if (!Array.isArray(orders) || !Object.keys(fullnameData).length) {
+      // Thực hiện xử lý khi không có dữ liệu
+      return;
+    }
     const filteredOrders = orders.filter((order) => {
       const nameMatch =
         fullnameData[order.customerId] && // Check if fullname data is available
@@ -91,12 +95,12 @@ const handleDetailClick = (orderId) => {
 
     setFilteredOrders(filteredOrders);
   };
-  
+
   const handleFilterChange = (event) => {
     const selectedStatusOption = event.target.value;
     setFilterOption(selectedStatusOption);
 
-    if (selectedStatusOption === 'rescueType') {
+    if (selectedStatusOption === "rescueType") {
       // Hiển thị tất cả các trạng thái
       setFilteredOrders(orders);
     } else {
@@ -110,33 +114,51 @@ const handleDetailClick = (orderId) => {
   const handleDateFilterChange = () => {
     if (!Array.isArray(orders) || orders.length === 0) {
       // Xử lý trường hợp không tìm thấy mảng orders, ví dụ: hiển thị thông báo hoặc không thực hiện thay đổi nào
-    toast.warning('Không tìm thấy dữ liệu orders.');
+      toast.warning("Không tìm thấy dữ liệu orders.");
       return; // Dừng hàm nếu không tìm thấy mảng orders
     }
-  
-    if (startDate && endDate && moment(startDate).isValid() && moment(endDate).isValid()) {
-      const formattedStartDate = moment(startDate).tz("Asia/Ho_Chi_Minh").add(7, 'hours').startOf('day');
-      const formattedEndDate = moment(endDate).tz("Asia/Ho_Chi_Minh").add(7, 'hours').startOf('day');
-  
+
+    if (
+      startDate &&
+      endDate &&
+      moment(startDate).isValid() &&
+      moment(endDate).isValid()
+    ) {
+      const formattedStartDate = moment(startDate)
+        .tz("Asia/Ho_Chi_Minh")
+        .add(7, "hours")
+        .startOf("day");
+      const formattedEndDate = moment(endDate)
+        .tz("Asia/Ho_Chi_Minh")
+        .add(7, "hours")
+        .startOf("day");
+
       const filteredOrders = orders.filter((order) => {
-        const orderDate = moment(order.createdAt).tz("Asia/Ho_Chi_Minh").add(7, 'hours').startOf('day');
-  
-        const isAfterStartDate = orderDate.isSameOrAfter(formattedStartDate, "day");
-        const isBeforeEndDate = orderDate.isSameOrBefore(formattedEndDate, "day");
-  
+        const orderDate = moment(order.createdAt)
+          .tz("Asia/Ho_Chi_Minh")
+          .add(7, "hours")
+          .startOf("day");
+
+        const isAfterStartDate = orderDate.isSameOrAfter(
+          formattedStartDate,
+          "day"
+        );
+        const isBeforeEndDate = orderDate.isSameOrBefore(
+          formattedEndDate,
+          "day"
+        );
+
         return isAfterStartDate && isBeforeEndDate;
       });
-  
+
       setFilteredOrders(filteredOrders);
       setFilterOption("Date");
     } else {
-      toast.warning('Nhập ngày kết thúc');
+      toast.warning("Nhập ngày kết thúc");
       // Xử lý khi startDate hoặc endDate không hợp lệ, ví dụ: hiển thị thông báo lỗi hoặc không thực hiện bất kỳ thay đổi nào
       // Ở đây có thể hiển thị thông báo lỗi hoặc không thực hiện bất kỳ thay đổi nào tùy theo yêu cầu cụ thể của bạn.
     }
   };
-  
-  
 
   useEffect(() => {
     setLoading(true);
@@ -153,7 +175,7 @@ const handleDetailClick = (orderId) => {
       .finally(() => {
         setLoading(false);
       });
-  }, [dispatch,location.pathname]);
+  }, [dispatch, location.pathname]);
 
   const handleUpdateClick = (orderId) => {
     console.log(orderId);
@@ -170,7 +192,6 @@ const handleDetailClick = (orderId) => {
       });
   };
 
-
   const reloadOders = () => {
     dispatch(fetchOrdersNew())
       .then((response) => {
@@ -185,8 +206,6 @@ const handleDetailClick = (orderId) => {
         console.error("Lỗi khi tải lại danh sách đơn hàng:", error);
       });
   };
-
-
 
   // Use an effect to fetch the fullname when the component mounts or customerId changes
   useEffect(() => {
@@ -235,10 +254,12 @@ const handleDetailClick = (orderId) => {
   let filteredOrdersPagination = [];
 
   if (Array.isArray(filteredOrders)) {
-    filteredOrdersPagination =filteredOrders && filteredOrders.slice(
-      page * rowsPerPage,
-      page * rowsPerPage + rowsPerPage
-    );
+    filteredOrdersPagination =
+      filteredOrders &&
+      filteredOrders.slice(
+        page * rowsPerPage,
+        page * rowsPerPage + rowsPerPage
+      );
   }
 
   const theme = useTheme();
@@ -269,16 +290,16 @@ const handleDetailClick = (orderId) => {
       width: 140,
       key: "createdAt",
       valueGetter: (params) =>
-      moment(params.row.createdAt)
-        .tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
-        .add(7, 'hours') // Adding 3 hours (you can adjust this number as needed)
-        .format("DD-MM-YYYY HH:mm:ss")
+        moment(params.row.createdAt)
+          .tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
+          .add(7, "hours") // Adding 3 hours (you can adjust this number as needed)
+          .format("DD-MM-YYYY HH:mm:ss"),
     },
     { field: "area", headerName: "khu vực", width: 60, key: "area" },
     {
       field: "rescueType",
       headerName: "Hình Thức",
-      width: 120,
+      width: 140,
       key: "rescueType",
       renderCell: ({ row: { rescueType } }) => {
         return (
@@ -306,7 +327,7 @@ const handleDetailClick = (orderId) => {
             {rescueType === "Towing" && <SupportIcon />}
             {rescueType === "Fixing" && <HandymanIcon />}
             <Typography color="inherit" sx={{ ml: "1px", fontWeight: "bold" }}>
-              {rescueType}
+              {rescueType === "Towing" ? "Kéo Xe" : rescueType==="Fixing" ? "Sữa Chữa Tại Chỗ":rescueType}
             </Typography>
           </Box>
         );
@@ -341,15 +362,25 @@ const handleDetailClick = (orderId) => {
                 : colors.yellowAccent[700]
             }
           >
-           
             <Typography color="inherit" sx={{ ml: "1px", fontWeight: "bold" }}>
-              {status}
+              {status === "NEW"
+                ? "Mới"
+                : status === "ASSIGNED"
+                ? " Đã điều phối"
+                : status === "COMPLETED"
+                ? "Hoàn thành"
+                : status === "CANCELLED"
+                ? "Đã Hủy"
+                : status === "ASSIGNING"
+                ? "Đang Điều Phối"
+                : status === "INPROGRESS"
+                ? "Đang thực hiện"
+                : status}
             </Typography>
           </Box>
         );
       },
     },
-
 
     {
       field: "orderDetails",
@@ -375,7 +406,6 @@ const handleDetailClick = (orderId) => {
               color="indigo"
               onClick={() => handleDetailClick(params.row.id)}
               aria-label="Chi Tiết Đơn Hàng"
-         
             />
             <Typography
               variant="body1"
@@ -398,13 +428,13 @@ const handleDetailClick = (orderId) => {
         subtitle="Danh sách chi tiết đơn hàng đã bị hủy"
       />
       <Box display="flex" className="box" left={0}>
-      <Box
-            display="flex"
-            borderRadius="6px"
-            border={1}
-            marginRight={2}
-            marginLeft={2}
-            width={500}
+        <Box
+          display="flex"
+          borderRadius="6px"
+          border={1}
+          marginRight={2}
+          marginLeft={2}
+          width={500}
         >
           <InputBase
             sx={{ ml: 4, flex: 1 }}
@@ -417,9 +447,9 @@ const handleDetailClick = (orderId) => {
           </IconButton>
         </Box>
 
-        <ToastContainer />  
+        <ToastContainer />
         <Box display="flex" alignItems="center" className="filter-box">
-          <FormControl >
+          <FormControl>
             <Select
               labelId="demo-simple-select-label"
               id="demo-simple-select"
@@ -427,7 +457,7 @@ const handleDetailClick = (orderId) => {
               onChange={handleFilterChange} // Use a different handler for this action
               variant="outlined"
               className="filter-select"
-              style={{ width: '150px' }}
+              style={{ width: "150px" }}
             >
               <MenuItem key="rescueType-all" value="rescueType">
                 Hình Thức
@@ -445,85 +475,87 @@ const handleDetailClick = (orderId) => {
           </FormControl>
         </Box>
 
-      {/*Fillter date*/}
-      <Box display="flex" alignItems="center" className="startDate-box">
-              <TextField
-                label="Từ ngày"
-                type="date"
-                value={startDate || ""}
-                onChange={(event) => {
-                  setStartDate(event.target.value);
-                  // handleDateFilterChange(); // Gọi hàm lọc ngay khi ngày tháng thay đổi
-                }}
-                InputLabelProps={{
-                  shrink: true,
-                }}
-                onBlur={handleDateFilterChange}
-                inputProps={{
-                  max: moment().tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
-                  .add(7, 'hours') // Adding 3 hours (you can adjust this number as needed)
-                  .format("DD-MM-YYYY"), // Set the maximum selectable date as today
-                }}
-                sx={{ ml: 4, mr: 2 }}
-              />
-            </Box>
+        {/*Fillter date*/}
+        <Box display="flex" alignItems="center" className="startDate-box">
+          <TextField
+            label="Từ ngày"
+            type="date"
+            value={startDate || ""}
+            onChange={(event) => {
+              setStartDate(event.target.value);
+              // handleDateFilterChange(); // Gọi hàm lọc ngay khi ngày tháng thay đổi
+            }}
+            InputLabelProps={{
+              shrink: true,
+            }}
+            onBlur={handleDateFilterChange}
+            inputProps={{
+              max: moment()
+                .tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
+                .add(7, "hours") // Adding 3 hours (you can adjust this number as needed)
+                .format("DD-MM-YYYY"), // Set the maximum selectable date as today
+            }}
+            sx={{ ml: 4, mr: 2 }}
+          />
+        </Box>
 
-            <Box display="flex" alignItems="center" className="endtDate-box">
-              <TextField
-                label="Đến ngày"
-                type="date"
-                value={endDate || ""}
-                onChange={(event) => {
-                  setEndDate(event.target.value);
-                }}
-                InputLabelProps={{
-                  shrink: true,
-                }}
-                onBlur={handleDateFilterChange}
-                inputProps={{
-                  max: moment().tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
-                  .add(7, 'hours') // Adding 3 hours (you can adjust this number as needed)
-                  .format("DD-MM-YYYY"), // Set the maximum selectable date as today
-                }}
-              />
-            </Box>
+        <Box display="flex" alignItems="center" className="endtDate-box">
+          <TextField
+            label="Đến ngày"
+            type="date"
+            value={endDate || ""}
+            onChange={(event) => {
+              setEndDate(event.target.value);
+            }}
+            InputLabelProps={{
+              shrink: true,
+            }}
+            onBlur={handleDateFilterChange}
+            inputProps={{
+              max: moment()
+                .tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
+                .add(7, "hours") // Adding 3 hours (you can adjust this number as needed)
+                .format("DD-MM-YYYY"), // Set the maximum selectable date as today
+            }}
+          />
+        </Box>
       </Box>
 
       <Box
-          m="10px 0 0 0"
-          height="auto"
-          sx={{
-            fontSize: "20px",
-            padding: "20px",
-            borderRadius: "20px",
-            boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.4)",
-            "& .MuiDataGrid-root": {
-              border: "none",
-            },
-            "& .MuiDataGrid-cell": {
-              borderBottom: "none",
-            },
-            "& .name-column--cell": {
-              color: colors.greenAccent[300],
-            },
-            "& .MuiDataGrid-columnHeaders": {
-              backgroundColor: colors.orange[50],
-              borderBottom: "none",
-            },
-            "& .MuiDataGrid-virtualScroller": {
-              backgroundColor: colors.white[50],
-            },
-            "& .MuiDataGrid-footerContainer": {
-              display: "none",
-            },
-            "& .MuiCheckbox-root": {
-              color: `${colors.greenAccent[200]} !important`,
-            },
-            "& .MuiDataGrid-row": {
-              borderBottom: "none",
-            },
-          }}
-        >
+        m="10px 0 0 0"
+        height="auto"
+        sx={{
+          fontSize: "20px",
+          padding: "20px",
+          borderRadius: "20px",
+          boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.4)",
+          "& .MuiDataGrid-root": {
+            border: "none",
+          },
+          "& .MuiDataGrid-cell": {
+            borderBottom: "none",
+          },
+          "& .name-column--cell": {
+            color: colors.greenAccent[300],
+          },
+          "& .MuiDataGrid-columnHeaders": {
+            backgroundColor: colors.orange[50],
+            borderBottom: "none",
+          },
+          "& .MuiDataGrid-virtualScroller": {
+            backgroundColor: colors.white[50],
+          },
+          "& .MuiDataGrid-footerContainer": {
+            display: "none",
+          },
+          "& .MuiCheckbox-root": {
+            color: `${colors.greenAccent[200]} !important`,
+          },
+          "& .MuiDataGrid-row": {
+            borderBottom: "none",
+          },
+        }}
+      >
         <DataGrid
           rows={filteredOrdersPagination} // Thêm id nếu không có
           columns={columns}

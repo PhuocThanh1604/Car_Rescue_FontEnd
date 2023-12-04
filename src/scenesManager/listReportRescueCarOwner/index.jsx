@@ -309,7 +309,7 @@ const ListReports = (props) => {
     {
       field: "status",
       headerName: "Trạng Thái",
-      width: 100,
+      width: 140,
       key: "status",
       renderCell: ({ row: { status } }) => {
         return (
@@ -336,7 +336,11 @@ const ListReports = (props) => {
             }
           >
             <Typography color="inherit" sx={{ ml: "1px", fontWeight: "bold" }}>
-              {status}
+            {status === "INACTIVE"
+                ? "Không Thành Công"
+                : status === "FINISHED"
+                ? "Hoàn Thành"
+                : status}
             </Typography>
           </Box>
         );

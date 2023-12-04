@@ -61,12 +61,13 @@ export const getManagerId = createAsyncThunk(
     }
   }
 );
-export const editmanager = createAsyncThunk(
+
+export const editManager = createAsyncThunk(
   "managers/edit",
-  async ({ data }) => {
+  async ({ data }, { rejectWithValue }) => {
     try {
       const res = await axios.put(
-        `https://rescuecapstoneapi.azurewebsites.net/api/Manager/Update`, // Assuming you need to provide the customer ID for editing
+        `https://rescuecapstoneapi.azurewebsites.net/api/Manager/Update`,
         data,
         {
           headers: {
@@ -74,11 +75,11 @@ export const editmanager = createAsyncThunk(
           },
         }
       );
-      console.log(data);
+      console.log("Dữ liệu service đã gửi: ", data);
       return res.data;
     } catch (error) {
-      console.error("Failed to update manager:", error.response);
-      throw error.response.data;
+      console.error("Failed to update manager: ", error.response);
+      return rejectWithValue(error.response.data || error.message);
     }
   }
 );
@@ -133,10 +134,10 @@ const managerSlice = createSlice({
       .addCase(fetchManagers.pending, (state, action) => {
         state.status = "loading";
       })
-      .addCase(editmanager.fulfilled, (state, action) => {
+      .addCase(editManager.fulfilled, (state, action) => {
         state.managers = action.payload.data;
       })
-      .addCase(editmanager.rejected, (state, action) => {
+      .addCase(editManager.rejected, (state, action) => {
         state.status = "error";
       })
       .addCase(getManagerId.fulfilled, (state, action) => {

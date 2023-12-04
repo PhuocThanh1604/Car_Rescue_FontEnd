@@ -21,6 +21,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { createAccount, getAccountEmail } from "../../redux/accountSlice";
 import { createRescueVehicleOwner } from "../../redux/rescueVehicleOwnerSlice";
 import UploadImageField from "../../components/uploadImage";
+import { editManager, editmanager } from "../../redux/managerSlice";
 
 const UpdateProfileManager = () => {
   const dispatch = useDispatch();
@@ -33,12 +34,32 @@ const UpdateProfileManager = () => {
   const [loading, setLoading] = useState(false);
   const [currentImageUrl, setCurrentImageUrl] = useState(data.avatar || "");
   const [downloadUrl, setDownloadUrl] = useState("");
-
+const [dataManager,setDataManager] = useState({})
   const handleImageUploaded = (imageUrl) => {
     setDownloadUrl(imageUrl);
     // Set the avatar value to the uploaded image URL
     formikRef.current.setFieldValue("avatar", imageUrl);
   };
+// Lấy dữ liệu từ localStorage
+const managerData = localStorage.getItem("manager");
+
+useEffect(() => {
+  // Lấy dữ liệu từ localStorage
+  const managerData = localStorage.getItem("manager");
+
+  if (managerData) {
+    const manager = JSON.parse(managerData);
+    setDataManager(manager);
+  } else {
+    console.log("Manager data not found");
+  }
+}, []); // Thêm mảng phụ thuộc rỗng để chỉ chạy một lần sau khi component mount
+
+useEffect(() => {
+  if (Object.keys(dataManager).length > 0) {
+    formikRef.current.setValues(dataManager);
+  }
+}, [dataManager]); 
   const checkoutSchema = yup.object().shape({
     fullname: yup.string().required("Required"),
     sex: yup.string().required("Required"),
@@ -69,7 +90,7 @@ const UpdateProfileManager = () => {
     setSelectedAccount(null);
     // In ra tất cả dữ liệu đã nhập
     console.log("Dữ liệu đã nhập:", rescueVehicleOwner);
-    dispatch(createRescueVehicleOwner(values))
+    dispatch(editManager(values))
       .then((response) => {
         console.log(response);
         toast.success("Cập Nhật Tài Khoản Thành Công");
@@ -90,17 +111,22 @@ const UpdateProfileManager = () => {
   useEffect(() => {
     dispatch(getAccountEmail())
       .then((response) => {
-        const data = response.payload.data;
-
-        if (data) {
+        // Kiểm tra trước khi truy cập 'data'
+        if (response.payload && response.payload.data) {
+          const data = response.payload.data;
           setData(data);
           setLoading(false);
         }
+      })
+      .catch(error => {
+        toast.dismiss("Error fetching account email:", error);
+        // Xử lý lỗi hoặc đặt giá trị mặc định nếu cần
       })
       .finally(() => {
         setLoading(false);
       });
   }, [dispatch]);
+  
   return (
     <Box m="20px">
       <Header title="Cập Nhật Thông Tin Cá Nhân" subtitle="Cập Nhật Thông Tin Cá Nhân" />

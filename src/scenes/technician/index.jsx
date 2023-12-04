@@ -60,7 +60,6 @@ const Technicians = (props) => {
   };
 
   const handleDateFilterChange = () => {
-  
     const formattedStartDate = moment(startDate)
       .tz("Asia/Ho_Chi_Minh")
       .add(7, "hours")
@@ -69,39 +68,40 @@ const Technicians = (props) => {
       .tz("Asia/Ho_Chi_Minh")
       .add(7, "hours")
       .startOf("day");
-  
+
     const filteredTechnicians = technicians.filter((technician) => {
       // Kiểm tra nếu dữ liệu không hợp lệ trong technician.createAt
       if (!technician.createdAt || !moment(technician.createdAt).isValid()) {
         // Xử lý khi dữ liệu không hợp lệ, ví dụ: loại bỏ technician này khỏi kết quả lọc
         return false;
       }
-  
+
       const orderDate = moment(technician.createdAt)
         .tz("Asia/Ho_Chi_Minh")
         .add(7, "hours")
         .startOf("day");
-  
-      const isAfterStartDate = orderDate.isSameOrAfter(formattedStartDate, "day");
+
+      const isAfterStartDate = orderDate.isSameOrAfter(
+        formattedStartDate,
+        "day"
+      );
       const isBeforeEndDate = orderDate.isSameOrBefore(formattedEndDate, "day");
-  
+
       return isAfterStartDate && isBeforeEndDate;
     });
-  
+
     setFilteredTechnicians(filteredTechnicians);
     setFilterOption("Date");
   };
-  
 
   const handleFilterChange = (event) => {
     const selectedStatusOption = event.target.value;
     setFilterOption(selectedStatusOption);
     if (!Array.isArray(technicians) || technicians.length === 0) {
       // Xử lý khi technicians không tồn tại hoặc không có dữ liệu
-      toast.error('Không có dữ liệu technicians.');
+      toast.error("Không có dữ liệu technicians.");
       return;
     }
-  
 
     if (selectedStatusOption === "Status") {
       // Hiển thị tất cả các trạng thái
@@ -131,9 +131,9 @@ const Technicians = (props) => {
   };
 
   useEffect(() => {
-    if (!Array.isArray(technicians) ) {
+    if (!Array.isArray(technicians)) {
       // Xử lý khi technicians không tồn tại, không có dữ liệu hoặc searchText/filterOption không được định nghĩa
-      toast.dismiss('Dữ liệu không hợp lệ để thực hiện lọc.');
+      toast.dismiss("Dữ liệu không hợp lệ để thực hiện lọc.");
       return;
     }
     const filteredTechnicians = technicians
@@ -147,7 +147,8 @@ const Technicians = (props) => {
           const filterMatch =
             filterOption === "Status" ||
             (filterOption === "ACTIVE" && technician.status === "ACTIVE") ||
-            (filterOption === "INACTIVE" && technician.status === "INACTIVE");
+            (filterOption === "INACTIVE" && technician.status === "INACTIVE") ||
+            (filterOption === "ASSIGNED" && technician.status === "ASSIGNED");
           return hasFullName && filterMatch;
         })
       : [];
@@ -260,7 +261,7 @@ const Technicians = (props) => {
     {
       field: "status",
       headerName: "Trạng Thái",
-      width: 100,
+      width: 140,
       key: "status",
       renderCell: ({ row: { status } }) => {
         return (
@@ -286,7 +287,13 @@ const Technicians = (props) => {
           >
             {status === "ACTIVE" && <HowToRegIcon />}
             <Typography color="inherit" sx={{ ml: "1px", fontWeight: "bold" }}>
-              {status}
+              {status === "ACTIVE"
+                ? "Đang Hoạt Động"
+                : status === "INACTIVE"
+                ? "Không Hoạt Động"
+                : status === "ASSIGNED"
+                ? "Đang Làm Việc"
+                : status}
             </Typography>
           </Box>
         );
@@ -368,6 +375,9 @@ const Technicians = (props) => {
               </MenuItem>
               <MenuItem key="status-INACTIVE" value="INACTIVE">
                 Không Hoạt Động
+              </MenuItem>
+              <MenuItem key="status-ASSIGNED" value="ASSIGNED">
+                Đang làm việc
               </MenuItem>
             </Select>
           </FormControl>

@@ -81,11 +81,11 @@ const Orders = (props) => {
     const value = event.target.value.toLowerCase();
     setSearchText(value);
 
-     // Kiểm tra nếu không có dữ liệu orders hoặc fullnameData
-  if (!Array.isArray(orders) || !Object.keys(fullnameData).length) {
-    // Thực hiện xử lý khi không có dữ liệu
-    return;
-  }
+    // Kiểm tra nếu không có dữ liệu orders hoặc fullnameData
+    if (!Array.isArray(orders) || !Object.keys(fullnameData).length) {
+      // Thực hiện xử lý khi không có dữ liệu
+      return;
+    }
     // Filter the orders based on the entered search query
     const filteredOrders = orders.filter((order) => {
       const nameMatch =
@@ -124,27 +124,47 @@ const Orders = (props) => {
   const handleDateFilterChange = () => {
     if (!Array.isArray(orders) || orders.length === 0) {
       // Xử lý trường hợp không tìm thấy mảng orders, ví dụ: hiển thị thông báo hoặc không thực hiện thay đổi nào
-    toast.warning('Không tìm thấy dữ liệu orders.');
+      toast.warning("Không tìm thấy dữ liệu orders.");
       return; // Dừng hàm nếu không tìm thấy mảng orders
     }
-  
-    if (startDate && endDate && moment(startDate).isValid() && moment(endDate).isValid()) {
-      const formattedStartDate = moment(startDate).tz("Asia/Ho_Chi_Minh").add(7, 'hours').startOf('day');
-      const formattedEndDate = moment(endDate).tz("Asia/Ho_Chi_Minh").add(7, 'hours').startOf('day');
-  
+
+    if (
+      startDate &&
+      endDate &&
+      moment(startDate).isValid() &&
+      moment(endDate).isValid()
+    ) {
+      const formattedStartDate = moment(startDate)
+        .tz("Asia/Ho_Chi_Minh")
+        .add(7, "hours")
+        .startOf("day");
+      const formattedEndDate = moment(endDate)
+        .tz("Asia/Ho_Chi_Minh")
+        .add(7, "hours")
+        .startOf("day");
+
       const filteredOrders = orders.filter((order) => {
-        const orderDate = moment(order.createdAt).tz("Asia/Ho_Chi_Minh").add(7, 'hours').startOf('day');
-  
-        const isAfterStartDate = orderDate.isSameOrAfter(formattedStartDate, "day");
-        const isBeforeEndDate = orderDate.isSameOrBefore(formattedEndDate, "day");
-  
+        const orderDate = moment(order.createdAt)
+          .tz("Asia/Ho_Chi_Minh")
+          .add(7, "hours")
+          .startOf("day");
+
+        const isAfterStartDate = orderDate.isSameOrAfter(
+          formattedStartDate,
+          "day"
+        );
+        const isBeforeEndDate = orderDate.isSameOrBefore(
+          formattedEndDate,
+          "day"
+        );
+
         return isAfterStartDate && isBeforeEndDate;
       });
-  
+
       setFilteredOrders(filteredOrders);
       setFilterOption("Date");
     } else {
-      toast.error('Ngày bắt đầu hoặc ngày kết thúc không hợp lệ.');
+      toast.error("Ngày bắt đầu hoặc ngày kết thúc không hợp lệ.");
       // Xử lý khi startDate hoặc endDate không hợp lệ, ví dụ: hiển thị thông báo lỗi hoặc không thực hiện bất kỳ thay đổi nào
       // Ở đây có thể hiển thị thông báo lỗi hoặc không thực hiện bất kỳ thay đổi nào tùy theo yêu cầu cụ thể của bạn.
     }
@@ -358,7 +378,7 @@ const Orders = (props) => {
     {
       field: "rescueType",
       headerName: "Hình Thức",
-      width: 120,
+      width: 140,
       key: "rescueType",
       renderCell: ({ row: { rescueType } }) => {
         return (
@@ -386,7 +406,7 @@ const Orders = (props) => {
             {rescueType === "Towing" && <SupportIcon />}
             {rescueType === "Fixing" && <HandymanIcon />}
             <Typography color="inherit" sx={{ ml: "1px", fontWeight: "bold" }}>
-              {rescueType}
+            {rescueType === "Towing" ? "Kéo Xe" : rescueType==="Fixing" ? "Sữa Chữa Tại Chỗ":rescueType}
             </Typography>
           </Box>
         );
@@ -421,9 +441,19 @@ const Orders = (props) => {
                 : colors.yellowAccent[700]
             }
           >
-           
             <Typography color="inherit" sx={{ ml: "1px", fontWeight: "bold" }}>
-              {status}
+              {status === "NEW"
+                ? "Mới"
+                : status === "ASSIGNED"
+                ? " Đã điều phối"
+                : status === "COMPLETED"
+                ? "Hoàn thành"
+                : status === "Canneclled"
+                ? "Đã Hủy"
+                : status === "ASSIGNING"
+                ? "Đang Điều Phối" 
+                : status ==="INPROGRESS"
+                ? "Đang thực hiện":status}
             </Typography>
           </Box>
         );
@@ -434,25 +464,22 @@ const Orders = (props) => {
       headerName: "Diều Phối",
       width: 120,
       renderCell: (params) => (
-       
-          <IconButton
-            variant="contained"
-            backgroundColor={ colors.blueAccent[500]}
+        <IconButton
+          variant="contained"
+          backgroundColor={colors.blueAccent[500]}
+          onClick={() => handleAssignClick(params.row.id)}
+        >
+          <AssignmentLateIcon
+            style={{ color: "orange" }}
             onClick={() => handleAssignClick(params.row.id)}
-        
+          />
+          <Typography
+            variant="body1"
+            sx={{ ml: "1px", color: "inherit", fontWeight: "bold" }}
           >
-            <AssignmentLateIcon
-              style={{ color: "orange" }}
-              onClick={() => handleAssignClick(params.row.id)}
-            />
-            <Typography
-              variant="body1"
-              sx={{ ml:"1px",color: "inherit", fontWeight: "bold" }}
-  
-            >
-              Điều phối
-            </Typography>
-          </IconButton>
+            Điều phối
+          </Typography>
+        </IconButton>
       ),
       key: "update",
     },

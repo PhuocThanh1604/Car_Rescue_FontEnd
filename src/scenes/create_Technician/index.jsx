@@ -51,7 +51,11 @@ const Addtechnician = () => {
     createAt: yup.date().required("Required"),
     area: yup.string().required("Required"),
   });
-  const statusOptions = ["ACTIVE", "INACTIVE"];
+  const statusMapping = {
+    ACTIVE: "Hoạt Động",
+    INACTIVE: "Không Hoạt Động",
+    // Thêm các trạng thái khác nếu cần thiết
+  };
   const initialValues = {
     fullname: "",
     sex: "",
@@ -294,9 +298,9 @@ const Addtechnician = () => {
                     value={values.status}
                     sx={{ gridColumn: "span 4" }}
                   >
-                    {statusOptions.map((status) => (
-                      <MenuItem key={status} value={status}>
-                        {status}
+                  {Object.keys(statusMapping).map((statusKey) => (
+                      <MenuItem key={statusKey} value={statusKey}>
+                        {statusMapping[statusKey]}{" "}
                       </MenuItem>
                     ))}
                   </Select>
