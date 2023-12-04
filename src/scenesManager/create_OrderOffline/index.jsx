@@ -398,7 +398,7 @@ const CreateOrderOffline = () => {
 
         setLoading(false);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        toast.dismiss("Error fetching data:", error);
         // Xử lý lỗi nếu cần thiết
       }
     };

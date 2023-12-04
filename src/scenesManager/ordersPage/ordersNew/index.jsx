@@ -9,6 +9,7 @@ import {
   IconButton,
   FormControl,
   CircularProgress,
+  Button,
 } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../../theme";
@@ -19,6 +20,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import InputBase from "@mui/material/InputBase";
 import moment from "moment";
 import "moment-timezone";
+import AddIcon from "@mui/icons-material/Add";
 
 import {
   fetchOrdersNew,
@@ -71,10 +73,15 @@ const Orders = (props) => {
           setFilteredOrders(data);
           // Đặt loading thành false sau khi tải lại dữ liệu
           setLoading(false);
+        } else {
+          toast.dismiss("Không có dữ liệu từ phản hồi");
         }
       })
       .catch((error) => {
-        console.error("Lỗi khi tải lại danh sách đơn hàng mới:", error);
+        toast.dismiss("Lỗi khi tải lại danh sách đơn hàng mới:", error);
+      })
+      .finally(() => {
+        setLoading(false); // Đặt trạng thái loading thành false
       });
   };
   const handleSearchChange = (event) => {
@@ -359,7 +366,7 @@ const Orders = (props) => {
     {
       field: "customerNote",
       headerName: "Ghi Chú của Customer",
-      width: 200,
+      width: 220,
       key: "customerNote",
     },
     {
@@ -406,7 +413,11 @@ const Orders = (props) => {
             {rescueType === "Towing" && <SupportIcon />}
             {rescueType === "Fixing" && <HandymanIcon />}
             <Typography color="inherit" sx={{ ml: "1px", fontWeight: "bold" }}>
-            {rescueType === "Towing" ? "Kéo Xe" : rescueType==="Fixing" ? "Sữa Chữa Tại Chỗ":rescueType}
+              {rescueType === "Towing"
+                ? "Kéo Xe"
+                : rescueType === "Fixing"
+                ? "Sữa Chữa Tại Chỗ"
+                : rescueType}
             </Typography>
           </Box>
         );
@@ -451,9 +462,10 @@ const Orders = (props) => {
                 : status === "Canneclled"
                 ? "Đã Hủy"
                 : status === "ASSIGNING"
-                ? "Đang Điều Phối" 
-                : status ==="INPROGRESS"
-                ? "Đang thực hiện":status}
+                ? "Đang Điều Phối"
+                : status === "INPROGRESS"
+                ? "Đang thực hiện"
+                : status}
             </Typography>
           </Box>
         );
@@ -497,7 +509,7 @@ const Orders = (props) => {
             display="flex"
             borderRadius="6px"
             border={1}
-            marginRight={2}
+            marginRight={1}
             marginLeft={2}
             width={500}
           >
@@ -553,7 +565,7 @@ const Orders = (props) => {
                   .add(7, "hours") // Adding 3 hours (you can adjust this number as needed)
                   .format("DD-MM-YYYY"), // Set the maximum selectable date as today
               }}
-              sx={{ ml: 4, mr: 2 }}
+              sx={{ ml: 1, mr: 1 }}
             />
           </Box>
 
@@ -571,11 +583,42 @@ const Orders = (props) => {
               onBlur={handleDateFilterChange}
               inputProps={{
                 max: moment()
-                  .tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
-                  .add(7, "hours") // Adding 3 hours (you can adjust this number as needed)
-                  .format("DD-MM-YYYY"), // Set the maximum selectable date as today
+                  .tz("Asia/Ho_Chi_Minh") 
+                  .add(7, "hours") 
+                  .format("DD-MM-YYYY")
+                  
               }}
+              sx={{  mr: 1 }}
             />
+          </Box>
+          <Box
+            display="flex"
+            borderRadius="6px"
+            sx={{
+              height: "auto",
+              width: "auto",
+              alignItems: "center", // Các nút được căn giữa theo chiều dọc
+            }}
+          >
+            <a href="add/orderOffline" style={{ textDecoration: "none" }}>
+              {" "}
+              {/* Thêm đường dẫn ở đây */}
+              <Button
+                type="submit"
+                color="secondary"
+                variant="contained"
+                disableElevation
+                sx={{
+                  width: "136px",
+                  height: "50px", 
+                }}
+              >
+                <AddIcon sx={{ color: "white"}} />
+                <Typography sx={{   display:"flex", color: "white", fontWeight: "bold" }}>
+                  Tạo Đơn Hàng
+                </Typography>
+              </Button>
+            </a>
           </Box>
         </Box>
 

@@ -10,12 +10,13 @@ import {
   FormControl,
   Grid,
   CircularProgress,
+  Button,
 } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../../theme";
 import Header from "../../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
-
+import AddIcon from "@mui/icons-material/Add";
 import ModalDetail from "./ModalDetail";
 // import ModalEdit from "./ModalComponentEdit";
 import { ToastContainer, toast } from "react-toastify";
@@ -147,7 +148,13 @@ const Orders = (props) => {
           setData(data);
           setFilteredOrders(data);
           setLoading(false); // Đặt trạng thái loading thành false sau khi xử lý dữ liệu
+        }else{
+          toast.dismiss("Lỗi khi lấy dữ liệu đơn hoàn thành:");
         }
+      })
+      .catch(error => {
+      
+        toast.dismiss("Lỗi khi lấy dữ liệu hoàn thành:", error);
       })
       .finally(() => {
         setLoading(false);
@@ -245,7 +252,7 @@ const fetchFullname = (customerId) => {
     {
       field: "customerNote",
       headerName: "Ghi Chú của Customer",
-      width: 200,
+      width: 220,
       key: "customerNote",
     },
     {
@@ -400,7 +407,7 @@ const fetchFullname = (customerId) => {
              display="flex"
              borderRadius="6px"
              border={1}
-             marginRight={2}
+             marginRight={1}
              marginLeft={2}
              width={500}
         >
@@ -456,7 +463,7 @@ const fetchFullname = (customerId) => {
                   .add(7, 'hours') // Adding 3 hours (you can adjust this number as needed)
                   .format("DD-MM-YYYY"), // Set the maximum selectable date as today
                 }}
-                sx={{ ml: 4, mr: 2 }}
+                sx={{ ml: 1, mr: 1 }}
               />
             </Box>
 
@@ -477,8 +484,37 @@ const fetchFullname = (customerId) => {
                   .add(7, 'hours') // Adding 3 hours (you can adjust this number as needed)
                   .format("DD-MM-YYYY"), // Set the maximum selectable date as today
                 }}
+                sx={{  mr: 1 }}
               />
             </Box>
+
+            <Box       display="flex"
+            borderRadius="6px"
+            sx={{
+              height: "auto",
+              width: "auto",
+              alignItems: "center", // Các nút được căn giữa theo chiều dọc
+            }}>
+            <a href="add/orderOffline" style={{ textDecoration: "none" }}>
+              {" "}
+              {/* Thêm đường dẫn ở đây */}
+              <Button
+                type="submit"
+                color="secondary"
+                variant="contained"
+                disableElevation
+                sx={{
+                  width: "136px",
+                  height: "50px", 
+                }}
+              >
+                <AddIcon sx={{ color: "white", fontWeight: "bold" }} />
+                <Typography sx={{ color: "white", fontWeight: "bold" }}>
+                  Tạo Đơn Hàng
+                </Typography>
+              </Button>
+            </a>
+          </Box>
       </Box>
 
       <Box

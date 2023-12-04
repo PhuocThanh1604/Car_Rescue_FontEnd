@@ -167,9 +167,12 @@ const Technicians = (props) => {
           setFilteredTechnicians(data);
           // Truy xuất và xử lý từng đối tượng khách hàng ở đây
           setLoading(false); // Đặt trạng thái loading thành false sau khi xử lý dữ liệu
+        }else{
+          toast.dismiss("không có dữ liệu trả về")
         }
-      })
-      .finally(() => {
+      }).catch(error => {
+        toast.dismiss("Lỗi khi lấy dữ liệu kỹ thuật viên:", error);
+      }).finally(() => {
         setLoading(false);
       });
   }, [dispatch]);
@@ -204,7 +207,7 @@ const Technicians = (props) => {
       width: 80,
       key: "sex",
     },
-    { field: "address", headerName: "Địa Chỉ", width: 200, key: "address" },
+    { field: "address", headerName: "Địa Chỉ", width: 260, key: "address" },
 
     {
       field: "phone",
@@ -303,7 +306,7 @@ const Technicians = (props) => {
     {
       field: "update",
       headerName: "Update",
-      width: 60,
+      width: 120,
       renderCell: (params) => (
         <Box
           sx={{
@@ -324,7 +327,13 @@ const Technicians = (props) => {
             color="indigo"
             onClick={() => handleUpdateClick(params.row.id)}
           >
-            <Edit style={{ color: "indigo" }} />
+            
+            <Typography
+            variant="body1"
+            sx={{ ml: "1px", color: "indigo", fontWeight: "bold" }}
+          >
+            Chỉnh Sửa
+          </Typography>
           </IconButton>
         </Box>
       ),

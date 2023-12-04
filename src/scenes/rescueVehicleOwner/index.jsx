@@ -9,6 +9,7 @@ import {
   IconButton,
   FormControl,
   Switch,
+  Typography,
 } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
@@ -27,7 +28,7 @@ import {
   getRescueVehicleOwnerId,
   updateStatusRescueVehicleOwner,
 } from "../../redux/rescueVehicleOwnerSlice";
-import InfoIcon from "@mui/icons-material/Info";
+import HowToRegIcon from "@mui/icons-material/HowToReg";
 import EditIcon from "@mui/icons-material/Edit";
 import CustomTablePagination from "../../components/TablePagination";
 const RescueVehicleOwners = (props) => {
@@ -56,7 +57,7 @@ const RescueVehicleOwners = (props) => {
   const [data, setData] = useState([]);
   const [initialFormState, setInitialFormState] = useState({});
   const [editStatus, setEditStatus] = useState({});
-  
+
   useEffect(() => {
     if (isSuccess) {
     }
@@ -173,6 +174,10 @@ const RescueVehicleOwners = (props) => {
           setLoading(false); // Đặt trạng thái loading thành false sau khi xử lý dữ liệu
         }
       })
+      .catch((error) => {
+        // Xử lý lỗi ở đây
+        toast.error("Lỗi khi lấy dữ liệu danh sách chủ xe cứu hộ:", error);
+      })
       .finally(() => {
         setLoading(false);
       });
@@ -288,7 +293,7 @@ const RescueVehicleOwners = (props) => {
       key: "fullname",
     },
     { field: "sex", headerName: "Giới Tính", width: 60, key: "sex" },
-    { field: "address", headerName: "Địa Chỉ", width: 160, key: "address" },
+    { field: "address", headerName: "Địa Chỉ", width: 260, key: "address" },
     {
       field: "createAt",
       headerName: "Ngày Tạo",
@@ -322,7 +327,7 @@ const RescueVehicleOwners = (props) => {
     {
       field: "avatar",
       headerName: "Hình ảnh",
-      width: 120,
+      width: 100,
       renderCell: (params) => {
         const containsSpecialChars =
           /[áàảãạâấầẩẫậăắằẳẵặéèẻẽẹêếềểễệíìỉĩịóòỏõọôốồổỗộơớờởỡợúùủũụưứừửữựýỳỷỹỵÁÀẢÃẠÂẤẦẨẪẬĂẮẰẲẴẶÉÈẺẼẸÊẾỀỂỄỆÍÌỈĨỊÓÒỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢÚÙỦŨỤƯỨỪỬỮỰÝỲỶỸỴ]/.test(
@@ -346,58 +351,99 @@ const RescueVehicleOwners = (props) => {
         );
       },
     },
+    // {
+    //   field: "status",
+    //   headerName: "Trạng Thái",
+    //   width: 80,
+    //   renderCell: (params) => (
+    //     <Box display="flex" alignItems="center" className="filter-box">
+    //       <Switch
+    //         defaultChecked
+    //         color="warning"
+    //         checked={params.value === "ACTIVE"}
+    //         onChange={() => {
+    //           const newStatus =
+    //             params.value === "ACTIVE" ? "INACTIVE" : "ACTIVE"; // Toggle the status
+    //           // Lấy ID, fullname và status từ dữ liệu cột
+    //           const rescueVehicleOwnerId = params.row.id;
+    //           const fullname = params.row.fullname;
+    //           handleSaveClickStatus(rescueVehicleOwnerId, fullname, newStatus);
+    //           // Gọi hàm để gửi yêu cầu cập nhật trạng thái
+    //           // Để cập nhật giao diện ngay lập tức, bạn cần áp dụng thay đổi trạng thái lên local state
+    //         }}
+    //       />
+    //     </Box>
+    //   ),
+    //   key: "status",
+    // },
     {
       field: "status",
       headerName: "Trạng Thái",
-      width: 80,
-      renderCell: (params) => (
-        <Box display="flex" alignItems="center" className="filter-box">
-          <Switch
-            defaultChecked
-            color="warning"
-            checked={params.value === "ACTIVE"}
-            onChange={() => {
-              const newStatus =
-                params.value === "ACTIVE" ? "INACTIVE" : "ACTIVE"; // Toggle the status
-              // Lấy ID, fullname và status từ dữ liệu cột
-              const rescueVehicleOwnerId = params.row.id;
-              const fullname = params.row.fullname;
-              handleSaveClickStatus(rescueVehicleOwnerId, fullname, newStatus);
-              // Gọi hàm để gửi yêu cầu cập nhật trạng thái
-              // Để cập nhật giao diện ngay lập tức, bạn cần áp dụng thay đổi trạng thái lên local state
-            }}
-          />
-        </Box>
-      ),
+      width: 140,
       key: "status",
+      renderCell: ({ row: { status } }) => {
+        return (
+          <Box
+            width="auto"
+            p="4px"
+            m="0 auto"
+            display="flex"
+            justifyContent="center"
+            borderRadius={2}
+            backgroundColor={
+              status === "ACTIVE"
+                ? colors.green[300]
+                : status === "ASSIGNED"
+                ? colors.redAccent[700]
+                : colors.redAccent[700]
+                ? colors.blueAccent[700]
+                : status === "COMPLETED"
+            }
+            color={
+              status === "ACTIVE" ? colors.green[800] : colors.yellowAccent[700]
+            }
+          >
+            {status === "ACTIVE" && <HowToRegIcon />}
+            <Typography color="inherit" sx={{ ml: "1px", fontWeight: "bold" }}>
+              {status === "ACTIVE"
+                ? "Đang Hoạt Động"
+                : status === "INACTIVE"
+                ? "Không Hoạt Động"
+                : status === "ASSIGNED"
+                ? "Đang Làm Việc"
+                : status}
+            </Typography>
+          </Box>
+        );
+      },
     },
     {
       field: "update",
       headerName: "Cập Nhật",
-      width: 60,
+      width: 120,
       renderCell: (params) => (
         <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          "&:hover": {
-            cursor: "pointer",
-            // Thay đổi màu sắc hoặc hiệu ứng khác khi hover vào Box
-            backgroundColor:"lightgray",
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            "&:hover": {
+              cursor: "pointer",
+              // Thay đổi màu sắc hoặc hiệu ứng khác khi hover vào Box
+              backgroundColor: "lightgray",
 
-            borderRadius: "4px",
-          },
-        }}
-      >
-         <EditIcon
-          variant="contained"
-          color="indigo"
-          onClick={() => handleUpdateClick(params.row.id)}
+              borderRadius: "4px",
+            },
+          }}
         >
-          <EditIcon style={{ color: "green" }} />
-        </EditIcon>
-      </Box>
-       
+         
+          <Typography
+            variant="body1"
+            sx={{ ml: "1px", color: "indigo", fontWeight: "bold" }}
+            onClick={() => handleUpdateClick(params.row.id)}
+          >
+            Chỉnh Sửa
+          </Typography>
+        </Box>
       ),
       key: "update",
     },
@@ -443,55 +489,54 @@ const RescueVehicleOwners = (props) => {
               <MenuItem key="status-active" value="ACTIVE">
                 Hoạt động
               </MenuItem>
-              <MenuItem key="status-INACTIVE" value="INACTIVE">
+              <MenuItem key="status-Unactive" value="Unactive">
                 Không hoạt động
               </MenuItem>
             </Select>
           </FormControl>
         </Box>
         <Box display="flex" alignItems="center" className="startDate-box">
-            <TextField
-              label="Từ ngày"
-              type="date"
-              value={startDate || ""}
-              onChange={(event) => {
-                setStartDate(event.target.value);
-     
-              }}
-              InputLabelProps={{
-                shrink: true,
-              }}
-              onBlur={handleDateFilterChange}
-              inputProps={{
-                max: moment()
-                  .tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
-                  .add(7, "hours") // Adding 3 hours (you can adjust this number as needed)
-                  .format("DD-MM-YYYY"), // Set the maximum selectable date as today
-              }}
-              sx={{ ml: 4, mr: 2 }}
-            />
-          </Box>
+          <TextField
+            label="Từ ngày"
+            type="date"
+            value={startDate || ""}
+            onChange={(event) => {
+              setStartDate(event.target.value);
+            }}
+            InputLabelProps={{
+              shrink: true,
+            }}
+            onBlur={handleDateFilterChange}
+            inputProps={{
+              max: moment()
+                .tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
+                .add(7, "hours") // Adding 3 hours (you can adjust this number as needed)
+                .format("DD-MM-YYYY"), // Set the maximum selectable date as today
+            }}
+            sx={{ ml: 4, mr: 2 }}
+          />
+        </Box>
 
-          <Box display="flex" alignItems="center" className="endtDate-box">
-            <TextField
-              label="Đến ngày"
-              type="date"
-              value={endDate || ""}
-              onChange={(event) => {
-                setEndDate(event.target.value);
-              }}
-              InputLabelProps={{
-                shrink: true,
-              }}
-              onBlur={handleDateFilterChange}
-              inputProps={{
-                max: moment()
-                  .tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
-                  .add(7, "hours") // Adding 3 hours (you can adjust this number as needed)
-                  .format("DD-MM-YYYY"), // Set the maximum selectable date as today
-              }}
-            />
-          </Box>
+        <Box display="flex" alignItems="center" className="endtDate-box">
+          <TextField
+            label="Đến ngày"
+            type="date"
+            value={endDate || ""}
+            onChange={(event) => {
+              setEndDate(event.target.value);
+            }}
+            InputLabelProps={{
+              shrink: true,
+            }}
+            onBlur={handleDateFilterChange}
+            inputProps={{
+              max: moment()
+                .tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
+                .add(7, "hours") // Adding 3 hours (you can adjust this number as needed)
+                .format("DD-MM-YYYY"), // Set the maximum selectable date as today
+            }}
+          />
+        </Box>
       </Box>
       <Box
         m="10px 0 0 0"

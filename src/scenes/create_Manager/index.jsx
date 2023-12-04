@@ -103,6 +103,9 @@ const AddRescueVehicleOwner = () => {
           setData(data);
           setLoading(false);
         }
+      }).catch(error => {
+        setLoading(false);
+        toast.dismiss("Lỗi khi lấy dữ liệu báo cáo:", error);
       })
       .finally(() => {
         setLoading(false);

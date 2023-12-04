@@ -10,6 +10,7 @@ import {
   FormControl,
   Grid,
   CircularProgress,
+  Button,
 } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../../theme";
@@ -26,8 +27,7 @@ import InputBase from "@mui/material/InputBase";
 import moment from "moment";
 import { fetchOrdersAssigning, getOrderId } from "../../../redux/orderSlice";
 import { getCustomerIdFullName } from "../../../redux/customerSlice";
-import CreditScoreIcon from "@mui/icons-material/CreditScore";
-import AddCardIcon from "@mui/icons-material/AddCard";
+import AddIcon from "@mui/icons-material/Add";
 import RepeatOnIcon from "@mui/icons-material/RepeatOn";
 import SupportIcon from "@mui/icons-material/Support";
 import HandymanIcon from "@mui/icons-material/Handyman";
@@ -172,9 +172,12 @@ const OrdersAssigning = (props) => {
           setData(data);
           setFilteredOrders(data);
           setLoading(false); // Đặt trạng thái loading thành false sau khi xử lý dữ liệu
+        }else{
+          toast.dismiss("Lỗi khi lấy dữ liệu đang diều phối1");
         }
       }).catch((error) => {
         setLoading(false);
+        toast.dismiss("Lỗi khi lấy dữ liệu đang diều phối:");
       })
       .finally(() => {
         setLoading(false);
@@ -301,7 +304,7 @@ const OrdersAssigning = (props) => {
     {
       field: "customerNote",
       headerName: "Ghi Chú của Customer",
-      width: 200,
+      width: 260,
       key: "customerNote",
     },
 
@@ -531,7 +534,7 @@ const OrdersAssigning = (props) => {
           display="flex"
           borderRadius="6px"
           border={1}
-          marginRight={2}
+          marginRight={1}
           marginLeft={2}
           width={500}
         >
@@ -589,7 +592,7 @@ const OrdersAssigning = (props) => {
                 .add(7, "hours") // Adding 3 hours (you can adjust this number as needed)
                 .format("DD-MM-YYYY"), // Set the maximum selectable date as today
             }}
-            sx={{ ml: 4, mr: 2 }}
+            sx={{ ml: 1, mr: 1 }}
           />
         </Box>
 
@@ -611,8 +614,38 @@ const OrdersAssigning = (props) => {
                 .add(7, "hours") // Adding 3 hours (you can adjust this number as needed)
                 .format("DD-MM-YYYY"), // Set the maximum selectable date as today
             }}
+            sx={{  mr: 1 }}
           />
         </Box>
+
+        <Box       display="flex"
+            borderRadius="6px"
+      
+            sx={{
+              height: "auto",
+              width: "auto",
+              alignItems: "center", // Các nút được căn giữa theo chiều dọc
+            }}>
+            <a href="add/orderOffline" style={{ textDecoration: "none" }}>
+              {" "}
+              {/* Thêm đường dẫn ở đây */}
+              <Button
+                type="submit"
+                color="secondary"
+                variant="contained"
+                disableElevation
+                sx={{
+                  width: "136px",
+                  height: "50px", 
+                }}
+              >
+                <AddIcon sx={{ color: "white", fontWeight: "bold" }} />
+                <Typography sx={{ color: "white", fontWeight: "bold" }}>
+                  Tạo Đơn Hàng
+                </Typography>
+              </Button>
+            </a>
+          </Box>
       </Box>
 
       <Box

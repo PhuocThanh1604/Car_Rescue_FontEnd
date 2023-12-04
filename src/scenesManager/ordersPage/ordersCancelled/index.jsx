@@ -10,6 +10,7 @@ import {
   FormControl,
   Grid,
   CircularProgress,
+  Button,
 } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../../theme";
@@ -17,7 +18,7 @@ import Header from "../../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import ModalDetail from "./ModalDetail";
-
+import AddIcon from "@mui/icons-material/Add";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import SearchIcon from "@mui/icons-material/Search";
@@ -170,7 +171,13 @@ const OrdersCancelled = (props) => {
           setData(data);
           setFilteredOrders(data);
           setLoading(false); // Đặt trạng thái loading thành false sau khi xử lý dữ liệu
+        }else{
+          toast.error("Lỗi khi lấy dữ liệu đơn hủy");
         }
+      })
+      .catch(error => {
+        // Xử lý lỗi ở đây
+        toast.error("Lỗi khi lấy dữ liệu hủy đơn", error);
       })
       .finally(() => {
         setLoading(false);
@@ -281,7 +288,7 @@ const OrdersCancelled = (props) => {
     {
       field: "customerNote",
       headerName: "Ghi Chú của Customer",
-      width: 140,
+      width: 220,
       key: "customerNote",
     },
     {
@@ -349,7 +356,7 @@ const OrdersCancelled = (props) => {
             borderRadius={2}
             backgroundColor={
               status === "CANCELLED"
-                ? colors.amber[300]
+                ? colors.orange[400]
                 : status === "ASSIGNED"
                 ? colors.redAccent[700]
                 : colors.redAccent[700]
@@ -358,7 +365,7 @@ const OrdersCancelled = (props) => {
             }
             color={
               status === "CANCELLED"
-                ? colors.amber[700]
+                ? colors.white[50]
                 : colors.yellowAccent[700]
             }
           >
@@ -432,7 +439,7 @@ const OrdersCancelled = (props) => {
           display="flex"
           borderRadius="6px"
           border={1}
-          marginRight={2}
+          marginRight={1}
           marginLeft={2}
           width={500}
         >
@@ -495,7 +502,7 @@ const OrdersCancelled = (props) => {
                 .add(7, "hours") // Adding 3 hours (you can adjust this number as needed)
                 .format("DD-MM-YYYY"), // Set the maximum selectable date as today
             }}
-            sx={{ ml: 4, mr: 2 }}
+            sx={{ ml: 1, mr: 1 }}
           />
         </Box>
 
@@ -513,12 +520,40 @@ const OrdersCancelled = (props) => {
             onBlur={handleDateFilterChange}
             inputProps={{
               max: moment()
-                .tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
-                .add(7, "hours") // Adding 3 hours (you can adjust this number as needed)
-                .format("DD-MM-YYYY"), // Set the maximum selectable date as today
+                .tz("Asia/Ho_Chi_Minh") 
+                .add(7, "hours") 
+                .format("DD-MM-YYYY"), 
             }}
+            sx={{  mr: 1 }}
           />
         </Box>
+        <Box       display="flex"
+            borderRadius="6px"
+            sx={{
+              height: "auto",
+              width: "auto",
+              alignItems: "center", 
+            }}>
+            <a href="add/orderOffline" style={{ textDecoration: "none" }}>
+              {" "}
+             
+              <Button
+                type="submit"
+                color="secondary"
+                variant="contained"
+                disableElevation
+                sx={{
+                  width: "136px",
+                  height: "50px", 
+                }}
+              >
+                <AddIcon sx={{ color: "white", fontWeight: "bold" }} />
+                <Typography sx={{ color: "white", fontWeight: "bold" }}>
+                  Tạo Đơn Hàng
+                </Typography>
+              </Button>
+            </a>
+          </Box>
       </Box>
 
       <Box

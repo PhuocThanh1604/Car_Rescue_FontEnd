@@ -83,6 +83,10 @@ const Accounts = () => {
           setLoading(false); // Đặt trạng thái loading thành false sau khi xử lý dữ liệu
         }
       })
+      .catch(error => {
+        // Xử lý lỗi ở đây
+        console.error("Lỗi khi lấy dữ liệu báo cáo:", error);
+      })
       .finally(() => {
         setLoading(false);
       });

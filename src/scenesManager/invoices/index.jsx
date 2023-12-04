@@ -441,16 +441,6 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
       width: 100,
       cellClassName: "name-column--cell",
     },
-    // {
-    //   field: "walletId",
-    //   headerName: "Tên Đối Tác",
-    //   width: 220,
-    //   cellClassName: "name-column--cell",
-    //   onCellClick: (params) => {
-    //     setSelectedWalletId(params.row.walletId);
-    //     // Các hành động khác sau khi chọn walletId
-    //   },
-    // },
 
     {
       field: "walletId",

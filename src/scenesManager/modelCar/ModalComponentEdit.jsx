@@ -53,7 +53,7 @@ const ModalEdit = ({
         }
       })
       .catch((error) => {
-        console.error("Lỗi khi tải lại danh sách dịch vụ:", error);
+        toast.dismiss("Lỗi khi tải lại danh sách dịch vụ:", error);
       });
   };
   useEffect(() => {

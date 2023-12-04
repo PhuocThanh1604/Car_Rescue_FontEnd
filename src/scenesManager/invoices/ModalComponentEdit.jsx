@@ -129,11 +129,7 @@ const ModalEdit = ({
   if (!rescueVehicleOwners) {
     return null;
   }
-  // Hàm kiểm tra URL hợp lệ
-  const isValidUrl = (url) => {
-    const regex = /^(ftp|http|https):\/\/[^ "]+$/;
-    return regex.test(url);
-  };
+
   const handleImageUploaded = (imageUrl) => {
     setDownloadUrl(imageUrl); // Set the download URL in the state
     setEdit((prevRescuseVehicleOwner) => ({

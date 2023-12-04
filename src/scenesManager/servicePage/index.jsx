@@ -15,12 +15,13 @@ import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import Header from "../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
+import AddIcon from "@mui/icons-material/Add";
 import { Edit } from "@mui/icons-material";
 import SupportIcon from "@mui/icons-material/Support";
 import HandymanIcon from "@mui/icons-material/Handyman";
 import ModalEdit from "./ModalEdit";
 import ToggleButton from "./ToggleButton";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Fade from "@mui/material/Fade";
 import SearchIcon from "@mui/icons-material/Search";
@@ -108,25 +109,30 @@ const Services = (props) => {
 useEffect(() => {
   const filteredServices = services
     ? services.filter((service) => {
-        const nameMatch =
-          service.name &&
-          service.name.toLowerCase().includes(searchText.toLowerCase());
+        // Đảm bảo rằng service tồn tại trước khi truy cập các thuộc tính của nó
+        const nameMatch = service?.name
+          ? service.name.toLowerCase().includes(searchText.toLowerCase())
+          : false;
+
         const filterMatch =
           filterOption === "Status" ||
-          (filterOption === "ACTIVE" && service.status === "ACTIVE") ||
-          (filterOption === "INACTIVE" && service.status === "INACTIVE");
+          (filterOption === "ACTIVE" && service?.status === "ACTIVE") ||
+          (filterOption === "INACTIVE" && service?.status === "INACTIVE");
 
         const filterMatchType =
           filterOptionType === "type" ||
-          (filterOptionType === "Fixing" && service.type === "Fixing") || // Sửa lại tên trường từ rescueType thành type
-          (filterOptionType === "Towing" && service.type === "Towing");
+          (filterOptionType === "Fixing" && service?.type === "Fixing") ||
+          (filterOptionType === "Towing" && service?.type === "Towing");
 
         return nameMatch && filterMatch && filterMatchType;
       })
     : [];
-    console.log(filteredServices);
+  
+  console.log(filteredServices);
   setFilteredSerivces(filteredServices);
 }, [services, searchText, filterOption, filterOptionType]);
+
+
 
 
 
@@ -146,7 +152,13 @@ useEffect(() => {
           setData(data);
           setFilteredSerivces(data);
           setLoading(false); // Đặt trạng thái loading thành false sau khi xử lý dữ liệu
+        }else{
+          toast.dismiss("không có dữ liệu trả về")
         }
+      })
+      .catch(error => {
+        // Xử lý lỗi ở đây
+        console.error("Lỗi khi lấy dữ liệu báo cáo:", error);
       })
       .finally(() => {
         setLoading(false);
@@ -182,13 +194,14 @@ useEffect(() => {
     {
       field: "description",
       headerName: "Mô Tả",
-      width: 160,
+      width: 260,
       key: "description",
     },
+  
     {
       field: "type",
       headerName: "Hình Thức",
-      width: 120,
+      width: 140,
       key: "type",
       renderCell: ({ row: { type } }) => {
         return (
@@ -216,20 +229,23 @@ useEffect(() => {
             {type === "Towing" && <SupportIcon />}
             {type === "Fixing" && <HandymanIcon />}
             <Typography color="inherit" sx={{ ml: "1px", fontWeight: "bold" }}>
-              {type}
+              {type === "Towing"
+                ? "Kéo Xe"
+                : type === "Fixing"
+                ? "Sữa Chữa Tại Chỗ"
+                : type}
             </Typography>
           </Box>
         );
       },
     },
 
-
+  
     {
       field: "price",
       headerName: "Giá Dịch Vụ",
-      width: 120,
-      key: "price",
-      valueFormatter: (params) => {
+      width: 100,
+      renderCell: (params) => {
         // Đảm bảo rằng params.value là một số
         if (typeof params.value === "number") {
           // Chuyển số thành chuỗi và định dạng theo định dạng tiền tệ VNĐ
@@ -237,42 +253,63 @@ useEffect(() => {
             style: "currency",
             currency: "VND",
           });
-          return formattedPrice;
+
+          // Trả về phần tử Typography để render với màu xanh và giá trị tiền đã định dạng
+          return (
+            <Typography color={colors.blueAccent[500]}sx={{fontWeight:"bold"}}>
+              {formattedPrice}
+            </Typography>
+          );
         } else {
           return params.value;
         }
       },
     },
-
     {
       field: "status",
       headerName: "Trạng Thái",
-      width: 80,
-      renderCell: (params) => (
-        <Box display="flex" alignItems="center" className="filter-box">
-          <ToggleButton
-            initialValue={params.value === "ACTIVE"}
-            onChange={(value) => {
-              const updatedServices = services.map((service) => {
-                if (service.id === params.row.id) {
-                  return {
-                    ...service,
-                    status: value ? "ACTIVE" : "INACTIVE",
-                  };
-                }
-                return service;
-              });
-              // setFilteredServices(updatedServices);
-            }}
-          />
-        </Box>
-      ),
+      width: 140,
       key: "status",
+      renderCell: ({ row: { status } }) => {
+        return (
+          <Box
+            width="auto"
+            p="4px"
+            m="0 auto"
+            display="flex"
+            justifyContent="center"
+            borderRadius={2}
+            backgroundColor={
+              status === "ACTIVE"
+                ? colors.green[300]
+                : status === "ASSIGNED"
+                ? colors.redAccent[700]
+                : colors.redAccent[700]
+                ? colors.blueAccent[700]
+                : status === "COMPLETED"
+            }
+            color={
+              status === "ACTIVE" ? colors.green[800] : colors.yellowAccent[700]
+            }
+          >
+            {status === "ACTIVE" }
+            <Typography color="inherit" sx={{ ml: "1px", fontWeight: "bold" }}>
+              {status === "ACTIVE"
+                ? "Đang Hoạt Động"
+                : status === "INACTIVE"
+                ? "Không Hoạt Động"
+                : status === "ASSIGNED"
+                ? "Đang Làm Việc"
+                : status}
+            </Typography>
+          </Box>
+        );
+      },
     },
     {
       field: "update",
       headerName: "Cập Nhật",
-      width: 60,
+      width: 120,
       renderCell: (params) => (
         <Box
         sx={{
@@ -291,8 +328,16 @@ useEffect(() => {
       color="error"
       onClick={() => handleUpdateClick(params.row.id)}
     >
-      <Edit style={{ color: "indigo" }} />
-    </IconButton></Box>
+      <Typography
+            variant="body1"
+            sx={{ ml: "1px", color: "indigo", fontWeight: "bold" }}
+          >
+            Chỉnh Sửa
+          </Typography>
+    </IconButton>
+    
+    
+    </Box>
  
       ),
       key: "update",
@@ -366,7 +411,35 @@ useEffect(() => {
             </Select>
           </FormControl>
         </Box>
-  
+        <Box display="flex"
+            borderRadius="6px"
+            marginRight={2}
+            marginLeft={2}
+            sx={{
+              height: "auto",
+              width: "auto",
+              alignItems: "center", // Các nút được căn giữa theo chiều dọc
+            }}>
+            <a href="add/service" style={{ textDecoration: "none" }}>
+              {" "}
+              {/* Thêm đường dẫn ở đây */}
+              <Button
+                type="submit"
+                color="secondary"
+                variant="contained"
+                disableElevation
+                sx={{
+                  width: "150px",
+                  height: "50px", 
+                }}
+              >
+                <AddIcon sx={{ color: "white", fontWeight: "bold" }} />
+                <Typography sx={{ color: "white", fontWeight: "bold" }}>
+                  Tạo Dịch Vụ
+                </Typography>
+              </Button>
+            </a>
+          </Box>
       </Box>
 
       <Box

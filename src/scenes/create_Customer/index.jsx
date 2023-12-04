@@ -99,6 +99,9 @@ const AddCustomer = () => {
           setData(data);
           setLoading(false);
         }
+      }).catch(error => {
+        // Xử lý lỗi ở đây
+        console.error("Lỗi khi lấy dữ liệu báo cáo:", error);
       })
       .finally(() => {
         setLoading(false);
@@ -244,6 +247,7 @@ const AddCustomer = () => {
               />
               <TextField
               id="outlined-read-only-input"
+              fullWidth
               variant="outlined"
                 type="date"
                 label="Ngày Sinh"

@@ -33,6 +33,7 @@ import GradingIcon from "@mui/icons-material/Grading";
 import TodayIcon from "@mui/icons-material/Today";
 import PaidIcon from "@mui/icons-material/Paid";
 import VisibilityIcon from "@mui/icons-material/Visibility";
+import { toast } from "react-toastify";
 const Payment = () => {
   const dispatch = useDispatch();
   const payments = useSelector((state) => state.payment.payments);
@@ -197,7 +198,12 @@ const Payment = () => {
           setFilteredPayment(data);
           console.log(data);
           setLoading(false); // Đặt trạng thái loading thành false sau khi xử lý dữ liệu
+        } else {
+          toast.dismiss("Không có dữ liệu từ phản hồi data");
         }
+      })
+      .catch((error) => {
+        toast.dismiss("Không có dữ liệu từ phản hồi data", error);
       })
       .finally(() => {
         setLoading(false);
@@ -281,7 +287,10 @@ const Payment = () => {
   }
   const formatDateTime = (dateTime) => {
     if (!dateTime) return "Đang cập nhật";
-    return moment(dateTime).tz("Asia/Ho_Chi_Minh").add(7,'hours').format('DD/MM/YYYY HH:mm:ss');
+    return moment(dateTime)
+      .tz("Asia/Ho_Chi_Minh")
+      .add(7, "hours")
+      .format("DD/MM/YYYY HH:mm:ss");
     // Set the time zone to Vietnam's ICT
   };
   const columns = [
@@ -386,7 +395,6 @@ const Payment = () => {
             }
           >
             <Typography color="inherit" sx={{ ml: "1px", fontWeight: "bold" }}>
-           
               {status === "NEW"
                 ? "Mới"
                 : status === "COMPLETED"
@@ -468,7 +476,7 @@ const Payment = () => {
             onChange={handleFilterRescueMethod}
             variant="outlined"
             className="filter-select"
-            style={{ width: "150px" ,marginRight:"20px"}}
+            style={{ width: "150px", marginRight: "20px" }}
           >
             <MenuItem key="method-all" value="method">
               Hình Thức
@@ -697,7 +705,8 @@ const Payment = () => {
                       <TodayIcon sx={{ color: colors.blueAccent[400] }} />
                       <Typography variant="h6">
                         <strong>Ngày Giao Dịch: </strong>{" "}
-                        {formatDateTime(detailedData.createdAt) || "Không có thông tin"}
+                        {formatDateTime(detailedData.createdAt) ||
+                          "Không có thông tin"}
                       </Typography>
                     </Box>
                     <Box
@@ -710,7 +719,12 @@ const Payment = () => {
                       <PaidIcon sx={{ color: colors.blueAccent[400] }} />
                       <Typography>
                         <strong>Tổng Tiền Đã Thanh Toán: </strong>{" "}
-                        <span style={{ color: colors.redAccent[500] ,fontWeight:"bold" }}>
+                        <span
+                          style={{
+                            color: colors.redAccent[500],
+                            fontWeight: "bold",
+                          }}
+                        >
                           {detailedData.amount
                             ? `${detailedData.amount.toLocaleString("vi-VN", {
                                 style: "currency",

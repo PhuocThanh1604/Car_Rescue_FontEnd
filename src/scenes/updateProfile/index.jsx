@@ -96,6 +96,9 @@ const UpdateProfileAmdin = () => {
           setData(data);
           setLoading(false);
         }
+      }).catch(error => {
+        // Xử lý lỗi ở đây
+        toast.error("Lỗi khi lấy dữ liệu báo cáo:", error);
       })
       .finally(() => {
         setLoading(false);

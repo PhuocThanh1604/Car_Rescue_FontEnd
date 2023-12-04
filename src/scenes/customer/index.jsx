@@ -19,7 +19,6 @@ import { tokens } from "../../theme";
 import Header from "../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCustomers, getCustomerId } from "../../redux/customerSlice";
-import { Edit, FilterList, Search } from "@mui/icons-material";
 import ModalDetail from "./ModalDetail";
 import ModalEdit from "./ModalEdit";
 import ToggleButton from "./ToggleButton";
@@ -28,6 +27,8 @@ import "react-toastify/dist/ReactToastify.css";
 import Fade from "@mui/material/Fade";
 import SearchIcon from "@mui/icons-material/Search";
 import InputBase from "@mui/material/InputBase";
+
+import AddIcon from "@mui/icons-material/Add";
 import moment from "moment";
 import CustomTablePagination from "../../components/TablePagination";
 const Customers = (props) => {
@@ -56,6 +57,18 @@ const Customers = (props) => {
     if (isSuccess) {
     }
   }, [isSuccess]);
+  // Lấy đối tượng manager từ localStorage
+  const managerString = localStorage.getItem("manager");
+  const isAdmin = localStorage.getItem("isAdmin") === "true";
+  let manager = null;
+
+  if (managerString) {
+    try {
+      manager = JSON.parse(managerString); // Thử phân tích chuỗi JSON
+    } catch (error) {
+      console.error("Lỗi khi phân tích chuỗi JSON:", error);
+    }
+  }
 
   const handleSearchChange = (event) => {
     const value = event.target.value || ""; // Use an empty string if the value is null
@@ -167,6 +180,10 @@ const Customers = (props) => {
           setLoading(false); // Đặt trạng thái loading thành false sau khi xử lý dữ liệu
         }
       })
+      .catch((error) => {
+        // Xử lý lỗi ở đây
+        setLoading(false);
+      })
       .finally(() => {
         setLoading(false);
       });
@@ -210,13 +227,13 @@ const Customers = (props) => {
     {
       field: "birthdate",
       headerName: "Ngày Sinh",
-      width: 140,
+      width: 120,
       key: "birthdate",
       valueGetter: (params) =>
         moment(params.row.birthdate || "Không có thông tin")
           .tz("Asia/Ho_Chi_Minh")
           .add(7, "hours")
-          .format("DD-MM-YYYY HH:mm:ss"),
+          .format("DD-MM-YYYY"),
     },
     {
       field: "createAt",
@@ -232,7 +249,7 @@ const Customers = (props) => {
     {
       field: "avatar",
       headerName: "Hình ảnh",
-      width: 120,
+      width: 100,
       renderCell: (params) => {
         const avatarSrc =
           params.value ||
@@ -250,35 +267,76 @@ const Customers = (props) => {
         );
       },
     },
+    // {
+    //   field: "status",
+    //   headerName: "Trạng Thái",
+    //   width: 80,
+    //   renderCell: (params) => (
+    //     <Box display="flex" alignItems="center" className="filter-box">
+    //       <ToggleButton
+    //         initialValue={params.value === "ACTIVE"}
+    //         onChange={(value) => {
+    //           const updatedcustomers = customers.map((customer) => {
+    //             if (customer.CustomerId === params.row.CustomerId) {
+    //               return {
+    //                 ...customer,
+    //                 status: value ? "ACTIVE" : "INACTIVE",
+    //               };
+    //             }
+    //             return customer;
+    //           });
+    //           // setFilteredcustomers(updatedcustomers);
+    //         }}
+    //       />
+    //     </Box>
+    //   ),
+    //   key: "status",
+    // },
     {
       field: "status",
       headerName: "Trạng Thái",
-      width: 80,
-      renderCell: (params) => (
-        <Box display="flex" alignItems="center" className="filter-box">
-          <ToggleButton
-            initialValue={params.value === "ACTIVE"}
-            onChange={(value) => {
-              const updatedcustomers = customers.map((customer) => {
-                if (customer.CustomerId === params.row.CustomerId) {
-                  return {
-                    ...customer,
-                    status: value ? "ACTIVE" : "INACTIVE",
-                  };
-                }
-                return customer;
-              });
-              // setFilteredcustomers(updatedcustomers);
-            }}
-          />
-        </Box>
-      ),
+      width: 140,
       key: "status",
+      renderCell: ({ row: { status } }) => {
+        return (
+          <Box
+            width="auto"
+            p="4px"
+            m="0 auto"
+            display="flex"
+            justifyContent="center"
+            borderRadius={2}
+            backgroundColor={
+              status === "ACTIVE"
+                ? colors.green[300]
+                : status === "ASSIGNED"
+                ? colors.redAccent[700]
+                : colors.redAccent[700]
+                ? colors.blueAccent[700]
+                : status === "COMPLETED"
+            }
+            color={
+              status === "ACTIVE" ? colors.green[800] : colors.yellowAccent[700]
+            }
+          >
+            {status === "ACTIVE"}
+            <Typography color="inherit" sx={{ ml: "1px", fontWeight: "bold" }}>
+              {status === "ACTIVE"
+                ? "Đang Hoạt Động"
+                : status === "INACTIVE"
+                ? "Không Hoạt Động"
+                : status === "ASSIGNED"
+                ? "Đang Làm Việc"
+                : status}
+            </Typography>
+          </Box>
+        );
+      },
     },
     {
       field: "update",
       headerName: "Update",
-      width: 60,
+      width: 120,
       renderCell: (params) => (
         <Box
           sx={{
@@ -299,7 +357,13 @@ const Customers = (props) => {
             color="error"
             onClick={() => handleUpdateClick(params.row.id)}
           >
-            <Edit style={{ color: "indigo" }} />
+            <Typography
+              variant="body1"
+              sx={{ ml: "1px", color: "indigo", fontWeight: "bold" }}
+              onClick={() => handleUpdateClick(params.row.id)}
+            >
+              Chỉnh Sửa
+            </Typography>
           </IconButton>{" "}
         </Box>
       ),
@@ -316,7 +380,7 @@ const Customers = (props) => {
           display="flex"
           borderRadius="6px"
           border={1}
-          marginRight={2}
+          marginRight={1}
           marginLeft={2}
           width={500}
         >
@@ -372,7 +436,7 @@ const Customers = (props) => {
                 .add(7, "hours") // Adding 3 hours (you can adjust this number as needed)
                 .format("DD-MM-YYYY"), // Set the maximum selectable date as today
             }}
-            sx={{ ml: 4, mr: 2 }}
+            sx={{ ml: 1, mr: 1 }}
           />
         </Box>
 
@@ -394,7 +458,40 @@ const Customers = (props) => {
                 .add(7, "hours") // Adding 3 hours (you can adjust this number as needed)
                 .format("DD-MM-YYYY"), // Set the maximum selectable date as today
             }}
+            sx={{ mr: 1 }}
           />
+        </Box>
+
+        <Box
+          display="flex"
+          borderRadius="6px"
+          sx={{
+            height: "auto",
+            width: "auto",
+            alignItems: "center",
+          }}
+        >
+          {manager && ( // Kiểm tra xem manager đã được đặt
+            <a href="add/customer" style={{ textDecoration: "none" }}>
+              {" "}
+              {/* Thêm đường dẫn ở đây */}
+              <Button
+                type="submit"
+                color="secondary"
+                variant="contained"
+                disableElevation
+                sx={{
+                  width: "136px",
+                  height: "50px",
+                }}
+              >
+                <AddIcon sx={{ color: "white", fontWeight: "bold" }} />
+                <Typography sx={{ color: "white", fontWeight: "bold" }}>
+                  Tạo Khách Hàng
+                </Typography>
+              </Button>
+            </a>
+          )}
         </Box>
       </Box>
 

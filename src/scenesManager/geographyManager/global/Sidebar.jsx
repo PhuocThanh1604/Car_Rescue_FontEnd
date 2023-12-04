@@ -159,10 +159,9 @@ const Sidebar = ({ selectedWalletId, selectedItemId }) => {
     // position: "fixed",
     top: 0,
     bottom: 0,
-    height: "100vh"    // Các thuộc tính CSS khác
-};
+    height: "100vh", // Các thuộc tính CSS khác
+  };
 
-  
   return (
     <Box
       sx={{
@@ -288,7 +287,7 @@ const Sidebar = ({ selectedWalletId, selectedItemId }) => {
               color={colors.grey[300]}
               sx={{ m: "15px 0 5px 20px" }}
             >
-              Dữ Liệu
+              Hệ Thống
             </Typography>
             <MenuItem
               onClick={handleOrderClick}
@@ -348,58 +347,6 @@ const Sidebar = ({ selectedWalletId, selectedItemId }) => {
                 {/* Add more sub-items as needed */}
               </div>
             )}
-            <MenuItem
-              onClick={handleRescuseClick}
-              icon={<DvrIcon />}
-              style={{
-                color: colors.grey[100],
-              }}
-            >
-              <Typography>Cứu Hộ</Typography>
-              <Link to="#" />
-            </MenuItem>
-            {showSubItemsRescue && (
-              <div style={{ marginLeft: "20px" }}>
-                <Item
-                  title="Xe Cứu Hộ"
-                  to="manager/vehicles"
-                  icon={<ElectricRickshawIcon />}
-                  selected={selected}
-                  setSelected={setSelected}
-                />
-                <Item
-                  title="Chủ Xe Cứu Hộ"
-                  to="manager/rescueVehicleOwner"
-                  icon={<PeopleOutlinedIcon />}
-                  selected={selected}
-                  setSelected={setSelected}
-                />{" "}
-            
-              </div>
-            )}
-            {shouldShowItem && (
-              <Item
-                title="Cập Nhật Thông Tin"
-                to="manager/update/profile"
-                icon={<PeopleOutlinedIcon />}
-                selected={selected}
-                setSelected={setSelected}
-              />
-            )}
-            <Item
-              title="Kỹ Thuật Viên "
-              to="manager/techinian"
-              icon={<PeopleOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />{" "}
-            <Item
-              title="Khách Hàng"
-              to="manager/customer"
-              icon={<PeopleOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />{" "}
             <Item
               title="Dịch Vụ"
               to="manager/service"
@@ -454,7 +401,7 @@ const Sidebar = ({ selectedWalletId, selectedItemId }) => {
                 />{" "}
               </div>
             )}
-             <MenuItem
+            <MenuItem
               onClick={handleReportClick}
               icon={<ReceiptOutlinedIcon />}
               style={{
@@ -485,51 +432,15 @@ const Sidebar = ({ selectedWalletId, selectedItemId }) => {
                   selected={selected}
                   setSelected={setSelected}
                 />
-           
               </div>
             )}
-            <Typography
-              variant="h6"
-              color={colors.grey[300]}
-              sx={{ m: "15px 0 5px 20px" }}
-            >
-              Pages
-            </Typography>
             <Item
-              title="Tạo Đơn Hàng Offline"
-              to="manager/add/orderOffline"
-              icon={<AddToQueueIcon />}
+              title="Kỹ Thuật Viên "
+              to="manager/techinian"
+              icon={<PeopleOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}
-            />
-            <Item
-              title="Tạo Mới Khách Hàng"
-              to="manager/add/customer"
-              icon={<PersonAddIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="Tạo Dịch Vụ"
-              to="manager/add/service"
-              icon={<BookmarkAddIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            {/* <Item
-              title="Tạo Chủ Xe Mới"
-              to="manager/add/carVihecileOwner"
-              icon={<PersonOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            /> */}
-            <Item
-              title="Tạo Mẫu Xe"
-              to="manager/add/modelCar"
-              icon={<PersonOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
+            />{" "}
             <MenuItem
               onClick={handleScheduleClick}
               icon={<CalendarTodayOutlinedIcon />}
@@ -549,6 +460,41 @@ const Sidebar = ({ selectedWalletId, selectedItemId }) => {
                   selected={selected}
                   setSelected={setSelected}
                 />
+              </div>
+            )}
+            <Typography
+              variant="h6"
+              color={colors.grey[300]}
+              sx={{ m: "15px 0 5px 20px" }}
+            >
+              Đối Tác
+            </Typography>
+            <MenuItem
+              onClick={handleRescuseClick}
+              icon={<DvrIcon />}
+              style={{
+                color: colors.grey[100],
+              }}
+            >
+              <Typography>Cứu Hộ</Typography>
+              <Link to="#" />
+            </MenuItem>
+            {showSubItemsRescue && (
+              <div style={{ marginLeft: "20px" }}>
+                <Item
+                  title="Xe Cứu Hộ"
+                  to="manager/vehicles"
+                  icon={<ElectricRickshawIcon />}
+                  selected={selected}
+                  setSelected={setSelected}
+                />
+                <Item
+                  title="Chủ Xe Cứu Hộ"
+                  to="manager/rescueVehicleOwner"
+                  icon={<PeopleOutlinedIcon />}
+                  selected={selected}
+                  setSelected={setSelected}
+                />{" "}
                 <Item
                   title="Lịch Xe Cứu Hộ"
                   to="manager/calendarRescueVehicleOwners"
@@ -558,6 +504,71 @@ const Sidebar = ({ selectedWalletId, selectedItemId }) => {
                 />
               </div>
             )}
+            {shouldShowItem && (
+              <Item
+                title="Cập Nhật Thông Tin"
+                to="manager/update/profile"
+                icon={<PeopleOutlinedIcon />}
+                selected={selected}
+                setSelected={setSelected}
+              />
+            )}
+            <Typography
+              variant="h6"
+              color={colors.grey[300]}
+              sx={{ m: "15px 0 5px 20px" }}
+            >
+              Khách Hàng
+            </Typography>
+            <Item
+              title="Khách Hàng"
+              to="manager/customer"
+              icon={<PeopleOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />{" "}
+            <Typography
+              variant="h6"
+              color={colors.grey[300]}
+              sx={{ m: "15px 0 5px 20px" }}
+            >
+              Pages
+            </Typography>
+            {/* <Item
+              title="Tạo Đơn Hàng Offline"
+              to="manager/add/orderOffline"
+              icon={<AddToQueueIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            /> */}
+            {/* <Item
+              title="Tạo Mới Khách Hàng"
+              to="manager/add/customer"
+              icon={<PersonAddIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+            <Item
+              title="Tạo Dịch Vụ"
+              to="manager/add/service"
+              icon={<BookmarkAddIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            /> */}
+            {/* <Item
+              title="Tạo Chủ Xe Mới"
+              to="manager/add/carVihecileOwner"
+              icon={<PersonOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            /> */}
+            {/* <Item
+              title="Tạo Mẫu Xe"
+              to="manager/add/modelCar"
+              icon={<PersonOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            /> */}
             <Item
               title="Google Map"
               to="manager/googlemap"

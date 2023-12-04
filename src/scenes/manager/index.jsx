@@ -11,6 +11,7 @@ import {
   FormControl,
 
   Switch,
+  Typography,
 } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
@@ -211,6 +212,9 @@ const Managers = (props) => {
           setLoading(false); // Đặt trạng thái loading thành false sau khi xử lý dữ liệu
         }
       })
+      .catch(error => {
+        setLoading(false);
+      })
       .finally(() => {
         setLoading(false);
       });
@@ -246,7 +250,7 @@ const Managers = (props) => {
       width: 50,
       key: "sex",
     },
-    { field: "address", headerName: "Địa Chỉ", width: 160, key: "address" },
+    { field: "address", headerName: "Địa Chỉ", width: 260, key: "address" },
     {
       field: "createdAt",
       headerName: "Ngày Tạo",
@@ -307,28 +311,43 @@ const Managers = (props) => {
     {
       field: "status",
       headerName: "Trạng Thái",
-      width: 80,
-      renderCell: (params) => (
-        <Box display="flex" alignItems="center" className="filter-box">
-          <Switch
-            defaultChecked
-            color="warning"
-            checked={params.value === "ACTIVE"}
-            onChange={() => {
-              const newStatus =
-                params.value === "ACTIVE" ? "INACTIVE" : "ACTIVE"; // Toggle the status
-
-              // Lấy ID, fullname và status từ dữ liệu cột
-              const rescueVehicleOwnerId = params.row.id;
-              const fullname = params.row.fullname;
-              handleSaveClickStatus(rescueVehicleOwnerId, fullname, newStatus);
-              // Gọi hàm để gửi yêu cầu cập nhật trạng thái
-              // Để cập nhật giao diện ngay lập tức, bạn cần áp dụng thay đổi trạng thái lên local state
-            }}
-          />
-        </Box>
-      ),
+      width: 140,
       key: "status",
+      renderCell: ({ row: { status } }) => {
+        return (
+          <Box
+            width="auto"
+            p="4px"
+            m="0 auto"
+            display="flex"
+            justifyContent="center"
+            borderRadius={2}
+            backgroundColor={
+              status === "ACTIVE"
+                ? colors.green[300]
+                : status === "ASSIGNED"
+                ? colors.redAccent[700]
+                : colors.redAccent[700]
+                ? colors.blueAccent[700]
+                : status === "COMPLETED"
+            }
+            color={
+              status === "ACTIVE" ? colors.green[800] : colors.yellowAccent[700]
+            }
+          >
+            {status === "ACTIVE" }
+            <Typography color="inherit" sx={{ ml: "1px", fontWeight: "bold" }}>
+              {status === "ACTIVE"
+                ? "Đang Hoạt Động"
+                : status === "INACTIVE"
+                ? "Không Hoạt Động"
+                : status === "ASSIGNED"
+                ? "Đang Làm Việc"
+                : status}
+            </Typography>
+          </Box>
+        );
+      },
     },
     {
       field: "update",
@@ -340,7 +359,13 @@ const Managers = (props) => {
           color="error"
           onClick={() => handleUpdateClick(params.row.id)}
         >
-          <Edit style={{ color: "red" }} />
+          <Typography
+            variant="body1"
+            sx={{ ml: "1px", color: "indigo", fontWeight: "bold" }}
+            onClick={() => handleUpdateClick(params.row.id)}
+          >
+            Chỉnh Sửa
+          </Typography>
         </IconButton>
       ),
       key: "update",

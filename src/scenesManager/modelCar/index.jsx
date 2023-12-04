@@ -23,7 +23,7 @@ import "react-toastify/dist/ReactToastify.css";
 import Fade from "@mui/material/Fade";
 import SearchIcon from "@mui/icons-material/Search";
 import InputBase from "@mui/material/InputBase";
-
+import AddIcon from "@mui/icons-material/Add";
 import CustomTablePagination from "../../components/TablePagination";
 import { fetchModelCar, getModelCarId } from "../../redux/modelCarSlice";
 const ModelCar = (props) => {
@@ -157,39 +157,60 @@ const ModelCar = (props) => {
     {
       field: "status",
       headerName: "Trạng Thái",
-      width: 80,
-      renderCell: (params) => (
-        <Box display="flex" alignItems="center" className="filter-box">
-          <ToggleButton
-            initialValue={params.value === "ACTIVE"}
-            onChange={(value) => {
-              const updatedServices = services.map((service) => {
-                if (service.id === params.row.id) {
-                  return {
-                    ...service,
-                    status: value ? "ACTIVE" : "INACTIVE",
-                  };
-                }
-                return service;
-              });
-              // setFilteredServices(updatedServices);
-            }}
-          />
-        </Box>
-      ),
+      width: 140,
       key: "status",
+      renderCell: ({ row: { status } }) => {
+        return (
+          <Box
+            width="auto"
+            p="4px"
+            m="0 auto"
+            display="flex"
+            justifyContent="center"
+            borderRadius={2}
+            backgroundColor={
+              status === "ACTIVE"
+                ? colors.green[300]
+                : status === "ASSIGNED"
+                ? colors.redAccent[700]
+                : colors.redAccent[700]
+                ? colors.blueAccent[700]
+                : status === "COMPLETED"
+            }
+            color={
+              status === "ACTIVE" ? colors.green[800] : colors.yellowAccent[700]
+            }
+          >
+            {status === "ACTIVE" }
+            <Typography color="inherit" sx={{ ml: "1px", fontWeight: "bold" }}>
+              {status === "ACTIVE"
+                ? "Đang Hoạt Động"
+                : status === "INACTIVE"
+                ? "Không Hoạt Động"
+                : status === "ASSIGNED"
+                ? "Đang Làm Việc"
+                : status}
+            </Typography>
+          </Box>
+        );
+      },
     },
     {
       field: "update",
       headerName: "Cập Nhật",
-      width: 60,
+      width: 120,
       renderCell: (params) => (
         <IconButton
           variant="contained"
           color="error"
           onClick={() => handleUpdateClick(params.row.id)}
         >
-          <Edit style={{ color: "red" }} />
+            <Typography
+            variant="body1"
+            sx={{ ml: "1px", color: "indigo", fontWeight: "bold" }}
+          >
+            Chỉnh Sửa
+          </Typography>
         </IconButton>
       ),
       key: "update",
@@ -242,7 +263,35 @@ const ModelCar = (props) => {
             </Select>
           </FormControl>
         </Box>
-  
+        <Box display="flex"
+            borderRadius="6px"
+            marginRight={2}
+            marginLeft={2}
+            sx={{
+              height: "auto",
+              width: "auto",
+              alignItems: "center", // Các nút được căn giữa theo chiều dọc
+            }}>
+            <a href="add/modelCar" style={{ textDecoration: "none" }}>
+              {" "}
+              {/* Thêm đường dẫn ở đây */}
+              <Button
+                type="submit"
+                color="secondary"
+                variant="contained"
+                disableElevation
+                sx={{
+                  width: "150px",
+                  height: "50px", 
+                }}
+              >
+                <AddIcon sx={{ color: "white", fontWeight: "bold" }} />
+                <Typography sx={{ color: "white", fontWeight: "bold" }}>
+                  Tạo Mẫu Xe
+                </Typography>
+              </Button>
+            </a>
+          </Box>
       </Box>
 
       <Box

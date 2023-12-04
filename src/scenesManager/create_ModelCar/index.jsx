@@ -89,7 +89,12 @@ const AddModelCar = () => {
         if (data) {
           setDataSelect(data);
           setLoading(false);
+        }else{
+          toast.dismiss("không có dữ liệu trả về")
         }
+      }).catch(error => {
+        // Xử lý lỗi ở đây
+        console.error("Lỗi khi lấy dữ liệu báo cáo:", error);
       })
       .finally(() => {
         setLoading(false);

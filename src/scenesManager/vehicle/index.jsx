@@ -364,6 +364,8 @@ const Vehicles = (props) => {
       })
       .catch((error) => {
         setLoading(false);
+      }).finally(() => {
+        setLoading(false); // Đặt trạng thái loading thành false
       });
   }, [dispatch]);
   
@@ -438,17 +440,24 @@ const Vehicles = (props) => {
     {
       field: "acceptOrder",
       headerName: "Chấp nhận xe ",
-      width: 120,
+      width: 140,
       renderCell: (params) => (
         <IconButton
           variant="contained"
-          color="error"
+          color="green"
           onClick={() => handleConfirm(params.row.id)}
         >
           <CheckCircleOutlineIcon
             variant="contained"
-            style={{ color: "green" }} // Set the color to green
+            style={{ }} // Set the color to green
           />
+           <Typography
+              variant="body1"
+              color="error"
+              sx={{ fontWeight: "bold", marginLeft: "5px", color: "green" }}
+              onClick={() => handleConfirm(params.row.id)}
+            >
+              {"Chấp Nhận Đơn"}</Typography>
         </IconButton>
       ),
       key: "acceptOrder",
