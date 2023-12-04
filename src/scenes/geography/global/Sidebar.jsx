@@ -213,6 +213,13 @@ const Sidebar = () => {
               setSelected={setSelected}
             />{' '}
             <Item
+              title="Tài Khoản"
+              to="admin/account"
+              icon={<PeopleOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />{' '}
+            <Item
               title="Chủ Xe Cứu Hộ"
               to="admin/rescueVehicleOwner"
               icon={<PeopleOutlinedIcon />}

@@ -22,6 +22,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import UpdateTechnician from "../../scenes/update_Technician";
 import UpdateProfileAmdin from "../../scenes/updateProfile";
+import Accounts from "../../scenes/account";
 
 
 const Admin = () => {
@@ -51,6 +52,7 @@ const Admin = () => {
                   {/* LIST actor */}
                   <Route path="" element={<Customers />} />
                   <Route path="/admin/techinian" element={<Technicians />} />
+                  <Route path="/admin/account" element={<Accounts />} />
                   <Route path="/admin/manager" element={<Managers />} />
                   <Route path="/admin/rescueVehicleOwner" element={<RescueVehicleOwners />} />
 

@@ -1,0 +1,239 @@
+import React, { useEffect, useState } from "react";
+import {
+  Box,
+  useTheme,
+  Modal,
+  TextField,
+  Select,
+  MenuItem,
+  IconButton,
+  FormControl,
+  Typography,
+} from "@mui/material";
+import { DataGrid, GridToolbar } from "@mui/x-data-grid";
+import { tokens } from "../../theme";
+import Header from "../../components/Header";
+import { useDispatch, useSelector } from "react-redux";
+import { Edit, FilterList, Search } from "@mui/icons-material";
+import AddIcon from "@mui/icons-material/Add";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import Fade from "@mui/material/Fade";
+import SearchIcon from "@mui/icons-material/Search";
+import InputBase from "@mui/material/InputBase";
+import moment from "moment";
+import { fetchTechnicians, getTechnicianId } from "../../redux/technicianSlice";
+import CustomTablePagination from "../../components/TablePagination";
+import AddCardIcon from "@mui/icons-material/AddCard";
+import RepeatOnIcon from "@mui/icons-material/RepeatOn";
+import PersonOffIcon from "@mui/icons-material/PersonOff";
+import HowToRegIcon from "@mui/icons-material/HowToReg";
+import { fetchAccounts } from "../../redux/accountSlice";
+const Accounts = () => {
+  const dispatch = useDispatch();
+  const accounts = useSelector((state) => state.account.accounts);
+  const [openEditModal, setOpenEditModal] = useState(false);
+  const [searchText, setSearchText] = useState("");
+  const [filterOption, setFilterOption] = useState("Status");
+  const [openModal, setOpenModal] = useState(false);
+  const [selectedEditTechnician, setselectedEditTechnician] = useState(null);
+  const [filteredTechnicians, setFilteredTechnicians] = useState([]);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(8);
+  const [selectedtechnician, setSelectedtechnician] = useState(null);
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState([]);
+  const [technicianData, setTechnicianData] = useState([]);
+
+  useEffect(() => {
+    if (isSuccess) {
+    }
+  }, [isSuccess]);
+
+  const handleSearchChange = (event) => {
+    const value = event.target.value || ""; // Use an empty string if the value is null
+    setSearchText(value);
+  };
+  useEffect(() => {
+    // Lọc dữ liệu dựa trên searchText khi searchText thay đổi
+    if (searchText.trim() === "") {
+      setFilteredTechnicians(data); // Nếu không có tìm kiếm, hiển thị toàn bộ dữ liệu
+    } else {
+      const filteredAccounts = data.filter((account) =>
+        account.email.toLowerCase().includes(searchText.toLowerCase())
+      );
+      setFilteredTechnicians(filteredAccounts);
+    }
+  }, [searchText, data]);
+  useEffect(() => {
+    setLoading(true);
+    dispatch(fetchAccounts())
+      .then((response) => {
+        // Đã lấy dữ liệu thành công
+        const data = response.payload.data;
+
+        if (data) {
+          setData(data);
+          setFilteredTechnicians(data);
+          // Truy xuất và xử lý từng đối tượng khách hàng ở đây
+          setLoading(false); // Đặt trạng thái loading thành false sau khi xử lý dữ liệu
+        }
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [dispatch]);
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  const filteredtechniciansPagination = filteredTechnicians.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
+  );
+
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
+  const columns = [
+    {
+      field: "email",
+      headerName: "Tên Tài Khoản",
+      width: 180,
+      key: "email",
+    },
+    { field: "id", headerName: "accountId", width: 200, key: "id" },
+
+
+    {
+      field: "createAt",
+      headerName: "Ngày Tạo",
+      width: 140,
+      key: "createAt",
+      valueGetter: (params) =>
+        moment(params.row.createAt)
+          .tz("Asia/Ho_Chi_Minh")
+          .add(7, "hours")
+          .format("DD-MM-YYYY HH:mm:ss"),
+    },
+
+  ];
+
+  return (
+    <Box ml="50px" mr="50px" mb="auto">
+      <Header title="Danh Sách Tài Khoản"  />
+
+      <Box display="flex" className="box" left={0}>
+        <Box
+          display="flex"
+          borderRadius="6px"
+          border={1}
+          marginRight={2}
+          marginLeft={2}
+          width={500}
+          height={50}
+        >
+          <InputBase
+            sx={{ ml: 4, flex: 1 }}
+            placeholder="Tìm kiếm"
+            onChange={handleSearchChange}
+            className="search-input"
+          />
+          <IconButton type="button" sx={{ p: 1 }}>
+            <SearchIcon />
+          </IconButton>
+        </Box>
+
+        <ToastContainer />
+     
+      
+      </Box>
+
+      <Box
+        m="10px 0 0 0"
+        height="auto"
+        sx={{
+          fontSize: "20px",
+          padding: "20px",
+          borderRadius: "20px",
+          boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.4)",
+          "& .MuiDataGrid-root": {
+            border: "none",
+          },
+          "& .MuiDataGrid-cell": {
+            borderBottom: "none",
+          },
+          "& .name-column--cell": {
+            color: colors.greenAccent[300],
+          },
+          "& .MuiDataGrid-columnHeaders": {
+            backgroundColor: colors.orange[50],
+            borderBottom: "none",
+          },
+          "& .MuiDataGrid-virtualScroller": {
+            backgroundColor: colors.white[50],
+          },
+          "& .MuiDataGrid-footerContainer": {
+            display: "none",
+          },
+          "& .MuiCheckbox-root": {
+            color: `${colors.greenAccent[200]} !important`,
+          },
+          "& .MuiDataGrid-row": {
+            borderBottom: "none",
+          },
+        }}
+      >
+        <DataGrid
+          rows={filteredtechniciansPagination}
+          columns={columns}
+          getRowId={(row) => row.id}
+          autoHeight
+          checkboxSelection
+          loading={loading}
+          components={{ Toolbar: GridToolbar }}
+        />
+        <CustomTablePagination
+          count={filteredTechnicians.length}
+          page={page}
+          rowsPerPage={rowsPerPage}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+          loading={loading}
+        />
+      </Box>
+
+   
+      <ToastContainer />
+      <Modal
+        open={openDeleteModal}
+        onClose={() => setOpenDeleteModal(false)}
+        className="centered-modal" // Thêm className cho modal
+      >
+        <Fade in={openDeleteModal}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "100%",
+              boxShadow: 24,
+              borderRadius: 16,
+            }}
+          ></Box>
+        </Fade>
+      </Modal>
+    </Box>
+  );
+};
+
+export default Accounts;

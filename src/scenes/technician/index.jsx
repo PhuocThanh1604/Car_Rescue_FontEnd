@@ -192,7 +192,7 @@ const Technicians = (props) => {
   const columns = [
     {
       field: "fullname",
-      headerName: "Tên quản lí",
+      headerName: "Tên kỹ thuật viên",
       width: 160,
       key: "fullname",
       cellClassName: "name-column--cell",
