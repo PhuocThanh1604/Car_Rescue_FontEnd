@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Box, useTheme } from "@mui/material";
 import { tokens } from "../theme";
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 import { useDispatch } from "react-redux";
 import { fetchDashboard } from "../redux/orderSlice";
 
-const ProgressCircle = ({ size =50,}) => {
+const ProgressCircle = ({ size = 50 }) => {
   const theme = useTheme();
   const dispatch = useDispatch();
   const colors = tokens(theme.palette.mode);
@@ -16,7 +16,7 @@ const ProgressCircle = ({ size =50,}) => {
   const cashAngle = cashProgress * 360;
   const bankingAngle = bankingProgress * 360;
   // SVG circle configuration
-  const radius = size / 2-10 ;
+  const radius = size / 2 - 10;
   const viewBoxSize = size;
 
   ProgressCircle.propTypes = {
@@ -32,7 +32,7 @@ const ProgressCircle = ({ size =50,}) => {
           // Update the state with the individual values
           setDataDashboard({
             cash: apiData.cash,
-            banking: apiData.banking
+            banking: apiData.banking,
           });
 
           // Calculate progress for cash and banking separately
@@ -53,44 +53,56 @@ const ProgressCircle = ({ size =50,}) => {
   return (
     <Box
       sx={{
-        position: 'relative',
-        borderRadius: '50%',
+        position: "relative",
+        borderRadius: "50%",
         width: `${size}px`,
         height: `${size}px`,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
         background: `radial-gradient(${colors.primary[400]} 55%, transparent 56%),
                      conic-gradient(transparent 0deg ${cashAngle}deg, ${colors.blueAccent[500]} ${bankingAngle}deg 360deg),
-                     ${colors.greenAccent[500]}`
+                     ${colors.greenAccent[500]}`,
       }}
     >
-    <svg width={viewBoxSize} height={viewBoxSize} viewBox={`0 0 ${viewBoxSize} ${viewBoxSize}`}>
+      <svg
+        width={viewBoxSize}
+        height={viewBoxSize}
+        viewBox={`0 0 ${viewBoxSize} ${viewBoxSize}`}
+      >
         {/* Define the circular path */}
         <path
           id="circlePath"
-          d={`M ${radius + 10}, ${radius + 10} m -${radius}, 0 a ${radius},${radius} 0 1,1 ${radius * 2},0 a ${radius},${radius} 0 1,1 -${radius * 2},0`}
+          d={`M ${radius + 10}, ${
+            radius + 10
+          } m -${radius}, 0 a ${radius},${radius} 0 1,1 ${
+            radius * 2
+          },0 a ${radius},${radius} 0 1,1 -${radius * 2},0`}
           fill="none"
           style={{ stroke: "none" }}
         />
 
-        {/* Text along the path */}
-        {/* Adjust startOffset and fontSize as needed */}
-        <text fill={colors.grey[100]} fontSize="12" fontWeight="bold">
-          <textPath xlinkHref="#circlePath" startOffset="12%" textAnchor="middle">
-          Banking : {(bankingProgress * 100).toFixed(0)}%
+        <text fill="white" fontSize="12" fontWeight="bold">
+          <textPath
+            xlinkHref="#circlePath"
+            startOffset="12%"
+            textAnchor="middle"
+          >
+            Banking : {(bankingProgress * 100).toFixed(0)}%
           </textPath>
         </text>
-        <text fill={colors.grey[100]} fontSize="12" fontWeight="bold">
-          <textPath xlinkHref="#circlePath" startOffset="60%" textAnchor="middle">
-             Cash: {(  cashProgress* 100).toFixed()}%
+        <text fill="white" fontSize="12" fontWeight="bold">
+          <textPath
+            xlinkHref="#circlePath"
+            startOffset="60%"
+            textAnchor="middle"
+          >
+            Cash: {(cashProgress * 100).toFixed()}%
           </textPath>
         </text>
       </svg>
-  
     </Box>
   );
-  
 };
 
 ProgressCircle.propTypes = {

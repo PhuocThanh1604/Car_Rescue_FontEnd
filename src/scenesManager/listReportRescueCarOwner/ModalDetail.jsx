@@ -46,6 +46,7 @@ import { getTechnicianId } from "../../redux/technicianSlice";
 import { getVehicleId } from "../../redux/vehicleSlice";
 import { getServiceId } from "../../redux/serviceSlice";
 import { tokens } from "../../theme";
+import PhotoSizeSelectActualIcon from '@mui/icons-material/PhotoSizeSelectActual';
 import {
   getFeedbackOfOrderId,
   getFormattedAddressGG,
@@ -590,7 +591,7 @@ const MyModal = (props) => {
                             fontSize: "1rem",
                           }}
                         >
-                          <CakeIcon style={iconColor} />{" "}
+                          <PhotoSizeSelectActualIcon style={iconColor} />{" "}
                           <strong>Hình ảnh báo cáo </strong>
                         </Typography>
                         <Box sx={{ flex: 1 }}>
@@ -945,7 +946,7 @@ const MyModal = (props) => {
                                   color: "white",
                                 }}
                               >
-                                {dataPayment.method || "Đang tải..."}
+                                {dataPayment.method==="Cash"?"Tiền Mặt": dataPayment.method==="Banking"?"Chuyển khoản": dataPayment.method|| "Đang tải..."}
                               </Typography>
                             </Box>
                           </Typography>

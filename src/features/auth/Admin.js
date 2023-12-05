@@ -44,10 +44,6 @@ const Admin = () => {
             <Box flexGrow={2}>
             {/* <AuthProvider> */}
             <Routes>
-                  {/* <Route path="/admin/users" element={<User />} /> */}
-                  {/* <Route path="/admin/invoices" element={<Invoices />} /> */}
-        
-                  
                   <Route path="" element={<Customers />} />
                   {/* LIST actor */}
                   <Route path="" element={<Customers />} />

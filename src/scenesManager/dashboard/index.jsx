@@ -6,6 +6,10 @@ import {
   Typography,
   useTheme,
   CircularProgress,
+  Avatar,
+  Card,
+  CardHeader,
+  CardContent,
 } from "@mui/material";
 import { tokens } from "../../theme";
 import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
@@ -24,11 +28,16 @@ import {
   fetchDashboard,
   fetchOrders,
   getOrderDetailId,
+  getOrderId,
 } from "../../redux/orderSlice";
 import ProgressCircle from "../../components/ProgressCircle";
 import { fetchPayments } from "../../redux/paymentSlice";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
-import { fetchCustomers } from "../../redux/customerSlice";
+import { fetchCustomers, getCustomerId } from "../../redux/customerSlice";
+import {
+  fetchTransactionsAll,
+  getRVOOfWallet,
+} from "../../redux/transactionsSlice";
 const Dashboard = () => {
   const dispatch = useDispatch();
   const customer = useSelector((state) => state.customer.customers || []);
@@ -45,14 +54,17 @@ const Dashboard = () => {
   const [orderDetailData, setOrderDetailData] = useState([]);
   const [dataPayment, setDataPayment] = useState([]);
   const [dataCustomer, setDataCustomer] = useState([]);
+  const [dataCustomerDetail, setDataCustomerDetail] = useState([]);
+  const [dataTransaction, setDataTransaction] = useState([]);
+  const [fullNameRvo, setFullNameRvo] = useState({});
 
   const calculateIncrease = (currentValue, percentIncrease) => {
     return currentValue + Math.round((percentIncrease / 100) * currentValue);
   };
-  const totalPossibleOrders = 500; // This should be your comparison figure
-  const currentOrders = data.orders || 0; // Assuming data.orders is the current total number of orders
+  const totalPossibleOrders = 500;
+  const currentOrders = data.orders || 0;
 
-  const ordersPercentage = (currentOrders / totalPossibleOrders) * 100;
+  const ordersPercentage = calculateIncrease(data.orders, 5);
 
   const increasedCustomer = calculateIncrease(dataCustomer.length, 5);
   const increasedOrders = calculateIncrease(data.orders, 5);
@@ -84,50 +96,25 @@ const Dashboard = () => {
         setLoading(false);
       });
   }, [dispatch]);
-  // useEffect(() => {
-  //   setLoading(true);
-  //   const processedOrderIds = new Set();
-  //   dispatch(fetchOrders())
-  //     .then((response) => {
-  //       const data = response.payload.data;
-  //       if (data) {
-  //         setDataOrder(data);
-  //         data.forEach(order => {
-  //           if (!processedOrderIds.has(order.id)) {
-  //             fectOrderDetail(order.id);
-  //             processedOrderIds.add(order.id); // Add the order.id to the Set
-  //           }
-  //         });
-  //         // setFilteredPayment(data);
-  //         console.log(data[0].id);
-  //         setLoading(false); // Đặt trạng thái loading thành false sau khi xử lý dữ liệu
-  //       }
-  //     })
-  //     .catch((error) => {
-  //       toast.error(error);
-  //     })
-  //     .finally(() => {
-  //       setLoading(false);
-  //     });
-  // }, [dispatch]);
+
   useEffect(() => {
     setLoading(true);
     dispatch(fetchPayments())
       .then((response) => {
-        const data = response.payload.data;
-        if (data) {
-          setDataPayment(data);
+        const dataPayment = response.payload.data;
+        if (dataPayment) {
+          setDataPayment(dataPayment);
 
-          setLoading(false); // Đặt trạng thái loading thành false sau khi xử lý dữ liệu
+          setLoading(false);
         }
       })
       .catch((error) => {
         toast.error(error);
-      })
-      .finally(() => {
         setLoading(false);
       });
   }, [dispatch]);
+
+
   useEffect(() => {
     setLoading(true);
     dispatch(fetchCustomers())
@@ -146,39 +133,63 @@ const Dashboard = () => {
         setLoading(false);
       });
   }, [dispatch]);
-  const fectOrderDetail = (orderId) => {
-    console.log(orderId);
-    if (!orderId) {
-      console.error("No orderId provided for reloading order details.");
-      return;
-    }
-    dispatch(getOrderDetailId({ id: orderId }))
+
+  useEffect(() => {
+    setLoading(true);
+    dispatch(fetchTransactionsAll())
       .then((response) => {
         const data = response.payload.data;
         if (data) {
-          console.log(data.quantity);
-          setOrderDetailData(data);
-          // Đặt loading thành false sau khi tải lại dữ liệu
-          setLoading(false);
+          // Lọc ra những giao dịch có type là "Withdraw" và lấy danh sách ID
+          const withdrawTransactions = data.filter(
+            (transaction) => transaction.type === "Withdraw"
+          );
+
+          const withdrawTransactionIds = withdrawTransactions.map(
+            (transaction) => transaction.walletId
+          );
+
+
+          // Tạo một mảng chứa các promise từ việc gọi getRVOOfWallet cho từng ID
+          const promises = withdrawTransactionIds.map((walletId) => {
+            return dispatch(getRVOOfWallet({ id: walletId }))
+              .then((response) => {
+                const data = response.payload.data;
+                if (data) {
+
+                  setFullNameRvo((prevFullNameRvo) => ({
+                    ...prevFullNameRvo,
+                    [walletId]: data.rvo.fullname,
+                  }));
+                }
+              })
+              .catch((error) => {
+                toast.error(error);
+              });
+          });
+
+          // Sử dụng Promise.all để chờ tất cả các promise hoàn thành
+          Promise.all(promises)
+            .then(() => {
+              // Tất cả các promise đã hoàn thành
+              setLoading(false); // Đặt trạng thái loading thành false sau khi xử lý dữ liệu
+            })
+            .catch((error) => {
+              toast.error(error);
+            });
+
+          setDataTransaction(withdrawTransactions);
+
+          setLoading(false); // Đặt trạng thái loading thành false sau khi xử lý dữ liệu
         }
       })
       .catch((error) => {
-        console.error("Lỗi khi tải lại chi tiết đơn:", error);
+        toast.error(error);
+      })
+      .finally(() => {
+        setLoading(false);
       });
-  };
-  // useEffect(() => {
-  //   // Lặp qua danh sách đơn hàng và gán accountName dựa trên accountId
-  //   const ordersWithaccountNames = orders.map((order) => {
-  //     const account = customer.find(
-  //       (account) => account.accountId === order.accountId
-  //     );
-  //     const accountName = account ? account.accountName : "Unknown account";
-  //     return { ...order, accountName };
-  //   });
-
-  //   // Cập nhật danh sách đơn hàng đã được gán accountName
-  //   setFilteredOrders(ordersWithaccountNames);
-  // }, [orders, customer]);
+  }, [dispatch]);
 
   return (
     <Box marginLeft={6} marginRight={6}>
@@ -218,10 +229,9 @@ const Dashboard = () => {
           display="flex"
           alignItems="center"
           justifyContent="center"
-          backgroundColor={colors.white[50]} 
+          backgroundColor={colors.white[50]}
           borderRadius="12px"
           boxShadow="0px 0px 1px 1px rgba(0, 0, 0, 0.1)"
-          
         >
           <Box width="100%" m="0 30px">
             <Box display="flex" justifyContent="space-between">
@@ -265,7 +275,7 @@ const Dashboard = () => {
           display="flex"
           alignItems="center"
           justifyContent="center"
-          backgroundColor={colors.white[50]} 
+          backgroundColor={colors.white[50]}
           borderRadius="12px"
           boxShadow="0px 0px 1px 1px rgba(0, 0, 0, 0.1)"
         >
@@ -288,11 +298,10 @@ const Dashboard = () => {
                   variant="determinate"
                   value={data.partners}
                   sx={{ color: colors.greenAccent[500] }}
-                  
                 />
               </Box>
             </Box>
-            <Box display="flex" justifyContent="space-between" mt="2px" >
+            <Box display="flex" justifyContent="space-between" mt="2px">
               <Typography variant="h5" sx={{ color: colors.greenAccent[500] }}>
                 Đối Tác
               </Typography>
@@ -311,7 +320,7 @@ const Dashboard = () => {
           display="flex"
           alignItems="center"
           justifyContent="center"
-          backgroundColor={colors.white[50]} 
+          backgroundColor={colors.white[50]}
           borderRadius="12px"
           boxShadow="0px 0px 1px 1px rgba(0, 0, 0, 0.1)"
         >
@@ -356,10 +365,9 @@ const Dashboard = () => {
           display="flex"
           alignItems="center"
           justifyContent="center"
-          backgroundColor={colors.white[50]} 
+          backgroundColor={colors.white[50]}
           borderRadius="12px"
           boxShadow="0px 0px 1px 1px rgba(0, 0, 0, 0.1)"
-          
         >
           <Box width="100%" m="0 30px">
             <Box display="flex" justifyContent="space-between">
@@ -403,10 +411,9 @@ const Dashboard = () => {
         <Box
           gridColumn="span 12"
           gridRow="span 2"
-          backgroundColor={colors.white[50]} 
+          backgroundColor={colors.white[50]}
           borderRadius="12px"
           boxShadow="0px 0px 1px 1px rgba(0, 0, 0, 0.1)"
-
         >
           <Box
             mt="25px"
@@ -452,76 +459,16 @@ const Dashboard = () => {
             <LineChart isDashboard={true} />
           </Box>
         </Box>
-
-        <Box
-          gridColumn="span 4"
-          gridRow="span 2"
-          overflow="auto"
-          backgroundColor={colors.white[50]} 
-          borderRadius="12px"
-          boxShadow="0px 0px 1px 1px rgba(0, 0, 0, 0.1)"
-        >
-          <Box
-            display="flex"
-            justifyContent="space-between"
-            alignItems="center"
-            borderBottom={`4px solid ${colors.primary[500]}`}
-            colors={colors.grey[100]}
-            p="15px"
-          >
-            <Typography color={colors.grey[100]} variant="h5" fontWeight="600">
-              Giao dịch gần đây
-            </Typography>
-          </Box>
-          {dataPayment.map((payment, i) => (
-            <Box
-              key={`${payment.orderId}-${i}`}
-              display="flex"
-              justifyContent="space-between"
-              alignItems="center"
-              borderBottom={`4px solid ${colors.primary[500]}`}
-              p="10px"
-            >
-              <Box>
-                <Typography
-                  color={colors.greenAccent[500]}
-                  variant="h5"
-                  fontWeight="600"
-                >
-                  {payment.id} {/* Sử dụng order.id thay vì dataOrder.id */}
-                </Typography>
-              </Box>
-
-              <Box color={colors.grey[100]}>
-                {new Date(payment.createdAt).toLocaleDateString()}{" "}
-                {/* Sử dụng order.createdAt thay vì dataOrder.createdAt */}
-              </Box>
-
-              <Box
-                backgroundColor={colors.greenAccent[500]}
-                p="5px 10px"
-                borderRadius="4px"
-              >
-                {new Intl.NumberFormat("vi-VN", {
-                  style: "currency",
-                  currency: "VND",
-                }).format(payment.amount)}
-              </Box>
-            </Box>
-          ))}
-        </Box>
-
-        {/* ROW 3 */}
         <Box
           gridColumn="span 4"
           gridRow="span 2"
           p="30px"
-          backgroundColor={colors.white[50]} 
+          backgroundColor={colors.white[50]}
           borderRadius="12px"
           boxShadow="0px 0px 1px 1px rgba(0, 0, 0, 0.1)"
         >
           <Typography variant="h5" fontWeight="600">
-            Giao dịch
+            Giao Dịch
           </Typography>
           <Box
             display="flex"
@@ -542,25 +489,111 @@ const Dashboard = () => {
             </Typography>
           </Box>
         </Box>
+        <Box
+          gridColumn="span 4"
+          gridRow="span 2"
+          overflow="auto"
+          backgroundColor={colors.white[50]}
+          borderRadius="12px"
+          boxShadow="0px 0px 1px 1px rgba(0, 0, 0, 0.1)"
+        >
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+            borderBottom={`1px solid ${colors.primary[500]}`}
+            colors={colors.grey[100]}
+            p="15px"
+          >
+            <Typography color={colors.grey[100]} variant="h5" fontWeight="600">
+              Khách Hàng Gần Đây
+            </Typography>
+          </Box>
+          {dataCustomer.map((dataCustomer, i) => (
+            <Box
+              key={`${dataCustomer.id}-${i}`}
+              display="flex"
+              justifyContent="space-between"
+              alignItems="center"
+              borderBottom={`1px solid ${colors.primary[500]}`}
+              p="10px"
+            >
+              <Box>
+                <Typography
+                  color={colors.greenAccent[500]}
+                  variant="h5"
+                  fontWeight="600"
+                >
+                  {dataCustomer.fullname}
+                </Typography>
+              </Box>
+
+              <Box color={colors.grey[100]}>
+                {new Date(dataCustomer.birthdate).toLocaleDateString()}{" "}
+                {/* Sử dụng order.createdAt thay vì dataOrder.createdAt */}
+              </Box>
+
+              <Avatar src={dataCustomer.avatar} />
+            </Box>
+          ))}
+        </Box>
+
+        {/* ROW 3 */}
+     
 
         <Box
           gridColumn="span 4"
           gridRow="span 2"
-               p="30px"
-          backgroundColor={colors.white[50]} 
+          overflow="auto"
+          backgroundColor={colors.white[50]}
           borderRadius="12px"
           boxShadow="0px 0px 1px 1px rgba(0, 0, 0, 0.1)"
         >
-          <Typography
-            variant="h5"
-            fontWeight="600"
-            sx={{ padding: "30px 30px 0 30px" }}
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+            colors={colors.grey[100]}
+            p="15px"
           >
-            Sales Quantity
-          </Typography>
-          <Box height="250px" mt="-20px">
-            <BarChart isDashboard={true} />
+            <Typography color={colors.grey[100]} variant="h5" fontWeight="600">
+              Đối Tác Rút Ví Gần Đây
+            </Typography>
           </Box>
+          {dataTransaction.map((dataTransaction, i) => (
+            <Box
+              key={`${dataTransaction.id}-${i}`}
+              display="flex"
+              justifyContent="space-between"
+              alignItems="center"
+              p="10px"
+            >
+              <Box>
+                <Typography
+                  color={colors.greenAccent[500]}
+                  variant="h5"
+                  fontWeight="600"
+                >
+                  {fullNameRvo[dataTransaction.walletId]}
+                </Typography>
+              </Box>
+
+              <Box color={colors.grey[100]}>
+                {new Date(dataTransaction.createdAt).toLocaleDateString()}{" "}
+                {/* Sử dụng order.createdAt thay vì dataOrder.createdAt */}
+              </Box>
+
+              <Typography
+                variant="subtitle2"
+                sx={{ fontWeight: 600, color: "error.main" }}
+              >
+                {new Intl.NumberFormat("vi-VN", {
+                  style: "currency",
+                  currency: "VND",
+                }).format(dataTransaction.transactionAmount)}
+              </Typography>
+            </Box>
+          ))}
         </Box>
       </Box>
     </Box>

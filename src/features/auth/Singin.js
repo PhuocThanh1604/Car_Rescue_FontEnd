@@ -71,60 +71,71 @@ export default function SignInSide() {
   if (errRef.current && errRef.current.focus) {
     errRef.current.focus();
   }
+  
 
+  useEffect(() => {
+    const devicetoken = localStorage.getItem("deviceToken");
+    if (!devicetoken) {
+      const getToken = async () => {
+        try {
+          const token = await requestPermissions(); 
+          localStorage.setItem("deviceToken", token);
+        } catch (error) {
+          console.error("Error while getting device token:", error);
+          // Xử lý lỗi nếu cần
+        }
+      };
+  
+      getToken();
+    }
+  }, []);
+  
+  
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isLoading) {
       return; // Tránh gửi yêu cầu nếu đang tải
     }
-    let deviceToken = localStorage.getItem("deviceToken");
   
-    if (!deviceToken) {
-      await requestPermissions();
-      deviceToken = localStorage.getItem("deviceToken");
-    }
+    const devicetoken = localStorage.getItem("deviceToken"); // Lấy deviceToken từ localStorage
+  
     try {
       if (!isValidEmail(email)) {
-        // Check if the email is in a valid format
         setErrMsg("Định dạng email không hợp lệ");
         return;
       }
-      const devicetoken1 = localStorage.getItem("deviceToken");
-      console.log("singin:"+devicetoken1);
-      const devicetoken = `${devicetoken1}`;
+  
       const userData = await singin({ email, password, devicetoken }).unwrap();
       console.log(userData);
       dispatch(setCredentials({ ...userData, email }));
-      // Lưu token vào Local Storage
-      // localStorage.setItem("token", userData.token);
       setEmail("");
       setPassword("");
       navigate("/client");
-      let redirectTo = "/welcome"; // Đường dẫn mặc định
-
-      if ((userData.roles = "Admin")) {
-        redirect("/welcome222");
-      } else if ((userData.roles = "Manager")) {
-        redirect("/manager");
+  
+      if (userData.roles === "Admin") {
+        navigate("/welcome222");
+      } else if (userData.roles === "Manager") {
+        navigate("/manager");
       }
     } catch (err) {
       if (!err?.originalStatus) {
-        // isLoading: true until timeout occurs
         setErrMsg("Tài khoản không đúng ");
       } else if (err.originalStatus === 400) {
         setErrMsg("Thiếu tên người dùng hoặc mật khẩu");
       } else if (err.originalStatus === 401) {
-        setErrMsg("Bạn không có quyền try cập");
+        setErrMsg("Bạn không có quyền truy cập");
       } else if (err.originalStatus === 500) {
-        setErrMsg("lỗi tạm thời trên Web Server");
+        setErrMsg("Lỗi tạm thời trên Web Server");
       } else {
         setErrMsg("Đăng nhập thất bại");
       }
       if (shouldFocus) {
-        errRef.current.focus(); // Gọi .focus() nếu shouldFocus là true
+        errRef.current.focus();
       }
     }
   };
+  
 
   const handleUserInput = (e) => setEmail(e.target.value);
 

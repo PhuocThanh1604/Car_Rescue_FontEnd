@@ -46,6 +46,7 @@ export const fetchVehicle = createAsyncThunk(
         "https://rescuecapstoneapi.azurewebsites.net/api/Vehicle/GetAll"
       );
       const data = response.data;
+      console.log(data.status);
       return data;
     } catch (error) {
       console.error("Failed to retrieve fetch Vehicle:", error);
@@ -64,6 +65,21 @@ export const fetchVehicleWatting = createAsyncThunk(
       return data;
     } catch (error) {
       console.error("Failed to retrieve fetch Vehicle Watting:", error);
+      throw error.response.data || error.message;
+    }
+  }
+);
+export const fetchVehicleStatus = createAsyncThunk(
+  "vehicles/fetchVehicleStatus",
+  async () => {
+    try {
+      const response = await axios.get(
+        "https://rescuecapstoneapi.azurewebsites.net/api/Vehicle/GetVehiclesStatus"
+      );
+      const data = response.data;
+      return data;
+    } catch (error) {
+      console.error("Failed to retrieve fetch Vehicle status:", error);
       throw error.response.data || error.message;
     }
   }
@@ -183,6 +199,12 @@ const rescueVehicleOwnerSlice = createSlice({
         state.vehicles = action.payload.data;
       })
       .addCase(fetchVehicle.pending, (state, action) => {
+        state.status = "loading";
+      })
+      .addCase(fetchVehicleStatus.fulfilled, (state, action) => {
+        state.vehicles = action.payload.data;
+      })
+      .addCase(fetchVehicleStatus.pending, (state, action) => {
         state.status = "loading";
       })
       .addCase(fetchVehicleWatting.fulfilled, (state, action) => {

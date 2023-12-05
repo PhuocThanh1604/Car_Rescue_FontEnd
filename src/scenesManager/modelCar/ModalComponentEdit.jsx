@@ -21,12 +21,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
 import { editService, fetchServices } from "../../redux/serviceSlice";
 import { fetchModelCar, updateModelCar } from "../../redux/modelCarSlice";
+import { textAlign } from "@mui/system";
 
 const ModalEdit = ({
   openEditModal,
   setOpenEditModal,
   selectedEditService,
-  setSelectedEditService
+  setSelectedEditService,
 }) => {
   const dispatch = useDispatch();
   const services = useSelector((state) => state.service.services);
@@ -35,17 +36,13 @@ const ModalEdit = ({
   const [initialFormState, setInitialFormState] = useState({});
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [filtereServices, setFilteredServices] = useState(
-    []
-  );
+  const [filtereServices, setFilteredServices] = useState([]);
 
   const reloadServices = () => {
-    
     dispatch(fetchModelCar())
-    
       .then((response) => {
         const data = response.payload.data;
-        console.log(data)
+        console.log(data);
         if (data) {
           setFilteredServices(data);
           // Đặt loading thành false sau khi tải lại dữ liệu
@@ -65,7 +62,7 @@ const ModalEdit = ({
       setIsSuccess(false);
     }
   }, [isSuccess]);
-  
+
   useEffect(() => {
     if (selectedEditService && services) {
       // ... code xử lý khác
@@ -80,7 +77,7 @@ const ModalEdit = ({
       [name]: value,
     }));
   };
-  
+
   const handleSaveClick = () => {
     if (!selectedEditService || !edit) {
       toast.error("Không có thông tin dịch vụ để cập nhật.");
@@ -100,7 +97,7 @@ const ModalEdit = ({
           toast.success("Cập nhật mẫu xe thành công.");
           handleClose();
           reloadServices();
-          setIsSuccess(true); 
+          setIsSuccess(true);
         })
         .catch((error) => {
           if (error.response && error.response.data) {
@@ -168,18 +165,18 @@ const ModalEdit = ({
                 <Close />
               </IconButton>
               <Typography
-                variant="h6"
+                variant="h5"
                 component="h2"
                 id="Service-detail-modal"
+                sx={{ textAlign: "center" }} // Chỉnh style tại đây để căn giữa
               >
                 {selectedEditService
-                  ? "Sửa Thông Tin Dịch Vụ"
+                  ? "Sửa Thông Tin Mẫu Xe"
                   : "Service Detail"}
               </Typography>
 
               {selectedEditService && (
                 <Card>
-                
                   <CardContent>
                     <TextField
                       name="id"
@@ -188,9 +185,9 @@ const ModalEdit = ({
                       fullWidth
                       margin="normal"
                       disabled
-                      // style={{ display: "none" }}
+                      style={{ display: "none" }}
                     />
-                      
+
                     <TextField
                       name="model1"
                       label="Tên Dịch Vụ"
@@ -199,7 +196,7 @@ const ModalEdit = ({
                       fullWidth
                       margin="normal"
                     />
-             
+
                     <FormControl fullWidth sx={{ marginTop: 1 }}>
                       <InputLabel id="demo-simple-select-label">
                         Trạng Thái

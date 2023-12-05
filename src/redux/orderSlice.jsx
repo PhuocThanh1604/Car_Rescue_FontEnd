@@ -27,7 +27,6 @@ export const fetchOrders = createAsyncThunk("orders/fetchOrders", async () => {
       "https://rescuecapstoneapi.azurewebsites.net/api/Order/GetAll"
     );
     const data = response.data;
-    console.log(response.data);
     return data;
   } catch (response) {
     console.error(
@@ -77,7 +76,6 @@ export const fetchOrdersCompleted = createAsyncThunk(
       );
       const data = response.data;
       saveToStorage(storageKey, data);
-      console.log(response.data);
       return data;
     } catch (response) {
       console.error(
@@ -92,15 +90,11 @@ export const fetchOrdersCompleted = createAsyncThunk(
 export const fetchDashboard = createAsyncThunk(
   "orders/fetchDashboard",
   async () => {
-    const storageKey = "fetchDashboard";
     try {
-      removeFromStorage(storageKey);
       const response = await axios.get(
         "https://rescuecapstoneapi.azurewebsites.net/api/Dashboard/GetDashboard"
       );
       const data = response.data;
-      saveToStorage(storageKey, data);
-      console.log("Response data:", data); // Log the response data for debugging
       return data;
     } catch (error) {
       console.error("Failed to retrieve fetch Dashboard:", error); // Log the error for debugging
@@ -142,7 +136,6 @@ export const fetchOrdersAssigned = createAsyncThunk(
       );
       const data = response.data;
       saveToStorage(storageKey, data);
-      console.log(response.data);
       return data;
     } catch (response) {
       console.error(
@@ -165,7 +158,6 @@ export const fetchOrdersCancelled = createAsyncThunk(
       );
       const data = response.data;
       saveToStorage(storageKey, data);
-      console.log(response.data);
       return data;
     } catch (response) {
       console.error(
@@ -187,7 +179,6 @@ export const fetchOrdersAssigning = createAsyncThunk(
         "https://rescuecapstoneapi.azurewebsites.net/api/Order/GetAllOrderAssigning"
       );
       const data = response.data;
-      console.log(response.data);
       saveToStorage(storageKey, data);
       return data;
     } catch (response) {
@@ -209,7 +200,6 @@ export const fetchOrdersDetail = createAsyncThunk(
         "https://secondhandbookstoreapi.azurewebsites.net/api/OrdersDetails"
       );
       const data = response.data;
-      console.log(response.data);
       return data;
     } catch (error) {
       console.error("Failed to retrieve ordersDetail:", error.response);
@@ -538,6 +528,26 @@ export const sendNotification = createAsyncThunk(
         error.response
       );
       throw error.response.data || error.message;
+    }
+  }
+);
+export const getAllNotification = createAsyncThunk(
+  "orders/getAllNotification",
+  async ({ id }) => {
+    
+    try {
+      const response = await axios.get(
+        `https://rescuecapstoneapi.azurewebsites.net/api/Notification/Getall?id=${id}`
+      );
+      const data = response.data;
+      return data;
+    } catch (response) {
+      console.error(
+        "Failed to retrieve car:",
+        response.status,
+        response.message
+      );
+      throw response.status || response.message;
     }
   }
 );

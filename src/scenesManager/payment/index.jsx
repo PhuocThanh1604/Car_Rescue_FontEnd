@@ -3,6 +3,7 @@ import {
   Box,
   Card,
   CardContent,
+  CircularProgress,
   Dialog,
   DialogContent,
   DialogContentText,
@@ -28,12 +29,18 @@ import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import PhoneRoundedIcon from "@mui/icons-material/PhoneRounded";
 import CustomTablePagination from "../../components/TablePagination";
 import { fetchPayments } from "../../redux/paymentSlice";
-import { getOrderDetailId, getPaymentId } from "../../redux/orderSlice";
+import {
+  getOrderDetailId,
+  getOrderId,
+  getPaymentId,
+} from "../../redux/orderSlice";
 import GradingIcon from "@mui/icons-material/Grading";
 import TodayIcon from "@mui/icons-material/Today";
 import PaidIcon from "@mui/icons-material/Paid";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { toast } from "react-toastify";
+import { getCustomerId } from "../../redux/customerSlice";
+
 const Payment = () => {
   const dispatch = useDispatch();
   const payments = useSelector((state) => state.payment.payments);
@@ -56,6 +63,8 @@ const Payment = () => {
   const [openConfirmModal, setOpenConfirmModal] = useState(false);
   const [isAccepted, setIsAccepted] = useState(false);
   const [selectedWalletId, setSelectedWalletId] = useState("");
+  const [dataFullnameOfCustomer, setDataFullnameOfCustomer] = useState({});
+  const [orderIds, setOrderIds] = useState([]);
 
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -196,7 +205,6 @@ const Payment = () => {
         if (data) {
           setData(data);
           setFilteredPayment(data);
-          console.log(data);
           setLoading(false); // Đặt trạng thái loading thành false sau khi xử lý dữ liệu
         } else {
           toast.dismiss("Không có dữ liệu từ phản hồi data");
@@ -217,23 +225,80 @@ const Payment = () => {
     setPaymentId(null);
   };
 
-  const reloadPayment = () => {
-    dispatch(fetchPayments())
-      .then((response) => {
-        const data = response.payload.data;
-
-        if (data) {
-          setFilteredPayment(data);
-
-          // Đặt loading thành false sau khi tải lại dữ liệu
-          setLoading(false);
-          console.log("Services reloaded:", data);
-        }
-      })
-      .catch((error) => {
-        console.error("Lỗi khi tải lại danh sách giao dịch:", error);
-      });
-  };
+  // useEffect(() => {
+  //   try {
+  //     // Extract unique orderIds from the data
+  //     const extractedOrderIds = [...new Set(data.map((row) => row.orderId))];
+  //     setOrderIds(extractedOrderIds);
+  //   } catch (error) {
+  //     toast.error("Error in extracting orderIds:", error);
+  //     // Handle errors here if needed
+  //   }
+  // }, [data]);
+  
+  // // Create a Set to keep track of unique customerIds
+  // const uniqueCustomerIds = new Set();
+  
+  // const fetchOrder = (orderId) => {
+  //   if (orderId) {
+  //     return dispatch(getOrderId({ id: orderId }))
+  //       .then((response) => {
+  //         const data = response.payload.data;
+  //         if (data) {
+  //           const customerId = data.customerId;
+  //           if (!uniqueCustomerIds.has(customerId)) {
+  //             uniqueCustomerIds.add(customerId);
+  //             console.log(customerId);
+  //             // Gọi sendToAPI với customerId và orderId
+  //             sendToAPI(customerId, orderId);
+  //           } else {
+  //             console.log(`Duplicate customerId: ${customerId}`);
+  //           }
+  //         } else {
+  //           toast.error("Fullname not found in the API response.");
+  //         }
+  //       })
+  //       .catch((error) => {
+  //         console.error("Error while fetching customer data:", error);
+  //       });
+  //   }
+  // };
+  
+  
+  // // Function to send data to the API based on customerId
+  // const sendToAPI = (customerId, orderId) => {
+  //   if (customerId && orderId) {
+  //     dispatch(getCustomerId({ id: customerId }))
+  //       .then((response) => {
+  //         const dataCustomer = response.payload.data;
+  //         console.log(dataCustomer.fullname);
+  //         setDataFullnameOfCustomer((prevData) => ({
+  //           ...prevData,
+  //           [orderId]: dataCustomer.fullname, // Sử dụng orderId làm key
+  //         }));
+  //       })
+  //       .catch((error) => {
+  //         toast.error("Error while fetching customer data:", error);
+  //       });
+  //   }
+  // };
+  
+  
+  // useEffect(() => {
+  //   // Create an array of promises for fetching data for each unique orderId
+  //   const fetchPromises = orderIds.map((orderId) => fetchOrder(orderId));
+  
+  //   // Execute all promises concurrently using Promise.all
+  //   Promise.all(fetchPromises)
+  //     .then((results) => {
+  //       // Handle the results if needed
+  //       console.log("All fetchOrder promises completed:", results);
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error while fetching orders:", error);
+  //     });
+  // }, [orderIds]);
+  
 
   useEffect(() => {
     if (detailedData && detailedData.orderId) {
@@ -298,18 +363,20 @@ const Payment = () => {
       field: "id",
       headerName: "paymentId",
       width: 260,
-      cellClassName: "name-column--cell",
     },
-    {
-      field: "orderId",
-      headerName: "orderId",
-      width: 260,
-      cellClassName: "name-column--cell",
-      onCellClick: (params) => {
-        setSelectedWalletId(params.row.orderId);
-        // Các hành động khác sau khi chọn orderId
-      },
-    },
+    // {
+    //   field: "orderId", // Make sure this matches the field in your data
+    //   headerName: "Tên Khách Hàng",
+    //   width: 140,
+    //   renderCell: (params) => {
+    //     return dataFullnameOfCustomer[params.value] ? (
+    //       dataFullnameOfCustomer[params.value]
+    //     ) : (
+    //       <CircularProgress size={20} />
+    //     );
+    //   },
+    // },
+    
 
     {
       field: "createdAt",
@@ -324,7 +391,7 @@ const Payment = () => {
     {
       field: "method",
       headerName: "Hình thức",
-      width: 100,
+      width: 120,
       key: "type",
       renderCell: ({ row: { method } }) => {
         return (
@@ -346,9 +413,9 @@ const Payment = () => {
             }
             color={
               method === "Cash"
-                ? colors.lightGreen[300]
+                ? colors.white[50]
                 : colors.yellowAccent[700] && method === "Banking"
-                ? colors.lightBlue[700]
+                ? colors.white[50]
                 : colors.yellowAccent[700]
             }
           >

@@ -6,6 +6,7 @@ import {
   IconButton,
   Typography,
   Grid,
+  CircularProgress,
 } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import Header from "../../components/Header";
@@ -25,6 +26,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import CustomTablePagination from "../../components/TablePagination";
 import { getOrderId } from "../../redux/orderSlice";
 import { tokens } from "../../theme";
+import { getCustomerId } from "../../redux/customerSlice";
 
 const ListReports = (props) => {
   const dispatch = useDispatch();
@@ -43,6 +45,7 @@ const ListReports = (props) => {
   const [filteredVehicles, setFilteredVehicles] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(8);
+  const [fullnameData, setFullnameData] = useState({});
   const [isSuccess, setIsSuccess] = useState(false);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
@@ -54,11 +57,13 @@ const ListReports = (props) => {
   const [vehicleId, setVehicleId] = useState(null);
   const [openConfirmModal, setOpenConfirmModal] = useState(false);
   const [vehicleDetail, setVehicleDetail] = useState({});
-
+  const [orderIds, setOrderIds] = useState([]);
   const [collapse, setCollapse] = useState(false);
   const [isAccepted, setIsAccepted] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedEditOrder, setSelectedEditOrder] = useState(null);
+  const [dataFullnameOfCustomer, setDataFullnameOfCustomer] = useState({});
+  
   //img
   const imageWidth = "400px";
   const imageHeight = "300px";
@@ -237,36 +242,89 @@ const ListReports = (props) => {
     }
   }, [rescueVehicleOwners, searchText, filterOption]);
 
-  useEffect(() => {
-    setLoading(true)
+useEffect(() => {
+  setLoading(true);
+  try {
     dispatch(getReportAll())
       .then((response) => {
-        // Đã lấy dữ liệu thành công
-        if (!response && !response.payload && !response.payload.data) {
+        if (!response || !response.payload || !response.payload.data) {
           setLoading(false);
-          return; // Kết thúc sớm hàm useEffect() nếu không có dữ liệu
+          return;
         } 
         const data = response.payload.data;
-          console.log(data);
-          setData(data)
-          setFilteredVehicles(data);
+        console.log(data);
+        setData(data);
+        setFilteredVehicles(data);
       })
       .catch((error) => {
-        setLoading(false);
+        console.error("Error while fetching report data:", error);
       })
       .finally(() => {
         setLoading(false);
       });
-  }, [dispatch]);
+  } catch (error) {
+    console.error("Error in useEffect:", error);
+    setLoading(false);
+  }
+}, [dispatch]);
 
+
+useEffect(() => {
+  try {
+    // Extract orderIds from the data and store them in the state with unique keys
+    const extractedOrderIds = data.map((row, index) => ({
+      orderId: row.orderId,
+      uniqueKey: `${row.orderId}_${index}`, // Create a unique key by appending index
+    }));
+    setOrderIds(extractedOrderIds);
+  } catch (error) {
+    toast.error("Error in extracting orderIds:", error);
+    // Handle errors here if needed
+  }
+}, [data]);
+
+useEffect(() => {
+  // Fetch individual orders based on the orderIds
+  orderIds.forEach((order) => {
+    fetchOrder(order.orderId, order.uniqueKey);
+  });
+}, [orderIds]);
+
+const fetchOrder = (orderId, uniqueKey) => {
+  if (orderId) {
+    dispatch(getOrderId({ id: orderId }))
+      .then((response) => {
+        const data = response.payload.data;
+        if (data) {
+          const customerId = data.customerId;
+          dispatch(getCustomerId({ id: customerId }))
+            .then((response) => {
+              const dataCustomer = response.payload.data;
+              console.log(dataCustomer.fullname);
+              setDataFullnameOfCustomer((prevData) => ({
+                ...prevData,
+                [orderId]: dataCustomer.fullname, // Use uniqueKey as the key
+              }));
+            })
+            .catch((error) => {
+              toast.error("Error while fetching customer data:", error);
+            });
+        } else {
+          toast.error("Fullname not found in the API response.");
+        }
+      })
+      .catch((error) => {
+        console.error("Error while fetching customer data:", error);
+      });
+  }
+};
+
+  
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
-  const handleImageClick = (image) => {
-    setSelectedImage(image);
-    // Hiển thị hình ảnh đã chọn hoặc thực hiện một hành động khác ở đây
-  };
+
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
@@ -285,12 +343,21 @@ const ListReports = (props) => {
       width: 100,
       key: "id",
     },
+  
     {
       field: "orderId",
-      headerName: "orderId",
-      width: 100,
-      key: "orderId",
+      headerName: "Tên Khách Hàng",
+      width: 140,
+      renderCell: (params) => {
+        return dataFullnameOfCustomer[params.value] ? (
+          dataFullnameOfCustomer[params.value]
+        ) : (
+          <CircularProgress size={20} />
+        );
+      },
     },
+    
+    
     {
       field: "createdAt",
       headerName: "Ngày Tạo Đơn",
@@ -302,7 +369,7 @@ const ListReports = (props) => {
           .add(7, "hours")
           .format("DD-MM-YYYY HH:mm:ss"),
     },
-    { field: "content", headerName: "Nội Dung", width: 140, key: "content" },
+    { field: "content", headerName: "Nội Dung", width: 240, key: "content" },
     {
       field: "status",
       headerName: "Trạng Thái",

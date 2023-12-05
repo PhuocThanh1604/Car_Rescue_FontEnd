@@ -265,26 +265,7 @@ const TransactionDetails = () => {
 
     applyFilters();
   }, [searchText, filterOption, startDate, endDate, data]);
-  // useEffect(() => {
-  //   setLoading(true);
-  //   console.log("id" + id);
-  
-  //   dispatch(getTransactionOfWalletId({ id }))
-  //     .then((response) => {
-  //       const responseData = response.payload.data;
-  //       console.log("responseData detail", responseData);
-  
-  //       if (responseData) {
-  //         setFilteredTransactionDetail(responseData);
-  //       }
-  //     })
-  //     .catch((error) => {
-  //       console.error("Error fetching data:", error);
-  //     })
-  //     .finally(() => {
-  //       setLoading(false);
-  //     });
-  // }, [dispatch, id]);
+ 
   
   
   const handleChangePage = (event, newPage) => {

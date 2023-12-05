@@ -71,18 +71,40 @@ const ModelCar = (props) => {
     // Fetch the serviceId details based on the selected serviceId ID
     dispatch(getModelCarId({ id: serviceId })) //check
       .then((response) => {
+        const updatedFilteredServices = filteredSerivces.filter(
+          (service) => service.id !== serviceId
+        );
+  
+        // Cập nhật danh sách filteredServices với dữ liệu đã lọc
+        setFilteredSerivces(updatedFilteredServices);
         const serviceDetails = response.payload.data;
         console.log(serviceDetails)
         setSelectedServiceDetails(serviceDetails);
         setSelectedEditSevice(serviceDetails);
         setOpenEditModal(true);
         setIsSuccess(true);
+        reloadModelCar()
       })
       .catch((error) => {
         console.error("Lỗi khi lấy thông tin dịch vụ:", error);
       });
   };
+  const reloadModelCar = () => {
+    dispatch(fetchModelCar())
+      .then((response) => {
+        const data = response.payload.data;
 
+        if (data) {
+          setFilteredSerivces(data);
+          // Đặt loading thành false sau khi tải lại dữ liệu
+          setLoading(false);
+          console.log("Services reloaded:", data);
+        }
+      })
+      .catch((error) => {
+        console.error("Lỗi khi tải lại danh sách xe cứu hộ:", error);
+      });
+  };
   useEffect(() => {
     const filteredServices = services
       ? services.filter((service) => {

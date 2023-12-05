@@ -15,6 +15,9 @@ import "react-pro-sidebar/dist/css/styles.css";
 import { tokens } from "../../../theme";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
+import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
+import ReorderIcon from '@mui/icons-material/Reorder';
+import ListAltIcon from '@mui/icons-material/ListAlt';
 import ContactsOutlinedIcon from "@mui/icons-material/ContactsOutlined";
 import ReceiptOutlinedIcon from "@mui/icons-material/ReceiptOutlined";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
@@ -39,6 +42,7 @@ import PermContactCalendarIcon from "@mui/icons-material/PermContactCalendar";
 import AddToQueueIcon from "@mui/icons-material/AddToQueue";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import { useParams } from "react-router-dom";
+import AssessmentIcon from '@mui/icons-material/Assessment';
 const Item = ({ title, to, icon, selected, setSelected, subItems }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -291,7 +295,7 @@ const Sidebar = ({ selectedWalletId, selectedItemId }) => {
             </Typography>
             <MenuItem
               onClick={handleOrderClick}
-              icon={<ReceiptOutlinedIcon />}
+              icon={<ReorderIcon />}
               style={{
                 color: colors.grey[100],
               }}
@@ -347,23 +351,10 @@ const Sidebar = ({ selectedWalletId, selectedItemId }) => {
                 {/* Add more sub-items as needed */}
               </div>
             )}
-            <Item
-              title="Dịch Vụ"
-              to="manager/service"
-              icon={<ListIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />{" "}
-            <Item
-              title="Mẫu Xe"
-              to="manager/modelCar"
-              icon={<ListIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />{" "}
+           
             <MenuItem
               onClick={handleTransactionClick}
-              icon={<ReceiptOutlinedIcon />}
+              icon={<ListAltIcon />}
               style={{
                 color: colors.grey[100],
                 // Add a conditional class to indicate if this item is selected
@@ -403,7 +394,7 @@ const Sidebar = ({ selectedWalletId, selectedItemId }) => {
             )}
             <MenuItem
               onClick={handleReportClick}
-              icon={<ReceiptOutlinedIcon />}
+              icon={<AssessmentIcon />}
               style={{
                 color: colors.grey[100],
                 // Add a conditional class to indicate if this item is selected
@@ -462,6 +453,20 @@ const Sidebar = ({ selectedWalletId, selectedItemId }) => {
                 />
               </div>
             )}
+             <Item
+              title="Dịch Vụ"
+              to="manager/service"
+              icon={<ReceiptLongIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />{" "}
+            <Item
+              title="Mẫu Xe"
+              to="manager/modelCar"
+              icon={<ListIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />{" "}
             <Typography
               variant="h6"
               color={colors.grey[300]}
@@ -482,8 +487,15 @@ const Sidebar = ({ selectedWalletId, selectedItemId }) => {
             {showSubItemsRescue && (
               <div style={{ marginLeft: "20px" }}>
                 <Item
-                  title="Xe Cứu Hộ"
+                  title="Đơn Xe Cứu Hộ"
                   to="manager/vehicles"
+                  icon={<ElectricRickshawIcon />}
+                  selected={selected}
+                  setSelected={setSelected}
+                />
+                     <Item
+                  title="Danh Sách Xe Cứu Hộ"
+                  to="manager/listVehicle"
                   icon={<ElectricRickshawIcon />}
                   selected={selected}
                   setSelected={setSelected}
@@ -527,13 +539,7 @@ const Sidebar = ({ selectedWalletId, selectedItemId }) => {
               selected={selected}
               setSelected={setSelected}
             />{" "}
-            <Typography
-              variant="h6"
-              color={colors.grey[300]}
-              sx={{ m: "15px 0 5px 20px" }}
-            >
-              Pages
-            </Typography>
+ 
             {/* <Item
               title="Tạo Đơn Hàng Offline"
               to="manager/add/orderOffline"
@@ -569,7 +575,7 @@ const Sidebar = ({ selectedWalletId, selectedItemId }) => {
               selected={selected}
               setSelected={setSelected}
             /> */}
-            <Item
+            {/* <Item
               title="Google Map"
               to="manager/googlemap"
               icon={<CategoryIcon />}
@@ -582,7 +588,7 @@ const Sidebar = ({ selectedWalletId, selectedItemId }) => {
               icon={<HelpOutlineOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}
-            />
+            /> */}
             {/* <Typography
               variant="h6"
               color={colors.grey[300]}

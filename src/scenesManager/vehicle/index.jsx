@@ -3,7 +3,6 @@ import {
   Box,
   Button,
   useTheme,
-  TextField,
   Select,
   MenuItem,
   IconButton,
@@ -19,8 +18,10 @@ import {
   CardContent,
   Divider,
   Grid,
+  styled,
 } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
+import TimeToLeaveIcon from "@mui/icons-material/TimeToLeave";
 import Header from "../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
 import ModalEdit from "./ModalEdit";
@@ -30,7 +31,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import InputBase from "@mui/material/InputBase";
 import moment from "moment";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
-import { CategoryRounded, ResetTvSharp } from "@mui/icons-material";
+import { CategoryRounded } from "@mui/icons-material";
 import {
   createAcceptRegisterVehicle,
   fetchVehicleWatting,
@@ -62,8 +63,6 @@ const Vehicles = (props) => {
   const [openEditModal, setOpenEditModal] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [filterOption, setFilterOption] = useState("Type");
-  const [openModal, setOpenModal] = useState(false);
-  const [selectedBook, setSelectedBook] = useState(null);
   const [selectedEditVehicle, setSelectedEditVehicle] = useState(null);
   const [filteredVehicles, setFilteredVehicles] = useState([]);
   const [page, setPage] = useState(0);
@@ -79,13 +78,25 @@ const Vehicles = (props) => {
   const [openConfirmModal, setOpenConfirmModal] = useState(false);
   const [detailedData, setDetailedData] = useState(null);
   const [vehicleDetail, setVehicleDetail] = useState({});
-
   const [collapse, setCollapse] = useState(false);
   const [isAccepted, setIsAccepted] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [dataRescueVehicleOwner, setDataRescueVehicleOwner] = useState({});
   const [accountId, setAccountId] = useState("");
   const [accountDeviceToken, setAccountDeviceToken] = useState("");
+  const imageWidth = "400px";
+  const imageHeight = "300px";
+  const CustomButton = styled(Box)({
+    backgroundColor: colors.lightGreen[300],
+    borderRadius:"10px",
+    padding:"2px",
+    transition: 'background-color 0.3s',
+    '&:hover': {
+      backgroundColor: colors.lightGreen[500], // Màu sẽ thay đổi khi hover
+      cursor: 'pointer',
+      borderRadius:"10px"
+    },
+  });
   useEffect(() => {
     if (accountId && !accountDeviceToken) {
       fetchAccounts(accountId);
@@ -137,12 +148,8 @@ const Vehicles = (props) => {
         });
     }
   };
-  //img
-  const imageWidth = "400px";
-  const imageHeight = "300px";
 
   const [activeStep, setActiveStep] = React.useState(0);
-  // const maxSteps = images.length;
   const handleStepChange = (step) => {
     setActiveStep(step);
   };
@@ -215,6 +222,10 @@ const Vehicles = (props) => {
     // Fetch the VehicleId details based on the selected Vehicle ID
     dispatch(createAcceptRegisterVehicle({ id: vehicleId, boolean: accept }))
       .then(() => {
+        const updatedFilteredVehicles = filteredVehicles.filter(
+          (vehicle) => vehicle.id !== vehicleId
+        );
+        setFilteredVehicles(updatedFilteredVehicles);
         setVehicleId(vehicleId);
         setOpenConfirmModal(false);
         setIsSuccess(true);
@@ -222,13 +233,13 @@ const Vehicles = (props) => {
         if (accept) {
           toast.success("Chấp nhận xe thành công.");
           const notificationData = {
-            deviceId:
-            accountDeviceToken,
+            deviceId: accountDeviceToken,
             isAndroiodDevice: true,
             title: messageAccept.title,
             body: messageAccept.body,
+            target:vehicleId
           };
-
+            console.log("notificationData Test Accept : "+notificationData)
           // Gửi thông báo bằng hàm sendNotification
           dispatch(sendNotification(notificationData))
             .then((res) => {
@@ -247,10 +258,11 @@ const Vehicles = (props) => {
           setIsSuccess(true);
           reloadVehicle();
           const notificationData = {
-            deviceId:accountDeviceToken,
+            deviceId: accountDeviceToken,
             isAndroiodDevice: true,
             title: messageRejected.title,
             body: messageRejected.body,
+            target:vehicleId
           };
           // Gửi thông báo bằng hàm sendNotification
           dispatch(sendNotification(notificationData))
@@ -354,7 +366,7 @@ const Vehicles = (props) => {
           setLoading(false);
           return; // Kết thúc sớm hàm useEffect() nếu không có dữ liệu
         }
-        
+
         const data = response.payload.data;
         console.log(data);
         setData(data);
@@ -364,18 +376,17 @@ const Vehicles = (props) => {
       })
       .catch((error) => {
         setLoading(false);
-      }).finally(() => {
+      })
+      .finally(() => {
         setLoading(false); // Đặt trạng thái loading thành false
       });
   }, [dispatch]);
-  
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
   const handleImageClick = (image) => {
     setSelectedImage(image);
-    // Hiển thị hình ảnh đã chọn hoặc thực hiện một hành động khác ở đây
   };
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
@@ -387,7 +398,6 @@ const Vehicles = (props) => {
     page * rowsPerPage + rowsPerPage
   );
 
-  // eslint-disable-next-line no-sparse-arrays
   const columns = [
     {
       field: "vinNumber",
@@ -439,26 +449,21 @@ const Vehicles = (props) => {
 
     {
       field: "acceptOrder",
-      headerName: "Chấp nhận xe ",
+      headerName: "Chấp nhận",
       width: 140,
       renderCell: (params) => (
-        <IconButton
-          variant="contained"
-          color="green"
+        <CustomButton
           onClick={() => handleConfirm(params.row.id)}
         >
-          <CheckCircleOutlineIcon
-            variant="contained"
-            style={{ }} // Set the color to green
-          />
-           <Typography
+            <Typography
               variant="body1"
               color="error"
-              sx={{ fontWeight: "bold", marginLeft: "5px", color: "green" }}
+              sx={{ fontWeight: "bold",  color: "green" }}
               onClick={() => handleConfirm(params.row.id)}
             >
-              {"Chấp Nhận Đơn"}</Typography>
-        </IconButton>
+              {"Chấp Nhận Đơn"}
+            </Typography>
+        </CustomButton>
       ),
       key: "acceptOrder",
     },
@@ -589,7 +594,7 @@ const Vehicles = (props) => {
         PaperProps={{
           style: {
             width: "600px", // Set your desired maximum width
-            height: "500px", // Set your desired maximum height
+            height: "700px", // Set your desired maximum height
           },
         }}
       >
@@ -815,12 +820,13 @@ const Vehicles = (props) => {
                             gap: 1, // Khoảng cách giữa icon và văn bản
                           }}
                         >
-                          <ReceiptRoundedIcon style={iconColor} />
+                          <TimeToLeaveIcon style={iconColor} />
                           <Typography variant="h6">
                             Hãng xe:{" "}
                             {vehicleDetail.manufacturer || "Không có thông tin"}
                           </Typography>
                         </Box>
+
                         <Box
                           sx={{
                             display: "flex",
@@ -850,11 +856,13 @@ const Vehicles = (props) => {
                               alignItems: "center", // Canh giữa theo chiều dọc
                               background: "yellow",
                               color: "black",
-                              width: "150px",
                               borderRadius: "5px",
+                              fontWeight: "bold",
                             }}
                           >
-                            {vehicleDetail.status || "Không có thông tin"}
+                            {vehicleDetail.status === "WAITING_APPROVAL"
+                              ? "Chờ Xét Duyệt"
+                              : vehicleDetail.status || "Không có thông tin"}
                           </Box>
                         </Box>
                       </CardContent>

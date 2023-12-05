@@ -46,6 +46,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import CustomTablePagination from "../../components/TablePagination";
 import { sendNotification } from "../../redux/orderSlice";
+import { getAccountId } from "../../redux/accountSlice";
 
 const Invoices = ({ onSelectWallet = () => {} }) => {
   const dispatch = useDispatch();
@@ -73,6 +74,37 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
   const [selectedItemId, setSelectedItemId] = useState(null);
   const [selectedEditOrder, setSelectedEditOrder] = useState(null);
   const [fullnameData, setFullnameData] = useState({});
+  const [accountDeviceToken, setAccountDeviceToken] = useState("");
+  const [rvoId, setRvoId] = useState("");
+  const [accountId, setAccountId] = useState("");
+
+  useEffect(() => {
+    if (accountId && !accountDeviceToken) {
+      fetchAccounts(accountId);
+    }
+  }, [accountId, accountDeviceToken]);
+  const fetchAccounts = (accountId) => {
+    console.log(accountId);
+    // Make sure you have a check to prevent unnecessary API calls
+    if (accountId) {
+      //lấy devices của account
+      console.log("RovId off Account " + accountId);
+      dispatch(getAccountId({ id: accountId }))
+        .then((response) => {
+          const dataAccount = response.payload.data;
+          console.log("DeviceToken of Account " + dataAccount.deviceToken);
+          if (dataAccount.deviceToken) {
+            console.log(dataAccount.deviceToken);
+            setAccountDeviceToken(dataAccount.deviceToken);
+          } else {
+            console.error("deviceToken not found in the API response.");
+          }
+        })
+        .catch((error) => {
+          console.error("Error while fetching service data detail:", error);
+        });
+    }
+  };
   const handleDetailClickDetail = (selectedWalletId) => {
     console.log(selectedWalletId);
     console.log("Invoices: Selected Wallet ID", selectedWalletId);
@@ -101,6 +133,7 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
     dispatch(getTransactionById({ id: transactionDetailId }))
       .then((response) => {
         const transactionDetails = response.payload.data;
+
         setTransactionId(transactionDetailId);
         // Đóng modal và đặt lại orderId
         setOpenConfirmModal(true);
@@ -135,81 +168,90 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
       });
   };
   //Chấp nhận order
-  const handleConfirmWithdraw = (transactionId, accept) => {
-    console.log(transactionId);
-    setIsAccepted(accept);
-    console.log(accept);
-    const messageAccept = {
-      title: "Chấp nhận đơn rút ví kí",
-      body: "Chúc mừng xe của bạn đã đủ điều kiện vào hệ thống",
-    };
-    const messageRejected = {
-      title: "Không chấp nhận đơn rút ví đăng kí ",
-      body: "Xin lỗi!! xe của bạn không đủ điều kiện vào hệ thống!!",
-    };
-    dispatch(
-      createAcceptWithdrawRequest({ id: transactionId, boolean: accept })
-    )
-      .then(() => {
-        setTransactionId(transactionId);
-        setOpenConfirmModal(false);
-        setIsSuccess(true);
-        reloadTrsansaction();
-
-
-        
-        if (accept) {
-          toast.success("Chấp nhận rút tiền ví thành công.");
-          const notificationData = {
-            deviceId:  "",
-            isAndroiodDevice: true,
-            title: messageAccept.title,
-            body: messageAccept.body,
-          };
-
-          // Gửi thông báo bằng hàm sendNotification
-          dispatch(sendNotification(notificationData))
-            .then((res) => {
-              if (res.payload.message === "Notification sent successfully")
-                toast.success("Gửi thông báo thành công");
-              console.log("Gửi thông báo thành công");
-            })
-            .catch((error) => {
-              toast.error("Gửi thông không thành công vui lòng thử lại!!");
-              console.error("Lỗi khi gửi thông báo:", error);
-            });
-        } else {
-          toast.error("Không đồng ý rút tiền ví.");
+    const handleConfirmWithdraw = (transactionId, accept) => {
+      console.log(accountId)
+      console.log(transactionId);
+      setIsAccepted(accept);
+      console.log(accept);
+      const messageAccept = {
+        title: "Chấp nhận đơn rút ví",
+        body: "Chúc mừng xe của bạn đã đủ điều kiện vào hệ thống",
+      };
+      const messageRejected = {
+        title: "Không chấp nhận đơn rút ví đăng kí ",
+        body: "Xin lỗi!! xe của bạn không đủ điều kiện vào hệ thống!!",
+      };
+      dispatch(
+        createAcceptWithdrawRequest({ id: transactionId, boolean: accept })
+      ).then(() => {
+          // const updatedFilteredServices = filteredTransaction.filter(
+          //   (transaction) => transaction.id !== transactionId
+          // );
+    
+          
+          // filteredTransaction(updatedFilteredServices);
           setTransactionId(transactionId);
           setOpenConfirmModal(false);
           setIsSuccess(true);
           reloadTrsansaction();
-          const notificationData = {
-            deviceId:"accountDeviceToken",
-            isAndroiodDevice: true,
-            title: messageRejected.title,
-            body: messageRejected.body,
-          };
-          // Gửi thông báo bằng hàm sendNotification
-          dispatch(sendNotification(notificationData))
-            .then((res) => {
-              if (res.payload.message === "Notification sent successfully")
-                toast.success("Gửi thông báo thành công");
-              console.log("Gửi thông báo thành công");
-            })
-            .catch((error) => {
-              toast.error("Gửi thông không thành công vui lòng thử lại!!");
-              console.error("Lỗi khi gửi thông báo:", error);
-            });
-        }
-      })
-      .catch((error) => {
-        console.error(
-          "Lỗi khi lấy thông tin giao dịch mới:",
-          error.status || error.message
-        );
-      });
-  };
+          
+          if (accept) {
+            toast.success("Chấp nhận rút tiền ví thành công.");
+            const notificationData = {
+              deviceId:  accountDeviceToken,
+              isAndroiodDevice: true,
+              title: messageAccept.title,
+              body: messageAccept.body,
+              target:accountId
+            };
+            console.log("notificationData Accepted withdraw: "+notificationData)
+            // Gửi thông báo bằng hàm sendNotification
+            dispatch(sendNotification(notificationData))
+              .then((res) => {
+                if (res.payload.message === "Notification sent successfully")
+                  toast.success("Gửi thông báo thành công");
+                console.log("Gửi thông báo thành công");
+              })
+              .catch((error) => {
+                toast.error("Gửi thông không thành công vui lòng thử lại!!");
+                console.error("Lỗi khi gửi thông báo:", error);
+              });
+          } else {
+            toast.error("Không đồng ý rút tiền ví.");
+            setTransactionId(transactionId);
+            setOpenConfirmModal(false);
+            setIsSuccess(true);
+            reloadTrsansaction();
+            const notificationData = {
+              deviceId:accountDeviceToken,
+              isAndroiodDevice: true,
+              title: messageRejected.title,
+              body: messageRejected.body,
+              target:accountId
+        
+              
+            };
+            console.log("notificationData Accepted withdraw"+notificationData)
+            // Gửi thông báo bằng hàm sendNotification
+            dispatch(sendNotification(notificationData))
+              .then((res) => {
+                if (res.payload.message === "Notification sent successfully")
+                  toast.success("Gửi thông báo thành công");
+                console.log("Gửi thông báo thành công");
+              })
+              .catch((error) => {
+                toast.error("Gửi thông không thành công vui lòng thử lại!!");
+                console.error("Lỗi khi gửi thông báo:", error);
+              });
+          }
+        })
+        .catch((error) => {
+          console.error(
+            "Lỗi khi lấy thông tin giao dịch mới:",
+            error.status || error.message
+          );
+        });
+    };
 
 
 
@@ -342,13 +384,17 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
         .then((response) => {
           const data = response.payload.data;
           if (data && data.rvo.fullname) {
-            // Update the state with the fetched fullname
+            console.log(data.rvo.id)
+           console.log(data.rvo.accountId)
+           setAccountId(data.rvo.accountId)
             setFullnameData((prevData) => ({
               ...prevData,
               [walletId]: data.rvo.fullname,
             }
+           
             
             ));
+            setRvoId(data.rvoid)
           } else {
             console.error("Fullname not found in the API response.");
           }

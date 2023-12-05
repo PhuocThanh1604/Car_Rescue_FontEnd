@@ -19,6 +19,7 @@ import {
   CardContent,
   Divider,
   Grid,
+  styled,
 } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import Header from "../../components/Header";
@@ -54,7 +55,9 @@ import PeopleAltRoundedIcon from "@mui/icons-material/PeopleAltRounded";
 import PlaceIcon from "@mui/icons-material/Place";
 import CustomTablePagination from "../../components/TablePagination";
 import { tokens } from "../../theme";
-import { sendNotification } from "../../redux/orderSlice";
+import { getOrderId, sendNotification } from "../../redux/orderSlice";
+import { getAccountId } from "../../redux/accountSlice";
+import { getCustomerId } from "../../redux/customerSlice";
 const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
 const Reports = (props) => {
   const dispatch = useDispatch();
@@ -71,6 +74,7 @@ const Reports = (props) => {
   const [selectedBook, setSelectedBook] = useState(null);
   const [selectedEditVehicle, setSelectedEditVehicle] = useState(null);
   const [filteredVehicles, setFilteredVehicles] = useState([]);
+  const [orderId, setOrderId] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(8);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -84,12 +88,31 @@ const Reports = (props) => {
   const [openConfirmModal, setOpenConfirmModal] = useState(false);
   const [detailedData, setDetailedData] = useState(null);
   const [vehicleDetail, setVehicleDetail] = useState({});
+  const [dataCustomer, setDataCustomer] = useState({});
 
   const [collapse, setCollapse] = useState(false);
   const [isAccepted, setIsAccepted] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [dataRescueVehicleOwner, setDataRescueVehicleOwner] = useState({});
+  const CustomButton = styled(Box)({
+    backgroundColor: colors.lightGreen[300],
+    borderRadius: "10px",
+    padding: "2px",
+    transition: "background-color 0.3s",
+    "&:hover": {
+      backgroundColor: colors.lightGreen[500], // Màu sẽ thay đổi khi hover
+      cursor: "pointer",
+      borderRadius: "10px",
+    },
+  });
+  const imageWidth = "400px";
+  const imageHeight = "300px";
 
+  const [activeStep, setActiveStep] = React.useState(0);
+  // const maxSteps = images.length;
+  const handleStepChange = (step) => {
+    setActiveStep(step);
+  };
   const fetchRescueVehicleOwner = (vehicleRvoidId) => {
     console.log(vehicleRvoidId);
     // Make sure you have a check to prevent unnecessary API calls
@@ -112,32 +135,22 @@ const Reports = (props) => {
         });
     }
   };
-  //img
-  const imageWidth = "400px";
-  const imageHeight = "300px";
-
-  const [activeStep, setActiveStep] = React.useState(0);
-  // const maxSteps = images.length;
-  const handleStepChange = (step) => {
-    setActiveStep(step);
-  };
-  const handleClick = () => {
-    setCollapse(!collapse);
-  };
-
-  const handleConfirm = (orderId) => {
-    console.log(orderId);
+  const handleConfirm = (reportId) => {
+    console.log(reportId);
     // Make sure you have a check to prevent unnecessary API calls
-    if (orderId) {
-      console.log(orderId);
-      dispatch(getReportById({ id: orderId }))
+    if (reportId) {
+      console.log(reportId);
+      dispatch(getReportById({ id: reportId }))
         .then((response) => {
-          const data = response.payload.data;
-          console.log(data);
-          if (data) {
-            setVehicleId(data.id);
-            setVehicleDetail(data);
-            // fetchRescueVehicleOwner(data.rvoid)
+          const dataReport = response.payload.data;
+          console.log(dataReport);
+          if (dataReport) {
+            setVehicleId(dataReport.id);
+            setVehicleDetail(dataReport);
+  
+            // Pass orderId to fetchOrderDetail function
+            fetchOrderDetail(dataReport.orderId);
+  
             setOpenConfirmModal(true);
             // reloadVehicle();
           } else {
@@ -149,6 +162,35 @@ const Reports = (props) => {
         });
     }
   };
+  
+  const fetchOrderDetail = (orderId) => {
+    console.log(orderId);
+    // Make sure you have a check to prevent unnecessary API calls
+    if (orderId) { // Change the condition to ensure orderId exists
+      dispatch(getOrderId({ id: orderId }))
+        .then((response) => {
+          const dataOrder = response.payload.data;
+          console.log(dataOrder.customerId);
+          if (dataOrder.customerId) {
+            dispatch(getCustomerId({ id: dataOrder.customerId }))
+            .then((response) => {
+              const dataCustomer = response.payload.data;
+            setDataCustomer(dataCustomer);
+              
+            })
+            .catch((error) => {
+              console.error("Error while fetching service data:", error);
+            }); 
+          } else {
+            console.error("Service name not found in the API response.");
+          }
+        })
+        .catch((error) => {
+          console.error("Error while fetching service data:", error);
+        });
+    }
+  };
+  
 
   //Hủy đăng kí xe
   const handleCancel = () => {
@@ -202,13 +244,12 @@ const Reports = (props) => {
         if (accept) {
           toast.success("Chấp nhận đơn báo cáo thành công");
           const notificationData = {
-            deviceId:
-            "",
+            deviceId: "",
             isAndroiodDevice: true,
             title: messageAccept.title,
             body: messageAccept.body,
           };
-  
+
           // Gửi thông báo bằng hàm sendNotification
           dispatch(sendNotification(notificationData))
             .then((res) => {
@@ -223,13 +264,12 @@ const Reports = (props) => {
         } else {
           toast.error("Không đồng chấp nhận xe vào hệ thống ");
           const notificationData = {
-            deviceId:
-            "",
+            deviceId: "",
             isAndroiodDevice: true,
             title: messageRejected.title,
             body: messageRejected.body,
           };
-  
+
           // Gửi thông báo bằng hàm sendNotification
           dispatch(sendNotification(notificationData))
             .then((res) => {
@@ -350,13 +390,14 @@ const Reports = (props) => {
           const data = response.payload.data;
           console.log(data);
           setData(data);
+          console.log(data);
           setFilteredVehicles(data);
         } else {
           // Xử lý tình huống khi không có dữ liệu
           toast.dismiss("Không có dữ liệu từ phản hồi");
         }
       })
-      .catch(error => {
+      .catch((error) => {
         // Xử lý lỗi ở đây
         toast.dismiss("Lỗi khi lấy dữ liệu báo cáo:", error);
       })
@@ -364,7 +405,6 @@ const Reports = (props) => {
         setLoading(false); // Đặt trạng thái loading thành false
       });
   }, [dispatch]);
-  
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -387,15 +427,9 @@ const Reports = (props) => {
   const columns = [
     {
       field: "id",
-      headerName: "id",
+      headerName: "reportId",
       width: 100,
       key: "id",
-    },
-    {
-      field: "orderId",
-      headerName: "orderId",
-      width: 100,
-      key: "orderId",
     },
     {
       field: "createdAt",
@@ -469,19 +503,19 @@ const Reports = (props) => {
 
     {
       field: "acceptOrder",
-      headerName: "Chấp nhận xe ",
+      headerName: "Chấp Nhận Đơn ",
       width: 120,
       renderCell: (params) => (
-        <IconButton
-          variant="contained"
-          color="error"
-          onClick={() => handleConfirm(params.row.id)}
-        >
-          <CheckCircleOutlineIcon
-            variant="contained"
-            style={{ color: "green" }} // Set the color to green
-          />
-        </IconButton>
+        <CustomButton onClick={() => handleConfirm(params.row.id)}>
+          <Typography
+            variant="body1"
+            color="error"
+            sx={{ fontWeight: "bold", color: "green" }}
+            onClick={() => handleConfirm(params.row.id)}
+          >
+            {"Chấp Nhận Đơn"}
+          </Typography>
+        </CustomButton>
       ),
       key: "acceptOrder",
     },
@@ -647,7 +681,7 @@ const Reports = (props) => {
         PaperProps={{
           style: {
             width: "600px", // Set your desired maximum width
-            height: "500px", // Set your desired maximum height
+            height: "600px", // Set your desired maximum height
           },
         }}
       >
@@ -729,8 +763,7 @@ const Reports = (props) => {
                           <PersonRoundedIcon style={iconColor} />
                           <Typography variant="h6">
                             <strong>Chủ xe: </strong>{" "}
-                            {dataRescueVehicleOwner[vehicleDetail.rvoid]
-                              ?.fullname || "Không có thông tin"}
+                            {dataCustomer.fullname || "Không có thông tin"}
                           </Typography>
                         </Box>
                         <Box
@@ -743,8 +776,7 @@ const Reports = (props) => {
                           <PhoneRoundedIcon style={iconColor} />
                           <Typography variant="h6">
                             <strong>SĐT: </strong>{" "}
-                            {dataRescueVehicleOwner[vehicleDetail?.rvoid]
-                              ?.phone || "Không có thông tin"}
+                            {dataCustomer.phone || "Không có thông tin"}
                           </Typography>
                         </Box>
 
@@ -758,8 +790,7 @@ const Reports = (props) => {
                           <PeopleAltRoundedIcon style={iconColor} />
                           <Typography variant="h6">
                             <strong>Giới tính: </strong>{" "}
-                            {dataRescueVehicleOwner[vehicleDetail?.rvoid]
-                              ?.sex || "Không có thông tin"}
+                            {dataCustomer.sex || "Không có thông tin"}
                           </Typography>
                         </Box>
                         <Box
@@ -772,8 +803,7 @@ const Reports = (props) => {
                           <PlaceIcon style={iconColor} />
                           <Typography variant="h6">
                             <strong>Địa chỉ: </strong>{" "}
-                            {dataRescueVehicleOwner[vehicleDetail?.rvoid]
-                              ?.address || "Không có thông tin"}
+                            {dataCustomer.address || "Không có thông tin"}
                           </Typography>
                         </Box>
 
@@ -787,117 +817,13 @@ const Reports = (props) => {
                           <MapRoundedIcon style={iconColor} />
                           <Typography variant="h6">
                             <strong>Khu vực: </strong>{" "}
-                            {dataRescueVehicleOwner[vehicleDetail?.rvoid]
-                              ?.area || "Chưa cập nhật"}
+                            {dataCustomer.area || "Chưa cập nhật"}
                           </Typography>
                         </Box>
                       </CardContent>
                     </Grid>
-                    <Grid item xs={1}>
-                      <Divider orientation="vertical" sx={{ height: "100%" }} />
-                    </Grid>
-                    <Grid item xs={5} alignItems="center">
-                      <CardContent>
-                        <Typography
-                          variant="h5"
-                          sx={{ marginBottom: "4px", textAlign: "center" }}
-                        >
-                          Thông tin xe
-                        </Typography>
-
-                        <Box
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 1, // Khoảng cách giữa icon và văn bản
-                          }}
-                        >
-                          <ReceiptRoundedIcon style={iconColor} />
-                          <Typography variant="h6">
-                            Biển Số:{" "}
-                            {vehicleDetail.licensePlate || "Không có thông tin"}
-                          </Typography>
-                        </Box>
-
-                        <Box
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 1, // Khoảng cách giữa icon và văn bản
-                          }}
-                        >
-                          <CategoryRounded style={iconColor} />
-                          <Typography variant="h6">
-                            Loại Xe:{" "}
-                            {vehicleDetail.type || "Không có thông tin"}
-                          </Typography>
-                        </Box>
-
-                        <Box
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 1, // Khoảng cách giữa icon và văn bản
-                          }}
-                        >
-                          <CalendarTodayIcon style={iconColor} />
-                          <Typography variant="h6">
-                            Đời xe:{" "}
-                            {vehicleDetail.manufacturingYear ||
-                              "Không có thông tin"}
-                          </Typography>
-                        </Box>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 1, // Khoảng cách giữa icon và văn bản
-                          }}
-                        >
-                          <ReceiptRoundedIcon style={iconColor} />
-                          <Typography variant="h6">
-                            Hãng xe:{" "}
-                            {vehicleDetail.manufacturer || "Không có thông tin"}
-                          </Typography>
-                        </Box>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 1, // Khoảng cách giữa icon và văn bản
-                          }}
-                        >
-                          <ReceiptRoundedIcon style={iconColor} />
-                          <Typography variant="h6">
-                            Số khung xe:{" "}
-                            {vehicleDetail.vinNumber || "Không có thông tin"}
-                          </Typography>
-                        </Box>
-
-                        <Box
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 1, // Khoảng cách giữa các phần tử
-                          }}
-                        >
-                          <TimerIcon style={iconColor} />
-                          <Typography variant="h6">Trạng Thái: </Typography>
-                          <Box
-                            style={{
-                              display: "flex",
-                              alignItems: "center", // Canh giữa theo chiều dọc
-                              background: "yellow",
-                              color: "black",
-                              width: "150px",
-                              borderRadius: "5px",
-                            }}
-                          >
-                            {vehicleDetail.status || "Không có thông tin"}
-                          </Box>
-                        </Box>
-                      </CardContent>
-                    </Grid>
+                   
+                   
                   </Grid>
                 </Card>
               </div>

@@ -115,7 +115,6 @@ export const getRVOOfWallet = createAsyncThunk(
         `https://rescuecapstoneapi.azurewebsites.net/api/Wallet/GetRVOOfWallet?id=${id}`
       );
       const data = response.data;
-      console.log(data);
       return data;
     } catch (error) {
       console.error("Failed to get rescue car owner of wallet ", error.response);

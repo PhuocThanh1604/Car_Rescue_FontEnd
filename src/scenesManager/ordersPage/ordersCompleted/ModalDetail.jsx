@@ -834,7 +834,7 @@ const MyModal = (props) => {
                                   color: "white",
                                 }}
                               >
-                                {dataPayment.method || "Đang tải..."}
+                                  {dataPayment.method==="Cash"?"Tiền Mặt": dataPayment.method==="Banking"?"Chuyển khoản": dataPayment.method|| "Đang tải..."}
                               </Typography>
                             </Box>
                           </Typography>

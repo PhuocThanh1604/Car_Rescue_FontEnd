@@ -252,7 +252,7 @@ const fetchFullname = (customerId) => {
     {
       field: "customerNote",
       headerName: "Ghi Chú của Customer",
-      width: 220,
+      width: 260,
       key: "customerNote",
     },
     {

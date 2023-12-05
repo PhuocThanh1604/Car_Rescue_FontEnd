@@ -21,7 +21,6 @@ import InputBase from "@mui/material/InputBase";
 import moment from "moment";
 import "moment-timezone";
 import AddIcon from "@mui/icons-material/Add";
-
 import {
   fetchOrdersNew,
   getFormattedAddressGG,
@@ -35,6 +34,7 @@ import HandymanIcon from "@mui/icons-material/Handyman";
 import AssignmentLateIcon from "@mui/icons-material/AssignmentLate";
 import { useLocation } from "react-router-dom";
 import CustomTablePagination from "../../../components/TablePagination";
+import { setAccounts } from "../../../redux/accountSlice";
 const Orders = (props) => {
   const dispatch = useDispatch();
   const orders = useSelector((state) => state.order.orders);
@@ -55,8 +55,11 @@ const Orders = (props) => {
   const [fullnameData, setFullnameData] = useState({});
   const [formattedAddresses, setFormattedAddresses] = useState({});
   const [rescueVehicles, setRescueVehicles] = useState([]); // Tạo một state mới cho danh sách xe cứu hộ
+  const [deviceTokenCustomer, setDeviceTokenCustomer] = useState(""); 
   const [selectedOrderFormattedAddress, setSelectedOrderFormattedAddress] =
     useState("");
+
+
   const handleDataUpdated = () => {
     reloadOrdersNew();
   };
@@ -259,12 +262,16 @@ const Orders = (props) => {
       dispatch(getCustomerIdFullName({ id: customerId }))
         .then((response) => {
           const data = response.payload.data;
+        
+          
           if (data && data.fullname) {
             // Update the state with the fetched fullname
             setFullnameData((prevData) => ({
               ...prevData,
               [customerId]: data.fullname,
             }));
+            
+     
           } else {
             console.error("Fullname not found in the API response.");
           }

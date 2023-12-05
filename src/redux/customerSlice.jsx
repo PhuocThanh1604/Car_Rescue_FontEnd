@@ -77,20 +77,13 @@ export const fetchCustomers = createAsyncThunk(
 export const getCustomerId = createAsyncThunk(
   "customer/getCustomerId",
   async ({id}) => {
-    
-    const storageKey = "getCustomerId_" + id;;
-    const storedData = getFromStorage(storageKey);
-
-    if (storedData) {
-      return storedData;
-    }
+    console.log(id);
 
     try {
       const response = await axios.get(
         `https://rescuecapstoneapi.azurewebsites.net/api/Customer/Get?id=${id}`
       );
       const data = response.data;
-      saveToStorage(storageKey, data); // Lưu dữ liệu mới vào Local Storage
       console.log(data)
       return data;
     } catch (response) {
@@ -112,7 +105,6 @@ export const getCustomerIdFullName = createAsyncThunk(
         `https://rescuecapstoneapi.azurewebsites.net/api/Customer/Get?id=${id}`
       );
       const data = response.data;
-    
       return data;
     } catch (error) {
       console.error("Failed to get customer:", error.response);

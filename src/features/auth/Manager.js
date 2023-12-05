@@ -33,6 +33,7 @@ import CalendarRescueVehicleOwner from "../../scenesManager/calendarRescueVehicl
 import CalendarTechnician from "../../scenesManager/calendarTechnician";
 import Map from "../../scenesManager/map/google";
 import Vehicles from "../../scenesManager/vehicle";
+import ListVehicle from "../../scenesManager/listVehicle";
 import CreateOrderOffline from "../../scenesManager/create_OrderOffline";
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
@@ -82,7 +83,7 @@ const Manager = () => {
         }
       );
     };
-    
+
     onMessageListener(handleMessage);
   }, []);
 
@@ -90,7 +91,7 @@ const Manager = () => {
     <ColorModeContext.Provider value={colorMode}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <div className="app" >
+        <div className="app">
           <ToastContainer />
           <Topbar setIsSidebar={setIsSidebar} />
           <main className="content" style={{ display: "flex", height: "auto" }}>
@@ -104,7 +105,6 @@ const Manager = () => {
               <ToastContainer />
               {/* <AuthProvider> */}
               <Routes>
-                
                 <Route path="/client" element={<Dashboard />} />
                 <Route path="/manager/payments" element={<Payment />} />
                 <Route path="/manager/reports" element={<Reports />} />
@@ -155,6 +155,7 @@ const Manager = () => {
                 <Route path="/manager/customer" element={<Customers />} />
                 <Route path="/manager/techinian" element={<Technicians />} />
                 <Route path="/manager/manager" element={<Managers />} />
+                <Route path="/manager/listVehicle" element={<ListVehicle />} />
                 <Route
                   path="/manager/rescueVehicleOwner"
                   element={<RescueVehicleOwners />}

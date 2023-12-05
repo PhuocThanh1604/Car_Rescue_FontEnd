@@ -26,19 +26,25 @@ import { styled, Theme } from "@mui/material/styles";
 import PerfectScrollbarComponent from "react-perfect-scrollbar";
 import { toast } from "react-toastify";
 import { onMessageListener } from "../firebase";
+import { useDispatch } from "react-redux";
+import { getAllNotification } from "../redux/orderSlice";
 
 const Topbar = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const colorMode = useContext(ColorModeContext);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [accountId, setAccountId] = useState(null);
+  const [dataNotification, setDataNotification] = useState([]);
   const [anchorElNoti, setAnchorElNoti] = useState(null); // Notifications menu
   const [anchorElProfile, setAnchorElProfile] = useState(null); // Profile menu
   const [notifications, setNotifications] = useState([]);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
 
-  const MAX_NOTIFICATIONS_DISPLAYED = 5;
+  const MAX_NOTIFICATIONS_DISPLAYED = 10;
   useEffect(() => {
     const handleMessage = (payload) => {
       toast(
@@ -53,16 +59,15 @@ const Topbar = () => {
           progress: undefined,
         }
       );
-
       // Lấy thời gian hiện tại
       const now = new Date();
 
       // Cập nhật trạng thái thông báo
-      setNotifications((prevNotifications) => {
+      setDataNotification((prevNotifications) => {
         const updatedNotifications = [
           {
-            title: payload.notification.title,
-            body: payload.notification.body,
+            title: payload.notification.tile,
+            body: payload.notification.content,
             image: payload.notification.image,
             receivedTime: now.toISOString(),
           },
@@ -70,9 +75,10 @@ const Topbar = () => {
         ];
 
         // Giới hạn số lượng thông báo hiển thị
-        const limitedNotifications = updatedNotifications.slice(0, MAX_NOTIFICATIONS_DISPLAYED);
-
-        localStorage.setItem("notifications", JSON.stringify(limitedNotifications));
+        const limitedNotifications = updatedNotifications.slice(
+          0,
+          MAX_NOTIFICATIONS_DISPLAYED
+        );
 
         return limitedNotifications;
       });
@@ -82,31 +88,70 @@ const Topbar = () => {
 
     onMessageListener(handleMessage);
   }, []);
+  // Lấy đối tượng manager từ localStorage
+  const managerString = localStorage.getItem("manager");
+const isAdmin = localStorage.getItem("isAdmin") === "true";
+let manager = null;
 
+if (managerString) {
+  try {
+    manager = JSON.parse(managerString);
+    console.log(manager.accountId);
+
+  } catch (error) {
+    toast.dismiss("Không có thông báo:", error);
+  }
+}
+
+useEffect(() => {
+  if (manager && manager.accountId !== accountId) {
+    setLoading(true);
+    setAccountId(manager.accountId); // Di chuyển setAccountId vào đây
+  }
+}, [manager, accountId]);
+
+useEffect(() => {
+  if (accountId !== null) {
+    setLoading(true);
+    dispatch(getAllNotification({ id:accountId })) // Gửi accountId trong payload
+      .then((response) => {
+        if (!response.payload) {
+          setLoading(false);
+          return; // Kết thúc sớm hàm useEffect() nếu không có dữ liệu
+        }
+        console.log(response.payload);
+        setDataNotification(response.payload);
+      })
+      .catch((error) => {
+        setLoading(false);
+        // Xử lý lỗi nếu cần
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }
+}, [dispatch, accountId]);
+  
   const handleMenuOpenNoti = (event) => {
     const savedNotifications = localStorage.getItem("notifications");
-    const unreadNotificationsCount = localStorage.getItem("unreadNotificationsCount");
-    const parsedNotifications = savedNotifications ? JSON.parse(savedNotifications) : [];
-    const initialNotifications = parsedNotifications.slice(0, MAX_NOTIFICATIONS_DISPLAYED);
-  
+    const unreadNotificationsCount = localStorage.getItem(
+      "unreadNotificationsCount"
+    );
+    const parsedNotifications = savedNotifications
+      ? JSON.parse(savedNotifications)
+      : [];
+    const initialNotifications = parsedNotifications.slice(
+      0,
+      MAX_NOTIFICATIONS_DISPLAYED
+    );
+
     setUnreadNotifications(unreadNotificationsCount);
     setAnchorElNoti(event.currentTarget);
     setNotifications(initialNotifications);
   };
-  
-  
-  // Lấy đối tượng manager từ localStorage
-  const managerString = localStorage.getItem("manager");
-  const isAdmin = localStorage.getItem("isAdmin") === "true";
-  let manager = null;
 
-  if (managerString) {
-    try {
-      manager = JSON.parse(managerString); // Thử phân tích chuỗi JSON
-    } catch (error) {
-      console.error("Lỗi khi phân tích chuỗi JSON:", error);
-    }
-  }
+
+
   // Define the 'styles' object at the top
   const styles = {
     py: 2,
@@ -130,7 +175,6 @@ const Topbar = () => {
   };
 
   const handleMenuClose = () => {
-    localStorage.removeItem("unreadNotificationsCount")
     setAnchorElNoti(null);
   };
   const handleDropdownClose = () => {
@@ -224,7 +268,6 @@ const Topbar = () => {
           )}
         </IconButton> */}
 
-     
         <IconButton
           color="inherit"
           aria-haspopup="true"
@@ -260,7 +303,7 @@ const Topbar = () => {
               <Typography sx={{ fontWeight: 600 }}>Notifications</Typography>
               <Chip
                 size="small"
-                label={"New " + notifications.length}
+                label={"New " + dataNotification.length}
                 color="primary"
                 sx={{
                   height: 20,
@@ -274,7 +317,7 @@ const Topbar = () => {
           </MenuItem>
 
           <ScrollWrapper>
-          {notifications.map((notification, index) => (
+            {dataNotification.map((notification, index) => (
               <Box
                 sx={{ width: "100%", display: "flex", alignItems: "center" }}
               >
@@ -301,21 +344,30 @@ const Topbar = () => {
                         flexDirection: "column",
                       }}
                     >
-                      <MenuItemTitle> {notification.title}</MenuItemTitle>
-                      <MenuItemSubtitle variant="body2">
-                        {" "}
-                        {notification.body}
+                      <MenuItemTitle> {notification.tilte}</MenuItemTitle>
+                      <MenuItemSubtitle
+                        variant="body2"
+                        sx={{
+                          wordWrap: "break-word", // Cho phép xuống dòng
+                          whiteSpace: "normal", // Đảm bảo nội dung xuống dòng
+                          width: "150px", // Cố định kích thước tối đa của nội dung
+                        }}
+                      >
+                        {notification.content}
                       </MenuItemSubtitle>
                     </Box>
-                    <Typography
+                    
+                  </Box>
+                  
+                </MenuItem>
+                <Typography
                       variant="caption"
                       sx={{ color: "text.disabled" }}
+                      right={0}
                     >
                       Today{" "}
-                      {new Date(notification.receivedTime).toLocaleDateString()}{" "}
+                      {new Date(notification.createdAt).toLocaleDateString()}{" "}
                     </Typography>
-                  </Box>
-                </MenuItem>
               </Box>
             ))}
           </ScrollWrapper>

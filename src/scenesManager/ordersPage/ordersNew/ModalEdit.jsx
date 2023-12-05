@@ -24,6 +24,7 @@ import { tokens } from "../../../theme";
 import { toast } from "react-toastify";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ColorLensIcon from "@mui/icons-material/ColorLens";
 import {
   createAcceptOrder,
   fetchOrdersNew,
@@ -33,6 +34,7 @@ import {
   getPaymentId,
   sendNotification,
 } from "../../../redux/orderSlice";
+import AssignmentIcon from "@mui/icons-material/Assignment";
 import { fetchVehicle } from "../../../redux/vehicleSlice";
 import { fetchTechnicians } from "../../../redux/technicianSlice";
 import TimeToLeaveIcon from "@mui/icons-material/TimeToLeave";
@@ -112,8 +114,11 @@ const ModalEdit = ({
   const [dataOrder, setDataOrder] = useState({});
   const [dataDeparture, setDataDeparture] = useState({});
   const [accountId, setAccountId] = useState("");
-  
+  const [accountIdCustomer, setAccountIdCustomer] = useState("");
+
   const [accountDeviceToken, setAccountDeviceToken] = useState("");
+  const [accountDeviceTokenCustomer, setAccountDeviceTokenCustomer] =
+    useState("");
 
   const [dataModel, setDataModel] = useState("");
   const [fullnameRvo, setFullnameRvo] = useState({});
@@ -139,7 +144,6 @@ const ModalEdit = ({
   }, [edit.departure, edit.destination]);
 
   const fetchAddress = async (addressType, addressValue) => {
-    console.log("latlng" + addressValue);
     if (!addressValue) {
       return; // Trả về nếu order không tồn tại hoặc địa chỉ đã được lưu trữ
     }
@@ -149,7 +153,6 @@ const ModalEdit = ({
       const [, lat, lng] = matches;
 
       if (!isNaN(lat) && !isNaN(lng)) {
-        console.log("Latitude:", lat, "Longitude:", lng);
         try {
           const response = await dispatch(getFormattedAddressGG({ lat, lng }));
           const formattedAddress =
@@ -263,6 +266,7 @@ const ModalEdit = ({
       dispatch(getAccountId({ id: accountId }))
         .then((response) => {
           const dataAccount = response.payload.data;
+          console.log(dataAccount.id);
           console.log("DeviceToken of Account " + dataAccount.deviceToken);
           if (dataAccount.deviceToken) {
             console.log(dataAccount.deviceToken);
@@ -408,6 +412,7 @@ const ModalEdit = ({
   }, [orders]);
   //Hàm điều phối
   const handleSaveClick = () => {
+    console.log("accountId" + accountId);
     if (!selectedEditOrder || !data) {
       toast.error("Không có thông tin khách hàng để cập nhật.");
       return;
@@ -442,27 +447,44 @@ const ModalEdit = ({
             );
             setVehicleData(updatedVehicleData);
           }
-          toast.success("Gửi điều phối thành công.");
+          toast.success("Gửi điều phối nhân sự thành công.");
           // Reset vehicleDetails here
           setVehicleDetails(null);
           setSelectedVehicel(null);
-
+          console.log("accountDeviceToken: " + accountDeviceToken);
           const notificationData = {
-            // deviceId:
-            //   "fb7Ts8adTSeqW2D4jsgsEe:APA91bHS0xEkeHkeK58sL9a33CLxgm00KFIY6cHJokVA8R1JO_rrinjDDbvCSLsKo01M6IvJ88q5lOWJCpf0zAU1i75lGqVaSQDa4HBFGd7Du7XnJDgCsZZUJ-4WmH0yb5AsheUp9fzm",
             deviceId: accountDeviceToken,
             isAndroiodDevice: true,
             title: message.title,
             body: message.body,
+            target: accountId,
+            orderId: orderId,
           };
-
           // Gửi thông báo bằng hàm sendNotification
           dispatch(sendNotification(notificationData))
             .then(() => {
               console.log("Gửi thông báo thành công");
+              const notificationData = {
+                deviceId: accountDeviceTokenCustomer,
+                isAndroiodDevice: true,
+                title: message.title,
+                body: message.body,
+                target: accountIdCustomer,
+                orderId: orderId,
+              };
+              console.log("accountIdCustomer: " + accountIdCustomer);
+              console.log("accountDeviceTokenCustomer: " + accountDeviceTokenCustomer);
+              // Gửi thông báo bằng hàm sendNotification
+              dispatch(sendNotification(notificationData))
+                .then(() => {
+                  console.log("Gửi thông báo đến khách hàng thành công");
+                })
+                .catch((error) => {
+                  console.error("Lỗi khi gửi thông báo đến khách hàng:", error);
+                });
             })
             .catch((error) => {
-              console.error("Lỗi khi gửi thông báo:", error);
+              console.error("Lỗi khi gửi thông báo nhân sự:", error);
             });
           handleClose();
           setIsSuccess(true);
@@ -500,6 +522,7 @@ const ModalEdit = ({
             setVehicleDetails(null);
             fetchRVO(null);
             setAccountId(null);
+            setAccountIdCustomer(null);
 
             setFilteredOrders(data);
             // Đặt loading thành false sau khi tải lại dữ liệu
@@ -523,7 +546,6 @@ const ModalEdit = ({
 
   useEffect(() => {
     if (edit.carId && edit.carId !== carId) {
-      console.log(edit.carId);
       setCarId(edit.carId);
       fetchCarOfCustomer(edit.carId);
     }
@@ -541,23 +563,18 @@ const ModalEdit = ({
       dataCar[edit.carId]?.modelId &&
       dataCar[edit.carId]?.modelId !== modelId
     ) {
-      console.log(dataCar[edit.carId]?.modelId);
       setModelId(dataCar[edit.carId]?.modelId);
       fetchModelOfCar(dataCar[edit.carId]?.modelId); // Gọi hàm fetchModelOfCar với modelId mới
     }
   }, [edit.customerId, customerId, dataCar[edit.carId]?.modelId, modelId]);
 
   const fetchModelOfCar = (modelId) => {
-    console.log("modelid: " + modelId);
     // Make sure you have a check to prevent unnecessary API calls
     if (modelId) {
-      console.log("Modelid: " + modelId);
       dispatch(getModelCarId({ id: modelId }))
         .then((response) => {
-          console.log("Response payload:", response.payload);
           const data = response.payload.data;
 
-          console.log("Data model:", data.model1);
           setDataModel(data.model1);
           // if (data) {
           //   setDataModel((prevData) => ({
@@ -583,10 +600,26 @@ const ModalEdit = ({
         .then((response) => {
           const data = response.payload.data;
           if (data) {
+            console.log("data.accountId" + data.accountId);
+              setAccountIdCustomer(data.accountId)
             setDataCustomer((prevData) => ({
               ...prevData,
               [customerId]: data,
             }));
+            dispatch(getAccountId({ id: data.accountId }))
+              .then((response) => {
+                const data = response.payload.data;
+                if (data) {
+                  console.log("deviceToken off Customer" + data.deviceToken);
+
+                  setAccountDeviceTokenCustomer(data.deviceToken);
+                } else {
+                  console.error("Account  not found in the API response.");
+                }
+              })
+              .catch((error) => {
+                console.error("Error while fetching account data:", error);
+              });
           } else {
             console.error("Service name not found in the API response.");
           }
@@ -705,6 +738,7 @@ const ModalEdit = ({
 
   // Hiển thị tất cả dịch vụ và quantity
   const fetchOrderDetail = (orderId) => {
+    console.log(orderId);
     setServiceNames(null);
     // Make sure you have a check to prevent unnecessary API calls
     if (orderId) {
@@ -716,6 +750,7 @@ const ModalEdit = ({
             const serviceDetails = data.map((item) => ({
               serviceId: item.serviceId,
               quantity: item.quantity,
+              type: null, // Thêm type vào object để lưu thông tin loại dịch vụ từ API
             }));
 
             // Tạo mảng promises để gọi API lấy thông tin từng serviceId và quantity
@@ -724,10 +759,17 @@ const ModalEdit = ({
                 return dispatch(getServiceId({ id: serviceId }))
                   .then((serviceResponse) => {
                     const serviceName = serviceResponse.payload.data.name;
-                    console.log(
-                      `ServiceId: ${serviceId}, ServiceName: ${serviceName}, Quantity: ${quantity}`
-                    );
-                    return { serviceName, quantity };
+                    const serviceType = serviceResponse.payload.data.type;
+                    let updatedQuantity = quantity;
+
+                    // Xử lý thông tin quantity dựa trên loại dịch vụ (type)
+                    if (serviceType === "Towing") {
+                      updatedQuantity += " km"; // Nếu là Towing thì thêm chuỗi ' km' vào quantity
+                    } else if (serviceType === "Fixing") {
+                      updatedQuantity = `Số lượng: ${quantity}`; // Nếu là Fixing thì sử dụng format riêng
+                    }
+
+                    return { serviceName, updatedQuantity }; // Trả về thông tin đã được xử lý
                   })
                   .catch((serviceError) => {
                     console.error(
@@ -743,10 +785,7 @@ const ModalEdit = ({
             Promise.all(servicePromises)
               .then((serviceData) => {
                 // Log tất cả serviceName và quantity từ API
-                console.log(
-                  "Tất cả serviceName và quantity từ API:",
-                  serviceData
-                );
+
                 // Cập nhật state với serviceNames và quantity đã lấy được từ API
                 setServiceNames((prevServiceNames) => ({
                   ...prevServiceNames,
@@ -968,6 +1007,11 @@ const ModalEdit = ({
                                   ? colors.redAccent[600]
                                   : edit.rescueType === "Towing"
                               }
+                              color={
+                                edit.rescueType === "Towing"
+                                  ? colors.redAccent[300]
+                                  : colors.yellowAccent[700]
+                              }
                             >
                               {edit.rescueType === "Towing" && <SupportIcon />}
                               {edit.rescueType === "Fixing" && <HandymanIcon />}
@@ -975,7 +1019,11 @@ const ModalEdit = ({
                                 color="black"
                                 sx={{ fontWeight: "bold" }}
                               >
-                                {edit.rescueType}
+                                {edit.rescueType === "Towing"
+                                  ? "Kéo Xe"
+                                  : edit.rescueType === "Fixing"
+                                  ? "Sữa Chữa Tại Chỗ"
+                                  : edit.rescueType}
                               </Typography>
                             </Box>
                           </Typography>
@@ -1160,10 +1208,14 @@ const ModalEdit = ({
                               }
                             >
                               <Typography
-                                color="black"
+                                color="white"
                                 sx={{ fontWeight: "bold" }}
                               >
-                                {dataOrder[edit.id]?.method || "Đang tải..."}
+                                {dataOrder[edit.id]?.method === "Cash"
+                                  ? "Tiền mặt"
+                                  : dataOrder[edit.id]?.method === "Banking"
+                                  ? "Chuyển khoản"
+                                  : "Đang tải..."}
                               </Typography>
                             </Box>
                             <Typography
@@ -1175,8 +1227,10 @@ const ModalEdit = ({
                               }}
                             ></Typography>
                           </Typography>
-                
+
                           {/* List all servicers choose */}
+
+                          {/* List all service */}
                           <Typography
                             variant="body1"
                             component="p"
@@ -1187,7 +1241,7 @@ const ModalEdit = ({
                               marginRight: "2px",
                             }}
                           >
-                            <AddShoppingCartIcon style={iconColor} />{" "}
+                            <AssignmentIcon style={iconColor} />{" "}
                             <strong>Dịch vụ đã chọn:</strong>{" "}
                             <Typography
                               variant="h6"
@@ -1202,13 +1256,13 @@ const ModalEdit = ({
                                     (serviceData, index) => {
                                       const allServices = serviceData.map(
                                         (
-                                          { serviceName, quantity },
+                                          { serviceName, updatedQuantity },
                                           innerIndex
                                         ) => (
                                           <React.Fragment key={innerIndex}>
                                             {serviceName ||
                                               "Không có thông tin"}{" "}
-                                            ({quantity})
+                                            ({updatedQuantity})
                                             {innerIndex <
                                               serviceData.length - 1 && ", "}
                                           </React.Fragment>
@@ -1229,8 +1283,6 @@ const ModalEdit = ({
                                 : "Không có thông tin"}
                             </Typography>
                           </Typography>
-
-                          
                         </CardContent>
                       </Card>
                     </>
@@ -1452,7 +1504,7 @@ const ModalEdit = ({
                                       marginBottom: 1, // Thêm khoảng cách dưới cùng cho mỗi Box
                                     }}
                                   >
-                                    <SourceRoundedIcon style={iconColor} />
+                                    <PersonRoundedIcon style={iconColor} />
                                     <Typography variant="body1">
                                       Tên Chủ Xe:{" "}
                                       {fullnameRvo[vehicleDetails.rvoid]}
@@ -1468,7 +1520,7 @@ const ModalEdit = ({
                                   >
                                     <SourceRoundedIcon style={iconColor} />
                                     <Typography variant="body1">
-                                      Mã xe: {vehicleDetails.vinNumber}
+                                      Biển số xe: {vehicleDetails.vinNumber}
                                     </Typography>
                                   </Box>
                                   <Box
@@ -1481,7 +1533,7 @@ const ModalEdit = ({
                                   >
                                     <ReceiptRoundedIcon style={iconColor} />
                                     <Typography variant="body1">
-                                      Biển số xe: {vehicleDetails.licensePlate}
+                                      Mã xe:{vehicleDetails.licensePlate}
                                     </Typography>
                                   </Box>
                                   <Box
@@ -1591,12 +1643,11 @@ const ModalEdit = ({
                           gap: 2,
                         }}
                       >
-                      
                         <Box
                           sx={{
                             display: "flex",
                             flexDirection: "column",
-                            gap: "10px", 
+                            gap: "10px",
                           }}
                         >
                           <Box
@@ -1678,7 +1729,7 @@ const ModalEdit = ({
                               gap: 1,
                             }}
                           >
-                            <CalendarTodayIcon style={iconColor} />
+                            <ColorLensIcon style={iconColor} />
                             <Typography variant="h6">Màu: </Typography>
                             {dataCar[edit.carId]?.color || "Đang tải..."}
                           </Box>
