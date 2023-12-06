@@ -406,42 +406,42 @@ const OrdersAssigning = (props) => {
       },
     },
 
-    {
-      field: "update",
-      headerName: "Cập Nhật",
-      width: 100,
-      renderCell: (params) => (
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            "&:hover": {
-              cursor: "pointer",
-              // Thay đổi màu sắc hoặc hiệu ứng khác khi hover vào Box
-              backgroundColor:"lightgray",
+    // {
+    //   field: "update",
+    //   headerName: "Cập Nhật",
+    //   width: 100,
+    //   renderCell: (params) => (
+    //     <Box
+    //       sx={{
+    //         display: "flex",
+    //         alignItems: "center",
+    //         "&:hover": {
+    //           cursor: "pointer",
+    //           // Thay đổi màu sắc hoặc hiệu ứng khác khi hover vào Box
+    //           backgroundColor:"lightgray",
 
-              borderRadius: "4px",
-            },
-          }}
-        >
-          <IconButton
-            onClick={() => handleUpdateClick(params.row.id)}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-          >
-            <Edit style={{ color: "indigo" }} />
-            <Typography
-              variant="body1"
-              sx={{ fontWeight: "bold", marginLeft: "5px" }}
-              onClick={() => handleUpdateClick(params.row.id)}
-            >
-              {"Cập Nhật"}
-            </Typography>
-          </IconButton>
-        </Box>
-      ),
-      key: "update",
-    },
+    //           borderRadius: "4px",
+    //         },
+    //       }}
+    //     >
+    //       <IconButton
+    //         onClick={() => handleUpdateClick(params.row.id)}
+    //         onMouseEnter={() => setIsHovered(true)}
+    //         onMouseLeave={() => setIsHovered(false)}
+    //       >
+    //         <Edit style={{ color: "indigo" }} />
+    //         <Typography
+    //           variant="body1"
+    //           sx={{ fontWeight: "bold", marginLeft: "5px" }}
+    //           onClick={() => handleUpdateClick(params.row.id)}
+    //         >
+    //           {"Cập Nhật"}
+    //         </Typography>
+    //       </IconButton>
+    //     </Box>
+    //   ),
+    //   key: "update",
+    // },
     {
       field: "orderDetails",
       headerName: "Chi Tiết Đơn Hàng",

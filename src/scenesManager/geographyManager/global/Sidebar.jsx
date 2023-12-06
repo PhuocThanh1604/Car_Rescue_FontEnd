@@ -461,8 +461,15 @@ const Sidebar = ({ selectedWalletId, selectedItemId }) => {
               setSelected={setSelected}
             />{" "}
             <Item
-              title="Mẫu Xe"
+              title="Danh Sách Mẫu Xe"
               to="manager/modelCar"
+              icon={<ListIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />{" "}
+               <Item
+              title="Danh Sách Hiện Tượng"
+              to="manager/symptom"
               icon={<ListIcon />}
               selected={selected}
               setSelected={setSelected}
@@ -539,6 +546,13 @@ const Sidebar = ({ selectedWalletId, selectedItemId }) => {
               selected={selected}
               setSelected={setSelected}
             />{" "}
+             <Item
+              title="Google Map"
+              to="manager/googlemap"
+              icon={<CategoryIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
  
             {/* <Item
               title="Tạo Đơn Hàng Offline"

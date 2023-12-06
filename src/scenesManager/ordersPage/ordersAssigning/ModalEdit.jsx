@@ -21,6 +21,10 @@ import {
   createChangeTypeRescue,
   fetchOrdersAssigned,
 } from "../../../redux/orderSlice";
+import PlacesAutocomplete, {
+  geocodeByAddress,
+  getLatLng,
+} from "react-places-autocomplete";
 
 const ModalEdit = ({
   openEditModal,
@@ -38,8 +42,12 @@ const ModalEdit = ({
   const [loading, setLoading] = useState(false);
   const [filteredOrders, setFilteredOrders] = useState([]);
   const [typeRescue, setTypeRescue] = useState("");
-
-  //check value rescue type
+  const [isRescueTypeSelected, setIsRescueTypeSelected] = useState(false);
+  const [selectedRescueType, setSelectedRescueType] = useState("");
+  //display distance after user input destination
+  const [isDestinationSelected, setIsDestinationSelected] = useState(false);
+  const [address, setAddress] = useState(""); // Thêm trường address
+  const [addressDestination, setAddressDestination] = useState("");
   const checkRescueTypeChange = (event) => {
     const newRescueType = event.target.value;
 
@@ -106,17 +114,16 @@ const ModalEdit = ({
     }
     const selectedType = typeRescue;
     const selectedOrderId = edit.id;
-    console.log(selectedType);
 
     if (!selectedOrderId) {
       console.error("No orderId to reload details for.");
       toast.error("No valid order ID found.");
       return;
     }
-    // Tạo một bản sao của đối tượng `edit` với tên dịch vụ
+
     const updatedEdit = {
-      orderID: selectedOrderId, // Lấy id của đơn hàng
-      type: selectedType, // Lưu tên dịch vụ vào thuộc tính `service` hoặc tùy chỉnh tên thuộc tính tương ứng trong đối tượng `edit`
+      orderID: selectedOrderId,
+      type: selectedType,
     };
 
     // Kiểm tra xem có sự thay đổi trong dữ liệu so với dữ liệu ban đầu
@@ -130,7 +137,7 @@ const ModalEdit = ({
       // Gửi yêu cầu cập nhật lên máy chủ
       dispatch(createChangeTypeRescue(updatedEdit))
         .then((response) => {
-          console.log(response)
+          console.log(response);
           if (response.payload.status === 201) {
             toast.success("Thay đổi loại cứu hộ thành công.");
             handleClose();
@@ -149,7 +156,6 @@ const ModalEdit = ({
             // Xử lý các trường hợp lỗi khác (nếu có)
             toast.error("Hủy đơn không thành công");
           }
-       
         })
         .catch((error) => {
           if (error.response && error.response.data) {
@@ -246,14 +252,91 @@ const ModalEdit = ({
                       }}
                       fullWidth
                       margin="normal"
-                      style={{ display: "none" }}
+                    />
+                    <TextField
+                      name="id"
+                      label="departure"
+                      value={edit.departure}
+                      onChange={(event) => {
+                        // Check if it's coming from selectedEditRescuseVehicleOwner and prevent changes
+                        if (!selectedEditOrder) {
+                          handleInputChange(event);
+                        }
+                      }}
+                      fullWidth
+                      margin="normal"
+                    />
+                    <TextField
+                      name="id"
+                      label="destination"
+                      value={edit.destination}
+                      onChange={(event) => {
+                        // Check if it's coming from selectedEditRescuseVehicleOwner and prevent changes
+                        if (!selectedEditOrder) {
+                          handleInputChange(event);
+                        }
+                      }}
+                      fullWidth
+                      margin="normal"
+                    />
+                    <TextField
+                      name="id"
+                      label="distance"
+                      value={edit.distance}
+                      onChange={(event) => {
+                        // Check if it's coming from selectedEditRescuseVehicleOwner and prevent changes
+                        if (!selectedEditOrder) {
+                          handleInputChange(event);
+                        }
+                      }}
+                      fullWidth
+                      margin="normal"
+                    />
+                    <TextField
+                      name="id"
+                      label="rescueType"
+                      value={edit.rescueType}
+                      onChange={(event) => {
+                        // Check if it's coming from selectedEditRescuseVehicleOwner and prevent changes
+                        if (!selectedEditOrder) {
+                          handleInputChange(event);
+                        }
+                      }}
+                      fullWidth
+                      margin="normal"
+                    />
+                    <TextField
+                      name="id"
+                      label="paymentMethod"
+                      value={edit.paymentId}
+                      onChange={(event) => {
+                        // Check if it's coming from selectedEditRescuseVehicleOwner and prevent changes
+                        if (!selectedEditOrder) {
+                          handleInputChange(event);
+                        }
+                      }}
+                      fullWidth
+                      margin="normal"
+                    />
+                    <TextField
+                      name="id"
+                      label="indicentId"
+                      value={edit.indicentId}
+                      onChange={(event) => {
+                        // Check if it's coming from selectedEditRescuseVehicleOwner and prevent changes
+                        if (!selectedEditOrder) {
+                          handleInputChange(event);
+                        }
+                      }}
+                      fullWidth
+                      margin="normal"
                     />
 
                     <Typography sx={{ display: "none" }}>
                       {selectedEditOrder.rescueType}
                     </Typography>
-                
-                    <FormControl fullWidth >
+
+                    {/* <FormControl fullWidth >
                       <InputLabel id="rescueType-label">
                         Loại Hình Thức Cứu Hộ
                       </InputLabel>
@@ -269,7 +352,157 @@ const ModalEdit = ({
                         <MenuItem value="Towing">Xe Kéo</MenuItem>
                         <MenuItem value="Fixing">Sửa Tại Chỗ Cơ Bản</MenuItem>
                       </Select>
+                    </FormControl> */}
+
+                    <FormControl fullWidth>
+                      <InputLabel id="rescueType-label">
+                        Loại Hình Thức Cứu Hộ
+                      </InputLabel>
+                      <Select
+                        labelId="rescueType-label"
+                        id="rescueType"
+                        name="rescueType"
+                        label="Loại Hình Thức Cứu Hộ"
+                        variant="outlined"
+                        value={typeRescue}
+                        onChange={(event) => {
+                          checkRescueTypeChange()
+                          setIsRescueTypeSelected(event.target.value !== ""); // Cập nhật trạng thái
+                          setSelectedRescueType(event.target.value);
+                        }}
+                   
+                      >
+                        <MenuItem value="Towing">Xe Kéo</MenuItem>
+                        <MenuItem value="Fixing">Sửa Tại Chỗ Cơ Bản</MenuItem>
+                      </Select>
                     </FormControl>
+
+                    <PlacesAutocomplete
+                      value={edit.departure}
+                      onChange={setAddress}
+                      // onSelect={handleMapLocationSelected}
+                      sx={{ gridColumn: "span 2", width: "80vw" }}
+                    >
+                      {({
+                        getInputProps,
+                        suggestions,
+                        getSuggestionItemProps,
+                      }) => (
+                        <div style={{ position: "relative" }}>
+                          <TextField
+                            {...getInputProps({
+                              placeholder: "Nhập địa chỉ xe hư",
+                              variant: "outlined",
+                              fullWidth: true,
+                            })}
+                          />
+                          <div
+                            style={{
+                              position: "absolute",
+                              top: "100%",
+                              left: 0,
+                              right: 0,
+                              zIndex: 1,
+                              maxHeight: "200px",
+                              overflowY: "auto",
+                              backgroundColor: "white",
+                              border: "1px solid #ccc",
+                            }}
+                          >
+                            {suggestions.map((suggestion, index) => {
+                              const style = {
+                                backgroundColor: suggestion.active
+                                  ? "#fafafa"
+                                  : "#fff",
+                              };
+                              return (
+                                <div
+                                  key={index}
+                                  {...getSuggestionItemProps(suggestion, {
+                                    style,
+                                  })}
+                                >
+                                  {suggestion.description}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+                    </PlacesAutocomplete>
+
+                    {selectedRescueType !== "Fixing" && (
+                      <div>
+                        <PlacesAutocomplete
+                          value={edit.destination}
+                          onChange={setAddressDestination}
+                          sx={{ gridColumn: "span 2", width: "80vw" }}
+                        >
+                          {({
+                            getInputProps,
+                            suggestions,
+                            getSuggestionItemProps,
+                          }) => (
+                            <div style={{ position: "relative" }}>
+                              <TextField
+                                {...getInputProps({
+                                  placeholder: "Nhập địa chỉ kéo đến",
+                                  variant: "outlined",
+                                  fullWidth: true,
+                                })}
+                              />
+                              <div
+                                style={{
+                                  position: "absolute",
+                                  top: "100%",
+                                  left: 0,
+                                  right: 0,
+                                  zIndex: 1,
+                                  maxHeight: "200px",
+                                  overflowY: "auto",
+                                  backgroundColor: "white",
+                                  border: "1px solid #ccc",
+                                }}
+                              >
+                                {suggestions.map((suggestion, index) => {
+                                  const style = {
+                                    backgroundColor: suggestion.active
+                                      ? "#fafafa"
+                                      : "#fff",
+                                  };
+                                  return (
+                                    <div
+                                      key={index}
+                                      {...getSuggestionItemProps(suggestion, {
+                                        style,
+                                      })}
+                                    >
+                                      {suggestion.description}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          )}
+                        </PlacesAutocomplete>
+                      </div>
+                    )}
+
+                    {isDestinationSelected && (
+                      <TextField
+                        fullWidth
+                        variant="outlined"
+                        type="text"
+                        label="Khoảng cách "
+                        value={edit.distance}
+                        name="distance"
+                        sx={{
+                          gridColumn: "span 1",
+                          display:
+                            selectedRescueType === "Fixing" ? "none" : "block",
+                        }}
+                      />
+                    )}
                   </CardContent>
 
                   <Box
@@ -289,7 +522,6 @@ const ModalEdit = ({
                   </Box>
                 </Card>
               )}
-         
             </Box>
           </Box>
         </Fade>

@@ -203,7 +203,7 @@ const Sidebar = () => {
               variant="h6"
               color={colors.grey[300]}
               sx={{ m: '15px 0 5px 20px' }}>
-              Data
+              Dữ liệu
             </Typography>
             <Item
               title="Khách Hàng"
@@ -250,6 +250,13 @@ const Sidebar = () => {
              <Item
               title="Tạo Tài Khoản"
               to="admin/add/account"
+              icon={<PersonOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+                <Item
+              title="Tạo Khách Hàng"
+              to="admin/add/customer"
               icon={<PersonOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}

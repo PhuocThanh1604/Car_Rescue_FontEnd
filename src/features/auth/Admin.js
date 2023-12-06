@@ -23,6 +23,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import UpdateTechnician from "../../scenes/update_Technician";
 import UpdateProfileAmdin from "../../scenes/updateProfile";
 import Accounts from "../../scenes/account";
+import AddCustomer from "../../scenes/create_Customer";
 
 
 const Admin = () => {
@@ -57,6 +58,7 @@ const Admin = () => {
                   <Route path="/admin/add/carVihecileOwner" element={<AddRescueVehicleOwner />} />
                   <Route path="/admin/add/technician" element={<AddTechnian />} />
                   <Route path="/admin/add/manager" element={<AddManager />} />
+                  <Route path="/admin/add/customer" element={<AddCustomer />} />
                   <Route path="/admin/edit/updateTechnician" element={<UpdateTechnician />} />
                   {/* <Route path="/admin/add/customer" element={<AddCustomer />} /> */}
                   <Route path="/admin/update/profile" element={<UpdateProfileAmdin />} />

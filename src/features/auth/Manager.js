@@ -44,6 +44,8 @@ import AddModelCar from "../../scenesManager/create_ModelCar";
 import { onMessageListener } from "../../firebase";
 import Reports from "../../scenesManager/reportRescueCarOwner";
 import ListReports from "../../scenesManager/listReportRescueCarOwner";
+import Symptoms from "../../scenesManager/symptom";
+import AddSymptom from "../../scenesManager/create_Symtom";
 
 const Manager = () => {
   const user = useSelector(selectCurrentUser);
@@ -109,6 +111,7 @@ const Manager = () => {
                 <Route path="/manager/payments" element={<Payment />} />
                 <Route path="/manager/reports" element={<Reports />} />
                 <Route path="/manager/listReport" element={<ListReports />} />
+                <Route path="/manager/symptom" element={<Symptoms />} />
                 {/* <Route path="/manager/invoices" element={<Invoices />} /> */}
                 <Route
                   path="/manager/invoices/:id"
@@ -178,6 +181,7 @@ const Manager = () => {
                 <Route path="/manager/add/customer" element={<AddCustomer />} />
                 <Route path="/manager/add/service" element={<AddService />} />
                 <Route path="/manager/add/modelCar" element={<AddModelCar />} />
+                <Route path="/manager/add/symptom" element={<AddSymptom />} />
                 <Route
                   path="/manager/add/orderOffline"
                   element={<CreateOrderOffline />}

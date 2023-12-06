@@ -24,11 +24,12 @@ import "react-toastify/dist/ReactToastify.css";
 import LocalPhoneIcon from "@mui/icons-material/LocalPhone";
 import AddIcon from "@mui/icons-material/Add";
 import {
+  createIncidentForFixing,
   createOrderOffline,
   createOrderOfflineFixing,
   sendSMS,
 } from "../../redux/orderSlice";
-import { fetchServices } from "../../redux/serviceSlice";
+import { fetchServices, fetchSymptom } from "../../redux/serviceSlice";
 import { fetchCustomers } from "../../redux/customerSlice";
 import EditLocationAltIcon from "@mui/icons-material/EditLocationAlt";
 import PlacesAutocomplete, {
@@ -42,8 +43,10 @@ const CreateOrderOffline = () => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
   const [loading, setLoading] = useState(false);
   const [selectedService, setSelectedService] = useState(null);
+  const [selectedSymptom, setSelectedSymptom] = useState(null);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [servicesData, setServicesData] = useState([]);
+  const [symptomData, setSymptomData] = useState([]);
   const [customersData, setCustomersData] = useState([]);
   const [showMapModal, setShowMapModal] = useState(false);
   const [address, setAddress] = useState(""); // Thêm trường address
@@ -194,6 +197,7 @@ const CreateOrderOffline = () => {
       customerId: yup.string().required("Required"),
       carId: yup.string(),
       service: yup.string().required("Required"),
+      symptomId: yup.string().required("Required"),
     };
 
     if (selectedRescueType !== "Fixing") {
@@ -224,6 +228,7 @@ const CreateOrderOffline = () => {
     area: "",
     customerId: "",
     service: [],
+    symptomId: "",
     carId: "",
   };
 
@@ -263,11 +268,14 @@ const CreateOrderOffline = () => {
     const initialPhoneNumber = "+84";
     const customer_name = values.nameCustomer;
     const service = values.service;
+    const symptom = values.symptom;
     const order_phone = initialPhoneNumber + values.to;
     const type_payment = values.paymentMethod;
     const sms_message = `Xin chào ${customer_name}!  \nDịch vụ: ${service}\nĐơn hàng: ${order_phone} 
      của bạn đã được nhận và đang được xử lý. Hình thức thanh toán: ${type_payment}. Cảm ơn bạn đã mua hàng!`;
 
+
+ 
     if (selectedRescueType === "Fixing") {
       // Loại bỏ distance và destination khỏi values nếu là loại Fixing
       const { distance, destination, ...submissionValues } = values;
@@ -279,6 +287,38 @@ const CreateOrderOffline = () => {
           if (response.payload.message === "Hiện tại không kĩ thuật viên") {
             toast.warn("Hiện tại không có kỹ thuật viên vui lòng đợi");
           } else {
+            const { customerNote,service,nameCustomer,to, ...submissionValuesIncident } = values;
+       
+            console.log("submissionIncidentValues" + submissionValuesIncident);
+            dispatch(createIncidentForFixing(submissionValuesIncident))
+              .then((response) => {
+                console.log("Create Incident:"+response.payload.data);
+                if (
+                  response.payload.message === "Hiện tại không kĩ thuật viên"
+                ) {
+                  toast.warn("Hiện tại không có kỹ thuật viên vui lòng đợi");
+                } else {
+                  toast.success("Tạo Đơn Hàng Fixing Thành Công");
+                  formikRef.current.setFieldValue("to", "");
+                  formikRef.current.setFieldValue("nameCustomer", "");
+                  formikRef.current.resetForm();
+                  setSelectedService(null);
+                  setSelectedSymptom(null);
+                  setAddress("");
+                  setAddressDestination("");
+                }
+              })
+              .catch((error) => {
+                if (error.response && error.response.data) {
+                  toast.error(
+                    `Lỗi khi tạo đơn hàng incident Offline : ${error.response.data.message}`
+                  );
+                } else {
+                  toast.error("Lỗi khi lỗi khi tạo đơn hàng trực Offline");
+                }
+              });
+
+            //push noti
             const smsData = {
               to: order_phone,
               body: sms_message,
@@ -290,12 +330,12 @@ const CreateOrderOffline = () => {
               .catch((smsError) => {
                 console.error("Lỗi khi gửi tin nhắn SMS:", smsError);
               });
-            toast.success("Tạo Đơn Hàng Fixing Thành Công");
           }
           formikRef.current.setFieldValue("to", "");
           formikRef.current.setFieldValue("nameCustomer", "");
           formikRef.current.resetForm();
           setSelectedService(null);
+          setSelectedSymptom(null);
           setAddress("");
           setAddressDestination("");
         })
@@ -341,6 +381,7 @@ const CreateOrderOffline = () => {
           formikRef.current.setFieldValue("distance", "");
           formikRef.current.resetForm();
           setSelectedService(null);
+          setSelectedSymptom(null);
           setAddress("");
           setAddressDestination("");
         })
@@ -362,19 +403,21 @@ const CreateOrderOffline = () => {
     }
   };
   useEffect(() => {
-    // Reset the selected service when the rescue type changes
     setSelectedService(null);
+    setSelectedSymptom(null);
   }, [selectedRescueType]);
 
   useEffect(() => {
     const fetchServicesAndCustomers = async () => {
       try {
         const servicesResponse = await dispatch(fetchServices());
+        const servicesSymptom = await dispatch(fetchSymptom());
         const customersResponse = await dispatch(fetchCustomers());
 
         const services = servicesResponse.payload.data;
         const customers = customersResponse.payload.data;
-
+        const symptom = servicesSymptom.payload.data;
+        setSymptomData(symptom);
         if (services) {
           // Lọc dịch vụ theo trạng thái "ACTIVE"
           const activeService = services.filter(
@@ -434,9 +477,8 @@ const CreateOrderOffline = () => {
               justifyContent="left"
               alignItems="center"
               mb="20px"
-             
             >
-              <Button 
+              <Button
                 type="submit"
                 color="secondary"
                 variant="contained"
@@ -446,7 +488,7 @@ const CreateOrderOffline = () => {
                   "& .MuiSvgIcon-root": {
                     color: "black", // Change 'blue' to your desired icon color
                     marginLeft: "4px", // Adjust the space between icon and text
-                    fontWeight:"bold"
+                    fontWeight: "bold",
                   },
                 }}
               >
@@ -463,13 +505,11 @@ const CreateOrderOffline = () => {
             >
               <TextField
                 fullWidth
-               variant="outlined"
+                variant="outlined"
                 type="text"
-                label="Ghi Chú Từ Khách Hàng"
                 onBlur={handleBlur}
                 onChange={handleChange}
                 value={values.carId}
-                name="customerNote"
                 error={
                   touched.customerNote && errors.customerNote ? true : false
                 }
@@ -478,7 +518,7 @@ const CreateOrderOffline = () => {
               />
               <TextField
                 fullWidth
-               variant="outlined"
+                variant="outlined"
                 type="text"
                 label="Ghi Chú Từ Khách Hàng"
                 onBlur={handleBlur}
@@ -493,7 +533,7 @@ const CreateOrderOffline = () => {
               />
               <TextField
                 fullWidth
-               variant="outlined"
+                variant="outlined"
                 type="text"
                 label="Tên Khách Hàng"
                 onBlur={handleBlur}
@@ -540,21 +580,8 @@ const CreateOrderOffline = () => {
                 helperText={touched.to && errors.to}
                 sx={{ gridColumn: "span 2" }}
               />
-              {/* <TextField
-                fullWidth
-               variant="outlined"
-                type="text"
-                label="SĐT Khách Hàng"
-                onBlur={handleBlur}
-                onChange={handleChange}
-                value={values.to}
-                name="to"
-                error={touched.to && errors.to ? true : false}
-                helperText={touched.to && errors.to}
-                sx={{ gridColumn: "span 2" }}
-              /> */}
-   
-              <FormControl fullWidth >
+
+              <FormControl fullWidth>
                 <InputLabel id="rescueType-label">
                   Loại Hình Thức Cứu Hộ
                 </InputLabel>
@@ -593,13 +620,43 @@ const CreateOrderOffline = () => {
                   <TextField
                     {...params}
                     label="Danh Sách Dịch Vụ"
-                   variant="outlined"
+                    variant="outlined"
                     onBlur={handleBlur}
                     error={touched.service && errors.service ? true : false}
                     helperText={touched.service && errors.service}
                   />
                 )}
               />
+              {selectedRescueType === "Fixing" && (
+                <div>
+                  <Autocomplete
+                    id="service-select"
+                    disabled={!isRescueTypeSelected}
+                    options={symptomData}
+                    getOptionLabel={(option) =>
+                      option.symptom1 || "Default Name"
+                    }
+                    value={selectedSymptom}
+                    onChange={(_, newValue) => {
+                      setSelectedSymptom(newValue);
+                      const selectedServiceName = newValue
+                        ? newValue.id
+                        : "";
+                      handleChange("symptomId")(selectedServiceName);
+                    }}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Danh Sách Hiện Tượng"
+                        variant="outlined"
+                        onBlur={handleBlur}
+                        error={touched.symptomId && errors.symptomId ? true : false}
+                        helperText={touched.symptomId && errors.symptomId}
+                      />
+                    )}
+                  />
+                </div>
+              )}
 
               <div style={{ display: "none" }}>
                 <Autocomplete
@@ -619,7 +676,7 @@ const CreateOrderOffline = () => {
                     <TextField
                       {...params}
                       label="Danh Sách Khách Hàng"
-                     variant="outlined"
+                      variant="outlined"
                       onBlur={handleBlur}
                       error={
                         touched.customerId && errors.customerId ? true : false
@@ -643,7 +700,7 @@ const CreateOrderOffline = () => {
                 <Map onLocationSelected={handleMapLocationSelected} />
               </Modal>
 
-              <FormControl fullWidth >
+              <FormControl fullWidth>
                 <InputLabel id="area-label">Khu Vực</InputLabel>
                 <Select
                   labelId="area-label"
@@ -682,20 +739,6 @@ const CreateOrderOffline = () => {
                 </Select>
               </FormControl>
 
-              {/* <TextField
-                fullWidth
-               variant="outlined"
-                type="text"
-                label="Khoảng cách "
-                onBlur={handleBlur}
-                onChange={handleChange}
-                value={values.distance}
-                name="distance"
-                error={touched.distance && errors.distance ? true : false}
-                helperText={touched.distance && errors.distance}
-                sx={{ gridColumn: "span 1" }}
-              /> */}
-
               <PlacesAutocomplete
                 value={address}
                 onChange={setAddress}
@@ -728,7 +771,6 @@ const CreateOrderOffline = () => {
                         maxHeight: "200px",
                         overflowY: "auto",
                         backgroundColor: "white",
-                        border: "1px solid #ccc",
                       }}
                     >
                       {suggestions.map((suggestion, index) => {
@@ -789,7 +831,6 @@ const CreateOrderOffline = () => {
                             maxHeight: "200px",
                             overflowY: "auto",
                             backgroundColor: "white",
-                            border: "1px solid #ccc",
                           }}
                         >
                           {suggestions.map((suggestion, index) => {
@@ -819,7 +860,7 @@ const CreateOrderOffline = () => {
               {isDestinationSelected && (
                 <TextField
                   fullWidth
-                 variant="outlined"
+                  variant="outlined"
                   type="text"
                   label="Khoảng cách "
                   onBlur={handleBlur}

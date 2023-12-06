@@ -612,6 +612,28 @@ export const getCarById = createAsyncThunk(
     }
   }
 );
+
+export const createIncidentForFixing = createAsyncThunk(
+  "orders/createIncidentForFixing",
+  async (data) => {
+    try {
+      const res = await axios.post(
+        "https://rescuecapstoneapi.azurewebsites.net/api/Incident/CreateIncident",
+        data,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log(data);
+      return res.data;
+    } catch (error) {
+      console.error("Failed to create Incident for Order fixing:", error.response);
+      throw error.response.data || error.message;
+    }
+  }
+);
 const orderSlice = createSlice({
   name: "order",
   initialState: {
@@ -763,6 +785,15 @@ const orderSlice = createSlice({
         state.status = "loading";
       })
       .addCase(createOrderOfflineFixing.rejected, (state, action) => {
+        state.status = "error";
+      })
+      .addCase(createIncidentForFixing.fulfilled, (state, action) => {
+        state.orders.push(action.payload);
+      })
+      .addCase(createIncidentForFixing.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(createIncidentForFixing.rejected, (state, action) => {
         state.status = "error";
       })
       .addCase(getFormattedAddressMapbox.fulfilled, (state, action) => {

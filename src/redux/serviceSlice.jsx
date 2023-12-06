@@ -72,19 +72,78 @@ export const editService = createAsyncThunk(
     }
   }
 );
-export const deleteService = createAsyncThunk(
-  'services/delete',
-  async ({ id }) => {
+
+//Symptom
+export const createSymptom = createAsyncThunk(
+  'services/createSymptom',
+  async (symptom) => {
     try {
-      const response = await axios.delete(`https://secondhandbookstoreapi.azurewebsites.net/api/Books/Delete/${id}`);
-      const data = response.data;
-      return data;
+      const id = uuidv4();
+      const symptomData = {
+        ...symptom,
+        id: id,
+      };
+      const res = await axios.post('https://rescuecapstoneapi.azurewebsites.net/api/Symptom/Create', symptomData , {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      return res.data;
     } catch (error) {
-      console.error('Failed to delete service:', error.response);
+      console.error('Failed to create symptom :', error.response);
       throw error.response.data || error.message;
     }
   }
 );
+export const fetchSymptom = createAsyncThunk(
+  'services/fetchSymptom',
+  async () => {
+    try {
+      const response = await axios.get(
+        'https://rescuecapstoneapi.azurewebsites.net/api/Symptom/GetAllSymptom'
+      );
+      const data = response.data;
+      return data;
+    } catch (error) {
+      console.error('Failed to retrieve symptom:', error.response);
+      throw error.response.data || error.message;
+    }
+  }
+);
+export const getSymptomId = createAsyncThunk('service/getServiceId', async ({ id }) => {
+  try {
+    const response = await axios.get(`https://rescuecapstoneapi.azurewebsites.net/api/Symptom/Get?id=${id}`);
+    const data = response.data;
+    console.log(data);
+    return data;
+  } catch (error) {
+    console.error('Failed to get Symptom by Id :', error.response);
+    throw error.response.data || error.message;
+  }
+});
+export const editSymptom = createAsyncThunk(
+  'services/edit',
+  async ({ data }) => {
+    try {
+
+      const res = await axios.put(
+        `https://rescuecapstoneapi.azurewebsites.net/api/Symptom/Update`, // Assuming you need to provide the customer ID for editing
+        data,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      console.log("dữ liệu đã sửa symptom đã gửi" +data)
+      return res.data;
+    } catch (error) {
+      console.error('Failed to update symptom:', error.response);
+      throw error.response.data || error.message;
+    }
+  }
+);
+
 
 const serviceSlice = createSlice({
   name: 'service',
@@ -125,17 +184,28 @@ const serviceSlice = createSlice({
       })
       .addCase(editService.fulfilled, (state, action) => {
         state.services = action.payload.data;
-       })
-       .addCase(editService.pending, (state) => {
+      })
+      .addCase(editService.pending, (state) => {
         state.status = 'loading';
       })
-       .addCase(editService.rejected, (state, action) => {
+      .addCase(editService.rejected, (state, action) => {
         state.status = 'error';
       })
-       .addCase(getServiceId.fulfilled, (state, action) => {
-        state.serviceData = action.payload.data; 
+      .addCase(getServiceId.fulfilled, (state, action) => {
+        state.serviceData = action.payload.data;
       })
-    
+.addMatcher(
+        (action) => action.type.includes('Symptom'),
+        (state, action) => {
+          if (action.type.endsWith('/fulfilled')) {
+            state.services = action.payload.data;
+          } else if (action.type.endsWith('/pending')) {
+            state.status = 'loading';
+          } else if (action.type.endsWith('/rejected')) {
+            state.status = 'error';
+          }
+        }
+      )
   },
 });
 export const { setServices } = serviceSlice.actions;

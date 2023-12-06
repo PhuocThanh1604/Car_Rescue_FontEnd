@@ -7,6 +7,9 @@ import {
   Typography,
   Grid,
   CircularProgress,
+  FormControl,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import Header from "../../components/Header";
@@ -36,17 +39,12 @@ const ListReports = (props) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const iconColor = { color: colors.blueAccent[500] };
-  const [openEditModal, setOpenEditModal] = useState(false);
   const [searchText, setSearchText] = useState("");
-  const [filterOption, setFilterOption] = useState("Type");
+  const [filterOption, setFilterOption] = useState("Status"); 
   const [openModal, setOpenModal] = useState(false);
-  const [selectedBook, setSelectedBook] = useState(null);
-  const [selectedEditVehicle, setSelectedEditVehicle] = useState(null);
   const [filteredVehicles, setFilteredVehicles] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(8);
-  const [fullnameData, setFullnameData] = useState({});
-  const [isSuccess, setIsSuccess] = useState(false);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -54,80 +52,11 @@ const ListReports = (props) => {
   const [dataReport, setDataReport] = useState(null);
   const [initialFormState, setInitialFormState] = useState({});
   const [editStatus, setEditStatus] = useState({});
-  const [vehicleId, setVehicleId] = useState(null);
-  const [openConfirmModal, setOpenConfirmModal] = useState(false);
-  const [vehicleDetail, setVehicleDetail] = useState({});
   const [orderIds, setOrderIds] = useState([]);
-  const [collapse, setCollapse] = useState(false);
-  const [isAccepted, setIsAccepted] = useState(false);
-  const [selectedImage, setSelectedImage] = useState(null);
   const [selectedEditOrder, setSelectedEditOrder] = useState(null);
   const [dataFullnameOfCustomer, setDataFullnameOfCustomer] = useState({});
   
-  //img
-  const imageWidth = "400px";
-  const imageHeight = "300px";
 
-  const [activeStep, setActiveStep] = React.useState(0);
-  // const maxSteps = images.length;
-  const handleStepChange = (step) => {
-    setActiveStep(step);
-  };
-  const handleClick = () => {
-    setCollapse(!collapse);
-  };
-
-  const handleConfirm = (orderId) => {
-    console.log(orderId);
-    // Make sure you have a check to prevent unnecessary API calls
-    if (orderId) {
-      console.log(orderId);
-      dispatch(getReportById({ id: orderId }))
-        .then((response) => {
-          const data = response.payload.data;
-          console.log(data);
-          if (data) {
-            setVehicleId(data.id);
-            setVehicleDetail(data);
-            // fetchRescueVehicleOwner(data.rvoid)
-            setOpenConfirmModal(true);
-            // reloadVehicle();
-          } else {
-            console.error("Service name not found in the API response.");
-          }
-        })
-        .catch((error) => {
-          console.error("Error while fetching service data:", error);
-        });
-    }
-  };
-
-  //Hủy đăng kí xe
-  const handleCancel = () => {
-    // Đóng modal và đặt lại orderId
-    setOpenConfirmModal(false);
-    setVehicleId(null);
-  };
-
-  //Reload data after accept resgistration vehicle
-
-  const reloadVehicle = () => {
-    dispatch(getReportAllNew())
-      .then((response) => {
-        const data = response.payload.data;
-
-        if (data) {
-          setFilteredVehicles(data);
-
-          // Đặt loading thành false sau khi tải lại dữ liệu
-          setLoading(false);
-          console.log("Services reloaded:", data);
-        }
-      })
-      .catch((error) => {
-        console.error("Lỗi khi tải lại danh sách báo cáo:", error);
-      });
-  };
   //Chấp nhận order
 
   const handleSearchChange = (event) => {
@@ -135,21 +64,6 @@ const ListReports = (props) => {
     setSearchText(value);
   };
 
-  const handleFilterChange = (event) => {
-    const selectedStatusOption = event.target.value;
-    setFilterOption(selectedStatusOption);
-
-    if (selectedStatusOption === "type") {
-      // Hiển thị tất cả các trạng thái
-      setFilteredVehicles(rescueVehicleOwners); // Sử dụng dữ liệu gốc khi không lọc
-    } else {
-      // Lọc dữ liệu gốc dựa trên giá trị trạng thái
-      const filteredVehicles = rescueVehicleOwners.filter(
-        (vehicle) => vehicle.type === selectedStatusOption
-      );
-      setFilteredVehicles(filteredVehicles);
-    }
-  };
   const handleDateFilterChange = () => {
     if (startDate && endDate) {
       // Format startDate and endDate to the beginning of the day in the specified time zone
@@ -223,24 +137,32 @@ const ListReports = (props) => {
       });
   };
   // Thay đổi hàm useEffect để lọc từ dữ liệu gốc
-  useEffect(() => {
-    if (Array.isArray(rescueVehicleOwners)) {
-      const filteredVehicles = rescueVehicleOwners.filter((vehicle) => {
-        const nameMatch =
-          vehicle.vinNumber &&
-          vehicle.vinNumber.toLowerCase().includes(searchText.toLowerCase());
-        const filterMatch =
-          filterOption === "Type" ||
-          (filterOption === "Xe cẩu" && vehicle.type === "Xe cẩu") ||
-          (filterOption === "Xe chở" && vehicle.type === "Xe chở") ||
-          (filterOption === "Xe kéo" && vehicle.type === "Xe kéo");
-        return nameMatch && filterMatch;
-      });
-      setFilteredVehicles(filteredVehicles);
-    } else {
-      setFilteredVehicles([]);
-    }
-  }, [rescueVehicleOwners, searchText, filterOption]);
+// Inside handleFilterChange function
+const handleFilterChange = (event) => {
+  const selectedStatusOption = event.target.value;
+  setFilterOption(selectedStatusOption);
+  setPage(0); // Reset to the first page when changing filters
+};
+
+// Inside useEffect
+useEffect(() => {
+  let updatedFilteredVehicles = [];
+
+  if (Array.isArray(rescueVehicleOwners)) {
+    updatedFilteredVehicles = rescueVehicleOwners.filter((vehicle) => {
+      const nameMatch =
+        vehicle.vinNumber &&
+        vehicle.vinNumber.toLowerCase().includes(searchText.toLowerCase());
+      const filterMatch =
+        filterOption === 'Status' || vehicle.status === 'FINISHED';
+
+      return nameMatch && filterMatch;
+    });
+  }
+
+  setFilteredVehicles(updatedFilteredVehicles);
+}, [rescueVehicleOwners, searchText, filterOption]);
+
 
 useEffect(() => {
   setLoading(true);
@@ -319,8 +241,6 @@ const fetchOrder = (orderId, uniqueKey) => {
   }
 };
 
-  
-
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -335,7 +255,7 @@ const fetchOrder = (orderId, uniqueKey) => {
     page * rowsPerPage + rowsPerPage
   );
 
-  // eslint-disable-next-line no-sparse-arrays
+  
   const columns = [
     {
       field: "id",
@@ -403,7 +323,7 @@ const fetchOrder = (orderId, uniqueKey) => {
             {status === "INACTIVE"
                 ? "Không Thành Công"
                 : status === "FINISHED"
-                ? "Hoàn Thành"
+                ? "Hoành Thành"
                 : status}
             </Typography>
           </Box>
@@ -477,7 +397,7 @@ const fetchOrder = (orderId, uniqueKey) => {
         </Box>
 
         <ToastContainer />
-        {/* <Box display="flex" alignItems="center" className="filter-box">
+        <Box display="flex" alignItems="center" className="filter-box">
           <FormControl fullWidth>
             <Select
               labelId="demo-simple-select-label"
@@ -487,21 +407,19 @@ const fetchOrder = (orderId, uniqueKey) => {
               variant="outlined"
               className="filter-select"
             >
-              <MenuItem key="type-all" value="Type">
-                Loại Xe
+              <MenuItem key="status-all" value="Status">
+                Trạng Thái
               </MenuItem>
-              <MenuItem key="type-crane" value="Xe kéo">
-                Xe Kéo
+              <MenuItem key="status-FINISHED" value="FINISHED">
+                Hoành thành
               </MenuItem>
-              <MenuItem key="type-towing" value="Xe chở">
-                Xe chở
-              </MenuItem>
-              <MenuItem key="type-towing" value="Xe cẩu">
-                Xe Cẩu
+            
+              <MenuItem key="status-INACTIVE" value="INACTIVE">
+                Không thành công
               </MenuItem>
             </Select>
           </FormControl>
-        </Box> */}
+        </Box>
         <Box display="flex" alignItems="center" className="startDate-box">
           <TextField
             label="Từ ngày"

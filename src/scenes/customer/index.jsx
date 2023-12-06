@@ -471,8 +471,8 @@ const Customers = (props) => {
             alignItems: "center",
           }}
         >
-          {manager && ( // Kiểm tra xem manager đã được đặt
-            <a href="add/customer" style={{ textDecoration: "none" }}>
+          {isAdmin && ( // Kiểm tra xem manager đã được đặt
+            <a href="Client/admin/add/customer" style={{ textDecoration: "none" }}>
               {" "}
               {/* Thêm đường dẫn ở đây */}
               <Button

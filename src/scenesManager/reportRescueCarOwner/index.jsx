@@ -548,31 +548,7 @@ const Reports = (props) => {
         </Box>
 
         <ToastContainer />
-        <Box display="flex" alignItems="center" className="filter-box">
-          <FormControl fullWidth>
-            <Select
-              labelId="demo-simple-select-label"
-              id="demo-simple-select"
-              value={filterOption}
-              onChange={handleFilterChange}
-              variant="outlined"
-              className="filter-select"
-            >
-              <MenuItem key="type-all" value="Type">
-                Loại Xe
-              </MenuItem>
-              <MenuItem key="type-crane" value="Xe kéo">
-                Xe Kéo
-              </MenuItem>
-              <MenuItem key="type-towing" value="Xe chở">
-                Xe chở
-              </MenuItem>
-              <MenuItem key="type-towing" value="Xe cẩu">
-                Xe Cẩu
-              </MenuItem>
-            </Select>
-          </FormControl>
-        </Box>
+     
         <Box display="flex" alignItems="center" className="startDate-box">
           <TextField
             label="Từ ngày"
