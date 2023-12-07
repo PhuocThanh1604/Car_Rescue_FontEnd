@@ -8,8 +8,10 @@ import Error4O1 from "./401";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { onMessageListener } from "../../firebase";
+import AutoLogout from "./AutoLogout";
 
 const RequireAuth = () => {
+  
   const MAX_NOTIFICATIONS_DISPLAYED = 5;
   const [unreadNotifications, setUnreadNotifications] = useState(0);
 
@@ -105,7 +107,6 @@ const RequireAuth = () => {
   const devicetoken1 = localStorage.getItem("deviceToken");
 
   if (devicetoken1) {
-    // console.log("Test device" + devicetoken1);
   }
 
   const thisrole = data?.role ? `Role ${data?.role}!` : "role!";
@@ -117,15 +118,15 @@ const RequireAuth = () => {
     if (role === "Admin") {
       // Nếu người dùng có role 5150, cho phép truy cập Outlet
       if (role.includes("Admin")) {
-        // Check if the user has the Admin role
+        AutoLogout()
         localStorage.setItem("isAdmin", "true"); // Set an isAdmin flag in local storage
       }
       return <Outlet />;
     } else if (role === "Manager") {
-      // Nếu người dùng có role 1984 hoặc 2001, chuyển hướng đến trang /manager
+      AutoLogout()
       return <ManagerContent />;
     } else {
-      // Mặc định, chuyển hướng người dùng đến trang /welcome
+      
       return <Error4O1 />;
     }
   }

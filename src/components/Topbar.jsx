@@ -219,18 +219,14 @@ useEffect(() => {
 
   const handleLogout = () => {
     localStorage.clear();
-    // Gọi hàm logout khi người dùng chọn "Logout"
-    logout(); // Bạn cần tự định nghĩa hàm logout để xóa JWT Token và thông tin đăng nhập
+    logout();
 
-    // Chuyển đến trang đăng nhập sau khi đăng xuất
     navigate("/");
   };
   const handleProfile = () => {
     if (isAdmin) {
-      // If the user is an admin, navigate to the admin profile page
       navigate("admin/update/profile");
     } else {
-      // If the user is a manager, navigate to the manager profile page
       navigate("manager/update/profile");
     }
   };
@@ -242,11 +238,9 @@ useEffect(() => {
     backgroundColor: theme.palette.success.main,
     boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
   }));
-  // Hàm render thông báo
 
   return (
     <Box display="flex" justifyContent="space-between" p={2}>
-      {/* SEARCH BAR */}
       <Box
         display="flex"
         backgroundColor={colors.white[50]}

@@ -307,7 +307,7 @@ const fetchOrder = (orderId, uniqueKey) => {
             backgroundColor={
               status === "FINISHED"
                 ? colors.greenAccent[700]
-                : status === "INACTIVE"
+                : status === "FAILED"
                 ? colors.redAccent[700]
                 : colors.redAccent[700]
                 ? colors.blueAccent[700]
@@ -320,7 +320,7 @@ const fetchOrder = (orderId, uniqueKey) => {
             }
           >
             <Typography color="inherit" sx={{ ml: "1px", fontWeight: "bold" }}>
-            {status === "INACTIVE"
+            {status === "FAILED"
                 ? "Không Thành Công"
                 : status === "FINISHED"
                 ? "Hoành Thành"

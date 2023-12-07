@@ -8,8 +8,7 @@ export const authApiSlice = apiSlice.injectEndpoints({
                // Hàm query trả về thông tin endpoint, bao gồm URL và phương thức HTTP.
             query: credentials => ({
                 url: '/Login/Login', 
-                // url: '/auth',      // URL mà yêu cầu sẽ được gửi đến.
-                method: 'POST',    // Phương thức HTTP sẽ được sử dụng (POST).
+                method: 'POST',   
                 body: { ...credentials } // Dữ liệu gửi kèm trong yêu cầu (credentials).
             })
         }),

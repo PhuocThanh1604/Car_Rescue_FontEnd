@@ -71,8 +71,6 @@ const Reports = (props) => {
   const [searchText, setSearchText] = useState("");
   const [filterOption, setFilterOption] = useState("Type");
   const [openModal, setOpenModal] = useState(false);
-  const [selectedBook, setSelectedBook] = useState(null);
-  const [selectedEditVehicle, setSelectedEditVehicle] = useState(null);
   const [filteredVehicles, setFilteredVehicles] = useState([]);
   const [orderId, setOrderId] = useState("");
   const [page, setPage] = useState(0);
