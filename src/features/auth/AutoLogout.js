@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-const TIMEOUT = 10 * 60 * 1000; 
+const TIMEOUT = 1 * 60 * 1000; 
 export default function AutoLogout() {
   const navigate = useNavigate();
   const [timeoutId, setTimeoutId] = useState(null);
 
   useEffect(() => {
+    
     const resetTimeout = () => {
       if (timeoutId) {
         clearTimeout(timeoutId);
@@ -14,8 +15,12 @@ export default function AutoLogout() {
 
       const id = setTimeout(() => {
         // Điều hướng đến trang logout khi hết thời gian timeout
-        navigate("/singin");
+        navigate("/signin");
+        setTimeout(() => {
+          window.location.reload(); // Auto reload sau khi logout
+        }); // Thời gian chờ trước khi reload (1000 milliseconds = 1 giây)
       }, TIMEOUT);
+
 
       setTimeoutId(id);
     };

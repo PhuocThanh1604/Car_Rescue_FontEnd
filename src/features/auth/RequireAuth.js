@@ -116,17 +116,23 @@ const RequireAuth = () => {
 
   if (role) {
     if (role === "Admin") {
-      // Nếu người dùng có role 5150, cho phép truy cập Outlet
       if (role.includes("Admin")) {
-        AutoLogout()
-        localStorage.setItem("isAdmin", "true"); // Set an isAdmin flag in local storage
+        return (
+          <div>
+            <AutoLogout /> {/* Render AutoLogout component */}
+            <Outlet />
+          </div>
+        );
       }
-      return <Outlet />;
+      // Các phần còn lại không thay đổi
     } else if (role === "Manager") {
-      AutoLogout()
-      return <ManagerContent />;
+      return (
+        <div>
+          <AutoLogout /> {/* Render AutoLogout component */}
+          <ManagerContent />
+        </div>
+      );
     } else {
-      
       return <Error4O1 />;
     }
   }

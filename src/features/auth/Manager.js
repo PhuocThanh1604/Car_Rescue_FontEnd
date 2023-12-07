@@ -46,6 +46,7 @@ import Reports from "../../scenesManager/reportRescueCarOwner";
 import ListReports from "../../scenesManager/listReportRescueCarOwner";
 import Symptoms from "../../scenesManager/symptom";
 import AddSymptom from "../../scenesManager/create_Symtom";
+import AutoLogout from "./AutoLogout";
 
 const Manager = () => {
   const user = useSelector(selectCurrentUser);
@@ -94,6 +95,7 @@ const Manager = () => {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <div className="app">
+        <AutoLogout /> 
           <ToastContainer />
           <Topbar setIsSidebar={setIsSidebar} />
           <main className="content" style={{ display: "flex", height: "auto" }}>
