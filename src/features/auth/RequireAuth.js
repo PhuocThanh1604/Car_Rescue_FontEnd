@@ -119,7 +119,7 @@ const RequireAuth = () => {
       if (role.includes("Admin")) {
         return (
           <div>
-            <AutoLogout /> {/* Render AutoLogout component */}
+           
             <Outlet />
           </div>
         );
@@ -128,7 +128,7 @@ const RequireAuth = () => {
     } else if (role === "Manager") {
       return (
         <div>
-          <AutoLogout /> {/* Render AutoLogout component */}
+     
           <ManagerContent />
         </div>
       );

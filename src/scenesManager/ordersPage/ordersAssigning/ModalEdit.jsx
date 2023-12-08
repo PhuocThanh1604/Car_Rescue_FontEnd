@@ -336,23 +336,6 @@ const ModalEdit = ({
                       {selectedEditOrder.rescueType}
                     </Typography>
 
-                    {/* <FormControl fullWidth >
-                      <InputLabel id="rescueType-label">
-                        Loại Hình Thức Cứu Hộ
-                      </InputLabel>
-                      <Select
-                        labelId="rescueType-label"
-                        id="rescueType"
-                        name="rescueType"
-                        variant="outlined"
-                        label="Loại Hình Thức Cứu Hộ"
-                        value={typeRescue}
-                        onChange={checkRescueTypeChange}
-                      >
-                        <MenuItem value="Towing">Xe Kéo</MenuItem>
-                        <MenuItem value="Fixing">Sửa Tại Chỗ Cơ Bản</MenuItem>
-                      </Select>
-                    </FormControl> */}
 
                     <FormControl fullWidth>
                       <InputLabel id="rescueType-label">
@@ -517,7 +500,7 @@ const ModalEdit = ({
                       variant="contained"
                       color="primary"
                     >
-                      Lưu
+                     Đồng Ý Hủy Đơn
                     </Button>
                   </Box>
                 </Card>

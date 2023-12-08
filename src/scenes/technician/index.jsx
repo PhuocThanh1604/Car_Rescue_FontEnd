@@ -23,20 +23,32 @@ import Fade from "@mui/material/Fade";
 import SearchIcon from "@mui/icons-material/Search";
 import InputBase from "@mui/material/InputBase";
 import moment from "moment";
-import { fetchTechnicians, getTechnicianId } from "../../redux/technicianSlice";
+import {
+  fetchTechnicians,
+  getLocationTechnician,
+  getTechnicianId,
+} from "../../redux/technicianSlice";
 import CustomTablePagination from "../../components/TablePagination";
 import AddCardIcon from "@mui/icons-material/AddCard";
 import RepeatOnIcon from "@mui/icons-material/RepeatOn";
 import PersonOffIcon from "@mui/icons-material/PersonOff";
 import HowToRegIcon from "@mui/icons-material/HowToReg";
+import PersonPinCircleIcon from "@mui/icons-material/PersonPinCircle";
+import PlacesAutocomplete, {
+  geocodeByAddress,
+  getLatLng,
+} from "react-places-autocomplete";
+import Map from "./google";
 const Technicians = (props) => {
   const dispatch = useDispatch();
   const technicians = useSelector((state) => state.technician.technicians);
+  const [showMapModal, setShowMapModal] = useState(false);
   const [openEditModal, setOpenEditModal] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [filterOption, setFilterOption] = useState("Status");
   const [openModal, setOpenModal] = useState(false);
-  const [selectedEditTechnician, setselectedEditTechnician] = useState(null);
+  const [selectedEditTechnician, setSelectedEditTechnician] = useState(null);
+  const [dataTechnician, setDataLocationTechnician] = useState(null);
   const [filteredTechnicians, setFilteredTechnicians] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(8);
@@ -47,7 +59,110 @@ const Technicians = (props) => {
   const [endDate, setEndDate] = useState(null);
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]);
-  const [technicianData, setTechnicianData] = useState([]);
+  const [address, setAddress] = useState(""); // Thêm trường address
+  const [addressDestination, setAddressDestination] = useState("");
+  const [departure, setDeparture] = useState("");
+  const [destination, setDestination] = useState("");
+  const [latDestination, setLatDestination] = useState(null);
+  const [lngDestination, setLngDestination] = useState(null);
+  const [lat, setLat] = useState(null);
+  const [lng, setLng] = useState(null);
+  const [latTech, setLatTech] = useState(null);
+  const [lngTech, setLngTech] = useState(null);
+  const [technicianLocation, setTechnicianLocation] = useState(null);
+  const [infoTechnician, setInfoTechnician] = useState(null);
+  const [mapLoading, setMapLoading] = useState(false);
+  const [isMapLoaded, setIsMapLoaded] = useState(false);
+
+  useEffect(() => {
+    if (showMapModal) {
+      setMapLoading(true);
+      setIsMapLoaded(true); // Đặt flag để chỉ hiển thị map một lần
+    }
+  }, [showMapModal, isMapLoaded]);
+
+  const handleLocationOfTechnician = (technicianId) => {
+    console.log(technicianId);
+
+    // Hiển thị bản đồ trước khi tải dữ liệu
+    setShowMapModal(true);
+    setIsMapLoaded(true);
+    setMapLoading(true);
+
+    // Tiến hành tải dữ liệu vị trí kỹ thuật viên
+    dispatch(getLocationTechnician({ id: technicianId }))
+      .then((response) => {
+        setMapLoading(false);
+        const technicianDetails = response.payload.data;
+        if (technicianDetails && technicianDetails.body) {
+          var bodyObj = JSON.parse(technicianDetails.body);
+          const lat = parseFloat(bodyObj.Lat);
+          const lng = parseFloat(bodyObj.Long);
+
+          if (!isNaN(lat) && !isNaN(lng)) {
+            setTechnicianLocation({ lat, lng });
+            setIsSuccess(true);
+
+            // Tải thông tin chi tiết của kỹ thuật viên sau khi vị trí đã được xác định
+            dispatch(getTechnicianId({ id: technicianId }))
+              .then((response) => {
+                toast.info("Đã tìm thấy vị trí kỹ thuật viên đang muốn xem:");
+                const technicianInfo = response.payload.data;
+                setInfoTechnician(technicianInfo);
+              })
+              .catch((error) => {
+                toast.error("Lỗi khi lấy thông tin kỹ thuật viên:", error);
+              });
+          } else {
+            // If location data is not found, display only the map without technician information
+            setTechnicianLocation(null); // Clear previous technician location
+            setInfoTechnician(null); // Clear previous technician information
+            setIsSuccess(false); // Set isSuccess to false
+            toast.error("Dữ liệu vị trí của kỹ thuật viên không tìm thấy");
+          }
+        } else {
+          // If technicianDetails or technicianDetails.body is not available, display only the map without technician information
+          setTechnicianLocation(null); // Clear previous technician location
+          setInfoTechnician(null); // Clear previous technician information
+          setIsSuccess(false); // Set isSuccess to false
+          toast.error("Không có dữ liệu trả về từ getLocationTechnician");
+        }
+      })
+      .catch((error) => {
+        setMapLoading(false);
+        toast.warning(
+          "Chưa tìm thấy vị trí kỹ thuật viên đang muốn xem:",
+          error
+        );
+      });
+  };
+
+  const handleMapLocationSelected = async (selectedAddress) => {
+    try {
+      const results = await geocodeByAddress(selectedAddress);
+      if (results && results.length > 0) {
+        const firstResult = results[0];
+        const latLng = await getLatLng(firstResult);
+        const selectedLocation = {
+          lat: latLng.lat,
+          lng: latLng.lng,
+          address: firstResult.formatted_address,
+        };
+        const latLngDeparture = `lat:${selectedLocation.lat},long:${selectedLocation.lng}`;
+        console.log(latLngDeparture);
+        setLat(selectedLocation.lat);
+        setLng(selectedLocation.lng);
+        setAddress(selectedLocation.address);
+      } else {
+        console.error("No results found for this address.");
+      }
+    } catch (error) {
+      console.error(
+        "An error occurred while searching for the location.",
+        error
+      );
+    }
+  };
 
   useEffect(() => {
     if (isSuccess) {
@@ -121,7 +236,7 @@ const Technicians = (props) => {
     dispatch(getTechnicianId({ id: technicianId }))
       .then((response) => {
         const technicianDetails = response.payload.data; // No need for .data here
-        setselectedEditTechnician(technicianDetails);
+        setSelectedEditTechnician(technicianDetails);
         setOpenEditModal(true);
         setIsSuccess(true);
       })
@@ -159,20 +274,20 @@ const Technicians = (props) => {
     setLoading(true);
     dispatch(fetchTechnicians())
       .then((response) => {
-        // Đã lấy dữ liệu thành công
         const data = response.payload.data;
-
         if (data) {
           setData(data);
           setFilteredTechnicians(data);
-          // Truy xuất và xử lý từng đối tượng khách hàng ở đây
-          setLoading(false); // Đặt trạng thái loading thành false sau khi xử lý dữ liệu
-        }else{
-          toast.dismiss("không có dữ liệu trả về")
+
+          setLoading(false);
+        } else {
+          toast.dismiss("không có dữ liệu trả về");
         }
-      }).catch(error => {
+      })
+      .catch((error) => {
         toast.dismiss("Lỗi khi lấy dữ liệu kỹ thuật viên:", error);
-      }).finally(() => {
+      })
+      .finally(() => {
         setLoading(false);
       });
   }, [dispatch]);
@@ -186,7 +301,7 @@ const Technicians = (props) => {
     setPage(0);
   };
 
-  const filteredtechniciansPagination = filteredTechnicians.slice(
+  const filteredTechniciansPagination = filteredTechnicians.slice(
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
   );
@@ -215,9 +330,7 @@ const Technicians = (props) => {
       width: 100,
       key: "price",
       valueFormatter: (params) => {
-        // Đảm bảo rằng params.value là một số
         if (typeof params.value === "number") {
-          // Chuyển số thành chuỗi và định dạng theo định dạng số điện thoại
           return params.value
             .toString()
             .replace(/(\d{4})(\d{3})(\d{3})/, "$1 $2 $3");
@@ -246,7 +359,7 @@ const Technicians = (props) => {
       renderCell: (params) => {
         const avatarSrc =
           params.value ||
-          "https://cdn-icons-png.flaticon.com/512/6596/6596121.png"; // Đặt URL của hình mặc định ở đây
+          "https://cdn-icons-png.flaticon.com/512/6596/6596121.png";
         return (
           <img
             src={avatarSrc}
@@ -254,7 +367,7 @@ const Technicians = (props) => {
             style={{
               width: "40px",
               height: "40px",
-              borderRadius: "50%", // Tạo hình tròn
+              borderRadius: "50%",
             }}
           />
         );
@@ -305,7 +418,7 @@ const Technicians = (props) => {
 
     {
       field: "update",
-      headerName: "Update",
+      headerName: "Cập Nhật",
       width: 120,
       renderCell: (params) => (
         <Box
@@ -314,7 +427,6 @@ const Technicians = (props) => {
             alignItems: "center",
             "&:hover": {
               cursor: "pointer",
-              // Thay đổi màu sắc hoặc hiệu ứng khác khi hover vào Box
               backgroundColor: "lightgray",
 
               borderRadius: "4px",
@@ -327,13 +439,41 @@ const Technicians = (props) => {
             color="indigo"
             onClick={() => handleUpdateClick(params.row.id)}
           >
-            
             <Typography
-            variant="body1"
-            sx={{ ml: "1px", color: "indigo", fontWeight: "bold" }}
+              variant="body1"
+              sx={{ ml: "1px", color: "indigo", fontWeight: "bold" }}
+            >
+              Chỉnh Sửa
+            </Typography>
+          </IconButton>
+        </Box>
+      ),
+      key: "update",
+    },
+    {
+      field: "Location",
+      headerName: "Vị Trí",
+      width: 120,
+      renderCell: (params) => (
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            "&:hover": {
+              cursor: "pointer",
+              backgroundColor: "lightgray",
+
+              borderRadius: "4px",
+            },
+          }}
+        >
+          {" "}
+          <IconButton
+            variant="contained"
+            color="indigo"
+            onClick={() => handleLocationOfTechnician(params.row.id)}
           >
-            Chỉnh Sửa
-          </Typography>
+            <PersonPinCircleIcon sx={{ color: colors.greenAccent[500] }} />
           </IconButton>
         </Box>
       ),
@@ -471,7 +611,7 @@ const Technicians = (props) => {
         }}
       >
         <DataGrid
-          rows={filteredtechniciansPagination}
+          rows={filteredTechniciansPagination}
           columns={columns}
           getRowId={(row) => row.id}
           autoHeight
@@ -514,6 +654,31 @@ const Technicians = (props) => {
             }}
           ></Box>
         </Fade>
+      </Modal>
+
+      <Modal
+        style={{
+          position: "fixed",
+          marginTop: "100px",
+          marginLeft: "160px",
+          maxWidth: "80%",
+          maxHeight: "80%",
+        }}
+        open={showMapModal}
+        onClose={() => {
+          // Xóa dữ liệu trước đó khi modal được đóng
+          setTechnicianLocation(null);
+          setInfoTechnician(null);
+          setShowMapModal(false);
+        }}
+        loading={mapLoading}
+      >
+        <Map
+          technicianLocation={technicianLocation}
+          infoTechnician={infoTechnician}
+          onLocationSelected={handleMapLocationSelected}
+          loadingMap={mapLoading}
+        />
       </Modal>
     </Box>
   );

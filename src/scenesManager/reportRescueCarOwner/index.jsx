@@ -655,7 +655,7 @@ const Reports = (props) => {
         PaperProps={{
           style: {
             width: "600px", // Set your desired maximum width
-            height: "600px", // Set your desired maximum height
+            height: "700px", // Set your desired maximum height
           },
         }}
       >

@@ -96,12 +96,19 @@ let manager = null;
 if (managerString) {
   try {
     manager = JSON.parse(managerString);
-    console.log(manager.accountId);
-
   } catch (error) {
     toast.dismiss("Không có thông báo:", error);
   }
 }
+let admin = null;
+if (isAdmin) {
+  try {
+    admin = JSON.parse(isAdmin);
+  } catch (error) {
+    toast.dismiss("Không có thông báo:", error);
+  }
+}
+
 
 useEffect(() => {
   if (manager && manager.accountId !== accountId) {
@@ -451,7 +458,7 @@ useEffect(() => {
                     variant="body2"
                     sx={{ fontSize: "0.8rem", color: "text.disabled" }}
                   >
-                    {isAdmin ? "Admin" : "Manager"}
+                    {admin ? "Admin" : "" || manager ?"Manager":""  }
                   </Typography>
                 </Box>
               </Box>

@@ -180,11 +180,12 @@ const ModalEdit = ({
                 <Close />
               </IconButton>
               <Typography
-                variant="h6"
+                variant="h5"
                 component="h2"
                 id="Customer-detail-modal"
+                sx={{ textAlign: "center" }}
               >
-                {selectedEditCustomer ? "Sửa Thông Tin" : "Customer Detail"}
+                {selectedEditCustomer ? "Sửa Thông Tin Khách Hàng" : "Customer Detail"}
               </Typography>
 
               {selectedEditCustomer && (

@@ -289,7 +289,7 @@ const ModalCancel = ({
                       variant="contained"
                       color="primary"
                     >
-                      Lưu
+                      Đồng Ý 
                     </Button>
                   </Box>
                 </Card>

@@ -54,7 +54,6 @@ import ReceiptRoundedIcon from "@mui/icons-material/ReceiptRounded";
 import SourceRoundedIcon from "@mui/icons-material/SourceRounded";
 import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 import { getServiceId } from "../../../redux/serviceSlice";
-import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
 import { getModelCarId } from "../../../redux/modelCarSlice";
 import { getRescueVehicleOwnerId } from "../../../redux/rescueVehicleOwnerSlice";
 import { getAccountId } from "../../../redux/accountSlice";
@@ -127,7 +126,7 @@ const ModalEdit = ({
 
   if (managerString) {
     try {
-      manager = JSON.parse(managerString); // Thử phân tích chuỗi JSON
+      manager = JSON.parse(managerString); 
     } catch (error) {
       console.error("Lỗi khi phân tích chuỗi JSON:", error);
     }
@@ -425,9 +424,11 @@ const ModalEdit = ({
       title: "Thông báo đơn hàng ",
       body: "Bạn có đơn hàng đã được điều phối tới bạn!!",
     };
-    // Gửi thông báo sau khi xử lý thành công
-
-    // Thay YOUR_FCM_SERVER_KEY bằng API key của bạn
+    const messageCustomer = {
+      title: "Thông báo đơn hàng!! ",
+      body: "Hệ thống đã điều phối phương tiện cứu hộ phù hợp Bạn vui lòng đợi!!",
+    };
+   
     if (!hasChanges) {
       toast.info("Không có thay đổi để lưu.");
       handleClose();
@@ -457,19 +458,18 @@ const ModalEdit = ({
             isAndroiodDevice: true,
             title: message.title,
             body: message.body,
-            target: accountId,
+            target: accountId,//accountId of vehicle
             orderId: orderId,
           };
-          // Gửi thông báo bằng hàm sendNotification
           dispatch(sendNotification(notificationData))
             .then(() => {
               console.log("Gửi thông báo thành công");
               const notificationData = {
                 deviceId: accountDeviceTokenCustomer,
                 isAndroiodDevice: true,
-                title: message.title,
-                body: message.body,
-                target: accountIdCustomer,
+                title: messageCustomer.title,
+                body: messageCustomer.body,
+                target: accountIdCustomer, 
                 orderId: orderId,
               };
               console.log("accountIdCustomer: " + accountIdCustomer);
@@ -523,7 +523,6 @@ const ModalEdit = ({
             fetchRVO(null);
             setAccountId(null);
             setAccountIdCustomer(null);
-
             setFilteredOrders(data);
             // Đặt loading thành false sau khi tải lại dữ liệu
           }

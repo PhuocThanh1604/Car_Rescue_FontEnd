@@ -204,7 +204,7 @@ const ModalEdit = ({
                 <Close />
               </IconButton>
               <Typography
-                variant="h4"
+                variant="h5"
                 component="h2"
                 id="Technician-detail-modal"
                 textAlign= "center"
@@ -321,6 +321,9 @@ const ModalEdit = ({
                         </MenuItem>
                         <MenuItem key="area-2" value="2">
                         2
+                        </MenuItem>
+                        <MenuItem key="area-3" value="3">
+                        3
                         </MenuItem>
                       </Select>
                     </FormControl>

@@ -191,7 +191,6 @@ const TransactionDetails = () => {
   }, [transactions, searchText, filterOption]);
 
   useEffect(() => {
-    setLoading(true);
     if (!id) {
       setLoading(false);
       return;

@@ -22,9 +22,7 @@ import {
   getManagerId,
   updateStatusManager,
 } from "../../redux/managerSlice";
-import { Edit, FilterList, Search } from "@mui/icons-material";
-import { Delete } from "@mui/icons-material";
-import ModalEdit from "./ModalDetail";
+import ModalEdit from "./ModalEdit";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Fade from "@mui/material/Fade";
@@ -41,7 +39,7 @@ const Managers = (props) => {
   const [filterOption, setFilterOption] = useState("Status");
   const [openModal, setOpenModal] = useState(false);
   const [selectedManager, setSelectedManager] = useState(null);
-  const [selectedEditManager, setselectedEditManager] = useState(null);
+  const [selectedEditManager, setSelectedEditManager] = useState(null);
   const [filteredManagers, setFilteredManagers] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(8);
@@ -98,7 +96,7 @@ const Managers = (props) => {
     dispatch(getManagerId({ id: managerId }))
       .then((response) => {
         const managerDetails = response.payload.data; // No need for .data here
-        setselectedEditManager(managerDetails);
+        setSelectedEditManager(managerDetails);
         setOpenEditModal(true);
         setIsSuccess(true);
       })
@@ -115,21 +113,7 @@ const Managers = (props) => {
     setOpenDeleteModal(true);
   };
 
-  // const handleConfirmDelete = () => {
-  //   dispatch(deletemanager({ id: selectedmanager.bookId }))
-  //     .then(() => {
-  //       toast.success('Delete book successfully');
-  //       setOpenDeleteModal(false);
-  //       // Cập nhật danh sách sản phẩm sau khi xóa thành công
-  //       const updatedmanagers = managers.filter(
-  //         (manager) => manager.bookId !== selectedmanager.bookId
-  //       );
-  //       setFilteredManagers(updatedmanagers);
-  //     })
-  //     .catch((error) => {
-  //       toast.error(error,"Error!!");
-  //     });
-  // };
+
 
   useEffect(() => {
     const filteredManagers = managers
@@ -352,7 +336,7 @@ const Managers = (props) => {
     {
       field: "update",
       headerName: "Cập Nhật",
-      width: 60,
+      width: 120,
       renderCell: (params) => (
         <IconButton
           variant="contained"

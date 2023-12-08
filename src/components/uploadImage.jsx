@@ -12,7 +12,7 @@ const UploadImageField = ({ onImageUploaded, imageUrl }) => {
     const imageRef = ref(storage, `admin/${imageUpload.name + v4()}`);
     uploadBytes(imageRef, imageUpload)
       .then(() => {
-        alert("Image uploaded successfully");
+        alert("Hình ảnh đã cập nhật thành công!!");
         // Get the download URL and set it in the state
         return getDownloadURL(imageRef);
       })
@@ -24,7 +24,7 @@ const UploadImageField = ({ onImageUploaded, imageUrl }) => {
         }
       })
       .catch((error) => {
-        console.error("Error while uploading image:", error);
+        console.error("Lỗi khi cập nhật ảnh:", error);
       });
   };
 

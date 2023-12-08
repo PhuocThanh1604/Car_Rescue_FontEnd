@@ -171,6 +171,9 @@ const Addtechnician = () => {
                   labelId="area-label"
                   id="area"
                   name="area"
+                  va
+                  variant="outlined"
+                  label="Khu Vực"
                   value={values.area}
                   onChange={handleChange}
                   onBlur={handleBlur}
@@ -178,6 +181,7 @@ const Addtechnician = () => {
                 >
                   <MenuItem value="1">1</MenuItem>
                   <MenuItem value="2">2</MenuItem>
+                  <MenuItem value="2">3</MenuItem>
                 </Select>
               </FormControl>
               <Grid container spacing={4} alignItems="center" marginBottom={2}>
@@ -231,6 +235,8 @@ const Addtechnician = () => {
                   labelId="sex-label"
                   id="sex"
                   name="sex"
+                  variant="outlined"
+                  label="Giới Tinh"
                   value={values.sex}
                   onChange={handleChange}
                   onBlur={handleBlur}

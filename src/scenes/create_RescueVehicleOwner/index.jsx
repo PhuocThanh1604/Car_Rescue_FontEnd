@@ -171,9 +171,11 @@ const AddRescueVehicleOwner = () => {
               <FormControl fullWidth variant="outlined">
                 <InputLabel id="area-label">Khu Vực</InputLabel>
                 <Select
-                  labelId="area-label"
+                labelId="demo-simple-select-label"
                   id="area"
                   name="area"
+                  variant="outlined"
+                  label="Khu Vực"
                   value={values.area}
                   onChange={handleChange}
                   onBlur={handleBlur}
@@ -181,6 +183,7 @@ const AddRescueVehicleOwner = () => {
                 >
                   <MenuItem value="1">1</MenuItem>
                   <MenuItem value="2">2</MenuItem>
+                  <MenuItem value="2">3</MenuItem>
                 </Select>
               </FormControl>
               <Grid container spacing={4} alignItems="center" marginBottom={2}>
@@ -231,7 +234,9 @@ const AddRescueVehicleOwner = () => {
               <FormControl fullWidth variant="outlined">
                 <InputLabel id="sex-label">Giới Tính</InputLabel>
                 <Select
-                  labelId="sex-label"
+                    labelId="demo-simple-select-label"
+                    label="Trạng Thái"
+                    variant="outlined"
                   id="sex"
                   name="sex"
                   value={values.sex}

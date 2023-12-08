@@ -95,7 +95,6 @@ const Manager = () => {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <div className="app">
-        <AutoLogout /> 
           <ToastContainer />
           <Topbar setIsSidebar={setIsSidebar} />
           <main className="content" style={{ display: "flex", height: "auto" }}>

@@ -190,7 +190,7 @@ const ModalEdit = ({
 
                     <TextField
                       name="model1"
-                      label="Tên Dịch Vụ"
+                      label="Tên Mẫu Xe"
                       value={edit && edit.model1 ? edit.model1 : ""}
                       onChange={handleInputChange}
                       fullWidth

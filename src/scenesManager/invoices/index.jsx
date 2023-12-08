@@ -18,6 +18,7 @@ import {
   Select,
   MenuItem,
   CircularProgress,
+  styled,
 } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
@@ -77,7 +78,19 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
   const [accountDeviceToken, setAccountDeviceToken] = useState("");
   const [rvoId, setRvoId] = useState("");
   const [accountId, setAccountId] = useState("");
-
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
+  const CustomButton = styled(Box)({
+    backgroundColor: colors.lightGreen[300],
+    borderRadius:"10px",
+    padding:"2px",
+    transition: 'background-color 0.3s',
+    '&:hover': {
+      backgroundColor: colors.lightGreen[500], // Màu sẽ thay đổi khi hover
+      cursor: 'pointer',
+      borderRadius:"10px"
+    },
+  });
   useEffect(() => {
     if (accountId && !accountDeviceToken) {
       fetchAccounts(accountId);
@@ -477,8 +490,7 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
       );
   }
 
-  const theme = useTheme();
-  const colors = tokens(theme.palette.mode);
+
 
   const columns = [
     {
@@ -637,17 +649,25 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
     {
       field: "acceptWithdraw",
       headerName: "Đơn rút ví",
-      width: 80,
+      width: 120,
       renderCell: (params) => (
         <IconButton
           variant="contained"
           color="error"
           onClick={() => handleClickModalDetail(params.row.id)}
         >
-          <CheckCircleOutlineIcon
-            variant="contained"
-            style={{ color: "green" }} // Set the color to green
-          />
+            <CustomButton
+          onClick={() => handleClickModalDetail(params.row.id)}
+        >
+            <Typography
+              variant="body1"
+              color="error"
+              sx={{ fontWeight: "bold",  color: "green" }}
+              onClick={() => handleClickModalDetail(params.row.id)}
+            >
+              {"Chấp Nhận Đơn"}
+            </Typography>
+        </CustomButton>
         </IconButton>
       ),
       key: "acceptWithdraw",

@@ -188,9 +188,10 @@ const ModalEdit = ({
                 <Close />
               </IconButton>
               <Typography
-                variant="h6"
+                variant="h5"
                 component="h2"
                 id="RescuseVehicleOwner-detail-modal"
+                sx={{ textAlign: "center" }}
               >
                 {selectedEditRescuseVehicleOwner
                   ? "Sửa Thông Tin Chủ Xe Cứu Hộ"

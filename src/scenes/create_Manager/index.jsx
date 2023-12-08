@@ -48,9 +48,12 @@ const AddRescueVehicleOwner = () => {
     address: yup.string().required("Required"),
     phone: yup.string().required("Required"),
     avatar: yup.string().required("Required"),
-    birthdate: yup.date().required("Required"), // Date validation
-    date: yup.date().required("Required"), // Date validation
+    birthdate: yup.date().required("Required"), 
+    date: yup.date().required("Required"), 
     accountId: yup.string().required("Required"),
+    area: yup.string().required("Required"),
+    account: yup.string(),
+  
   });
   const statusMapping = {
     ACTIVE: "Hoạt Động",
@@ -67,6 +70,8 @@ const AddRescueVehicleOwner = () => {
     avatar: "",
     accountId: "",
     date: new Date(),
+    area:"",
+    account:""
   };
 
   // Tạo ref để lưu trữ tham chiếu đến formik
@@ -103,7 +108,8 @@ const AddRescueVehicleOwner = () => {
           setData(data);
           setLoading(false);
         }
-      }).catch(error => {
+      })
+      .catch((error) => {
         setLoading(false);
         toast.dismiss("Lỗi khi lấy dữ liệu báo cáo:", error);
       })
@@ -157,6 +163,25 @@ const AddRescueVehicleOwner = () => {
                 helperText={touched.fullname && errors.fullname}
                 sx={{ gridColumn: "span 1" }}
               />
+              <FormControl fullWidth variant="outlined">
+                <InputLabel id="area-label">Khu Vực</InputLabel>
+                <Select
+                  labelId="area-label"
+                  id="area"
+                  name="area"
+                  va
+                  variant="outlined"
+                  label="Khu Vực"
+                  value={values.area}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  error={touched.area && errors.area ? true : false}
+                >
+                  <MenuItem value="1">1</MenuItem>
+                  <MenuItem value="2">2</MenuItem>
+                  <MenuItem value="2">3</MenuItem>
+                </Select>
+              </FormControl>
               <Grid container spacing={4} alignItems="center" marginBottom={2}>
                 <Grid item xs={6}>
                   <Grid container spacing={1} alignItems="center">
@@ -208,6 +233,8 @@ const AddRescueVehicleOwner = () => {
                   labelId="sex-label"
                   id="sex"
                   name="sex"
+                  label="Giới Tính"
+                  variant="outlined"
                   value={values.sex}
                   onChange={handleChange}
                   onBlur={handleBlur}

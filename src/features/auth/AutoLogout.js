@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-const TIMEOUT = 1 * 60 * 1000; 
+const TIMEOUT = 30 * 60 * 1000; 
 export default function AutoLogout() {
   const navigate = useNavigate();
   const [timeoutId, setTimeoutId] = useState(null);

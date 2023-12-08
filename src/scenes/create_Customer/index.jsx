@@ -10,6 +10,7 @@ import {
   MenuItem,
   Select,
   TextField,
+  Typography,
 } from "@mui/material";
 import { Formik } from "formik";
 import * as yup from "yup";
@@ -18,7 +19,7 @@ import Header from "../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import {  getAccountEmail } from "../../redux/accountSlice";
+import { getAccountEmail } from "../../redux/accountSlice";
 import { createCustomer } from "../../redux/customerSlice";
 import UploadImageField from "../../components/uploadImage";
 import AddIcon from "@mui/icons-material/Add";
@@ -43,7 +44,7 @@ const AddCustomer = () => {
     avatar: yup.string(),
     birthdate: yup.date(), // Date validation
     accountId: yup.string(),
-    date: yup.date().required("Required"), 
+    date: yup.date().required("Required"),
   });
   const statusMapping = {
     ACTIVE: "Hoạt Động",
@@ -79,7 +80,7 @@ const AddCustomer = () => {
         toast.success("Tạo Khách hàng Thành Công");
 
         // Đặt lại giá trị của formik về giá trị ban đầu (rỗng)
-  
+
         formikRef.current.resetForm();
       })
       .catch((error) => {
@@ -99,7 +100,8 @@ const AddCustomer = () => {
           setData(data);
           setLoading(false);
         }
-      }).catch(error => {
+      })
+      .catch((error) => {
         // Xử lý lỗi ở đây
         console.error("Lỗi khi lấy dữ liệu báo cáo:", error);
       })
@@ -136,7 +138,8 @@ const AddCustomer = () => {
           <form onSubmit={handleSubmit}>
             <Box display="flex" justifyContent="left" mb="20px">
               <Button type="submit" color="secondary" variant="contained">
-            <AddIcon/>Tạo Khách Hàng
+                <AddIcon />
+                Tạo Khách Hàng
               </Button>
             </Box>
             <Box
@@ -206,19 +209,33 @@ const AddCustomer = () => {
                 )}
               />
 
-              <TextField
-                fullWidth
-                variant="outlined"
-                type="text"
-                label="sex"
-                onBlur={handleBlur}
-                onChange={handleChange}
-                value={values.sex}
-                name="sex"
-                error={touched.sex && errors.sex ? true : false}
-                helperText={touched.sex && errors.sex}
-                sx={{ gridColumn: "span 2" }}
-              />
+         
+              <Box sx={{ minWidth: 120 }}>
+                <FormControl
+                  fullWidth
+                  error={!!touched.status && !!errors.status}
+                >
+                  <InputLabel id="demo-simple-select-label">
+                    Giới Tính
+                  </InputLabel>
+                  <Select
+                    fullWidth
+                    variant="outlined"
+                    label="Sex"
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    value={values.sex}
+                    name="sex"
+                    error={touched.sex && errors.sex ? true : false}
+                    helperText={touched.sex && errors.sex}
+                    sx={{ gridColumn: "span 2" }}
+                  >
+                    <MenuItem value="male">Nam</MenuItem>
+                    <MenuItem value="female">Nữ</MenuItem>
+                    <MenuItem value="other">Khác</MenuItem>
+                  </Select>
+                </FormControl>
+              </Box>
               <TextField
                 fullWidth
                 variant="outlined"
@@ -246,9 +263,9 @@ const AddCustomer = () => {
                 sx={{ gridColumn: "span 2" }}
               />
               <TextField
-              id="outlined-read-only-input"
-              fullWidth
-              variant="outlined"
+                id="outlined-read-only-input"
+                fullWidth
+                variant="outlined"
                 type="date"
                 label="Ngày Sinh"
                 onBlur={handleBlur}
@@ -279,7 +296,7 @@ const AddCustomer = () => {
                     value={values.status}
                     sx={{ gridColumn: "span 4" }}
                   >
-                       {Object.keys(statusMapping).map((statusKey) => (
+                    {Object.keys(statusMapping).map((statusKey) => (
                       <MenuItem key={statusKey} value={statusKey}>
                         {statusMapping[statusKey]}{" "}
                       </MenuItem>

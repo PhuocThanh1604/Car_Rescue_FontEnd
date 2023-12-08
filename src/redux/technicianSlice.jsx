@@ -117,17 +117,17 @@ export const editTechnician = createAsyncThunk(
     }
   }
 );
-export const deleteTechnician = createAsyncThunk(
-  "technicians/delete",
+export const getLocationTechnician = createAsyncThunk(
+  "technicians/getLocationTechnician",
   async ({ id }) => {
     try {
-      const response = await axios.delete(
-        `https://secondhandbookstoreapi.azurewebsites.net/api/Books/Delete/${id}`
+      const response = await axios.get(
+        `https://rescuecapstoneapi.azurewebsites.net/api/Location/GetLocation?id=${id}`
       );
       const data = response.data;
       return data;
     } catch (error) {
-      console.error("Failed to delete technician:", error.response);
+      console.error("Failed to get location of technician:", error.response);
       throw error.response.data || error.message;
     }
   }
@@ -140,7 +140,7 @@ const technicianSlice = createSlice({
     status: "",
   },
   reducers: {
-    settechnicians: (state, action) => {
+    setTechnicians: (state, action) => {
       state.technicians = action.payload.data;
     },
   },
@@ -175,9 +175,12 @@ const technicianSlice = createSlice({
       })
       .addCase(getTechnicianId.fulfilled, (state, action) => {
         state.technicianData = action.payload.data;
+      })
+      .addCase(getLocationTechnician.fulfilled, (state, action) => {
+        state.technicianData = action.payload.data;
       });
   },
 });
-export const { settechnicians } = technicianSlice.actions;
+export const { setTechnicians } = technicianSlice.actions;
 export default technicianSlice.reducer;
 export const { reducer } = technicianSlice;

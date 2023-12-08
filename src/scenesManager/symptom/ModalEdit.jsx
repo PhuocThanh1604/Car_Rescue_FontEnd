@@ -171,12 +171,13 @@ const ModalEdit = ({
                 <Close />
               </IconButton>
               <Typography
-                variant="h6"
+                variant="h5"
                 component="h2"
                 id="Service-detail-modal"
+                sx={{textAlign:"center"}}
               >
                 {selectedEditService
-                  ? "Sửa Thông Tin Dịch Vụ"
+                  ? "Sửa Thông Tin Hiện Tượng"
                   : "Service Detail"}
               </Typography>
 

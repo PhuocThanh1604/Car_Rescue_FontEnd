@@ -20,6 +20,7 @@ import { Close } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
 import { editService, fetchServices } from "../../redux/serviceSlice";
+import { textAlign } from "@mui/system";
 
 const ModalEdit = ({
   openEditModal,
@@ -176,9 +177,10 @@ const ModalEdit = ({
                 <Close />
               </IconButton>
               <Typography
-                variant="h6"
+                variant="h5"
                 component="h2"
                 id="Service-detail-modal"
+                sx={{textAlign:"center"}}
               >
                 {selectedEditService
                   ? "Sửa Thông Tin Dịch Vụ"

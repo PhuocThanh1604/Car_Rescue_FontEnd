@@ -82,6 +82,27 @@ export const getAccountId = createAsyncThunk(
     }
   }
 );
+export const editAccount = createAsyncThunk(
+  "account/editAccount",
+  async ({ data }) => {
+    try {
+      const res = await axios.put(
+        `https://rescuecapstoneapi.azurewebsites.net/api/Account/Update`, 
+        data,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log(data);
+      return res.data;
+    } catch (error) {
+      console.error("Failed to update account:", error.response);
+      throw error.response.data;
+    }
+  }
+);
 
 const accountSlice = createSlice({
   name: "account",
@@ -110,7 +131,9 @@ const accountSlice = createSlice({
       })
       .addCase(getAccountEmail.fulfilled, (state, action) => {
         state.accounts = action.payload.data;
-      });
+      }).addCase(editAccount.fulfilled, (state, action) => {
+        state.accounts = action.payload.data;
+      })
   },
 });
 export const { setAccounts } = accountSlice.actions;

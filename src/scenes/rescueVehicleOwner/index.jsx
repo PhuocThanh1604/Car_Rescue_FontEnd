@@ -36,13 +36,9 @@ const RescueVehicleOwners = (props) => {
   const rescueVehicleOwners = useSelector(
     (state) => state.rescueVehicleOwner.rescueVehicleOwners
   );
-  const [rescueVehicleOwnerStatus, setRescueVehicleOwnerStatus] = useState([]);
   const [openEditModal, setOpenEditModal] = useState(false);
-  const [openEditModalRescuse, setOpenEditModalRescuse] = useState(true);
   const [searchText, setSearchText] = useState("");
   const [filterOption, setFilterOption] = useState("Status");
-  const [openModal, setOpenModal] = useState(false);
-  const [selectedBook, setSelectedBook] = useState(null);
   const [selectedEditRescueVehicleOwner, setSelectedEditRescueVehicleOwner] =
     useState(null);
   const [filteredRescueVehicleOwners, setFilteredRescueVehicleOwners] =
@@ -198,10 +194,7 @@ const RescueVehicleOwners = (props) => {
       });
   };
 
-  const handleBookDetailClick = (book) => {
-    setSelectedBook(book);
-    setOpenModal(true);
-  };
+
   const reloadRescueVehicleOwners = () => {
     dispatch(fetchRescueVehicleOwners())
       .then((response) => {

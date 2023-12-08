@@ -1,12 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import GoogleMapReact from "google-map-react";
 import TextField from "@mui/material/TextField";
 import {
+  Avatar,
   Box,
   CircularProgress,
   FormControl,
   IconButton,
   InputAdornment,
+  Typography,
+  useTheme,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import CloseIcon from "@mui/icons-material/Close";
@@ -15,19 +18,35 @@ import PlacesAutocomplete, {
   geocodeByAddress,
   getLatLng,
 } from "react-places-autocomplete";
-import MapboxMap from "./mapbox";
+import { tokens } from "../../theme";
 
-const Map = () => {
+const Map = ({ technicianLocation, infoTechnician ,loadingMap}) => {
   const [coords, setCoords] = useState(null);
   const [address, setAddress] = useState("");
   const [loading, setLoading] = useState(false);
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
+  const [defaultZoom, setDefaultZoom] = useState(15);
+  const [data, setData] = useState({});
+  const [error, setError] = useState(null);
   const [defaultCenter, setDefaultCenter] = useState({
     lat: 10.7983303,
     lng: 106.6428588,
   });
-  const [defaultZoom, setDefaultZoom] = useState(11);
-  const [selectedSuggestion, setSelectedSuggestion] = useState("");
-  const [isCustomAddress, setIsCustomAddress] = useState(false);
+  useEffect(() => {
+    if (!technicianLocation || !infoTechnician)  {
+      // Set default coordinates if technicianLocation is not available
+      setCoords({ lat: defaultCenter.lat, lng: defaultCenter.lng });
+      setData(null);
+      setLoading(false);
+      setDefaultZoom(defaultZoom);
+    } else {
+      setCoords(technicianLocation);
+      setData(infoTechnician);
+      setLoading(loadingMap);
+      setDefaultZoom(17);
+    }
+  }, [technicianLocation, infoTechnician, loadingMap]);
   const handleAddressSelected = async (selectedAddress) => {
     try {
       // Sử dụng Places Autocomplete để lấy thông tin chi tiết về địa chỉ
@@ -35,7 +54,7 @@ const Map = () => {
       if (results && results.length > 0) {
         const firstResult = results[0];
         const latLng = await getLatLng(firstResult);
-        const selectedLocation  = {
+        const selectedLocation = {
           lat: latLng.lat,
           lng: latLng.lng,
           address: firstResult.formatted_address,
@@ -49,16 +68,19 @@ const Map = () => {
           lat: selectedLocation.lat,
           lng: selectedLocation.lng,
         };
-        const newZoom = 15; // You can adjust the zoom level as needed
+        const newZoom = 15; 
 
-        setDefaultCenter(newCenter);
+        setCoords(newCenter);
         setDefaultZoom(newZoom);
+        setLoading(false);
       } else {
         console.error("Không tìm thấy kết quả cho địa chỉ này.");
+        
       }
       setLoading(false);
     } catch (error) {
       console.error("Đã xảy ra lỗi trong quá trình tìm kiếm vị trí.", error);
+      setError("Đã xảy ra lỗi trong quá trình tìm kiếm vị trí.");
       setLoading(false);
     }
   };
@@ -74,15 +96,14 @@ const Map = () => {
           address: firstResult.formatted_address,
         };
         setCoords({ lat: selectedAddress.lat, lng: selectedAddress.lng });
-        // onLocationSelected(selectedAddress);
 
         const newCenter = {
           lat: selectedAddress.lat,
           lng: selectedAddress.lng,
         };
-        const newZoom = 15; // You can adjust the zoom level as needed
+        const newZoom = 15;
 
-        setDefaultCenter(newCenter);
+        setCoords(newCenter);
         setDefaultZoom(newZoom);
       } else {
         console.error("Không tìm thấy kết quả cho địa chỉ này.");
@@ -91,36 +112,69 @@ const Map = () => {
       console.error("Đã xảy ra lỗi trong quá trình tìm kiếm vị trí.", error);
     }
   };
-  const Position = ({ lat, lng, text, icon }) => {
-    if (lat && lng) {
-      // Render the marker only if valid coordinates are available
+  const Position = ({ lat, lng, text }) => {
+    if (lat && lng && text) {
+      // Render the marker only if valid coordinates and text are available
       return (
-        <div>
-          <FaMapMarkerAlt color="red" size={24} />
-          {text}
-        </div>
+        <Box>
+          <Avatar src={data?.avatar} size={24} />
+          <Box
+            style={{
+              marginTop: "2px",
+              alignItems: "center",
+              justifyContent: "center",
+              width: "100px",
+            }}
+          >
+            <Typography
+              sx={{
+                fontWeight: "bold",
+                color: colors.redAccent[500],
+                fontSize: "12px",
+              }}
+            >
+              {text}
+            </Typography>
+          </Box>
+        </Box>
       );
     } else {
-      return null; // Don't render the marker if coordinates are not available
+      return null;
     }
   };
+  
   const handleClearAddress = () => {
     setAddress("");
   };
   return (
-    <div style={{ height: "96%", width: "98%", position: "relative",margin:"10px", border:"1.4px solid black" }}>
- 
-      <GoogleMapReact
+    <Box
+    style={{
+      height: '100%', 
+      width: '100%', 
+      position: 'relative',
+      margin: 'auto', 
+      overflow: 'hidden',
+      border: '2px solid black',
+      borderRadius:"10px"
+    }}
+    >
+        {error ? (
+        <Typography color="error">{error}</Typography>
+      ) : (
+        <GoogleMapReact
         bootstrapURLKeys={{
           key: "AIzaSyBSLmhb6vCHhrZxMh3lmUI-CICfzhiMakk",
         }}
-      defaultCenter={defaultCenter}
-  defaultZoom={defaultZoom}
-  center={coords} // Set the center directly to coords
-  zoom={defaultZoom}
+        loading={loading}
+        defaultCenter={coords}
+        defaultZoom={defaultZoom}
+        center={coords}
+        zoom={defaultZoom}
       >
-        <Position lat={defaultCenter.lat} lng={defaultCenter.lng}  text="Your Location"/>
+        <Position lat={coords?.lat} lng={coords?.lng} text={data?.fullname} />
       </GoogleMapReact>
+      )}
+ 
 
       <form
         onSubmit={(e) => {
@@ -139,7 +193,6 @@ const Map = () => {
           left={0}
           width="100%"
           zIndex="1"
-
         >
           <PlacesAutocomplete
             value={address}
@@ -152,28 +205,30 @@ const Map = () => {
               getSuggestionItemProps,
               loading,
             }) => (
-              <div style={{ display: "flex", flexDirection: "column",  borderRadius: "8px" }}>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  borderRadius: "10px",
+                }}
+              >
                 <FormControl>
                   <TextField
                     {...getInputProps({
                       placeholder: "Nhập địa chỉ",
                       style: {
-                        height: "52px",
+                        height: "50px",
                         width: "400px",
                         marginRight: "5px",
-                        borderRadius: "8px",
-                        backgroundColor:"white"
+                        borderRadius: "10px",
+                        backgroundColor: "white",
                       },
                     })}
                     InputProps={{
                       endAdornment: (
                         <InputAdornment position="end">
-                           
-                          <IconButton
-                            type="submit"
-                            onClick={handleSearchIcon}
-                          >
-                           <SearchIcon/>
+                          <IconButton type="submit" onClick={handleSearchIcon}>
+                            <SearchIcon />
                           </IconButton>
                           <IconButton onClick={handleClearAddress}>
                             {loading ? (
@@ -203,7 +258,7 @@ const Map = () => {
                           style,
                         })}
                       >
-                           <FaMapMarkerAlt style={{ marginRight: "5px" }} />
+                        <FaMapMarkerAlt style={{ marginRight: "5px" }} />
                         {suggestion.description}
                       </div>
                     );
@@ -214,9 +269,7 @@ const Map = () => {
           </PlacesAutocomplete>
         </Box>
       </form>
-
-      {/* <MapboxMap/> */}
-    </div>
+    </Box>
   );
 };
 

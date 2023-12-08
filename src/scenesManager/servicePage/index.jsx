@@ -182,7 +182,6 @@ useEffect(() => {
  
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  // eslint-disable-next-line no-sparse-arrays
   const columns = [
     {
       field: "name",

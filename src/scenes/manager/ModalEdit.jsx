@@ -19,8 +19,9 @@ import {
 import { Close } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
-import { editmanager, fetchManagers } from "../../redux/managerSlice";
+import { editManager, fetchManagers } from "../../redux/managerSlice";
 import UploadImageField from "../../components/uploadImage";
+import { textAlign } from "@mui/system";
 // import { getGenres, getGenresId } from '../../redux/genreSlice';
 const ModalEdit = ({
   openEditModal,
@@ -32,13 +33,10 @@ const ModalEdit = ({
   const [edit, setEdit] = useState({});
   const [isSuccess, setIsSuccess] = useState(false);
   const [initialFormState, setInitialFormState] = useState({});
-  const dataToServer = useRef(null); // Step 2
   const [fullnameValue, setFullnameValue] = useState("");
-  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [filteredCustomers, setFilteredCustomers] = useState([]);
   const [downloadUrl, setDownloadUrl] = useState("");
-  const [serverError, setServerError] = useState(null);
   const [currentImageUrl, setCurrentImageUrl] = useState(edit.avatar || "");
   const handleImageUploaded = (imageUrl) => {
     setDownloadUrl(imageUrl); // Set the download URL in the state
@@ -104,7 +102,7 @@ const ModalEdit = ({
       handleClose();
     } else {
       // Gửi yêu cầu cập nhật lên máy chủ
-      dispatch(editmanager({ data: edit }))
+      dispatch(editManager({ data: edit }))
         .then(() => {
           setIsSuccess(true);
           toast.success("Cập nhật thành công.");
@@ -131,11 +129,6 @@ const ModalEdit = ({
     // Thêm điều kiện kiểm tra nếu customers không có giá trị
     return null;
   }
-  // Hàm kiểm tra URL hợp lệ
-  const isValidUrl = (url) => {
-    const regex = /^(ftp|http|https):\/\/[^ "]+$/;
-    return regex.test(url);
-  };
 
   return (
     <>
@@ -181,9 +174,10 @@ const ModalEdit = ({
                 <Close />
               </IconButton>
               <Typography
-                variant="h6"
+                variant="h5"
                 component="h2"
                 id="Customer-detail-modal"
+                sx={{textAlign:"center"}}
               >
                 {selectedEditManager
                   ? "Sửa Thông Tin Quản Lí"

@@ -28,7 +28,8 @@ import AddCardIcon from "@mui/icons-material/AddCard";
 import RepeatOnIcon from "@mui/icons-material/RepeatOn";
 import PersonOffIcon from "@mui/icons-material/PersonOff";
 import HowToRegIcon from "@mui/icons-material/HowToReg";
-import { fetchAccounts } from "../../redux/accountSlice";
+import { fetchAccounts, getAccountId } from "../../redux/accountSlice";
+import ModalEdit from "./ModalEdit";
 const Accounts = () => {
   const dispatch = useDispatch();
   const accounts = useSelector((state) => state.account.accounts);
@@ -40,7 +41,7 @@ const Accounts = () => {
   const [filteredTechnicians, setFilteredTechnicians] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(8);
-  const [selectedtechnician, setSelectedtechnician] = useState(null);
+  const [selectedEditAccount, setSelectedEditAccount] = useState(null);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [startDate, setStartDate] = useState(null);
@@ -48,12 +49,26 @@ const Accounts = () => {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]);
   const [technicianData, setTechnicianData] = useState([]);
-
   useEffect(() => {
     if (isSuccess) {
+      reloadTechnicians(); // Gọi hàm cập nhật danh sách khi thành công
     }
   }, [isSuccess]);
 
+  const reloadTechnicians = () => {
+    dispatch(fetchAccounts())
+      .then((response) => {
+        const data = response.payload.data;
+        if (data) {
+          setFilteredTechnicians(data); 
+          setLoading(false);
+          console.log("Accounts reloaded:", data);
+        }
+      })
+      .catch((error) => {
+        toast.error("Lỗi khi tải lại danh sách khách hàng:", error);
+      });
+  };
   const handleSearchChange = (event) => {
     const value = event.target.value || ""; // Use an empty string if the value is null
     setSearchText(value);
@@ -83,7 +98,7 @@ const Accounts = () => {
           setLoading(false); // Đặt trạng thái loading thành false sau khi xử lý dữ liệu
         }
       })
-      .catch(error => {
+      .catch((error) => {
         // Xử lý lỗi ở đây
         console.error("Lỗi khi lấy dữ liệu báo cáo:", error);
       })
@@ -91,7 +106,21 @@ const Accounts = () => {
         setLoading(false);
       });
   }, [dispatch]);
+  //update
+  const handleUpdateClick = (accountId) => {
+    console.log(accountId);
+    dispatch(getAccountId({ id: accountId }))
+      .then((response) => {
+        const accountDetails = response.payload.data;
 
+        setSelectedEditAccount(accountDetails);
+        setOpenEditModal(true);
+        setIsSuccess(true);
+      })
+      .catch((error) => {
+        toast.error("Lỗi khi lấy thông tin kỹ thuật viên:", error);
+      });
+  };
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -101,7 +130,7 @@ const Accounts = () => {
     setPage(0);
   };
 
-  const filteredtechniciansPagination = filteredTechnicians.slice(
+  const filteredTechniciansPagination = filteredTechnicians.slice(
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
   );
@@ -117,7 +146,6 @@ const Accounts = () => {
     },
     { field: "id", headerName: "accountId", width: 200, key: "id" },
 
-
     {
       field: "createAt",
       headerName: "Ngày Tạo",
@@ -129,12 +157,45 @@ const Accounts = () => {
           .add(7, "hours")
           .format("DD-MM-YYYY HH:mm:ss"),
     },
+    {
+      field: "update",
+      headerName: "Cập Nhật",
+      width: 120,
+      renderCell: (params) => (
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            "&:hover": {
+              cursor: "pointer",
+              backgroundColor: "lightgray",
 
+              borderRadius: "4px",
+            },
+          }}
+        >
+          {" "}
+          <IconButton
+            variant="contained"
+            color="indigo"
+            onClick={() => handleUpdateClick(params.row.id)}
+          >
+            <Typography
+              variant="body1"
+              sx={{ ml: "1px", color: "indigo", fontWeight: "bold" }}
+            >
+              Chỉnh Sửa
+            </Typography>
+          </IconButton>
+        </Box>
+      ),
+      key: "update",
+    },
   ];
 
   return (
     <Box ml="50px" mr="50px" mb="auto">
-      <Header title="Danh Sách Tài Khoản"  />
+      <Header title="Danh Sách Tài Khoản" />
 
       <Box display="flex" className="box" left={0}>
         <Box
@@ -158,8 +219,6 @@ const Accounts = () => {
         </Box>
 
         <ToastContainer />
-     
-      
       </Box>
 
       <Box
@@ -198,7 +257,7 @@ const Accounts = () => {
         }}
       >
         <DataGrid
-          rows={filteredtechniciansPagination}
+          rows={filteredTechniciansPagination}
           columns={columns}
           getRowId={(row) => row.id}
           autoHeight
@@ -216,8 +275,17 @@ const Accounts = () => {
         />
       </Box>
 
-   
+      <ModalEdit
+        openEditModal={openEditModal}
+        setOpenEditModal={setOpenEditModal}
+        accountDetails={selectedEditAccount} // Truyền dữ liệu từ handleUpdateClick vào đây
+        onClose={() => setOpenEditModal(false)}
+        loading={loading}
+        updateFilteredTechnicians={reloadTechnicians}
+      />
+
       <ToastContainer />
+
       <Modal
         open={openDeleteModal}
         onClose={() => setOpenDeleteModal(false)}
