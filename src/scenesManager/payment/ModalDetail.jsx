@@ -41,14 +41,19 @@ import TimerIcon from "@mui/icons-material/Timer";
 import CakeIcon from "@mui/icons-material/Cake";
 import PinDropIcon from "@mui/icons-material/PinDrop";
 import { useTheme } from "@emotion/react";
+import { getCustomerId } from "../../redux/customerSlice";
+import { getTechnicianId } from "../../redux/technicianSlice";
+import { getVehicleId } from "../../redux/vehicleSlice";
+import { getRescueVehicleOwnerId } from "../../redux/rescueVehicleOwnerSlice";
+import {
+  getFeedbackOfOrderId,
+  getFormattedAddressGG,
+  getOrderDetailId,
+  getPaymentId,
+} from "../../redux/orderSlice";
+import { getServiceId } from "../../redux/serviceSlice";
+import { tokens } from "../../theme";
 import { toast } from "react-toastify";
-import { getFeedbackOfOrderId, getFormattedAddressGG, getOrderDetailId, getPaymentId } from "../../../redux/orderSlice";
-import { getRescueVehicleOwnerId } from "../../../redux/rescueVehicleOwnerSlice";
-import { getCustomerId } from "../../../redux/customerSlice";
-import { getTechnicianId } from "../../../redux/technicianSlice";
-import { getVehicleId } from "../../../redux/vehicleSlice";
-import { getServiceId } from "../../../redux/serviceSlice";
-import { tokens } from "../../../theme";
 
 const MyModal = (props) => {
   const dispatch = useDispatch();
@@ -314,6 +319,7 @@ const MyModal = (props) => {
       case "vehicle":
         action = getVehicleId;
         break;
+      // không cần 'default' vì tất cả các trường hợp đã được xử lý
     }
 
     dispatch(action({ id }))
@@ -720,7 +726,59 @@ const MyModal = (props) => {
                                 "Không có thông tin"}
                             </Typography>
                           </Typography>
-                     
+                          <Typography
+                            variant="body1"
+                            component="p"
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              marginBottom: "8px", // Thêm khoảng cách dưới cùng của dòng
+                              fontSize: "1rem",
+                              marginRight: "2px",
+                            }}
+                          >
+                            <PaymentIcon style={iconColor} />{" "}
+                            <strong>Hình Thức:</strong>{" "}
+                            <Box
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                marginLeft: "5px",
+                                backgroundColor:
+                                  selectedEditOrder.rescueType === "Fixing"
+                                    ? colors.yellowAccent[400]
+                                    : selectedEditOrder.rescueType === "Towing"
+                                    ? colors.redAccent[600]
+                                    : colors.grey[800], // Điều chỉnh vị trí của dấu ':' và thêm dấu ','
+                                color:
+                                  selectedEditOrder.rescueType === "Towing"
+                                    ? colors.redAccent[300]
+                                    : colors.yellowAccent[700],
+                                borderRadius: "16px",
+                              }}
+                            >
+                              {selectedEditOrder.rescueType === "Towing" && <SupportIcon />}
+                              {selectedEditOrder.rescueType === "Fixing" && <HandymanIcon />}
+                              <Typography
+                                variant="h5"
+                                sx={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  padding: "4px",
+                                  fontSize: "16px",
+                                  fontWeight: "bold",
+                                  color: "white",
+                                }}
+                              >
+                                {selectedEditOrder.rescueType === "Towing"
+                                  ? "Kéo Xe"
+                                  : selectedEditOrder.rescueType === "Fixing"
+                                  ? "Sữa Chữa Tại Chỗ"
+                                  : selectedEditOrder.rescueType ||
+                                    "Đang tải..."}
+                              </Typography>
+                            </Box>
+                          </Typography>
                           {/* List all service */}
                           <Typography
                             variant="body1"

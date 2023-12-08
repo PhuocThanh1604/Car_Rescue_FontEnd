@@ -161,8 +161,9 @@ const ModalEdit = ({
             [addressType]: formattedAddress,
           }));
         } catch (error) {
-          console.error(
-            "Error fetching address:",
+          setLoading(false)
+          toast.error(
+            "Không tìm thấy địa chỉ:",
             error.response ? error.response : error
           );
         } finally {
@@ -338,7 +339,7 @@ const ModalEdit = ({
 
           // Xác định selectedVehicle ban đầu
         } else {
-          setVehicleData([]);
+          setVehicleData(false);
           console.error("Vehicle response does not contain 'data'.");
         }
       } catch (error) {
@@ -1322,15 +1323,15 @@ const ModalEdit = ({
                                 margin="normal"
                               />
                             )}
-                            renderOption={(props, option) => (
-                              <li {...props}>
+                            renderOption={(option) => (
+                              <div key={option.id}>
                                 <Avatar
                                   src={option.avatar}
                                   alt={option.fullname}
                                   sx={{ marginRight: "10px" }}
                                 />
                                 {option.fullname}
-                              </li>
+                                </div>
                             )}
                           />
 

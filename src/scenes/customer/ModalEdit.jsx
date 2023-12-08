@@ -63,7 +63,7 @@ const ModalEdit = ({
         );
         if (customerToEdit) {
           console.log(customerToEdit);
-          setFullnameValue(customerToEdit.fullname);
+       
           setEdit(customerToEdit);
           setInitialFormState(customerToEdit);
         }
@@ -208,8 +208,8 @@ const ModalEdit = ({
                  <TextField
                    name="fullname"
                    label="Họ Và Tên"
-                   value={fullnameValue}
-                   disabled // Disable the TextField
+                   value={edit.fullname||""}
+                   onChange={handleInputChange}
                    fullWidth
                    margin="normal"
                  />
@@ -253,15 +253,6 @@ const ModalEdit = ({
                    style={{ display: "none" }}
                  />
 
-                 {/* <TextField
-                   name="avatar"
-                   label="Hình Ảnh"
-                   type="text"
-                   value={edit.avatar || ""}
-                   onChange={handleInputChange}
-                   fullWidth
-                   margin="normal"
-                 /> */}
                  <FormControl fullWidth sx={{ marginTop: 1 }}>
                    <InputLabel id="demo-simple-select-label">
                      Giới Tính

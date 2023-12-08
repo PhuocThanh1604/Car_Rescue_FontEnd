@@ -40,6 +40,7 @@ import PaidIcon from "@mui/icons-material/Paid";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { toast } from "react-toastify";
 import { getCustomerId } from "../../redux/customerSlice";
+import MyModal from "./ModalDetail";
 
 const Payment = () => {
   const dispatch = useDispatch();
@@ -68,15 +69,29 @@ const Payment = () => {
 
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+  const [openModal, setOpenModal] = useState(false);
+  const [selectedEditOrder, setSelectedEditOrder] = useState(null);
   const handleClickPaymentDetail = (paymentId) => {
     console.log(paymentId);
     dispatch(getPaymentId({ id: paymentId }))
       .then((response) => {
         const transactionDetails = response.payload.data;
-        setOpenConfirmModal(true);
+        // setOpenConfirmModal(true);
         setDetailedData(transactionDetails);
-        setIsSuccess(true);
-        console.log(transactionDetails);
+        console.log("transactionDetails"+transactionDetails)
+      
+        console.log(transactionDetails.orderId);
+
+        dispatch(getOrderId({ id: transactionDetails.orderId }))
+          .then((response) => {
+            const orderDetails = response.payload.data;
+            setSelectedEditOrder(orderDetails);
+            setOpenModal(true);
+            setIsSuccess(true);
+          })
+          .catch((error) => {
+            console.error("Lỗi khi lấy thông tin đơn hàng mới:", error);
+          });
       })
       .catch((error) => {
         console.error("Lỗi khi lấy thông tin payment:", error);
@@ -235,10 +250,10 @@ const Payment = () => {
   //     // Handle errors here if needed
   //   }
   // }, [data]);
-  
+
   // // Create a Set to keep track of unique customerIds
   // const uniqueCustomerIds = new Set();
-  
+
   // const fetchOrder = (orderId) => {
   //   if (orderId) {
   //     return dispatch(getOrderId({ id: orderId }))
@@ -263,8 +278,7 @@ const Payment = () => {
   //       });
   //   }
   // };
-  
-  
+
   // // Function to send data to the API based on customerId
   // const sendToAPI = (customerId, orderId) => {
   //   if (customerId && orderId) {
@@ -282,12 +296,11 @@ const Payment = () => {
   //       });
   //   }
   // };
-  
-  
+
   // useEffect(() => {
   //   // Create an array of promises for fetching data for each unique orderId
   //   const fetchPromises = orderIds.map((orderId) => fetchOrder(orderId));
-  
+
   //   // Execute all promises concurrently using Promise.all
   //   Promise.all(fetchPromises)
   //     .then((results) => {
@@ -298,7 +311,6 @@ const Payment = () => {
   //       console.error("Error while fetching orders:", error);
   //     });
   // }, [orderIds]);
-  
 
   useEffect(() => {
     if (detailedData && detailedData.orderId) {
@@ -376,7 +388,6 @@ const Payment = () => {
     //     );
     //   },
     // },
-    
 
     {
       field: "createdAt",
@@ -674,6 +685,13 @@ const Payment = () => {
         onRowsPerPageChange={handleChangeRowsPerPage}
         loading={loading}
       />
+      <MyModal
+        openModal={openModal}
+        setOpenModal={setOpenModal}
+        onClose={() => setOpenModal(false)}
+        selectedEditOrder={selectedEditOrder}
+        loading={loading}
+      ></MyModal>
 
       <Dialog
         open={openConfirmModal}

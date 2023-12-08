@@ -46,6 +46,7 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 import { tokens } from "../../../theme";
 import { getServiceId } from "../../../redux/serviceSlice";
 import { getFormattedAddressGG, getOrderDetailId } from "../../../redux/orderSlice";
+import { toast } from "react-toastify";
 const MyModal = (props) => {
   const dispatch = useDispatch();
   const { openModal, setOpenModal, selectedEditOrder } = props;
@@ -110,12 +111,13 @@ const MyModal = (props) => {
             [addressType]: formattedAddress,
           }));
         } catch (error) {
-          console.error(
+          setLoading(false)
+          toast.dismiss(
             "Error fetching address:",
             error.response ? error.response : error
           );
         } finally {
-          setLoading(false); // Đảm bảo loading được đặt lại thành false dù có lỗi
+          setLoading(false); 
         }
       }
     }
@@ -145,6 +147,7 @@ const MyModal = (props) => {
               [vehicleRvoidId]: data,
             }));
           } else {
+
             console.error("Service name not found in the API response.");
           }
         })

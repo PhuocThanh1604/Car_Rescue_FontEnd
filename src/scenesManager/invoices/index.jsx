@@ -684,8 +684,8 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
         <Box    display="flex"
             borderRadius="6px"
             border={1}
-            marginRight={2}
-            marginLeft={2}
+            marginRight={1}
+            marginLeft={1}
             width={500}>
           <InputBase
             sx={{ ml: 4, flex: 1 }}
@@ -722,7 +722,7 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
             </Select>
           </FormControl>
         </Box>
-        <Box display="flex" alignItems="center" className="filter-box" sx={{marginLeft:"20px"}}>
+        <Box display="flex" alignItems="center" className="filter-box" sx={{marginLeft:"14px"}}>
           <FormControl fullWidth>
             <Select
               labelId="demo-simple-select-label"
@@ -769,7 +769,7 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
                 .add(7, "hours") // Adding 3 hours (you can adjust this number as needed)
                 .format("DD-MM-YYYY"), // Set the maximum selectable date as today
             }}
-            sx={{ ml: 4, mr: 2 }}
+            sx={{ ml: 1, mr: 1 }}
           />
         </Box>
 
