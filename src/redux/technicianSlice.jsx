@@ -132,6 +132,21 @@ export const getLocationTechnician = createAsyncThunk(
     }
   }
 );
+export const getAllLocationTechnician = createAsyncThunk(
+  "technicians/getAllLocationTechnician",
+  async () => {
+    try {
+      const response = await axios.get(
+        `https://rescuecapstoneapi.azurewebsites.net/api/Location/GetAllLocation`
+      );
+      const data = response.data;
+      return data;
+    } catch (error) {
+      console.error("Failed to get location of technician:", error.response);
+      throw error.response.data || error.message;
+    }
+  }
+);
 
 const technicianSlice = createSlice({
   name: "technician",
@@ -177,6 +192,8 @@ const technicianSlice = createSlice({
         state.technicianData = action.payload.data;
       })
       .addCase(getLocationTechnician.fulfilled, (state, action) => {
+        state.technicianData = action.payload.data;
+      }).addCase(getAllLocationTechnician.fulfilled, (state, action) => {
         state.technicianData = action.payload.data;
       });
   },

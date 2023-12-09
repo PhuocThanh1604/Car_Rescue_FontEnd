@@ -73,70 +73,94 @@ const Technicians = (props) => {
   const [infoTechnician, setInfoTechnician] = useState(null);
   const [mapLoading, setMapLoading] = useState(false);
   const [isMapLoaded, setIsMapLoaded] = useState(false);
+  const [intervalId, setIntervalId] = useState(null);
 
-  useEffect(() => {
-    if (showMapModal) {
-      setMapLoading(true);
-      setIsMapLoaded(true); // Đặt flag để chỉ hiển thị map một lần
-    }
-  }, [showMapModal, isMapLoaded]);
 
   const handleLocationOfTechnician = (technicianId) => {
     console.log(technicianId);
-
-    // Hiển thị bản đồ trước khi tải dữ liệu
     setShowMapModal(true);
     setIsMapLoaded(true);
     setMapLoading(true);
-
-    // Tiến hành tải dữ liệu vị trí kỹ thuật viên
-    dispatch(getLocationTechnician({ id: technicianId }))
-      .then((response) => {
-        setMapLoading(false);
-        const technicianDetails = response.payload.data;
-        if (technicianDetails && technicianDetails.body) {
-          var bodyObj = JSON.parse(technicianDetails.body);
-          const lat = parseFloat(bodyObj.Lat);
-          const lng = parseFloat(bodyObj.Long);
-
-          if (!isNaN(lat) && !isNaN(lng)) {
-            setTechnicianLocation({ lat, lng });
-            setIsSuccess(true);
-
-            // Tải thông tin chi tiết của kỹ thuật viên sau khi vị trí đã được xác định
-            dispatch(getTechnicianId({ id: technicianId }))
-              .then((response) => {
-                toast.info("Đã tìm thấy vị trí kỹ thuật viên đang muốn xem:");
-                const technicianInfo = response.payload.data;
-                setInfoTechnician(technicianInfo);
-              })
-              .catch((error) => {
-                toast.error("Lỗi khi lấy thông tin kỹ thuật viên:", error);
-              });
+  
+    const intervalId = setInterval(() => {
+      dispatch(getLocationTechnician({ id: technicianId }))
+        .then((response) => {
+          setMapLoading(false);
+          const technicianDetails = response.payload.data;
+          if (technicianDetails && technicianDetails.body) {
+            var bodyObj = JSON.parse(technicianDetails.body);
+            const lat = parseFloat(bodyObj.Lat);
+            const lng = parseFloat(bodyObj.Long);
+  
+            if (!isNaN(lat) && !isNaN(lng)) {
+              setTechnicianLocation({ lat, lng });
+              setIsSuccess(true);
+             
+              // Check if valid lat and lng before making further API calls
+              if (lat !== 0 && lng !== 0) {
+                dispatch(getTechnicianId({ id: technicianId }))
+                  .then((response) => {
+                    // toast.info("Đã tìm thấy vị trí kỹ thuật viên đang muốn xem:");
+                    const technicianInfo = response.payload.data;
+                    setInfoTechnician(technicianInfo);
+                  })
+                  .catch((error) => {
+                    toast.error("Lỗi khi lấy thông tin kỹ thuật viên:", error);
+                  });
+              } else {
+                clearInterval(intervalId);
+                setTechnicianLocation(null);
+                setInfoTechnician(null);
+                setIsSuccess(false);
+                toast.error("Dữ liệu vị trí của kỹ thuật viên không hợp lệ");
+              }
+            } else {
+              // No valid lat and lng, clear the interval and stop further API calls
+              clearInterval(intervalId);
+              setTechnicianLocation(null);
+              setInfoTechnician(null);
+              setIsSuccess(false);
+              toast.error("Dữ liệu vị trí của kỹ thuật viên không tìm thấy");
+            }
           } else {
-            // If location data is not found, display only the map without technician information
-            setTechnicianLocation(null); // Clear previous technician location
-            setInfoTechnician(null); // Clear previous technician information
-            setIsSuccess(false); // Set isSuccess to false
-            toast.error("Dữ liệu vị trí của kỹ thuật viên không tìm thấy");
+            // No data, clear the interval and stop further API calls
+            clearInterval(intervalId);
+            setTechnicianLocation(null);
+            setInfoTechnician(null);
+            setIsSuccess(false);
+            toast.error("Không có dữ liệu trả về từ getLocationTechnician");
           }
-        } else {
-          // If technicianDetails or technicianDetails.body is not available, display only the map without technician information
-          setTechnicianLocation(null); // Clear previous technician location
-          setInfoTechnician(null); // Clear previous technician information
-          setIsSuccess(false); // Set isSuccess to false
-          toast.error("Không có dữ liệu trả về từ getLocationTechnician");
-        }
-      })
-      .catch((error) => {
-        setMapLoading(false);
-        toast.warning(
-          "Chưa tìm thấy vị trí kỹ thuật viên đang muốn xem:",
-          error
-        );
-      });
+        })
+        .catch((error) => {
+          setMapLoading(false);
+          toast.warning(
+            "Chưa tìm thấy vị trí kỹ thuật viên đang muốn xem:",
+            error
+          );
+        });
+    }, 2000);
+  
+    setIntervalId(intervalId);
   };
+  
+  
+  useEffect(() => {
+    // Clear interval when the component unmounts or modal is closed
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [intervalId]);
 
+
+  // Effect to handle map loading
+  useEffect(() => {
+    if (showMapModal) {
+      setMapLoading(true);
+      setIsMapLoaded(true);
+    }
+  }, [showMapModal, isMapLoaded]);
   const handleMapLocationSelected = async (selectedAddress) => {
     try {
       const results = await geocodeByAddress(selectedAddress);
@@ -666,10 +690,11 @@ const Technicians = (props) => {
         }}
         open={showMapModal}
         onClose={() => {
-          // Xóa dữ liệu trước đó khi modal được đóng
+          clearInterval(intervalId);
           setTechnicianLocation(null);
           setInfoTechnician(null);
           setShowMapModal(false);
+         
         }}
         loading={mapLoading}
       >

@@ -113,17 +113,27 @@ const Map = ({ technicianLocation, infoTechnician ,loadingMap}) => {
     }
   };
   const Position = ({ lat, lng, text }) => {
+ 
+  
     if (lat && lng && text) {
-      // Render the marker only if valid coordinates and text are available
       return (
-        <Box>
+        <Box style={{ position: "relative" }}>
+          {loadingMap && (
+            <Box
+              style={{
+                position: "absolute",
+                top: "20%",
+                left: "-40%",
+                transform: "translate(-0%, -30%)",
+              }}
+            >
+              <CircularProgress color="secondary" disableShrink />
+            </Box>
+          )}
           <Avatar src={data?.avatar} size={24} />
           <Box
             style={{
-              marginTop: "2px",
-              alignItems: "center",
-              justifyContent: "center",
-              width: "100px",
+              width: "120px",
             }}
           >
             <Typography
@@ -143,6 +153,7 @@ const Map = ({ technicianLocation, infoTechnician ,loadingMap}) => {
     }
   };
   
+  
   const handleClearAddress = () => {
     setAddress("");
   };
@@ -154,7 +165,7 @@ const Map = ({ technicianLocation, infoTechnician ,loadingMap}) => {
       position: 'relative',
       margin: 'auto', 
       overflow: 'hidden',
-      border: '2px solid black',
+      border: '1px solid black',
       borderRadius:"10px"
     }}
     >
@@ -171,7 +182,20 @@ const Map = ({ technicianLocation, infoTechnician ,loadingMap}) => {
         center={coords}
         zoom={defaultZoom}
       >
-        <Position lat={coords?.lat} lng={coords?.lng} text={data?.fullname} />
+         {loadingMap ? (
+            <Box
+              style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+              }}
+            >
+              <CircularProgress color="secondary"  disableShrink/>
+            </Box>
+          ) : (
+            <Position lat={coords?.lat} lng={coords?.lng} text={data?.fullname} />
+          )}
       </GoogleMapReact>
       )}
  
