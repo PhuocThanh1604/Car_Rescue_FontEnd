@@ -113,8 +113,6 @@ const Map = ({ technicianLocation, infoTechnician ,loadingMap}) => {
     }
   };
   const Position = ({ lat, lng, text }) => {
- 
-  
     if (lat && lng && text) {
       return (
         <Box style={{ position: "relative" }}>
