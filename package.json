@@ -58,6 +58,7 @@
     "react-router-dom": "^6.19.0",
     "react-scripts": "5.0.1",
     "react-slick": "^0.29.0",
+    "react-spring": "^9.7.3",
     "react-swipeable-views": "^0.14.0",
     "react-swipeable-views-utils": "^0.14.0",
     "react-toastify": "^9.1.3",

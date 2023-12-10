@@ -18,12 +18,12 @@ import PlacesAutocomplete, {
   geocodeByAddress,
   getLatLng,
 } from "react-places-autocomplete";
-import MapboxMap from "./mapbox";
 import { useDispatch } from "react-redux";
 import { getAllLocationTechnician, getTechnicianId } from "../../redux/technicianSlice";
 import { toast } from "react-toastify";
 import { tokens } from "../../theme";
 
+import { useSpring, animated } from "react-spring";
 const Map = () => {
   const dispatch = useDispatch();
   const [coords, setCoords] = useState(null);
@@ -108,6 +108,16 @@ const Map = () => {
       console.error("Đã xảy ra lỗi trong quá trình tìm kiếm vị trí.", error);
     }
   };
+  const avatarAnimation = useSpring({
+    from: { transform: "scale(1.2)" }, 
+    to: async (next) => {
+      while (true) {
+        await next({ transform: "scale(1.2)" }); 
+        await next({ transform: "scale(1)" }); 
+      }
+    },
+    config: { duration: 1000, reset: true, delay: 500 }, 
+  });
   useEffect(() => {
     
     setLoading(true);
@@ -208,7 +218,10 @@ const Map = () => {
       // Render the marker only if valid coordinates are available
       return (
         <Box style={{ position: "relative" }}>
-          <Avatar src={avatar} size={24} />
+             <animated.div
+              style={avatarAnimation} 
+            ><Avatar src={avatar} size={24} /></animated.div>
+          
           <Box
             style={{
               width: "120px",
@@ -216,9 +229,10 @@ const Map = () => {
           >
             <Typography
               sx={{
-                fontWeight: "bold",
-                color: colors.redAccent[500],
-                fontSize: "12px",
+                marginTop:"3px",
+                    fontWeight: "bold",
+                    color: colors.brown[900],
+                    fontSize: "12px",
               }}
             >
               {text}

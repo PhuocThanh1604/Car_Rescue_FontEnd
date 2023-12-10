@@ -2,11 +2,36 @@ import React, { useState, useEffect } from "react";
 import { v4 } from "uuid";
 import { storage } from "../firebase";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-
+import { styled } from '@mui/material/styles';
+import { Box, Button, Input } from "@mui/material";
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 const UploadImageField = ({ onImageUploaded, imageUrl }) => {
   const [imageUpload, setImageUpload] = useState(null);
   const [downloadUrl, setDownloadUrl] = useState(""); // State to store the download URL
-
+  const StyledInput = styled(Input)({
+    display:"none",
+    clip: 'rect(0 0 0 0)',
+    clipPath: 'inset(50%)',
+    height: 1,
+    overflow: 'hidden',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    whiteSpace: 'nowrap',
+    width: 1,
+    
+  });
+  const VisuallyHiddenInput = styled('input')({
+    clip: 'rect(0 0 0 0)',
+    clipPath: 'inset(50%)',
+    height: 1,
+    overflow: 'hidden',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    whiteSpace: 'nowrap',
+    width: 1,
+  });
   const uploadImage = () => {
     if (imageUpload == null) return;
     const imageRef = ref(storage, `admin/${imageUpload.name + v4()}`);
@@ -35,14 +60,21 @@ const UploadImageField = ({ onImageUploaded, imageUrl }) => {
   }, [imageUpload]);
 
   return (
-    <div>
-      <input
+    <Box sx={{marginLeft:"6px"}}>
+    <label htmlFor="upload-button">
+      
+      <Button component="label" variant="outlined" startIcon={<CloudUploadIcon />}>
+        Tải ảnh lên
+        <StyledInput
+        id="upload-button"
         type="file"
         onChange={(event) => {
           setImageUpload(event.target.files[0]);
         }}
       />
-    </div>
+      </Button>
+    </label>
+  </Box>
   );
 };
 

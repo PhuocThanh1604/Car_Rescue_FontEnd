@@ -16,7 +16,7 @@ import Header from "../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
 import CurrencyExchangeIcon from "@mui/icons-material/CurrencyExchange";
 import ModalEdit from "./ModalComponentEdit";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Fade from "@mui/material/Fade";
 import SearchIcon from "@mui/icons-material/Search";
@@ -32,7 +32,6 @@ import AssuredWorkloadIcon from "@mui/icons-material/AssuredWorkload";
 const TransactionDetails = () => {
   const { id } = useParams();
   console.log("Selected Wallet ID in TransactionDetails:", id);
-
   const dispatch = useDispatch();
   const transactions = useSelector((state) => state.transaction.transactions);
   const [openEditModal, setOpenEditModal] = useState(false);
@@ -167,13 +166,6 @@ const TransactionDetails = () => {
     setFilteredTransactionDetail(filtered);
   }, [transactions, searchText, filterOption]);
   
-  
-
-  const handleDeleteClick = (technician) => {
-    setSelectedtechnician(technician);
-    setOpenDeleteModal(true);
-  };
-
 
   useEffect(() => {
 
@@ -200,26 +192,25 @@ const TransactionDetails = () => {
       .then((response) => {
         if (!response || !response.payload || !response.payload.data) {
           setLoading(false);
+          toast.error("Không tìm thấy id transaction bạn muốn xem");
           return;
         }
         const responseData = response.payload.data;
         console.log("responseData detail", responseData);
         if (responseData) {
           setFilteredTransactionDetail(responseData);
-          setData(responseData); // Store all data for future reference
+          setData(responseData); // Lưu trữ tất cả dữ liệu để sử dụng trong tương lai
         }
       })
       .catch((error) => {
         setLoading(false);
         console.error("Error while fetching transaction data:", error);
+        // Xử lý lỗi từ API
       });
   }, [dispatch, id]);
   
 
-
-  // Handling changes in filterOption, searchText, startDate, endDate
   useEffect(() => {
-    // Applying filters when filter options change or search text or date range is updated
     const applyFilters = () => {
       let filteredData = data; // Using stored data which has all transactions
       if (searchText) {

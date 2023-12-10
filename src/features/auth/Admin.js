@@ -4,24 +4,24 @@ import { Box } from '@mui/material';
 import { ColorModeContext, useMode } from '../../theme';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import Topbar from '../../components/Topbar';
-import Sidebar from '../../scenes/geography/global/Sidebar';
+import Sidebar from '../../pages/scenes/geography/global/Sidebar';
 import { Routes, Route } from 'react-router-dom';
 import { useSelector } from "react-redux";
 import { selectCurrentToken, selectCurrentUser} from "./authSlice";
-import Customers from "../../scenes/customer";
-import RescueVehicleOwners  from "../../scenes/rescueVehicleOwner";
-import Managers from "../../scenes/manager";
-import AddRescueVehicleOwner from "../../scenes/create_RescueVehicleOwner";
-import AddTechnian  from "../../scenes/create_Technician";
-import AddManager from "../../scenes/create_Manager";
-import Technicians from "../../scenes/technician";
-import CreateAccount from "../../scenes/account/createAccount";
+import Customers from "../../pages/scenes/customer";
+import Managers from "../../pages/scenes/manager";
+import Technicians from "../../pages/scenes/technician";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import UpdateTechnician from "../../scenes/update_Technician";
-import UpdateProfileAmdin from "../../scenes/updateProfile";
-import Accounts from "../../scenes/account";
-import AddCustomer from "../../scenes/create_Customer";
+import UpdateTechnician from "../../pages/scenes/update_Technician";
+import UpdateProfileAmdin from "../../pages/scenes/updateProfile";
+import AddCustomer from "../../pages/scenes/create_Customer";
+import Accounts from "../../pages/scenes/account";
+import CreateAccount from "../../pages/scenes/account/createAccount";
+import AddRescueVehicleOwner from "../../pages/scenes/create_RescueVehicleOwner";
+import AddManager from "../../pages/scenes/create_Manager";
+import RescueVehicleOwners from "../../pages/scenes/rescueVehicleOwner";
+import Addtechnician from "../../pages/scenes/create_Technician";
 
 
 const Admin = () => {
@@ -54,7 +54,7 @@ const Admin = () => {
                   {/* create actor */}
                   <Route path="/admin/add/account" element={<CreateAccount />} />
                   <Route path="/admin/add/carVihecileOwner" element={<AddRescueVehicleOwner />} />
-                  <Route path="/admin/add/technician" element={<AddTechnian />} />
+                  <Route path="/admin/add/technician" element={<Addtechnician />} />
                   <Route path="/admin/add/manager" element={<AddManager />} />
                   <Route path="/admin/add/customer" element={<AddCustomer />} />
                   <Route path="/admin/edit/updateTechnician" element={<UpdateTechnician />} />
