@@ -106,7 +106,7 @@ export const getVehicleId = createAsyncThunk(
   }
 );
 export const getAllVehicleOfUser = createAsyncThunk(
-  "vehicles/getVehicleId",
+  "vehicles/getAllVehicleOfUser",
   async ({ id }) => {
   
 
@@ -118,7 +118,7 @@ export const getAllVehicleOfUser = createAsyncThunk(
       console.log(data);
       return data;
     } catch (error) {
-      console.error("Failed to get  Vehicle ", error.response);
+      console.error("Failed to get  Al lVehicle Of User ", error.response);
       throw error.response.data || error.message;
     }
   }
@@ -268,8 +268,7 @@ const rescueVehicleOwnerSlice = createSlice({
         if (Array.isArray(responseData)) {
           state.vehicles = [...state.vehicles, ...responseData]; // Nối dữ liệu vào state.vehicles nếu là một mảng
         } else {
-          // Xử lý dữ liệu trả về nếu không phải là mảng
-          // Ví dụ: state.vehicles = [responseData];
+        
         }
       })
       .addCase(createAcceptRegisterVehicle.pending, (state) => {
