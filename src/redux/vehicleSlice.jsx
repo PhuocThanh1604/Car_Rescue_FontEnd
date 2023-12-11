@@ -105,6 +105,24 @@ export const getVehicleId = createAsyncThunk(
     }
   }
 );
+export const getAllVehicleOfUser = createAsyncThunk(
+  "vehicles/getVehicleId",
+  async ({ id }) => {
+  
+
+    try {
+      const response = await axios.get(
+        `https://rescuecapstoneapi.azurewebsites.net/api/Vehicle/GetAllOfUser?id=${id}`
+      );
+      const data = response.data;
+      console.log(data);
+      return data;
+    } catch (error) {
+      console.error("Failed to get  Vehicle ", error.response);
+      throw error.response.data || error.message;
+    }
+  }
+);
 
 export const editRescueVehicleOwner = createAsyncThunk(
   "vehicles/edit",
@@ -148,7 +166,6 @@ export const updateStatusRescueVehicleOwner = createAsyncThunk(
     }
   }
 );
-
 
 export const createAcceptRegisterVehicle = createAsyncThunk(
   "vehicles/createAcceptRegisterVehicle",
@@ -241,6 +258,9 @@ const rescueVehicleOwnerSlice = createSlice({
         state.status = "error";
       })
       .addCase(getVehicleId.fulfilled, (state, action) => {
+        state.vehicles = action.payload.data;
+      })
+      .addCase(getAllVehicleOfUser.fulfilled, (state, action) => {
         state.vehicles = action.payload.data;
       })
       .addCase(createAcceptRegisterVehicle.fulfilled, (state, action) => {

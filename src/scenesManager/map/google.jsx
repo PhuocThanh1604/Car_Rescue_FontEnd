@@ -19,7 +19,10 @@ import PlacesAutocomplete, {
   getLatLng,
 } from "react-places-autocomplete";
 import { useDispatch } from "react-redux";
-import { getAllLocationTechnician, getTechnicianId } from "../../redux/technicianSlice";
+import {
+  getAllLocationTechnician,
+  getTechnicianId,
+} from "../../redux/technicianSlice";
 import { toast } from "react-toastify";
 import { tokens } from "../../theme";
 
@@ -43,6 +46,7 @@ const Map = () => {
   const [selectedSuggestion, setSelectedSuggestion] = useState("");
   const [isCustomAddress, setIsCustomAddress] = useState(false);
   const [technicianLocation, setTechnicianLocation] = useState(null);
+  const [intervalId, setIntervalId] = useState(null);
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const handleAddressSelected = async (selectedAddress) => {
@@ -109,26 +113,27 @@ const Map = () => {
     }
   };
   const avatarAnimation = useSpring({
-    from: { transform: "scale(1.2)" }, 
+    from: { transform: "scale(1.2)" },
     to: async (next) => {
       while (true) {
-        await next({ transform: "scale(1.2)" }); 
-        await next({ transform: "scale(1)" }); 
+        await next({ transform: "scale(1.2)" });
+        await next({ transform: "scale(1)" });
       }
     },
-    config: { duration: 1000, reset: true, delay: 500 }, 
+    config: { duration: 1000, reset: true, delay: 500 },
   });
   useEffect(() => {
-    
     setLoading(true);
-    dispatch(getAllLocationTechnician())
+     const intervalId = setInterval(() => { 
+
+      dispatch(getAllLocationTechnician())
       .then((response) => {
         const technicianDetails = response.payload.data;
 
         if (Object.keys(technicianDetails).length > 0) {
           const coordinates = [];
-  const tempAllTechnicianInfos = [];
-          
+          const tempAllTechnicianInfos = [];
+
           // Loop through all technicians
           for (const technicianId in technicianDetails) {
             if (technicianDetails.hasOwnProperty(technicianId)) {
@@ -136,7 +141,9 @@ const Map = () => {
               const { lat, long } = technician;
 
               // Do something with lat and long
-              console.log(`Technician ID: ${technicianId}, Lat: ${lat}, Long: ${long}`);
+              console.log(
+                `Technician ID: ${technicianId}, Lat: ${lat}, Long: ${long}`
+              );
 
               const parsedLat = parseFloat(lat);
               const parsedLong = parseFloat(long);
@@ -144,26 +151,29 @@ const Map = () => {
               if (!isNaN(parsedLat) && !isNaN(parsedLong)) {
                 coordinates.push({ lat: parsedLat, lng: parsedLong });
 
-                
                 dispatch(getTechnicianId({ id: technicianId }))
                   .then((response) => {
                     const technicianInfo = response.payload.data;
                     tempAllTechnicianInfos.push(technicianInfo);
                     console.log(technicianInfo);
-                
+
                     // Check if all technician information has been fetched
-                    if (tempAllTechnicianInfos.length || Object.keys(technicianDetails).length) {
+                    if (
+                      tempAllTechnicianInfos.length ||
+                      Object.keys(technicianDetails).length
+                    ) {
                       setInfoTechnician([...tempAllTechnicianInfos]); // Use spread to create a new array
                       console.log(tempAllTechnicianInfos);
                     }
                     console.log(infoTechnician);
-                   
                   })
                   .catch((error) => {
                     toast.error("Lỗi khi lấy thông tin kỹ thuật viên:", error);
                   });
               } else {
-                console.warn(`Invalid coordinates for Technician ID: ${technicianId}`);
+                console.warn(
+                  `Invalid coordinates for Technician ID: ${technicianId}`
+                );
               }
             }
           }
@@ -198,8 +208,10 @@ const Map = () => {
       .finally(() => {
         setLoading(false);
       });
+     },2000)
+     setIntervalId(intervalId);
+  
   }, [dispatch]);
-
 
   useEffect(() => {
     if (technicianLocation) {
@@ -218,10 +230,10 @@ const Map = () => {
       // Render the marker only if valid coordinates are available
       return (
         <Box style={{ position: "relative" }}>
-             <animated.div
-              style={avatarAnimation} 
-            ><Avatar src={avatar} size={24} /></animated.div>
-          
+          <animated.div style={avatarAnimation}>
+            <Avatar src={avatar} size={24} />
+          </animated.div>
+
           <Box
             style={{
               width: "120px",
@@ -229,10 +241,10 @@ const Map = () => {
           >
             <Typography
               sx={{
-                marginTop:"3px",
-                    fontWeight: "bold",
-                    color: colors.brown[900],
-                    fontSize: "12px",
+                marginTop: "3px",
+                fontWeight: "bold",
+                color: colors.brown[900],
+                fontSize: "12px",
               }}
             >
               {text}
@@ -241,14 +253,12 @@ const Map = () => {
         </Box>
       );
     } else {
-      return null; 
+      return null;
     }
   };
   const handleClearAddress = () => {
     setAddress("");
   };
- 
-
 
   return (
     <div
@@ -267,22 +277,23 @@ const Map = () => {
         defaultCenter={defaultCenter}
         defaultZoom={defaultZoom}
       >
-       {/* <Position lat={coords?.lat} lng={coords?.lng} text="You are here" /> */}
-      {technicianLocation && (
-        <Position lat={technicianLocation.lat} lng={technicianLocation.lng} text="Technician" />
-      )}
-      {technicianCoordinates.map((coordinate, index) => (
-        <Position key={index} lat={coordinate.lat} lng={coordinate.lng}
-        
-        
-        text={infoTechnician[index]?.fullname || 'Unknown'}
-               
-        avatar={infoTechnician[index]?.avatar || ''}
-        
-        
-        
-        />
-      ))}
+        {/* <Position lat={coords?.lat} lng={coords?.lng} text="You are here" /> */}
+        {technicianLocation && (
+          <Position
+            lat={technicianLocation.lat}
+            lng={technicianLocation.lng}
+            text="Technician"
+          />
+        )}
+        {technicianCoordinates.map((coordinate, index) => (
+          <Position
+            key={index}
+            lat={coordinate.lat}
+            lng={coordinate.lng}
+            text={infoTechnician[index]?.fullname || "Unknown"}
+            avatar={infoTechnician[index]?.avatar || ""}
+          />
+        ))}
       </GoogleMapReact>
 
       <form
