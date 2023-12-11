@@ -203,7 +203,7 @@ const Map = () => {
         }
       })
       .catch((error) => {
-        toast.error("Lỗi khi lấy dữ liệu kỹ thuật viên:", error);
+        console.error("Lỗi khi lấy dữ liệu kỹ thuật viên:", error);
       })
       .finally(() => {
         setLoading(false);
