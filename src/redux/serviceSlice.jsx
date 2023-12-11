@@ -12,11 +12,14 @@ export const createService = createAsyncThunk(
         ...service,
         id: id,
       };
-      const res = await axios.post('https://rescuecapstoneapi.azurewebsites.net/api/Service/Create', serviceData , {
+      const res = await axios.post('https://rescuecapstoneapi.azurewebsites.net/api/Service/Create', serviceData ,{
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
+          'Authorization':`${accessToken}`
         },
-      });
+      }
+      
+      );
       return res.data;
     } catch (error) {
       console.error('Failed to create service :', error.response);
@@ -29,7 +32,12 @@ export const fetchServices = createAsyncThunk(
   async () => {
     try {
       const response = await axios.get(
-        'https://rescuecapstoneapi.azurewebsites.net/api/Service/GetAll'
+        'https://rescuecapstoneapi.azurewebsites.net/api/Service/GetAll',{
+          headers: {
+            "Content-Type": "application/json",
+            'Authorization':`${accessToken}`
+          },
+        }
       );
       const data = response.data;
       return data;
@@ -41,9 +49,15 @@ export const fetchServices = createAsyncThunk(
 );
 export const getServiceId = createAsyncThunk('service/getServiceId', async ({ id }) => {
   try {
-    const response = await axios.get(`https://rescuecapstoneapi.azurewebsites.net/api/Service/Get?id=${id}`);
+    const response = await axios.get(`https://rescuecapstoneapi.azurewebsites.net/api/Service/Get?id=${id}`,{
+      headers: {
+        "Content-Type": "application/json",
+        'Authorization':`${accessToken}`
+      },
+    }
+    
+    );
     const data = response.data;
-    console.log(data);
     return data;
   } catch (error) {
     console.error('Failed to get service:', error.response);
@@ -56,15 +70,15 @@ export const editService = createAsyncThunk(
     try {
 
       const res = await axios.put(
-        `https://rescuecapstoneapi.azurewebsites.net/api/Service/Update`, // Assuming you need to provide the customer ID for editing
+        `https://rescuecapstoneapi.azurewebsites.net/api/Service/Update`, 
         data,
         {
           headers: {
             'Content-Type': 'application/json',
+            'Authorization':`${accessToken}`
           },
         }
       );
-      console.log("dữ liệu đã sửa service đã gửi" +data)
       return res.data;
     } catch (error) {
       console.error('Failed to update service:', error.response);
@@ -83,9 +97,11 @@ export const createSymptom = createAsyncThunk(
         ...symptom,
         id: id,
       };
-      const res = await axios.post('https://rescuecapstoneapi.azurewebsites.net/api/Symptom/Create', symptomData , {
+      const res = await axios.post('https://rescuecapstoneapi.azurewebsites.net/api/Symptom/Create', symptomData ,
+      {
         headers: {
           'Content-Type': 'application/json',
+          'Authorization':`${accessToken}`
         },
       });
       return res.data;
@@ -100,7 +116,13 @@ export const fetchSymptom = createAsyncThunk(
   async () => {
     try {
       const response = await axios.get(
-        'https://rescuecapstoneapi.azurewebsites.net/api/Symptom/GetAllSymptom'
+        'https://rescuecapstoneapi.azurewebsites.net/api/Symptom/GetAllSymptom',
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization':`${accessToken}`
+          },
+        }
       );
       const data = response.data;
       return data;
@@ -112,9 +134,14 @@ export const fetchSymptom = createAsyncThunk(
 );
 export const getSymptomId = createAsyncThunk('service/getServiceId', async ({ id }) => {
   try {
-    const response = await axios.get(`https://rescuecapstoneapi.azurewebsites.net/api/Symptom/Get?id=${id}`);
+    const response = await axios.get(`https://rescuecapstoneapi.azurewebsites.net/api/Symptom/Get?id=${id}`,
+    {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization':`${accessToken}`
+      },
+    });
     const data = response.data;
-    console.log(data);
     return data;
   } catch (error) {
     console.error('Failed to get Symptom by Id :', error.response);
@@ -127,15 +154,15 @@ export const editSymptom = createAsyncThunk(
     try {
 
       const res = await axios.put(
-        `https://rescuecapstoneapi.azurewebsites.net/api/Symptom/Update`, // Assuming you need to provide the customer ID for editing
+        `https://rescuecapstoneapi.azurewebsites.net/api/Symptom/Update`,
         data,
         {
           headers: {
             'Content-Type': 'application/json',
+            'Authorization':`${accessToken}`
           },
         }
       );
-      console.log("dữ liệu đã sửa symptom đã gửi" +data)
       return res.data;
     } catch (error) {
       console.error('Failed to update symptom:', error.response);

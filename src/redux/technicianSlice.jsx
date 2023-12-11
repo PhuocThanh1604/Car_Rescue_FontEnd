@@ -1,19 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-// import { technicianDataService } from '../services/technicianService';
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
-const saveToStorage = (key, data) => {
-  const jsonData = JSON.stringify(data);
-  localStorage.setItem(key, jsonData); // Dùng Local Storage
-  // sessionStorage.setItem(key, jsonData); // Hoặc dùng Session Storage
-};
 
-// Hàm lấy dữ liệu từ storage
-const getFromStorage = (key) => {
-  const jsonData = localStorage.getItem(key); // Dùng Local Storage
-  // const jsonData = sessionStorage.getItem(key); // Hoặc dùng Session Storage
-  return jsonData ? JSON.parse(jsonData) : null;
-};
 const accessToken = localStorage.getItem("access_token");
 export const createTechnician = createAsyncThunk(
   "technicians/createTechnicians",
@@ -29,7 +17,8 @@ export const createTechnician = createAsyncThunk(
         technicianData,
         {
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
+            'Authorization':`${accessToken}`
           },
         }
       );
@@ -45,7 +34,13 @@ export const fetchTechnicians = createAsyncThunk(
   async () => {
     try {
       const response = await axios.get(
-        "https://rescuecapstoneapi.azurewebsites.net/api/Technician/GetAll"
+        "https://rescuecapstoneapi.azurewebsites.net/api/Technician/GetAll",
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization':`${accessToken}`
+          },
+        }
       );
       const data = response.data;
       return data;
@@ -58,18 +53,18 @@ export const fetchTechnicians = createAsyncThunk(
 export const getTechnicianId = createAsyncThunk(
   "technician/getTechnicianId",
   async ({ id }) => {
-    const storageKey = "getTechnicianId" + id;
-    const storedData = getFromStorage(storageKey);
-    if (storedData) {
-      return storedData;
-    }
+
     try {
       const response = await axios.get(
-        `https://rescuecapstoneapi.azurewebsites.net/api/Technician/Get?id=${id}`
+        `https://rescuecapstoneapi.azurewebsites.net/api/Technician/Get?id=${id}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization':`${accessToken}`
+          },
+        }
       );
       const data = response.data;
-      saveToStorage(storageKey, data);
-      console.log(data);
       return data;
     } catch (error) {
       console.error("Failed to get customer:", error.response);
@@ -82,10 +77,15 @@ export const getScheduleOfTechinciansAWeek = createAsyncThunk(
   async ({ year }) => {
     try {
       const response = await axios.get(
-        `https://rescuecapstoneapi.azurewebsites.net/api/Schedule/GetWeeksByYear?year=${year}`
+        `https://rescuecapstoneapi.azurewebsites.net/api/Schedule/GetWeeksByYear?year=${year}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization':`${accessToken}`
+          },
+        }
       );
       const data = response.data;
-      console.log(data);
       return data;
     } catch (error) {
       console.error(
@@ -105,11 +105,11 @@ export const editTechnician = createAsyncThunk(
         data,
         {
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
+            'Authorization':`${accessToken}`
           },
         }
       );
-      console.log("dữ liệu service đã gửi" + data);
       return res.data;
     } catch (error) {
       console.error("Failed to update Technicians:", error.response);
@@ -122,7 +122,13 @@ export const getLocationTechnician = createAsyncThunk(
   async ({ id }) => {
     try {
       const response = await axios.get(
-        `https://rescuecapstoneapi.azurewebsites.net/api/Location/GetLocation?id=${id}`
+        `https://rescuecapstoneapi.azurewebsites.net/api/Location/GetLocation?id=${id}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization':`${accessToken}`
+          },
+        }
       );
       const data = response.data;
       return data;
@@ -137,7 +143,13 @@ export const getAllLocationTechnician = createAsyncThunk(
   async () => {
     try {
       const response = await axios.get(
-        `https://rescuecapstoneapi.azurewebsites.net/api/Location/GetAllLocation`
+        `https://rescuecapstoneapi.azurewebsites.net/api/Location/GetAllLocation`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization':`${accessToken}`
+          },
+        }
       );
       const data = response.data;
       return data;

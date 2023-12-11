@@ -8,23 +8,22 @@ const mapboxToken =
 // Hàm lưu dữ liệu vào storage
 const saveToStorage = (key, data) => {
   const jsonData = JSON.stringify(data);
-  localStorage.setItem(key, jsonData); // Dùng Local Storage
-  // sessionStorage.setItem(key, jsonData); // Hoặc dùng Session Storage
+  localStorage.setItem(key, jsonData); 
 };
 const removeFromStorage = (key) => {
   localStorage.removeItem(key);
 };
-// Hàm lấy dữ liệu từ storage
-const getFromStorage = (key) => {
-  const jsonData = localStorage.getItem(key); // Dùng Local Storage
-  // const jsonData = sessionStorage.getItem(key); // Hoặc dùng Session Storage
-  return jsonData ? JSON.parse(jsonData) : null;
-};
-
+const accessToken = localStorage.getItem("access_token");
 export const fetchOrders = createAsyncThunk("orders/fetchOrders", async () => {
   try {
     const response = await axios.get(
-      "https://rescuecapstoneapi.azurewebsites.net/api/Order/GetAll"
+      "https://rescuecapstoneapi.azurewebsites.net/api/Order/GetAll", // Send the edited customer data
+      {
+        headers: {
+          "Content-Type": "application/json",
+          'Authorization':`${accessToken}`
+        },
+      }
     );
     const data = response.data;
     return data;
@@ -41,16 +40,18 @@ export const fetchOrders = createAsyncThunk("orders/fetchOrders", async () => {
 export const fetchOrdersNew = createAsyncThunk(
   "orders/fetchOrdersNew",
   async () => {
-    const storageKey = "ordersNew";
     try {
-      // Xóa dữ liệu cũ trong localStorage trước khi gửi yêu cầu lên server
-      removeFromStorage(storageKey);
 
       const response = await axios.get(
-        "https://rescuecapstoneapi.azurewebsites.net/api/Order/GetAllOrderNew"
+        "https://rescuecapstoneapi.azurewebsites.net/api/Order/GetAllOrderNew", // Send the edited customer data
+        {
+          headers: {
+            "Content-Type": "application/json",
+            'Authorization':`${accessToken}`
+          },
+        }
       );
       const data = response.data;
-      saveToStorage(storageKey, data); // Lưu dữ liệu mới vào Local Storage
       return data;
     } catch (response) {
       console.error(
@@ -67,15 +68,18 @@ export const fetchOrdersCompleted = createAsyncThunk(
   "orders/fetchOrdersCompleted",
 
   async () => {
-    const storageKey = "ordersCompleted";
     try {
-      removeFromStorage(storageKey);
 
       const response = await axios.get(
-        "https://rescuecapstoneapi.azurewebsites.net/api/Order/GetAllOrderCompleted"
+        "https://rescuecapstoneapi.azurewebsites.net/api/Order/GetAllOrderCompleted", // Send the edited customer data
+        {
+          headers: {
+            "Content-Type": "application/json",
+            'Authorization':`${accessToken}`
+          },
+        }
       );
       const data = response.data;
-      saveToStorage(storageKey, data);
       return data;
     } catch (response) {
       console.error(
@@ -92,27 +96,36 @@ export const fetchDashboard = createAsyncThunk(
   async () => {
     try {
       const response = await axios.get(
-        "https://rescuecapstoneapi.azurewebsites.net/api/Dashboard/GetDashboard"
+        "https://rescuecapstoneapi.azurewebsites.net/api/Dashboard/GetDashboard", // Send the edited customer data
+        {
+          headers: {
+            "Content-Type": "application/json",
+            'Authorization':`${accessToken}`
+          },
+        }
       );
       const data = response.data;
       return data;
     } catch (error) {
-      console.error("Failed to retrieve fetch Dashboard:", error); // Log the error for debugging
-      throw error; // Throw the error so it can be caught in your component
+      console.error("Failed to retrieve fetch Dashboard:", error); 
+      throw error; 
     }
   }
 );
 export const fetchOrdersInprogress = createAsyncThunk(
   "orders/fetchOrdersInprogress",
   async () => {
-    const storageKey = "ordersInprogress";
     try {
-      removeFromStorage(storageKey);
       const response = await axios.get(
-        "https://rescuecapstoneapi.azurewebsites.net/api/Order/GetAllOrderInprogress"
+        "https://rescuecapstoneapi.azurewebsites.net/api/Order/GetAllOrderInprogress", // Send the edited customer data
+        {
+          headers: {
+            "Content-Type": "application/json",
+            'Authorization':`${accessToken}`
+          },
+        }
       );
       const data = response.data;
-      saveToStorage(storageKey, data);
       return data;
     } catch (response) {
       console.error(
@@ -128,14 +141,17 @@ export const fetchOrdersAssigned = createAsyncThunk(
   "orders/fetchOrdersAssigned",
 
   async () => {
-    const storageKey = "ordersAssigned";
     try {
-      removeFromStorage(storageKey);
       const response = await axios.get(
-        "https://rescuecapstoneapi.azurewebsites.net/api/Order/GetAllOrderAssigned"
+        "https://rescuecapstoneapi.azurewebsites.net/api/Order/GetAllOrderAssigned", // Send the edited customer data
+        {
+          headers: {
+            "Content-Type": "application/json",
+            'Authorization':`${accessToken}`
+          },
+        }
       );
       const data = response.data;
-      saveToStorage(storageKey, data);
       return data;
     } catch (response) {
       console.error(
@@ -150,14 +166,17 @@ export const fetchOrdersAssigned = createAsyncThunk(
 export const fetchOrdersCancelled = createAsyncThunk(
   "orders/fetchOrdersCancelled",
   async () => {
-    const storageKey = "ordersCancelled";
     try {
-      removeFromStorage(storageKey);
       const response = await axios.get(
-        "https://rescuecapstoneapi.azurewebsites.net/api/Order/GetAllOrderCancelled"
+        "https://rescuecapstoneapi.azurewebsites.net/api/Order/GetAllOrderCancelled", // Send the edited customer data
+        {
+          headers: {
+            "Content-Type": "application/json",
+            'Authorization':`${accessToken}`
+          },
+        }
       );
       const data = response.data;
-      saveToStorage(storageKey, data);
       return data;
     } catch (response) {
       console.error(
@@ -172,14 +191,17 @@ export const fetchOrdersCancelled = createAsyncThunk(
 export const fetchOrdersAssigning = createAsyncThunk(
   "orders/fetchOrdersAssigning",
   async () => {
-    const storageKey = "ordersAssigning";
     try {
-      removeFromStorage(storageKey);
       const response = await axios.get(
-        "https://rescuecapstoneapi.azurewebsites.net/api/Order/GetAllOrderAssigning"
+        "https://rescuecapstoneapi.azurewebsites.net/api/Order/GetAllOrderAssigning", // Send the edited customer data
+        {
+          headers: {
+            "Content-Type": "application/json",
+            'Authorization':`${accessToken}`
+          },
+        }
       );
       const data = response.data;
-      saveToStorage(storageKey, data);
       return data;
     } catch (response) {
       console.error(
@@ -197,7 +219,13 @@ export const fetchOrdersDetail = createAsyncThunk(
   async () => {
     try {
       const response = await axios.get(
-        "https://secondhandbookstoreapi.azurewebsites.net/api/OrdersDetails"
+        "https://secondhandbookstoreapi.azurewebsites.net/api/OrdersDetails", // Send the edited customer data
+        {
+          headers: {
+            "Content-Type": "application/json",
+            'Authorization':`${accessToken}`
+          },
+        }
       );
       const data = response.data;
       return data;
@@ -212,10 +240,15 @@ export const getOrderId = createAsyncThunk(
   async ({ id }) => {
     try {
       const response = await axios.get(
-        `https://rescuecapstoneapi.azurewebsites.net/api/Order/GetOrder?id=${id}`
+        `https://rescuecapstoneapi.azurewebsites.net/api/Order/GetOrder?id=${id}`, // Send the edited customer data
+        {
+          headers: {
+            "Content-Type": "application/json",
+            'Authorization':`${accessToken}`
+          },
+        }
       );
       const data = response.data;
-      console.log(data);
       return data;
     } catch (error) {
       console.error("Failed to get  Order Id ", error.response);
@@ -230,10 +263,15 @@ export const getFeedbackOfOrderId = createAsyncThunk(
     try {
       console.log("id:" + id);
       const response = await axios.get(
-        `https://rescuecapstoneapi.azurewebsites.net/api/Feedback/GetFeedbackOfOrder?id=${id}`
+        `https://rescuecapstoneapi.azurewebsites.net/api/Feedback/GetFeedbackOfOrder?id=${id}`, // Send the edited customer data
+        {
+          headers: {
+            "Content-Type": "application/json",
+            'Authorization':`${accessToken}`
+          },
+        }
       );
       const data = response.data;
-      console.log("data of feedback" + data);
       return data;
     } catch (error) {
       console.error("Failed to get Feedback Of Order  Id ", error.response);
@@ -246,10 +284,15 @@ export const getOrderDetailId = createAsyncThunk(
   async ({ id }) => {
     try {
       const response = await axios.get(
-        `https://rescuecapstoneapi.azurewebsites.net/api/OrderDetail/GetDetailsOfOrder?id=${id}`
+        `https://rescuecapstoneapi.azurewebsites.net/api/OrderDetail/GetDetailsOfOrder?id=${id}`, // Send the edited customer data
+        {
+          headers: {
+            "Content-Type": "application/json",
+            'Authorization':`${accessToken}`
+          },
+        }
       );
       const data = response.data;
-      console.log(data);
       return data;
     } catch (error) {
       console.error("Failed to get  get Order Detail Id ", error.response);
@@ -336,14 +379,14 @@ export const createAcceptOrder = createAsyncThunk(
     try {
       const res = await axios.post(
         "https://rescuecapstoneapi.azurewebsites.net/api/Order/ManagerAssignOrder",
-        data,
+        data, // Send the edited customer data
         {
           headers: {
             "Content-Type": "application/json",
+            'Authorization':`${accessToken}`
           },
         }
       );
-      console.log(data);
       return res.data;
     } catch (error) {
       console.error("Failed to create Accept Order:", error.response);
@@ -363,10 +406,10 @@ export const createCancelOrder = createAsyncThunk(
         {
           headers: {
             "Content-Type": "application/json",
+            'Authorization':`${accessToken}`
           },
         }
       );
-      console.log(data);
       return res.data;
     } catch (error) {
       console.error("Failed to create Cancel Order:", error.response);
@@ -385,10 +428,10 @@ export const createChangeTypeRescue = createAsyncThunk(
         {
           headers: {
             "Content-Type": "application/json",
+            'Authorization':`${accessToken}`
           },
         }
       );
-      console.log(data);
       return res.data;
     } catch (error) {
       console.error("Failed to create Change Type Rescue:", error.response);
@@ -407,6 +450,7 @@ export const createOrderOfflineFixing = createAsyncThunk(
         {
           headers: {
             "Content-Type": "application/json",
+            'Authorization':`${accessToken}`
           },
         }
       );
@@ -428,6 +472,7 @@ export const createOrderOffline = createAsyncThunk(
         {
           headers: {
             "Content-Type": "application/json",
+            'Authorization':`${accessToken}`
           },
         }
       );
@@ -450,6 +495,7 @@ export const addServiceForTechnicians = createAsyncThunk(
         {
           headers: {
             "Content-Type": "application/json",
+            'Authorization':`${accessToken}`
           },
         }
       );
@@ -472,10 +518,10 @@ export const updateServiceForTechnicians = createAsyncThunk(
         {
           headers: {
             "Content-Type": "application/json",
+            'Authorization':`${accessToken}`
           },
         }
       );
-      console.log(data);
       return res.data;
     } catch (error) {
       console.error(
@@ -496,6 +542,7 @@ export const calculatePayment = createAsyncThunk(
         {
           headers: {
             "Content-Type": "application/json",
+            'Authorization':`${accessToken}`
           },
         }
       );
@@ -517,6 +564,7 @@ export const sendNotification = createAsyncThunk(
         {
           headers: {
             "Content-Type": "application/json",
+            'Authorization':`${accessToken}`
           },
         }
       );
@@ -537,7 +585,13 @@ export const getAllNotification = createAsyncThunk(
     
     try {
       const response = await axios.get(
-        `https://rescuecapstoneapi.azurewebsites.net/api/Notification/Getall?id=${id}`
+        `https://rescuecapstoneapi.azurewebsites.net/api/Notification/Getall?id=${id}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            'Authorization':`${accessToken}`
+          },
+        }
       );
       const data = response.data;
       return data;
@@ -560,10 +614,10 @@ export const sendSMS = createAsyncThunk("orders/sendSMS", async (data) => {
       {
         headers: {
           "Content-Type": "application/json",
+          'Authorization':`${accessToken}`
         },
       }
     );
-    console.log(data);
     return res.data;
   } catch (error) {
     console.error("Failed to create send sms to customer:", error.res);
@@ -575,10 +629,15 @@ export const getPaymentId = createAsyncThunk(
   async ({ id }) => {
     try {
       const response = await axios.get(
-        `https://rescuecapstoneapi.azurewebsites.net/api/Payment/GetPaymentOfOrder?id=${id}`
+        `https://rescuecapstoneapi.azurewebsites.net/api/Payment/GetPaymentOfOrder?id=${id}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            'Authorization':`${accessToken}`
+          },
+        }
       );
       const data = response.data;
-      console.log(data);
       return data;
     } catch (response) {
       console.error(
@@ -596,11 +655,15 @@ export const getCarById = createAsyncThunk(
     console.log("carId: " + id);
     try {
       const response = await axios.get(
-        `https://rescuecapstoneapi.azurewebsites.net/api/Car/Get?id=${id}`
+        `https://rescuecapstoneapi.azurewebsites.net/api/Car/Get?id=${id}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            'Authorization':`${accessToken}`
+          },
+        }
       );
       const data = response.data;
-      console.log(response);
-      console.log(data);
       return data;
     } catch (response) {
       console.error(
@@ -623,10 +686,10 @@ export const createIncidentForFixing = createAsyncThunk(
         {
           headers: {
             "Content-Type": "application/json",
+            'Authorization':`${accessToken}`
           },
         }
       );
-      console.log(data);
       return res.data;
     } catch (error) {
       console.error("Failed to create Incident for Order fixing:", error.response);

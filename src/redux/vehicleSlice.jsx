@@ -10,7 +10,6 @@ const saveToStorage = (key, data) => {
 const removeFromStorage = (key) => {
   localStorage.removeItem(key);
 };
-// Hàm lấy dữ liệu từ storage
 const accessToken = localStorage.getItem("access_token");
 export const createRescueVehicleOwner = createAsyncThunk(
   "vehicles/createRescueVehicleOwners",
@@ -26,7 +25,8 @@ export const createRescueVehicleOwner = createAsyncThunk(
         rescueVehicleOwnerData,
         {
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
+            'Authorization':`${accessToken}`
           },
         }
       );
@@ -43,7 +43,13 @@ export const fetchVehicle = createAsyncThunk(
   async () => {
     try {
       const response = await axios.get(
-        "https://rescuecapstoneapi.azurewebsites.net/api/Vehicle/GetAll"
+        "https://rescuecapstoneapi.azurewebsites.net/api/Vehicle/GetAll",
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization':`${accessToken}`
+          },
+        }
       );
       const data = response.data;
       console.log(data.status);
@@ -59,7 +65,13 @@ export const fetchVehicleWatting = createAsyncThunk(
   async () => {
     try {
       const response = await axios.get(
-        "https://rescuecapstoneapi.azurewebsites.net/api/Vehicle/GetWaiting"
+        "https://rescuecapstoneapi.azurewebsites.net/api/Vehicle/GetWaiting",
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization':`${accessToken}`
+          },
+        }
       );
       const data = response.data;
       return data;
@@ -74,7 +86,13 @@ export const fetchVehicleStatus = createAsyncThunk(
   async () => {
     try {
       const response = await axios.get(
-        "https://rescuecapstoneapi.azurewebsites.net/api/Vehicle/GetVehiclesStatus"
+        "https://rescuecapstoneapi.azurewebsites.net/api/Vehicle/GetVehiclesStatus",
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization':`${accessToken}`
+          },
+        }
       );
       const data = response.data;
       return data;
@@ -93,7 +111,13 @@ export const getVehicleId = createAsyncThunk(
     try {
       removeFromStorage(storageKey);
       const response = await axios.get(
-        `https://rescuecapstoneapi.azurewebsites.net/api/Vehicle/Get?id=${id}`
+        `https://rescuecapstoneapi.azurewebsites.net/api/Vehicle/Get?id=${id}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization':`${accessToken}`
+          },
+        }
       );
       const data = response.data;
       saveToStorage(storageKey, data);
@@ -112,7 +136,13 @@ export const getAllVehicleOfUser = createAsyncThunk(
 
     try {
       const response = await axios.get(
-        `https://rescuecapstoneapi.azurewebsites.net/api/Vehicle/GetAllOfUser?id=${id}`
+        `https://rescuecapstoneapi.azurewebsites.net/api/Vehicle/GetAllOfUser?id=${id}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization':`${accessToken}`
+          },
+        }
       );
       const data = response.data;
       console.log(data);
@@ -130,10 +160,11 @@ export const editRescueVehicleOwner = createAsyncThunk(
     try {
       const res = await axios.put(
         `https://rescuecapstoneapi.azurewebsites.net/api/RescueVehicleOwner/Update`, // Assuming you need to provide the customer ID for editing
-        data, // Send the edited customer data
+        data,
         {
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
+            'Authorization':`${accessToken}`
           },
         }
       );
@@ -151,10 +182,11 @@ export const updateStatusRescueVehicleOwner = createAsyncThunk(
     try {
       const res = await axios.put(
         `https://rescuecapstoneapi.azurewebsites.net/api/RescueVehicleOwner/Update`, // Assuming you need to provide the customer ID for editing
-        data, // Send the edited customer data
+        data,
         {
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
+            'Authorization':`${accessToken}`
           },
         }
       );
@@ -174,6 +206,12 @@ export const createAcceptRegisterVehicle = createAsyncThunk(
       console.log(id, boolean);
       const response = await axios.post(
         `https://rescuecapstoneapi.azurewebsites.net/api/Vehicle/ApproveVehicle?id=${id}&boolean=${boolean}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization':`${accessToken}`
+          },
+        }
       );
 
       const data = response.data;

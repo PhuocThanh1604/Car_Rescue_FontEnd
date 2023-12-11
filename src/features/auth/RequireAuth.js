@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { onMessageListener } from "../../firebase";
 import AutoLogout from "./AutoLogout";
+import { AccessTokenProvider } from "../../context/context";
 
 const RequireAuth = () => {
   
@@ -98,9 +99,9 @@ const RequireAuth = () => {
       console.error("Lỗi khi phân tích chuỗi JSON:", error);
     }
   }
-  const accessToken = localStorage.getItem("access_token");
+ const accessToken = localStorage.getItem("access_token");
 
-  console.log("access token : " + accessToken);
+ console.log(AccessTokenProvider)
 
   const devicetoken1 = localStorage.getItem("deviceToken");
 

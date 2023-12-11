@@ -16,19 +16,22 @@ const getFromStorage = (key) => {
   return jsonData ? JSON.parse(jsonData) : null;
 };
 
-
+const accessToken = localStorage.getItem("access_token");
 
 export const fetchPayments = createAsyncThunk(
   "transactions/fetchPayments",
   async () => {
-    const storageKey = "fetchPayments";
     try {
-      removeFromStorage(storageKey);
       const response = await axios.get(
-        "https://rescuecapstoneapi.azurewebsites.net/api/Payment/GetPayments"
+        "https://rescuecapstoneapi.azurewebsites.net/api/Payment/GetPayments",
+        {
+          headers: {
+            "Content-Type": "application/json",
+            'Authorization':`${accessToken}`
+          },
+        }
       );
       const data = response.data;
-      saveToStorage(storageKey, data);
       return data;
     } catch (error) {
       console.error("Failed to retrieve fetch payment New:", error.response);
@@ -39,14 +42,18 @@ export const fetchPayments = createAsyncThunk(
 export const getPaymentOfOrder = createAsyncThunk(
   "transaction/getTransactionOfWalletId",
   async ({ id }) => {
-    console.log("tesst: "+id)
     try {
       const response = await axios.get(
-        `https://rescuecapstoneapi.azurewebsites.net/api/Transaction/GetTransactionOfWallet?id=${id}`
+        `https://rescuecapstoneapi.azurewebsites.net/api/Transaction/GetTransactionOfWallet?id=${id}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            'Authorization':`${accessToken}`
+          },
+        }
       );
       
       const data = response.data;
-      console.log(data);
       return data;
     } catch (error) {
       console.error("Failed to get Transaction Of Wallet Id:", error.response);
@@ -61,7 +68,13 @@ export const getTransactionById = createAsyncThunk(
   
     try {
       const response = await axios.get(
-        `https://rescuecapstoneapi.azurewebsites.net/api/Transaction/GetByID?id=${id}`
+        `https://rescuecapstoneapi.azurewebsites.net/api/Transaction/GetByID?id=${id}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            'Authorization':`${accessToken}`
+          },
+        }
       );
       const data = response.data;
       console.log(data);

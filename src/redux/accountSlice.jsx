@@ -1,12 +1,19 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
+const accessToken = localStorage.getItem("access_token");
 export const fetchAccounts = createAsyncThunk(
   "accounts/fetchaccounts",
   async () => {
     try {
       const response = await axios.get(
-        "https://rescuecapstoneapi.azurewebsites.net/api/Account/GetAll"
+        "https://rescuecapstoneapi.azurewebsites.net/api/Account/GetAll", // Send the account data with UUID
+        {
+          headers: {
+            "Content-Type": "application/json",
+            'Authorization':`${accessToken}`
+          },
+        }
       );
       console.log("API Response:", response.data); // Log the response data
       return response.data;
@@ -24,23 +31,21 @@ export const createAccount = createAsyncThunk(
       // Generate a UUID for the account
       const accountId = uuidv4();
 
-      // Create an object with the UUID and other data
       const accountWithId = {
         ...accountData,
-        id: accountId, // Add the UUID to your account data
+        id: accountId, 
       };
 
       const res = await axios.post(
         "https://rescuecapstoneapi.azurewebsites.net/api/Account/Create",
-        accountWithId, // Send the account data with UUID
+        accountWithId, 
         {
           headers: {
             "Content-Type": "application/json",
-            // 'Authorization':`Bearer ${}`
+            'Authorization':`${accessToken}`
           },
         }
       );
-      console.log("test" + accountWithId);
       return res.data;
     } catch (error) {
       console.error("Failed to create account:", error.response);
@@ -54,10 +59,15 @@ export const getAccountEmail = createAsyncThunk(
   async () => {
     try {
       const response = await axios.get(
-        "https://rescuecapstoneapi.azurewebsites.net/api/Account/GetAll"
+        "https://rescuecapstoneapi.azurewebsites.net/api/Account/GetAll", // Send the account data with UUID
+        {
+          headers: {
+            "Content-Type": "application/json",
+            'Authorization':`${accessToken}`
+          },
+        }
       );
       const data = response.data;
-      console.log(response.data);
       return data;
     } catch (error) {
       console.error("Failed to get emails:", error.response);
@@ -71,10 +81,15 @@ export const getAccountId = createAsyncThunk(
   async ({ id }) => {
     try {
       const response = await axios.get(
-        `https://rescuecapstoneapi.azurewebsites.net/api/Account/Get?id=${id}`
+        `https://rescuecapstoneapi.azurewebsites.net/api/Account/Get?id=${id}`, // Send the account data with UUID
+        {
+          headers: {
+            "Content-Type": "application/json",
+            'Authorization':`${accessToken}`
+          },
+        }
       );
       const data = response.data;
-      console.log(data);
       return data;
     } catch (error) {
       console.error("Failed to get accounts ", error.response);
@@ -88,14 +103,14 @@ export const editAccount = createAsyncThunk(
     try {
       const res = await axios.put(
         `https://rescuecapstoneapi.azurewebsites.net/api/Account/Update`, 
-        data,
+        data, // Send the account data with UUID
         {
           headers: {
             "Content-Type": "application/json",
+            'Authorization':`${accessToken}`
           },
         }
       );
-      console.log(data);
       return res.data;
     } catch (error) {
       console.error("Failed to update account:", error.response);

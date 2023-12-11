@@ -2,18 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 
-const saveToStorage = (key, data) => {
-  const jsonData = JSON.stringify(data);
-  localStorage.setItem(key, jsonData); // Dùng Local Storage
-  // sessionStorage.setItem(key, jsonData); // Hoặc dùng Session Storage
-};
-
-// Hàm lấy dữ liệu từ storage
-const getFromStorage = (key) => {
-  const jsonData = localStorage.getItem(key); // Dùng Local Storage
-  // const jsonData = sessionStorage.getItem(key); // Hoặc dùng Session Storage
-  return jsonData ? JSON.parse(jsonData) : null;
-};
+const accessToken = localStorage.getItem("access_token");
 export const createModelCar = createAsyncThunk(
   "modelCar/createModelCar",
   async (modelCar) => {
@@ -30,12 +19,12 @@ export const createModelCar = createAsyncThunk(
         modelCarData,
         {
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
+            'Authorization':`${accessToken}`
           },
         }
       );
-      console.log(res)
-      console.log(res.data)
+    
       return res.data;
     } catch (error) {
       console.error("Failed to create model Car of customer:", error.response);
@@ -49,7 +38,13 @@ export const fetchModelCar = createAsyncThunk(
   async () => {
     try {
       const response = await axios.get(
-        "https://rescuecapstoneapi.azurewebsites.net/api/Model/GetAll"
+        "https://rescuecapstoneapi.azurewebsites.net/api/Model/GetAll",
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization':`${accessToken}`
+          },
+        }
       );
       const data = response.data;
       return data;
@@ -66,11 +61,16 @@ export const getModelCarId = createAsyncThunk(
 
     try {
       const response = await axios.get(
-        `https://rescuecapstoneapi.azurewebsites.net/api/Model/Get?id=${id}`
+        `https://rescuecapstoneapi.azurewebsites.net/api/Model/Get?id=${id}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization':`${accessToken}`
+          },
+        }
       );
       const data = response.data;
-      console.log(response);
-      console.log(data);
+
       return data;
     }  catch (response) {
       console.error(
@@ -110,14 +110,14 @@ export const updateModelCar = createAsyncThunk(
     try {
       const res = await axios.put(
         `https://rescuecapstoneapi.azurewebsites.net/api/Model/Update`, // Assuming you need to provide the customer ID for editing
-        data, // Send the edited customer data
+        data,
         {
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
+            'Authorization':`${accessToken}`
           },
         }
       );
-      console.log("dữ liệu đã sửa update car model" + data);
       return res.data;
     } catch (error) {
       console.error("Failed to update car model:", error.response);

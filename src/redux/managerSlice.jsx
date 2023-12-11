@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 // import { managerDataService } from '../services/managerService';
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
-
+const accessToken = localStorage.getItem("access_token");
 export const createManager = createAsyncThunk(
   "managers/create",
   async (manager) => {
@@ -17,7 +17,8 @@ export const createManager = createAsyncThunk(
         managerData,
         {
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
+            'Authorization':`${accessToken}`
           },
         }
       );
@@ -33,10 +34,15 @@ export const fetchManagers = createAsyncThunk(
   async () => {
     try {
       const response = await axios.get(
-        "https://rescuecapstoneapi.azurewebsites.net/api/Manager/GetAll"
+        "https://rescuecapstoneapi.azurewebsites.net/api/Manager/GetAll",
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization':`${accessToken}`
+          },
+        }
       );
       const data = response.data;
-      console.log(response.data);
       return data;
     } catch (error) {
       console.error("Failed to retrieve manager:", error);
@@ -50,10 +56,15 @@ export const getManagerId = createAsyncThunk(
   async ({ id }) => {
     try {
       const response = await axios.get(
-        `https://rescuecapstoneapi.azurewebsites.net/api/Manager/Get?id=${id}`
+        `https://rescuecapstoneapi.azurewebsites.net/api/Manager/Get?id=${id}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization':`${accessToken}`
+          },
+        }
       );
       const data = response.data;
-      console.log(data);
       return data;
     } catch (error) {
       console.error("Failed to get Manager:", error.response);
@@ -71,11 +82,11 @@ export const editManager = createAsyncThunk(
         data,
         {
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
+            'Authorization':`${accessToken}`
           },
         }
       );
-      console.log("Dữ liệu service đã gửi: ", data);
       return res.data;
     } catch (error) {
       console.error("Failed to update manager: ", error.response);
@@ -90,14 +101,14 @@ export const updateStatusManager= createAsyncThunk(
     try {
       const res = await axios.put(
         `https://rescuecapstoneapi.azurewebsites.net/api/Manager/Update`, // Assuming you need to provide the customer ID for editing
-        data, // Send the edited customer data
+        data,
         {
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
+            'Authorization':`${accessToken}`
           },
         }
       );
-      console.log("Đã Update status manager " + data);
       return res.data;
     } catch (error) {
       console.error("Failed to update status manager:", error.response);

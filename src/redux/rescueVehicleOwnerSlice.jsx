@@ -2,18 +2,6 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 const accessToken = localStorage.getItem("access_token");
-const saveToStorage = (key, data) => {
-  const jsonData = JSON.stringify(data);
-  localStorage.setItem(key, jsonData); // Dùng Local Storage
-  // sessionStorage.setItem(key, jsonData); // Hoặc dùng Session Storage
-};
-
-// Hàm lấy dữ liệu từ storage
-const getFromStorage = (key) => {
-  const jsonData = localStorage.getItem(key); // Dùng Local Storage
-  // const jsonData = sessionStorage.getItem(key); // Hoặc dùng Session Storage
-  return jsonData ? JSON.parse(jsonData) : null;
-};
 export const createRescueVehicleOwner = createAsyncThunk(
   "rescueVehicleOwners/createRescueVehicleOwners",
   async (rescueVehicleOwner) => {
@@ -29,6 +17,7 @@ export const createRescueVehicleOwner = createAsyncThunk(
         {
           headers: {
             "Content-Type": "application/json",
+            'Authorization':`${accessToken}`
           },
         }
       );
@@ -45,7 +34,13 @@ export const fetchRescueVehicleOwners = createAsyncThunk(
   async () => {
     try {
       const response = await axios.get(
-        "https://rescuecapstoneapi.azurewebsites.net/api/RescueVehicleOwner/GetAll"
+        "https://rescuecapstoneapi.azurewebsites.net/api/RescueVehicleOwner/GetAll",
+        {
+          headers: {
+            "Content-Type": "application/json",
+            'Authorization':`${accessToken}`
+          },
+        }
       );
       const data = response.data;
       return data;
@@ -59,18 +54,18 @@ export const fetchRescueVehicleOwners = createAsyncThunk(
 export const getRescueVehicleOwnerId = createAsyncThunk(
   "rescueVehicleOwner/getRescueVehicleOwnerId",
   async ({ id }) => {
-    const storageKey = "getRescueVehicleOwnerId_" + id;
-    const storedData = getFromStorage(storageKey);
-    if (storedData) {
-      return storedData;
-    }
+
     try {
       const response = await axios.get(
-        `https://rescuecapstoneapi.azurewebsites.net/api/RescueVehicleOwner/Get?id=${id}`
+        `https://rescuecapstoneapi.azurewebsites.net/api/RescueVehicleOwner/Get?id=${id}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            'Authorization':`${accessToken}`
+          },
+        }
       );
       const data = response.data;
-      saveToStorage(storageKey, data);
-      console.log(data);
       return data;
     } catch (error) {
       console.error("Failed to get Rescue Vehicle Owner ", error.response);
@@ -84,15 +79,15 @@ export const editRescueVehicleOwner = createAsyncThunk(
   async ({ data }) => {
     try {
       const res = await axios.put(
-        `https://rescuecapstoneapi.azurewebsites.net/api/RescueVehicleOwner/Update`, // Assuming you need to provide the customer ID for editing
-        data, // Send the edited customer data
+        `https://rescuecapstoneapi.azurewebsites.net/api/RescueVehicleOwner/Update`,
+        data,
         {
           headers: {
             "Content-Type": "application/json",
+            'Authorization':`${accessToken}`
           },
         }
       );
-      console.log("dữ liệu đã sửa carowner " + data);
       return res.data;
     } catch (error) {
       console.error("Failed to update RescueVehicleOwner:", error.response);
@@ -105,15 +100,15 @@ export const updateStatusRescueVehicleOwner = createAsyncThunk(
   async ({ data }) => {
     try {
       const res = await axios.put(
-        `https://rescuecapstoneapi.azurewebsites.net/api/RescueVehicleOwner/Update`, // Assuming you need to provide the customer ID for editing
-        data, // Send the edited customer data
+        `https://rescuecapstoneapi.azurewebsites.net/api/RescueVehicleOwner/Update`, 
+        data, 
         {
           headers: {
             "Content-Type": "application/json",
+            'Authorization':`${accessToken}`
           },
         }
       );
-      console.log("dữ liệu đã sửa updateStatusRescueVehicleOwner " + data);
       return res.data;
     } catch (error) {
       console.error("Failed to update RescueVehicleOwner:", error.response);
@@ -127,7 +122,13 @@ export const getReportAllNew = createAsyncThunk(
   async () => {
     try {
       const response = await axios.get(
-        "https://rescuecapstoneapi.azurewebsites.net/api/Report/GetAllNew"
+        "https://rescuecapstoneapi.azurewebsites.net/api/Report/GetAllNew", // Send the edited customer data
+        {
+          headers: {
+            "Content-Type": "application/json",
+            'Authorization':`${accessToken}`
+          },
+        }
       );
       const data = response.data;
       return data;
@@ -142,7 +143,13 @@ export const getReportAll = createAsyncThunk(
   async () => {
     try {
       const response = await axios.get(
-        "https://rescuecapstoneapi.azurewebsites.net/api/Report/GetAll"
+        "https://rescuecapstoneapi.azurewebsites.net/api/Report/GetAll", // Send the edited customer data
+        {
+          headers: {
+            "Content-Type": "application/json",
+            'Authorization':`${accessToken}`
+          },
+        }
       );
       const data = response.data;
       return data;
@@ -157,10 +164,15 @@ export const getReportById = createAsyncThunk(
   async ({ id }) => {
     try {
       const response = await axios.get(
-        `https://rescuecapstoneapi.azurewebsites.net/api/Report/Get?id=${id}`
+        `https://rescuecapstoneapi.azurewebsites.net/api/Report/Get?id=${id}`, // Send the edited customer data
+        {
+          headers: {
+            "Content-Type": "application/json",
+            'Authorization':`${accessToken}`
+          },
+        }
       );
       const data = response.data;
-      console.log(data);
       return data;
     } catch (error) {
       console.error(
@@ -177,7 +189,13 @@ export const acceptReport = createAsyncThunk(
     try {
       console.log(id, boolean);
       const response = await axios.post(
-        `https://rescuecapstoneapi.azurewebsites.net/api/Report/Accept?id=${id}&boolean=${boolean}`,
+        `https://rescuecapstoneapi.azurewebsites.net/api/Report/Accept?id=${id}&boolean=${boolean}`, 
+        {
+          headers: {
+            "Content-Type": "application/json",
+            'Authorization':`${accessToken}`
+          },
+        }
       );
 
       const data = response.data;

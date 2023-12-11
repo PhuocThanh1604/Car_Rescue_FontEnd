@@ -7,11 +7,7 @@ const saveToStorage = (key, data) => {
   localStorage.setItem(key, jsonData); 
 };
 
-// Hàm lấy dữ liệu từ storage
-const getFromStorage = (key) => {
-  const jsonData = localStorage.getItem(key); 
-  return jsonData ? JSON.parse(jsonData) : null;
-};
+
 const removeFromStorage = (key) => {
   localStorage.removeItem(key);
 };
@@ -19,14 +15,16 @@ const removeFromStorage = (key) => {
 export const fetchWordWeeks = createAsyncThunk(
   "transactions/fetchWordWeeks",
   async () => {
-    const storageKey = "getShiftOfDate";
     try {
-      removeFromStorage(storageKey);
       const response = await axios.get(
-        "https://rescuecapstoneapi.azurewebsites.net/api/Schedule/GetWorkWeeks"
+        "https://rescuecapstoneapi.azurewebsites.net/api/Schedule/GetWorkWeeks",{
+          headers: {
+            "Content-Type": "application/json",
+            'Authorization':`${accessToken}`
+          },
+        }
       );
       const data = response.data;
-      saveToStorage(storageKey, data);
       return data;
     } catch (error) {
       console.error("Failed to retrieve fetch fetchWordWeeks:", error.response);
@@ -37,17 +35,17 @@ export const fetchWordWeeks = createAsyncThunk(
 export const getShiftOfDate= createAsyncThunk(
   "transaction/getShiftOfDate",
   async ({ date }) => {
-    console.log("tesst: "+date)
-    const storageKey = "getShiftOfDate";
     try {
-      removeFromStorage(storageKey);
       const response = await axios.get(
-        `https://rescuecapstoneapi.azurewebsites.net/api/Schedule/GetShiftOfDate?date=${date}`
+        `https://rescuecapstoneapi.azurewebsites.net/api/Schedule/GetShiftOfDate?date=${date}`,{
+          headers: {
+            "Content-Type": "application/json",
+            'Authorization':`${accessToken}`
+          },
+        }
       );
      
       const data = response.data;
-      saveToStorage(storageKey, data);
-      console.log(data);
       return data;
     } catch (error) {
       console.error("Failed to get getShiftOfDate ", error.response);
@@ -62,10 +60,14 @@ export const GetWorkWeeksByStartDate = createAsyncThunk(
   
     try {
       const response = await axios.get(
-        `https://rescuecapstoneapi.azurewebsites.net/api/Schedule/GetWorkWeeksByStartDate?startdate=${startdate}`
+        `https://rescuecapstoneapi.azurewebsites.net/api/Schedule/GetWorkWeeksByStartDate?startdate=${startdate}`,{
+          headers: {
+            "Content-Type": "application/json",
+            'Authorization':`${accessToken}`
+          },
+        }
       );
       const data = response.data;
-      console.log(data);
       return data;
     } catch (error) {
       console.error("Failed to get schedule By startdate ", error.response);

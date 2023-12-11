@@ -1,16 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
-const saveToStorage = (key, data) => {
-  const jsonData = JSON.stringify(data);
-  localStorage.setItem(key, jsonData); 
-};
 
-// Hàm lấy dữ liệu từ storage
-const getFromStorage = (key) => {
-  const jsonData = localStorage.getItem(key); 
-  return jsonData ? JSON.parse(jsonData) : null;
-};
 const accessToken = localStorage.getItem("access_token");
 
 export const createAcceptWithdrawRequest = createAsyncThunk(
@@ -20,6 +11,12 @@ export const createAcceptWithdrawRequest = createAsyncThunk(
       console.log(id, boolean);
       const response = await axios.post(
         `https://rescuecapstoneapi.azurewebsites.net/api/Transaction/AcceptWithdrawRequest?id=${id}&boolean=${boolean}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization':`${accessToken}`
+          },
+        }
       );
 
       const data = response.data;
@@ -40,7 +37,13 @@ export const fetchTransactionsNew = createAsyncThunk(
   async () => {
     try {
       const response = await axios.get(
-        "https://rescuecapstoneapi.azurewebsites.net/api/Transaction/GetNewTransactions"
+        "https://rescuecapstoneapi.azurewebsites.net/api/Transaction/GetNewTransactions",
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization':`${accessToken}`
+          },
+        }
       );
       const data = response.data;
       return data;
@@ -56,7 +59,13 @@ export const fetchTransactionsAll = createAsyncThunk(
   async () => {
     try {
       const response = await axios.get(
-        "https://rescuecapstoneapi.azurewebsites.net/api/Transaction/GetAll"
+        "https://rescuecapstoneapi.azurewebsites.net/api/Transaction/GetAll",
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization':`${accessToken}`
+          },
+        }
       );
       console.log(response.data)
       const data = response.data;
@@ -76,7 +85,13 @@ export const getTransactionOfWalletId = createAsyncThunk(
     }
     try {
       const response = await axios.get(
-        `https://rescuecapstoneapi.azurewebsites.net/api/Transaction/GetTransactionOfWallet?id=${id}`
+        `https://rescuecapstoneapi.azurewebsites.net/api/Transaction/GetTransactionOfWallet?id=${id}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization':`${accessToken}`
+          },
+        }
       );
       
       const data = response.data;
@@ -95,7 +110,13 @@ export const getTransactionById = createAsyncThunk(
   
     try {
       const response = await axios.get(
-        `https://rescuecapstoneapi.azurewebsites.net/api/Transaction/GetByID?id=${id}`
+        `https://rescuecapstoneapi.azurewebsites.net/api/Transaction/GetByID?id=${id}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization':`${accessToken}`
+          },
+        }
       );
       const data = response.data;
       console.log(data);
@@ -112,7 +133,13 @@ export const getRVOOfWallet = createAsyncThunk(
   
     try {
       const response = await axios.get(
-        `https://rescuecapstoneapi.azurewebsites.net/api/Wallet/GetRVOOfWallet?id=${id}`
+        `https://rescuecapstoneapi.azurewebsites.net/api/Wallet/GetRVOOfWallet?id=${id}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization':`${accessToken}`
+          },
+        }
       );
       const data = response.data;
       return data;
