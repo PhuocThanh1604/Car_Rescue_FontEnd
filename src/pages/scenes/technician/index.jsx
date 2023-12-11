@@ -135,7 +135,7 @@ const Technicians = (props) => {
             error
           );
         });
-    }, 2000);
+    }, 3000);
   
     setIntervalId(intervalId);
   };

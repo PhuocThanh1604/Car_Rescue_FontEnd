@@ -262,7 +262,7 @@ const RescueVehicleOwners = (props) => {
     setPage(0);
   };
 
-  const filteredrescueVehicleOwnersPagination =
+  const filteredRescueVehicleOwnersPagination =
     filteredRescueVehicleOwners.slice(
       page * rowsPerPage,
       page * rowsPerPage + rowsPerPage
@@ -568,7 +568,7 @@ const RescueVehicleOwners = (props) => {
         }}
       >
         <DataGrid
-          rows={filteredrescueVehicleOwnersPagination} // Thêm id nếu không có
+          rows={filteredRescueVehicleOwnersPagination} // Thêm id nếu không có
           columns={columns}
           getRowId={(row) => row.id}
           autoHeight

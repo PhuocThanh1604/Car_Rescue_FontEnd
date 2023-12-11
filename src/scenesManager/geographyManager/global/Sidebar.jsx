@@ -22,13 +22,14 @@ import ContactsOutlinedIcon from "@mui/icons-material/ContactsOutlined";
 import ReceiptOutlinedIcon from "@mui/icons-material/ReceiptOutlined";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
+import TextSnippetIcon from '@mui/icons-material/TextSnippet';
 import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import PropTypes from "prop-types";
 import CategoryIcon from "@mui/icons-material/Category";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "../../../features/auth/authSlice";
-import BookmarkAddIcon from "@mui/icons-material/BookmarkAdd";
+import MapIcon from '@mui/icons-material/Map';
 import ListIcon from "@mui/icons-material/List";
 import TaskAltIcon from "@mui/icons-material/TaskAlt";
 import HourglassTopIcon from "@mui/icons-material/HourglassTop";
@@ -43,6 +44,7 @@ import AddToQueueIcon from "@mui/icons-material/AddToQueue";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import { useParams } from "react-router-dom";
 import AssessmentIcon from '@mui/icons-material/Assessment';
+import SourceIcon from '@mui/icons-material/Source';
 const Item = ({ title, to, icon, selected, setSelected, subItems }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -456,7 +458,7 @@ const Sidebar = ({ selectedWalletId, selectedItemId }) => {
              <Item
               title="Dịch Vụ"
               to="manager/service"
-              icon={<ReceiptLongIcon />}
+              icon={<TextSnippetIcon />}
               selected={selected}
               setSelected={setSelected}
             />{" "}
@@ -470,7 +472,7 @@ const Sidebar = ({ selectedWalletId, selectedItemId }) => {
                <Item
               title="Danh Sách Hiện Tượng"
               to="manager/symptom"
-              icon={<ListIcon />}
+              icon={<SourceIcon />}
               selected={selected}
               setSelected={setSelected}
             />{" "}
@@ -496,7 +498,7 @@ const Sidebar = ({ selectedWalletId, selectedItemId }) => {
                 <Item
                   title="Đơn Xe Cứu Hộ"
                   to="manager/vehicles"
-                  icon={<ElectricRickshawIcon />}
+                  icon={<ReceiptLongIcon />}
                   selected={selected}
                   setSelected={setSelected}
                 />
@@ -549,7 +551,7 @@ const Sidebar = ({ selectedWalletId, selectedItemId }) => {
              <Item
               title="Google Map"
               to="manager/googlemap"
-              icon={<CategoryIcon />}
+              icon={<MapIcon />}
               selected={selected}
               setSelected={setSelected}
             />

@@ -208,7 +208,7 @@ const Map = () => {
       .finally(() => {
         setLoading(false);
       });
-     },2000)
+     },3000)
      setIntervalId(intervalId);
   
   }, [dispatch]);

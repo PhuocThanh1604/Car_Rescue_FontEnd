@@ -22,6 +22,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
 import UploadImageField from "../../../components/uploadImage";
 import { editRescueVehicleOwner, fetchRescueVehicleOwners } from "../../../redux/rescueVehicleOwnerSlice";
+import { getAllVehicleOfUser } from "../../../redux/vehicleSlice";
 
 const ModalEdit = ({
   openEditModal,
@@ -90,6 +91,31 @@ const ModalEdit = ({
   const handleSaveClick = () => {
     if (!selectedEditRescuseVehicleOwner || !edit) {
       toast.error("Không có thông tin khách hàng để cập nhật.");
+      return;
+    }
+    console.log(selectedEditRescuseVehicleOwner.id+edit.id)
+
+
+    if (!edit.id) {
+      toast.error("Không có thông tin khách hàng để cập nhật.");
+      dispatch(getAllVehicleOfUser({ id: edit.id }))
+      .then((res) => {
+       const data = res.payload.data;
+        if(data.status ==="ASSIGNED"||data.status ==="REJECTED")
+        toast.success("Kỹ thuật viên đang ở trạng thái Đang làm việc không thể chuyển sang trạng thái Không Hoạt Động.");
+        handleClose();
+        reloadRescueVehicleOwners();
+        setIsSuccess(true);
+      })
+      .catch((error) => {
+        if (error.response && error.response.data) {
+          toast.error(`Lỗi khi cập nhật khách hàng: ${error.response.data.message}`);
+        } else if (error.message) {
+          toast.error(`Lỗi khi cập nhật khách hàng: ${error.message}`);
+        } else {
+          toast.error("Lỗi khi cập nhật khách hàng.");
+        }
+      });
       return;
     }
     // Kiểm tra xem có sự thay đổi trong dữ liệu so với dữ liệu ban đầu
