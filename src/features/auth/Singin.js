@@ -108,6 +108,9 @@ export default function SignInSide() {
   
       const userData = await singin({ email, password, devicetoken }).unwrap();
       console.log(userData);
+    localStorage.setItem("access_token", userData.data.accessToken);
+    console.log(localStorage.getItem("access_token"));
+    console.log( userData.data.accessToken);
       dispatch(setCredentials({ ...userData, email }));
       setEmail("");
       setPassword("");

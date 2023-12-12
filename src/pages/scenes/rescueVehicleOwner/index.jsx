@@ -168,7 +168,7 @@ const RescueVehicleOwners = (props) => {
         if (data) {
           setData(data);
           setFilteredRescueVehicleOwners(data);
-          setLoading(false); // Đặt trạng thái loading thành false sau khi xử lý dữ liệu
+          setLoading(false); 
         }
       })
       .catch((error) => {
@@ -186,6 +186,7 @@ const RescueVehicleOwners = (props) => {
     dispatch(getRescueVehicleOwnerId({ id: rescueVehicleOwnerId }))
       .then((response) => {
         const rescueVehicleOwnerDetails = response.payload.data;
+        
         setSelectedEditRescueVehicleOwner(rescueVehicleOwnerDetails);
         setOpenEditModal(true);
         setIsSuccess(true);
@@ -194,7 +195,6 @@ const RescueVehicleOwners = (props) => {
         console.error("Lỗi khi lấy thông tin chủ xe cứu hộ:", error);
       });
   };
-
 
   const reloadRescueVehicleOwners = () => {
     dispatch(fetchRescueVehicleOwners())

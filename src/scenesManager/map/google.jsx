@@ -49,6 +49,8 @@ const Map = () => {
   const [intervalId, setIntervalId] = useState(null);
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+   const [seconds, setSeconds] = useState(5);
+  const [technicianData, setTechnicianData] = useState(null);
   const handleAddressSelected = async (selectedAddress) => {
     try {
       // Sử dụng Places Autocomplete để lấy thông tin chi tiết về địa chỉ
@@ -122,96 +124,303 @@ const Map = () => {
     },
     config: { duration: 1000, reset: true, delay: 500 },
   });
+  // useEffect(() => {
+  //   setLoading(true);
+  //    const intervalId = setInterval(() => { 
+
+  //     dispatch(getAllLocationTechnician())
+  //     .then((response) => {
+  //       const technicianDetails = response.payload.data;
+
+  //       if (Object.keys(technicianDetails).length > 0) {
+  //         const coordinates = [];
+  //         const tempAllTechnicianInfos = [];
+
+  //         // Loop through all technicians
+  //         for (const technicianId in technicianDetails) {
+  //           if (technicianDetails.hasOwnProperty(technicianId)) {
+  //             const technician = technicianDetails[technicianId];
+  //             const { lat, long } = technician;
+
+  //             // Do something with lat and long
+  //             console.log(
+  //               `Technician ID: ${technicianId}, Lat: ${lat}, Long: ${long}`
+  //             );
+
+  //             const parsedLat = parseFloat(lat);
+  //             const parsedLong = parseFloat(long);
+
+  //             if (!isNaN(parsedLat) && !isNaN(parsedLong)) {
+  //               coordinates.push({ lat: parsedLat, lng: parsedLong });
+
+  //               dispatch(getTechnicianId({ id: technicianId }))
+  //                 .then((response) => {
+  //                   const technicianInfo = response.payload.data;
+  //                   tempAllTechnicianInfos.push(technicianInfo);
+  //                   console.log(technicianInfo);
+
+  //                   // Check if all technician information has been fetched
+  //                   if (
+  //                     tempAllTechnicianInfos.length ||
+  //                     Object.keys(technicianDetails).length
+  //                   ) {
+  //                     setInfoTechnician([...tempAllTechnicianInfos]); // Use spread to create a new array
+  //                     console.log(tempAllTechnicianInfos);
+  //                   }
+  //                   console.log(infoTechnician);
+  //                 })
+  //                 .catch((error) => {
+  //                   toast.error("Lỗi khi lấy thông tin kỹ thuật viên:", error);
+  //                 });
+  //             } else {
+  //               console.warn(
+  //                 `Invalid coordinates for Technician ID: ${technicianId}`
+  //               );
+  //             }
+  //           }
+  //         }
+
+  //         // Set technician coordinates in the state
+  //         setTechnicianCoordinates(coordinates);
+
+  //         // Assuming you want to set the first technician's location as the main technicianLocation
+  //         const firstTechnicianId = Object.keys(technicianDetails)[0];
+  //         const firstTechnician = technicianDetails[firstTechnicianId];
+  //         const firstBodyObj = JSON.parse(firstTechnician.body);
+  //         const firstLat = parseFloat(firstBodyObj.lat);
+  //         const firstLng = parseFloat(firstBodyObj.long);
+
+  //         if (!isNaN(firstLat) && !isNaN(firstLng)) {
+  //           setTechnicianLocation({ lat: firstLat, lng: firstLng });
+  //           setIsSuccess(true);
+  //         } else {
+  //           setDataTechnician(null);
+  //           setIsSuccess(false);
+  //           toast.error("Dữ liệu vị trí của kỹ thuật viên không tìm thấy");
+  //         }
+  //       } else {
+  //         setDataTechnician(null);
+  //         setIsSuccess(false);
+  //         toast.error("Không có dữ liệu trả về từ getLocationTechnician");
+  //       }
+  //     })
+  //     .catch((error) => {
+  //       console.error("Lỗi khi lấy dữ liệu kỹ thuật viên:", error);
+  //     })
+  //     .finally(() => {
+  //       setLoading(false);
+  //     });
+  //    },3000)
+  //    setIntervalId(intervalId);
+  
+  // }, [dispatch]);
+
+  // useEffect(() => {
+  //   setLoading(true);
+  
+  //   const fetchData = async () => {
+  //     try {
+  //       const response = await dispatch(getAllLocationTechnician());
+  //       const technicianDetails = response.payload.data;
+  
+  //       if (Object.keys(technicianDetails).length > 0) {
+  //         const coordinates = [];
+  //         const tempAllTechnicianInfos = [];
+
+  //         // Loop through all technicians
+  //         for (const technicianId in technicianDetails) {
+  //           if (technicianDetails.hasOwnProperty(technicianId)) {
+  //             const technician = technicianDetails[technicianId];
+  //             const { lat, long } = technician;
+
+  //             // Do something with lat and long
+  //             console.log(
+  //               `Technician ID: ${technicianId}, Lat: ${lat}, Long: ${long}`
+  //             );
+
+  //             const parsedLat = parseFloat(lat);
+  //             const parsedLong = parseFloat(long);
+
+  //             if (!isNaN(parsedLat) && !isNaN(parsedLong)) {
+  //               coordinates.push({ lat: parsedLat, lng: parsedLong });
+
+  //               dispatch(getTechnicianId({ id: technicianId }))
+  //                 .then((response) => {
+  //                   const technicianInfo = response.payload.data;
+  //                   tempAllTechnicianInfos.push(technicianInfo);
+  //                   console.log(technicianInfo);
+
+  //                   // Check if all technician information has been fetched
+  //                   if (
+  //                     tempAllTechnicianInfos.length ||
+  //                     Object.keys(technicianDetails).length
+  //                   ) {
+  //                     setInfoTechnician([...tempAllTechnicianInfos]); // Use spread to create a new array
+  //                     console.log(tempAllTechnicianInfos);
+  //                   }
+  //                   console.log(infoTechnician);
+  //                 })
+  //                 .catch((error) => {
+  //                   toast.error("Lỗi khi lấy thông tin kỹ thuật viên:", error);
+  //                 });
+  //             } else {
+  //               console.warn(
+  //                 `Invalid coordinates for Technician ID: ${technicianId}`
+  //               );
+  //             }
+  //           }
+  //         }
+
+  //         // Set technician coordinates in the state
+  //         setTechnicianCoordinates(coordinates);
+
+  //         // Assuming you want to set the first technician's location as the main technicianLocation
+  //         const firstTechnicianId = Object.keys(technicianDetails)[0];
+  //         const firstTechnician = technicianDetails[firstTechnicianId];
+  //         const firstBodyObj = JSON.parse(firstTechnician.body);
+  //         const firstLat = parseFloat(firstBodyObj.lat);
+  //         const firstLng = parseFloat(firstBodyObj.long);
+
+  //         if (!isNaN(firstLat) && !isNaN(firstLng)) {
+  //           setTechnicianLocation({ lat: firstLat, lng: firstLng });
+  //           setIsSuccess(true);
+  //         } else {
+  //           setDataTechnician(null);
+  //           setIsSuccess(false);
+  //           toast.error("Dữ liệu vị trí của kỹ thuật viên không tìm thấy");
+  //         }
+  //       } else {
+  //         setDataTechnician(null);
+  //         setIsSuccess(false);
+  //         toast.error("Không có dữ liệu trả về từ getLocationTechnician");
+  //       }
+  
+  //       let seconds = 0;
+  
+  //       const intervalId = setInterval(() => {
+  //         // Tăng giá trị của số giây sau mỗi khoảng thời gian (ví dụ: sau mỗi giây)
+  //         seconds++;
+  
+  //         // Thực hiện bất kỳ xử lý nào dựa trên số giây ở đây
+  //         console.log("Số giây: ", seconds);
+  
+  //         // Điều kiện dừng interval sau một số giây nhất định (ví dụ: sau 10 giây)
+  //         if (seconds >= 10) {
+  //           clearInterval(intervalId);
+  //           // Thực hiện các hành động khác sau khi interval dừng
+  //         }
+  //       }, 1000); // Gọi mỗi giây
+  
+  //       setIntervalId(intervalId); // Lưu intervalId vào state hoặc ref nếu cần thiết
+  
+  //     } catch (error) {
+  //       console.error("Lỗi khi lấy dữ liệu kỹ thuật viên:", error);
+  //       setLoading(false);
+  //     }
+  //   };
+  
+  //   fetchData();
+  
+  // }, [dispatch]);
   useEffect(() => {
+    // Gọi API khi trang được tải lần đầu tiên
+    fetchData();
+  }, [dispatch]);
+  const fetchData = async () => {
     setLoading(true);
-     const intervalId = setInterval(() => { 
+    try {
+      const response = await dispatch(getAllLocationTechnician());
+      const technicianDetails = response.payload.data;
+      if (Object.keys(technicianDetails).length > 0) {
+        const coordinates = [];
+        const tempAllTechnicianInfos = [];
 
-      dispatch(getAllLocationTechnician())
-      .then((response) => {
-        const technicianDetails = response.payload.data;
+        // Loop through all technicians
+        for (const technicianId in technicianDetails) {
+          if (technicianDetails.hasOwnProperty(technicianId)) {
+            const technician = technicianDetails[technicianId];
+            const { lat, long } = technician;
 
-        if (Object.keys(technicianDetails).length > 0) {
-          const coordinates = [];
-          const tempAllTechnicianInfos = [];
+            // Do something with lat and long
+            console.log(
+              `Technician ID: ${technicianId}, Lat: ${lat}, Long: ${long}`
+            );
 
-          // Loop through all technicians
-          for (const technicianId in technicianDetails) {
-            if (technicianDetails.hasOwnProperty(technicianId)) {
-              const technician = technicianDetails[technicianId];
-              const { lat, long } = technician;
+            const parsedLat = parseFloat(lat);
+            const parsedLong = parseFloat(long);
 
-              // Do something with lat and long
-              console.log(
-                `Technician ID: ${technicianId}, Lat: ${lat}, Long: ${long}`
+            if (!isNaN(parsedLat) && !isNaN(parsedLong)) {
+              coordinates.push({ lat: parsedLat, lng: parsedLong });
+
+              dispatch(getTechnicianId({ id: technicianId }))
+                .then((response) => {
+                  const technicianInfo = response.payload.data;
+                  tempAllTechnicianInfos.push(technicianInfo);
+                  console.log(technicianInfo);
+
+                  // Check if all technician information has been fetched
+                  if (
+                    tempAllTechnicianInfos.length ||
+                    Object.keys(technicianDetails).length
+                  ) {
+                    setInfoTechnician([...tempAllTechnicianInfos]); // Use spread to create a new array
+                    console.log(tempAllTechnicianInfos);
+                  }
+                  console.log(infoTechnician);
+                })
+                .catch((error) => {
+                  toast.error("Lỗi khi lấy thông tin kỹ thuật viên:", error);
+                });
+            } else {
+              console.warn(
+                `Invalid coordinates for Technician ID: ${technicianId}`
               );
-
-              const parsedLat = parseFloat(lat);
-              const parsedLong = parseFloat(long);
-
-              if (!isNaN(parsedLat) && !isNaN(parsedLong)) {
-                coordinates.push({ lat: parsedLat, lng: parsedLong });
-
-                dispatch(getTechnicianId({ id: technicianId }))
-                  .then((response) => {
-                    const technicianInfo = response.payload.data;
-                    tempAllTechnicianInfos.push(technicianInfo);
-                    console.log(technicianInfo);
-
-                    // Check if all technician information has been fetched
-                    if (
-                      tempAllTechnicianInfos.length ||
-                      Object.keys(technicianDetails).length
-                    ) {
-                      setInfoTechnician([...tempAllTechnicianInfos]); // Use spread to create a new array
-                      console.log(tempAllTechnicianInfos);
-                    }
-                    console.log(infoTechnician);
-                  })
-                  .catch((error) => {
-                    toast.error("Lỗi khi lấy thông tin kỹ thuật viên:", error);
-                  });
-              } else {
-                console.warn(
-                  `Invalid coordinates for Technician ID: ${technicianId}`
-                );
-              }
             }
           }
+        }
 
-          // Set technician coordinates in the state
-          setTechnicianCoordinates(coordinates);
+        // Set technician coordinates in the state
+        setTechnicianCoordinates(coordinates);
 
-          // Assuming you want to set the first technician's location as the main technicianLocation
-          const firstTechnicianId = Object.keys(technicianDetails)[0];
-          const firstTechnician = technicianDetails[firstTechnicianId];
-          const firstBodyObj = JSON.parse(firstTechnician.body);
-          const firstLat = parseFloat(firstBodyObj.lat);
-          const firstLng = parseFloat(firstBodyObj.long);
+        // Assuming you want to set the first technician's location as the main technicianLocation
+        const firstTechnicianId = Object.keys(technicianDetails)[0];
+        const firstTechnician = technicianDetails[firstTechnicianId];
+        const firstBodyObj = JSON.parse(firstTechnician.body);
+        const firstLat = parseFloat(firstBodyObj.lat);
+        const firstLng = parseFloat(firstBodyObj.long);
 
-          if (!isNaN(firstLat) && !isNaN(firstLng)) {
-            setTechnicianLocation({ lat: firstLat, lng: firstLng });
-            setIsSuccess(true);
-          } else {
-            setDataTechnician(null);
-            setIsSuccess(false);
-            toast.error("Dữ liệu vị trí của kỹ thuật viên không tìm thấy");
-          }
+        if (!isNaN(firstLat) && !isNaN(firstLng)) {
+          setTechnicianLocation({ lat: firstLat, lng: firstLng });
+          setIsSuccess(true);
         } else {
           setDataTechnician(null);
           setIsSuccess(false);
-          toast.error("Không có dữ liệu trả về từ getLocationTechnician");
+          toast.error("Dữ liệu vị trí của kỹ thuật viên không tìm thấy");
         }
-      })
-      .catch((error) => {
-        console.error("Lỗi khi lấy dữ liệu kỹ thuật viên:", error);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-     },3000)
-     setIntervalId(intervalId);
+      } else {
+        setDataTechnician(null);
+        setIsSuccess(false);
+        toast.error("Không có dữ liệu trả về từ getLocationTechnician");
+      }
+      setTechnicianData(technicianDetails);
+      setLoading(false);
+    } catch (error) {
+      console.error("Lỗi khi lấy dữ liệu kỹ thuật viên:", error);
+      setLoading(false);
+    }
+  };
+
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      fetchData(); // Gọi fetchData() sau mỗi 5 giây
+    }, 5000); // Gọi mỗi 5 giây
   
+    // Xóa interval khi component unmount
+    return () => clearInterval(intervalId);
   }, [dispatch]);
+
+
 
   useEffect(() => {
     if (technicianLocation) {
@@ -270,6 +479,7 @@ const Map = () => {
         border: "1.4px solid black",
       }}
     >
+       <p>Interval đã chạy được {seconds} giây</p>
       <GoogleMapReact
         bootstrapURLKeys={{
           key: "AIzaSyBSLmhb6vCHhrZxMh3lmUI-CICfzhiMakk",

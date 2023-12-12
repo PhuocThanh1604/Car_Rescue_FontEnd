@@ -93,31 +93,29 @@ const ModalEdit = ({
       toast.error("Không có thông tin khách hàng để cập nhật.");
       return;
     }
-    console.log(selectedEditRescuseVehicleOwner.id+edit.id)
 
-
-    if (!edit.id) {
-      toast.error("Không có thông tin khách hàng để cập nhật.");
-      dispatch(getAllVehicleOfUser({ id: edit.id }))
-      .then((res) => {
-       const data = res.payload.data;
-        if(data.status ==="ASSIGNED"||data.status ==="REJECTED")
-        toast.success("Kỹ thuật viên đang ở trạng thái Đang làm việc không thể chuyển sang trạng thái Không Hoạt Động.");
-        handleClose();
-        reloadRescueVehicleOwners();
-        setIsSuccess(true);
-      })
-      .catch((error) => {
-        if (error.response && error.response.data) {
-          toast.error(`Lỗi khi cập nhật khách hàng: ${error.response.data.message}`);
-        } else if (error.message) {
-          toast.error(`Lỗi khi cập nhật khách hàng: ${error.message}`);
-        } else {
-          toast.error("Lỗi khi cập nhật khách hàng.");
-        }
-      });
-      return;
-    }
+    // if (!edit.id) {
+    //   toast.error("Không có thông tin khách hàng để cập nhật.");
+    //   dispatch(getAllVehicleOfUser({ id: edit.id }))
+    //   .then((res) => {
+    //    const data = res.payload.data;
+    //     if(data.status ==="ASSIGNED"||data.status ==="REJECTED")
+    //     toast.success("Kỹ thuật viên đang ở trạng thái Đang làm việc không thể chuyển sang trạng thái Không Hoạt Động.");
+    //     handleClose();
+    //     reloadRescueVehicleOwners();
+    //     setIsSuccess(true);
+    //   })
+    //   .catch((error) => {
+    //     if (error.response && error.response.data) {
+    //       toast.error(`Lỗi khi cập nhật khách hàng: ${error.response.data.message}`);
+    //     } else if (error.message) {
+    //       toast.error(`Lỗi khi cập nhật khách hàng: ${error.message}`);
+    //     } else {
+    //       toast.error("Lỗi khi cập nhật khách hàng.");
+    //     }
+    //   });
+    //   return;
+    // }
     // Kiểm tra xem có sự thay đổi trong dữ liệu so với dữ liệu ban đầu
     const hasChanges =
       JSON.stringify(edit) !== JSON.stringify(initialFormState);
@@ -147,7 +145,6 @@ const ModalEdit = ({
   };
   
 
-
   const handleClose = () => {
     setOpenEditModal(false);
   };
@@ -155,11 +152,7 @@ const ModalEdit = ({
   if (!rescueVehicleOwners) {
     return null;
   }
-  // Hàm kiểm tra URL hợp lệ
-  const isValidUrl = (url) => {
-    const regex = /^(ftp|http|https):\/\/[^ "]+$/;
-    return regex.test(url);
-  };
+
   const handleImageUploaded = (imageUrl) => {
     setDownloadUrl(imageUrl); // Set the download URL in the state
     setEdit((prevRescuseVehicleOwner) => ({

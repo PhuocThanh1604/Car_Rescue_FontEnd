@@ -133,7 +133,7 @@ export const getAllVehicleOfUser = createAsyncThunk(
   "vehicles/getAllVehicleOfUser",
   async ({ id }) => {
   
-
+    console.log(id)
     try {
       const response = await axios.get(
         `https://rescuecapstoneapi.azurewebsites.net/api/Vehicle/GetAllOfUser?id=${id}`,

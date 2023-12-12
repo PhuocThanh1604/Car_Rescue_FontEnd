@@ -85,7 +85,6 @@ const ModalEdit = ({
   const [loadingVehicle, setLoadingVehicle] = useState(true);
   const [vehicleData, setVehicleData] = useState([]);
   const [serviceNames, setServiceNames] = useState({});
-  const [firstServiceName, setFirstServiceName] = useState([]);
   const [loadingTechnician, setLoadingTechnician] = useState(true);
   const [technicianData, setTechnicianData] = useState([]);
   const [selectedTechnician, setSelectedTechnician] = useState(null);
@@ -198,23 +197,24 @@ const ModalEdit = ({
   useEffect(() => {
     // Filter and set the list of technicians or rescue vehicles based on the selected rescueType
     if (selectedRescueType === "Fixing") {
-      if (technicianData !== null) {
-        setFilteredTechnicianData(
-          technicianData.filter((tech) => tech && tech.status === "ACTIVE")
+      if (technicianData !== null && technicianData !== undefined) {
+        const filteredTechnicians = technicianData.filter(
+          (tech) => tech && tech.status === "ACTIVE"
         );
+        setFilteredTechnicianData(filteredTechnicians);
       }
-      resetTowingState();
     } else if (selectedRescueType === "Towing") {
-      if (vehicleData !== null) {
-        setFilteredVehicleData(
-          vehicleData.filter(
-            (vehicle) => vehicle && vehicle.status === "ACTIVE"
-          )
+      if (vehicleData !== null && vehicleData !== undefined) {
+        const filteredVehicles = vehicleData.filter(
+          (vehicle) => vehicle && vehicle.status === "ACTIVE"
         );
+        setFilteredVehicleData(filteredVehicles);
       }
       // resetFixingState();
     }
   }, [selectedRescueType, technicianData, vehicleData]);
+  
+  
 
   // useEffect(() => {
   //   if (selectedTechnician) {
@@ -340,10 +340,10 @@ const ModalEdit = ({
           // Xác định selectedVehicle ban đầu
         } else {
           setVehicleData(false);
-          console.error("Vehicle response does not contain 'data'.");
+          toast.error("Vehicle response does not contain 'data'.");
         }
       } catch (error) {
-        console.error("Error while fetching vehicle data:", error);
+        toast.error("Error while fetching vehicle data:", error);
       } finally {
         setLoadingVehicle(false);
       }
@@ -407,10 +407,9 @@ const ModalEdit = ({
 
   useEffect(() => {
     if (orders) {
-      setFilteredOrders(orders); // Update the local state when the Redux state changes
+      setFilteredOrders(orders); 
     }
   }, [orders]);
-  //Hàm điều phối
   const handleSaveClick = () => {
     console.log("accountId" + accountId);
     if (!selectedEditOrder || !data) {
@@ -418,7 +417,6 @@ const ModalEdit = ({
       return;
     }
     const orderId = edit.id;
-    // Kiểm tra xem có sự thay đổi trong dữ liệu so với dữ liệu ban đầu
     const hasChanges =
       JSON.stringify(data) !== JSON.stringify(initialFormState);
     const message = {
@@ -438,33 +436,32 @@ const ModalEdit = ({
       const requestData = {
         orderID: orderId,
         vehicleID: vehicleId,
-        managerID: manager.id,
+        managerID: manager.id,fetchVehicle
       };
       dispatch(createAcceptOrder(requestData))
         .then(() => {
-          if (selectedVehicle && vehicleData) {
-            // Loại bỏ phương tiện đã chọn từ danh sách vehicleData
+          if (vehicleData) {
             const updatedVehicleData = vehicleData.filter(
-              (item) => item.id !== selectedVehicle.id
+              (item) => item.id !== (selectedVehicle && selectedVehicle.id)
             );
             setVehicleData(updatedVehicleData);
           }
-          toast.success("Gửi điều phối nhân sự thành công.");
-          // Reset vehicleDetails here
+          toast.success("Điều phối nhân sự thành công.");
           setVehicleDetails(null);
           setSelectedVehicel(null);
+          dispatch(fetchVehicle());
           console.log("accountDeviceToken: " + accountDeviceToken);
           const notificationData = {
             deviceId: accountDeviceToken,
             isAndroiodDevice: true,
             title: message.title,
             body: message.body,
-            target: accountId,//accountId of vehicle
+            target: accountId,
             orderId: orderId,
           };
           dispatch(sendNotification(notificationData))
             .then(() => {
-              console.log("Gửi thông báo thành công");
+              toast.success("Gửi thông báo đến nhân sự thành công");
               const notificationData = {
                 deviceId: accountDeviceTokenCustomer,
                 isAndroiodDevice: true,
@@ -473,24 +470,23 @@ const ModalEdit = ({
                 target: accountIdCustomer, 
                 orderId: orderId,
               };
-              console.log("accountIdCustomer: " + accountIdCustomer);
-              console.log("accountDeviceTokenCustomer: " + accountDeviceTokenCustomer);
+         
               // Gửi thông báo bằng hàm sendNotification
               dispatch(sendNotification(notificationData))
                 .then(() => {
-                  console.log("Gửi thông báo đến khách hàng thành công");
+                  toast.success("Gửi thông báo đến khách hàng thành công");
                 })
                 .catch((error) => {
-                  console.error("Lỗi khi gửi thông báo đến khách hàng:", error);
+                  toast.error("Lỗi khi gửi thông báo đến khách hàng!! vui lòng thử lại:", error);
                 });
             })
             .catch((error) => {
-              console.error("Lỗi khi gửi thông báo nhân sự:", error);
+              toast.error("Lỗi khi gửi thông báo đến nhân sự:", error);
             });
           handleClose();
           setIsSuccess(true);
           if (onDataUpdated) {
-            onDataUpdated(); // Call the callback function after successful update
+            onDataUpdated(); 
           }
         })
         .catch((error) => {
@@ -534,12 +530,6 @@ const ModalEdit = ({
     }
   };
 
-  // Function to reset Towing state variables
-  const resetTowingState = () => {
-    setSelectedVehicel(null);
-    setVehicleId(null);
-    setVehicleData(null);
-  };
 
   // When rescue type is changed, reset the state accordingly
   //get Full NameCustomer
@@ -799,8 +789,8 @@ const ModalEdit = ({
                 );
               });
           } else {
-            console.error(
-              "Service data not found in the API response or data is not an array."
+            toast.error(
+              "Không có dịch vụ"
             );
           }
         })
@@ -1473,7 +1463,6 @@ const ModalEdit = ({
                             onChange={(_, newValue) => {
                               setSelectedVehicel(newValue);
                               setVehicleId(newValue && newValue.id);
-                              // Cập nhật vehicleDetails dựa trên newValue
                             }}
                             renderInput={(params) => (
                               <TextField
