@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-const apiKeyGG = "AIzaSyAiyZLdDwpp0_dAOPNBMItItXixgLH9ABo";
+const apiKeyGG = "AIzaSyCKENObap2mBz7hbIrDnONJwIBdBSVNJTE";
 // const apiKeyGG = process.env.API_KEY_GG;
 const mapboxToken =
   "pk.eyJ1IjoidGhhbmgyazEiLCJhIjoiY2xvZjMxcWppMG5oejJqcnI2M2ZleTJtZiJ9.yvWTA-yYNqTdr2OstpB7bw";
@@ -300,23 +300,24 @@ export const getOrderDetailId = createAsyncThunk(
     }
   }
 );
-// export const getFormattedAddressGG = createAsyncThunk(
-//   "orders/getFormattedAddress",
-//   async ({ lat, lng }) => {
-//     console.log("lat"+lat,"lng"+lng);
-//     try {
-//       const response = await axios.get(
-//         `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKeyGG}`
-//       );
-//       const data = response.data;
-//       console.log(data)
-//       return data;
-//     } catch (error) {
-//       console.error("Failed to get Address ", error.error_message);
-//       throw error.response.data || error.message;
-//     }
-//   }
-// );
+export const getFormattedAddressGG = createAsyncThunk(
+  "orders/getFormattedAddress",
+  async ({ lat, lng }) => {
+    console.log("lat"+lat,"lng"+lng);
+    try {
+      const response = await axios.get(
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKeyGG}`
+
+      );
+      const data = response.data;
+      console.log(data)
+      return data;
+    } catch (error) {
+      console.error("Failed to get Address ", error.error_message);
+      throw error.response.data || error.message;
+    }
+  }
+);
 // export const getFormattedAddressGG = createAsyncThunk(
 //   "orders/getFormattedAddress",
 //   async ({ lat, lng }) => {
@@ -358,23 +359,23 @@ export const getOrderDetailId = createAsyncThunk(
 //   }
 // );
 
-export const getFormattedAddressGG = createAsyncThunk(
-  "orders/getFormattedAddress",
-  async ({ lat, lng }, { rejectWithValue }) => {
-    try {
-      const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${mapboxToken}`;
+// export const getFormattedAddressGG = createAsyncThunk(
+//   "orders/getFormattedAddress",
+//   async ({ lat, lng }, { rejectWithValue }) => {
+//     try {
+//       const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${mapboxToken}`;
 
-      const response = await axios.get(url);
-      const data = response.data;
+//       const response = await axios.get(url);
+//       const data = response.data;
  
 
-      return data;
-    } catch (error) {
-      console.error("Failed to get Address ", error.message);
-      return rejectWithValue(error.response.data || error.message);
-    }
-  }
-);
+//       return data;
+//     } catch (error) {
+//       console.error("Failed to get Address ", error.message);
+//       return rejectWithValue(error.response.data || error.message);
+//     }
+//   }
+// );
 
 export const createAcceptOrder = createAsyncThunk(
   "orders/createAcceptOrder",

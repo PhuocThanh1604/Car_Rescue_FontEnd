@@ -151,11 +151,11 @@ const ModalEdit = ({
       const [, lat, lng] = matches;
 
       if (!isNaN(lat) && !isNaN(lng)) {
+        console.log("lat"+lat,"lng"+lng)
         try {
           const response = await dispatch(getFormattedAddressGG({ lat, lng }));
           console.log(response.payload);
-          const formattedAddress =
-            response.payload;
+          const formattedAddress = response.payload.formattedAddress;
           setFormattedAddresses((prevAddresses) => ({
             ...prevAddresses,
             [addressType]: formattedAddress,

@@ -92,7 +92,6 @@ const AddManager = () => {
       values: updatedInitialValues, 
       values2: initialValues, 
     });
-    setSelectedAccount(null);
     // In ra tất cả dữ liệu đã nhập
     console.log("Dữ liệu đã nhập:", updatedInitialValues);
     dispatch(createManager(updatedInitialValues))
