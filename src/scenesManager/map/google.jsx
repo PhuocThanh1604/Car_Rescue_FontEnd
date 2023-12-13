@@ -126,52 +126,31 @@ const Map = () => {
     config: { duration: 1000, reset: true, delay: 500 },
   });
   useEffect(() => {
-    setLoading(true);
-
-      dispatch(getAllLocationTechnician())
-      .then((response) => {
-        const technicianDetails = response.payload.data;
-
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+  
+        const locationTechnicianResponse = await dispatch(getAllLocationTechnician());
+        const technicianDetails = locationTechnicianResponse.payload.data;
+        let success = false; // Biến để kiểm tra xem việc lấy technicianId đã thành công hay không
+  
         if (Object.keys(technicianDetails).length > 0) {
           const coordinates = [];
-          const tempAllTechnicianInfos = [];
-
-          // Loop through all technicians
+          const promises = [];
+  
           for (const technicianId in technicianDetails) {
             if (technicianDetails.hasOwnProperty(technicianId)) {
               const technician = technicianDetails[technicianId];
               const { lat, long } = technician;
-
-              // Do something with lat and long
-              console.log(
-                `Technician ID: ${technicianId}, Lat: ${lat}, Long: ${long}`
-              );
-
+  
               const parsedLat = parseFloat(lat);
               const parsedLong = parseFloat(long);
-
+  
               if (!isNaN(parsedLat) && !isNaN(parsedLong)) {
                 coordinates.push({ lat: parsedLat, lng: parsedLong });
-
-                dispatch(getTechnicianId({ id: technicianId }))
-                  .then((response) => {
-                    const technicianInfo = response.payload.data;
-                    tempAllTechnicianInfos.push(technicianInfo);
-                    console.log(technicianInfo);
-
-                    // Check if all technician information has been fetched
-                    if (
-                      tempAllTechnicianInfos.length ||
-                      Object.keys(technicianDetails).length
-                    ) {
-                      setInfoTechnician([...tempAllTechnicianInfos]); // Use spread to create a new array
-                      console.log(tempAllTechnicianInfos);
-                    }
-                    console.log(infoTechnician);
-                  })
-                  .catch((error) => {
-                    toast.error("Lỗi khi lấy thông tin kỹ thuật viên:", error);
-                  });
+  
+                // Push the promise into the promises array
+                promises.push(dispatch(getTechnicianId({ id: technicianId })));
               } else {
                 console.warn(
                   `Invalid coordinates for Technician ID: ${technicianId}`
@@ -179,20 +158,26 @@ const Map = () => {
               }
             }
           }
-
+  
+          // Wait for all promises to resolve
+          const responses = await Promise.all(promises);
+          const technicianInfos = responses.map((res) => res.payload.data);
+          setInfoTechnician(technicianInfos); // Set technician info array
+  
           // Set technician coordinates in the state
           setTechnicianCoordinates(coordinates);
-
+  
           // Assuming you want to set the first technician's location as the main technicianLocation
           const firstTechnicianId = Object.keys(technicianDetails)[0];
           const firstTechnician = technicianDetails[firstTechnicianId];
           const firstBodyObj = JSON.parse(firstTechnician.body);
           const firstLat = parseFloat(firstBodyObj.lat);
           const firstLng = parseFloat(firstBodyObj.long);
-
+  
           if (!isNaN(firstLat) && !isNaN(firstLng)) {
             setTechnicianLocation({ lat: firstLat, lng: firstLng });
             setIsSuccess(true);
+            success = true; // Gán success = true nếu lấy dữ liệu thành công
           } else {
             setDataTechnician(null);
             setIsSuccess(false);
@@ -203,16 +188,25 @@ const Map = () => {
           setIsSuccess(false);
           toast.error("Không có dữ liệu trả về từ getLocationTechnician");
         }
-      })
-      .catch((error) => {
-        console.error("Lỗi khi lấy dữ liệu kỹ thuật viên:", error);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-     setIntervalId(intervalId);
   
+        if (success) {
+          // Nếu lấy technicianId thành công, hiển thị toast thông báo thành công
+          toast.success("Lấy dữ liệu kỹ thuật viên thành công");
+        }
+      } catch (error) {
+        setLoading(false);
+        toast.dismiss("Lỗi khi lấy dữ liệu kỹ thuật viên:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchData();
   }, [dispatch]);
+  
+  
+  
+  
 
   // useEffect(() => {
   //   setLoading(true);
@@ -459,7 +453,7 @@ const Map = () => {
   };
 
   return (
-    <div
+    <Box
       style={{
         height: "96%",
         width: "98%",
@@ -468,10 +462,9 @@ const Map = () => {
         border: "1.4px solid black",
       }}
     >
-       <p>Interval đã chạy được {seconds} giây</p>
       <GoogleMapReact
         bootstrapURLKeys={{
-          key: "AIzaSyBSLmhb6vCHhrZxMh3lmUI-CICfzhiMakk",
+          key: "AIzaSyDksMnFQUmqOnGZGBIzVacv6YPEgYl8O30",
         }}
         defaultCenter={defaultCenter}
         defaultZoom={defaultZoom}
@@ -591,7 +584,7 @@ const Map = () => {
       </form>
 
       {/* <MapboxMap/> */}
-    </div>
+    </Box>
   );
 };
 
