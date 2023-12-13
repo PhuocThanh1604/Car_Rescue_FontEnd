@@ -23,7 +23,8 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import BadgeIcon from "@mui/icons-material/Badge";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { styled, Theme } from "@mui/material/styles";
-import PerfectScrollbarComponent from "react-perfect-scrollbar";
+import PerfectScrollbar from 'react-perfect-scrollbar';
+import 'react-perfect-scrollbar/dist/css/styles.css'; 
 import { toast } from "react-toastify";
 import { onMessageListener } from "../firebase";
 import { useDispatch } from "react-redux";
@@ -44,7 +45,7 @@ const Topbar = () => {
   const [notifications, setNotifications] = useState([]);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
 
-  const MAX_NOTIFICATIONS_DISPLAYED = 10;
+  const MAX_NOTIFICATIONS_DISPLAYED = 5;
   useEffect(() => {
     const handleMessage = (payload) => {
       toast(
@@ -188,9 +189,7 @@ useEffect(() => {
     setAnchorElNoti(null);
   };
   // ** Styled PerfectScrollbar component
-  const PerfectScrollbar = styled(PerfectScrollbarComponent)({
-    ...styles,
-  });
+ 
   // ** Styled component for the title in MenuItems
   const MenuItemTitle = styled(Typography)(({ theme }) => ({
     fontWeight: 600,
@@ -217,11 +216,11 @@ useEffect(() => {
     useMediaQuery("(max-width: 1280px)") ? (
       <Box sx={{ overflowY: "auto", overflowX: "hidden" }}>{children}</Box>
     ) : (
-      <PerfectScrollbarComponent
-        options={{ wheelPropagation: false, suppressScrollX: true }}
+      <PerfectScrollbar
+        options={{ wheelPropagation: true, suppressScrollX: true }}
       >
         {children}
-      </PerfectScrollbarComponent>
+      </PerfectScrollbar>
     );
 
   const handleLogout = () => {
@@ -366,7 +365,7 @@ useEffect(() => {
                       sx={{ color: "text.disabled" }}
                       right={0}
                     >
-                      Today{" "}
+                   
                       {new Date(notification.createdAt).toLocaleDateString()}{" "}
                     </Typography>
               </Box>

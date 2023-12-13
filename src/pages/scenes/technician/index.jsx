@@ -43,7 +43,6 @@ const Technicians = (props) => {
   const [openEditModal, setOpenEditModal] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [filterOption, setFilterOption] = useState("Status");
-  const [openModal, setOpenModal] = useState(false);
   const [selectedEditTechnician, setSelectedEditTechnician] = useState(null);
   const [dataTechnician, setDataLocationTechnician] = useState(null);
   const [filteredTechnicians, setFilteredTechnicians] = useState([]);
@@ -268,7 +267,6 @@ const Technicians = (props) => {
 
   useEffect(() => {
     if (!Array.isArray(technicians)) {
-      // Xử lý khi technicians không tồn tại, không có dữ liệu hoặc searchText/filterOption không được định nghĩa
       toast.dismiss("Dữ liệu không hợp lệ để thực hiện lọc.");
       return;
     }
