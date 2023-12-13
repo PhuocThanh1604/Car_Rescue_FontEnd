@@ -153,8 +153,9 @@ const ModalEdit = ({
       if (!isNaN(lat) && !isNaN(lng)) {
         try {
           const response = await dispatch(getFormattedAddressGG({ lat, lng }));
+          console.log(response.payload);
           const formattedAddress =
-            response.payload.results[0].formatted_address;
+            response.payload;
           setFormattedAddresses((prevAddresses) => ({
             ...prevAddresses,
             [addressType]: formattedAddress,

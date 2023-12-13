@@ -300,21 +300,23 @@ export const getOrderDetailId = createAsyncThunk(
     }
   }
 );
-export const getFormattedAddressGG = createAsyncThunk(
-  "orders/getFormattedAddress",
-  async ({ lat, lng }) => {
-    try {
-      const response = await axios.get(
-        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKeyGG}`
-      );
-      const data = response.data;
-      return data;
-    } catch (error) {
-      console.error("Failed to get Address ", error.error_message);
-      throw error.response.data || error.message;
-    }
-  }
-);
+// export const getFormattedAddressGG = createAsyncThunk(
+//   "orders/getFormattedAddress",
+//   async ({ lat, lng }) => {
+//     console.log("lat"+lat,"lng"+lng);
+//     try {
+//       const response = await axios.get(
+//         `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKeyGG}`
+//       );
+//       const data = response.data;
+//       console.log(data)
+//       return data;
+//     } catch (error) {
+//       console.error("Failed to get Address ", error.error_message);
+//       throw error.response.data || error.message;
+//     }
+//   }
+// );
 // export const getFormattedAddressGG = createAsyncThunk(
 //   "orders/getFormattedAddress",
 //   async ({ lat, lng }) => {
@@ -356,7 +358,7 @@ export const getFormattedAddressGG = createAsyncThunk(
 //   }
 // );
 
-export const getFormattedAddressMapbox = createAsyncThunk(
+export const getFormattedAddressGG = createAsyncThunk(
   "orders/getFormattedAddress",
   async ({ lat, lng }, { rejectWithValue }) => {
     try {
@@ -366,6 +368,7 @@ export const getFormattedAddressMapbox = createAsyncThunk(
       const data = response.data;
       const formattedAddress = data.features[0].place_name;
       console.log(formattedAddress);
+      return formattedAddress;
     } catch (error) {
       console.error("Failed to get Address ", error.message);
       return rejectWithValue(error.response.data || error.message);
@@ -859,10 +862,10 @@ const orderSlice = createSlice({
       .addCase(createIncidentForFixing.rejected, (state, action) => {
         state.status = "error";
       })
-      .addCase(getFormattedAddressMapbox.fulfilled, (state, action) => {
+      .addCase(getFormattedAddressGG.fulfilled, (state, action) => {
         state.formattedAddress = action.payload;
       })
-      .addCase(getFormattedAddressMapbox.pending, (state, action) => {
+      .addCase(getFormattedAddressGG.pending, (state, action) => {
         state.status = "loading";
       })
       .addCase(updateServiceForTechnicians.fulfilled, (state, action) => {
