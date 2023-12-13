@@ -52,7 +52,7 @@ function App() {
   useEffect(() => {
     const handleMessage = (payload) => {
       toast(
-        `Title: ${payload.notification.title}, Body: ${payload.notification.body}`,
+        `${payload.notification.title}, ${payload.notification.body}`,
         {
           marginTop:"50px",
           position: "top-right",

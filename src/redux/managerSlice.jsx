@@ -6,6 +6,7 @@ const accessToken = localStorage.getItem("access_token");
 export const createManager = createAsyncThunk(
   "managers/create",
   async (manager) => {
+    console.log(manager)
     try {
       const id = uuidv4();
       const managerData = {

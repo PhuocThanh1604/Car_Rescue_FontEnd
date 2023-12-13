@@ -22,38 +22,37 @@ import AddIcon from "@mui/icons-material/Add";
 import { getAccountEmail } from "../../../redux/accountSlice";
 import UploadImageField from "../../../components/uploadImage";
 import Header from "../../../components/Header";
-const AddRescueVehicleOwner = () => {
+import { v4 as uuidv4 } from "uuid";
+const AddManager = () => {
   const dispatch = useDispatch();
-  const rescueVehicleOwner = useSelector(
-    (state) => state.rescueVehicleOwner.rescueVehicleOwners
-  );
+  const uui = uuidv4();
+  const technician = useSelector((state) => state.technician.technicians);
   const isNonMobile = useMediaQuery("(min-width:600px)");
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
-
   const [currentImageUrl, setCurrentImageUrl] = useState(data.avatar || "");
   const [downloadUrl, setDownloadUrl] = useState("");
-
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const handleImageUploaded = (imageUrl) => {
     setDownloadUrl(imageUrl);
     // Set the avatar value to the uploaded image URL
     formikRef.current.setFieldValue("avatar", imageUrl);
   };
-
   const checkoutSchema = yup.object().shape({
+    email: yup.string().email("Invalid email").required("Required"),
+    password: yup.string().required("Required"),
     fullname: yup.string().required("Required"),
     sex: yup.string().required("Required"),
     status: yup.string().required("Required"),
     address: yup.string().required("Required"),
     phone: yup.string().required("Required"),
     avatar: yup.string().required("Required"),
-    birthdate: yup.date().required("Required"), 
-    date: yup.date().required("Required"), 
+    birthdate: yup.date().required("Required"),
     accountId: yup.string().required("Required"),
+    createAt: yup.date().required("Required"),
     area: yup.string().required("Required"),
-    account: yup.string(),
-  
   });
   const statusMapping = {
     ACTIVE: "Hoạt Động",
@@ -68,34 +67,54 @@ const AddRescueVehicleOwner = () => {
     address: "",
     phone: "",
     avatar: "",
-    accountId: "",
-    date: new Date(),
-    area:"",
-    account:""
+    accountId: uui,
+    createAt: new Date(),
+    area: "",
   };
 
   // Tạo ref để lưu trữ tham chiếu đến formik
   const formikRef = useRef(null);
 
   const handleFormSubmit = (values, { resetForm }) => {
-    resetForm({ values: initialValues });
+    const { email, password, ...restValues } = values;
+    const updatedInitialValues = {
+      ...restValues,
+      account: {
+        id: uui,
+        createAt: new Date(),
+        email: email, 
+        password: password, 
+        deviceToken:""
+      },
+    };
+    
+    resetForm({
+      values: updatedInitialValues, 
+      values2: initialValues, 
+    });
     setSelectedAccount(null);
     // In ra tất cả dữ liệu đã nhập
-    console.log("Dữ liệu đã nhập:", rescueVehicleOwner);
-    dispatch(createManager(values))
+    console.log("Dữ liệu đã nhập:", updatedInitialValues);
+    dispatch(createManager(updatedInitialValues))
       .then((response) => {
         if (response.payload.status === "Success") {
-          toast.success("Tạo Tài Khoản Manager Thành Công");
+          toast.success("Tạo Tài Khoản Thành Công");
+          resetForm();
           formikRef.current.resetForm();
+          formikRef.current.setFieldValue("email", "");
+          formikRef.current.setFieldValue("password", "");
+          formikRef.current.setValues(initialValues);
         } else {
-          toast.error("Tạo Tài Khoản không Thành Công vui lòng thử lại");
+          toast.error("Tạo tài khoản không thành công vui lòng thử lại");
         }
       })
       .catch((error) => {
         if (error.response && error.response.data) {
-          toast.error(`Lỗi khi tạo quản lí: ${error.response.data.message}`);
+          toast.error(
+            `Lỗi khi tạo quản lí: ${error.response.data.message}`
+          );
         } else {
-          toast.error("Lỗi khi tạo quản lí");
+          toast.error("Lỗi khi lỗi khi tạo quản lí");
         }
       });
   };
@@ -119,7 +138,7 @@ const AddRescueVehicleOwner = () => {
   }, [dispatch]);
   return (
     <Box m="20px">
-      <Header title="Tạo Thông Tin" subtitle="Tạo Thông Tin Quản Lí" />
+      <Header title="Tạo Thông Tin" subtitle="Tạo Thông Tin Kỹ Quản Lí" />
 
       <Formik
         onSubmit={handleFormSubmit}
@@ -139,7 +158,7 @@ const AddRescueVehicleOwner = () => {
           <form onSubmit={handleSubmit}>
             <Box display="flex" justifyContent="left" mb="20px">
               <Button type="submit" color="secondary" variant="contained">
-                <AddIcon /> Tạo Quản Lí
+                <AddIcon /> Tạo Kỹ Quản Lí
               </Button>
             </Box>
             <Box
@@ -150,6 +169,40 @@ const AddRescueVehicleOwner = () => {
                 "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
               }}
             >
+             <TextField
+                fullWidth
+                variant="outlined"
+                type="text"
+                label="Email"
+                onBlur={handleBlur}
+          
+                value={values.email}
+                      onChange={(e) => {
+                  handleChange(e);
+                  setEmail(e.target.value);
+                }}
+                name="email" // Tên trường trong initialValues
+                error={touched.email && errors.email ? true : false}
+                helperText={touched.email && errors.email}
+                sx={{ gridColumn: "span 2" }}
+              />
+              <TextField
+                fullWidth
+                variant="outlined"
+                type="password"
+                label="Password"
+                onBlur={handleBlur}
+              
+                value={values.password}
+                onChange={(e) => {
+                  handleChange(e);
+                  setPassword(e.target.value);
+                }}
+                name="password" // Tên trường trong initialValues
+                error={touched.password && errors.password ? true : false}
+                helperText={touched.password && errors.password}
+                sx={{ gridColumn: "span 2" }}
+              />
               <TextField
                 fullWidth
                 variant="outlined"
@@ -163,6 +216,38 @@ const AddRescueVehicleOwner = () => {
                 helperText={touched.fullname && errors.fullname}
                 sx={{ gridColumn: "span 1" }}
               />
+            <Box
+                display="flex"
+                alignItems="center"
+                sx={{ gridColumn: "span 1", gap: "10px" }}
+              >
+                <Avatar
+                  alt="Avatar"
+                  src={values.avatar}
+                  sx={{ width: 50, height: 50 }}
+                />
+                <UploadImageField
+                  onImageUploaded={handleImageUploaded}
+                  imageUrl={currentImageUrl}
+                />
+              </Box> 
+                   <FormControl fullWidth variant="outlined">
+                <InputLabel id="sex-label">Giới Tính</InputLabel>
+                <Select
+                  labelId="sex-label"
+                  id="sex"
+                  name="sex"
+                  variant="outlined"
+                  label="Giới Tinh"
+                  value={values.sex}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  error={touched.sex && errors.sex ? true : false}
+                >
+                  <MenuItem value="Nam">Nam</MenuItem>
+                  <MenuItem value="Nu">Nữ</MenuItem>
+                </Select>
+              </FormControl>
               <FormControl fullWidth variant="outlined">
                 <InputLabel id="area-label">Khu Vực</InputLabel>
                 <Select
@@ -182,25 +267,8 @@ const AddRescueVehicleOwner = () => {
                   <MenuItem value="2">3</MenuItem>
                 </Select>
               </FormControl>
-             
-              <Box
-                display="flex"
-                alignItems="center"
-                sx={{ gridColumn: "span 1", gap: "10px" }}
-              >
-                {/* Avatar */}
-                <Avatar
-                  alt="Avatar"
-                  src={values.avatar}
-                  sx={{ width: 50, height: 50 }}
-                />
-                {/* UploadImageField */}
-                <UploadImageField
-                  onImageUploaded={handleImageUploaded}
-                  imageUrl={currentImageUrl}
-                />
-              </Box>
-              <Autocomplete
+
+              {/* <Autocomplete
                 id="account-select"
                 options={data}
                 getOptionLabel={(option) => option.email}
@@ -225,24 +293,8 @@ const AddRescueVehicleOwner = () => {
                     helperText={touched.accountId && errors.accountId}
                   />
                 )}
-              />
-              <FormControl fullWidth variant="outlined">
-                <InputLabel id="sex-label">Giới Tính</InputLabel>
-                <Select
-                  labelId="sex-label"
-                  id="sex"
-                  name="sex"
-                  label="Giới Tính"
-                  variant="outlined"
-                  value={values.sex}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  error={touched.sex && errors.sex ? true : false}
-                >
-                  <MenuItem value="Nam">Nam</MenuItem>
-                  <MenuItem value="Nu">Nữ</MenuItem>
-                </Select>
-              </FormControl>
+              /> */}
+         
 
               <TextField
                 fullWidth
@@ -271,19 +323,25 @@ const AddRescueVehicleOwner = () => {
                 sx={{ gridColumn: "span 1" }}
               />
 
-              <TextField
-                fullWidth
-                variant="filled"
-                type="date"
-                label="Ngày Sinh"
-                onBlur={handleBlur}
-                onChange={handleChange}
-                value={values.birthdate}
-                name="birthdate"
-                error={touched.birthdate && errors.birthdate ? true : false}
-                helperText={touched.birthdate && errors.birthdate}
-                sx={{ gridColumn: "span 1" }}
-              />
+              <Grid container spacing={2} alignItems="center">
+                <Grid item xs={12}>
+                  
+                  <TextField
+                    fullWidth
+                    label="Ngày Sinh"
+                    variant="filled"
+                    id="birthdate"
+                    type="date"
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    value={values.birthdate}
+                    name="birthdate"
+                    error={touched.birthdate && errors.birthdate ? true : false}
+                    helperText={touched.birthdate && errors.birthdate}
+                  />
+                </Grid>
+              </Grid>
+
               <Box sx={{ minWidth: 120 }}>
                 <FormControl
                   fullWidth
@@ -320,4 +378,4 @@ const AddRescueVehicleOwner = () => {
   );
 };
 
-export default AddRescueVehicleOwner;
+export default AddManager;

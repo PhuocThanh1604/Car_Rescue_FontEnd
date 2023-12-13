@@ -46,6 +46,7 @@ import {
 } from "../../../redux/orderSlice";
 import { tokens } from "../../../theme";
 import { getServiceId } from "../../../redux/serviceSlice";
+import { toast } from "react-toastify";
 const MyModal = (props) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -78,31 +79,28 @@ const MyModal = (props) => {
   }, [selectedEditOrder]);
 
   const fetchAddress = async (addressType, addressValue) => {
-    console.log("latlng" + addressValue);
     if (!addressValue) {
       return; // Trả về nếu order không tồn tại hoặc địa chỉ đã được lưu trữ
     }
 
     const matches = /lat:\s*([^,]+),\s*long:\s*([^,]+)/.exec(addressValue);
-    console.log(matches);
     if (matches && matches.length === 3) {
       const [, lat, lng] = matches;
 
       if (!isNaN(lat) && !isNaN(lng)) {
-        console.log("Latitude:", lat, "Longitude:", lng);
         try {
           const response = await dispatch(getFormattedAddressGG({ lat, lng }));
-          console.log(response);
+          console.log(response.payload);
           const formattedAddress =
-            response.payload.results[0].formatted_address;
-          console.log(formattedAddress);
+            response.payload;
           setFormattedAddresses((prevAddresses) => ({
             ...prevAddresses,
             [addressType]: formattedAddress,
           }));
         } catch (error) {
-          console.error(
-            "Error fetching address:",
+          setLoading(false)
+          toast.error(
+            "Không tìm thấy địa chỉ:",
             error.response ? error.response : error
           );
         } finally {

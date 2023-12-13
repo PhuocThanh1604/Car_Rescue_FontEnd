@@ -24,9 +24,11 @@ import AddIcon from "@mui/icons-material/Add";
 import { getAccountEmail } from "../../../redux/accountSlice";
 import Header from "../../../components/Header";
 import UploadImageField from "../../../components/uploadImage";
+import { v4 as uuidv4 } from "uuid";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 const Addtechnician = () => {
   const dispatch = useDispatch();
+  const uui = uuidv4();
   const technician = useSelector((state) => state.technician.technicians);
   const isNonMobile = useMediaQuery("(min-width:600px)");
   const [selectedAccount, setSelectedAccount] = useState(null);
@@ -34,13 +36,16 @@ const Addtechnician = () => {
   const [loading, setLoading] = useState(false);
   const [currentImageUrl, setCurrentImageUrl] = useState(data.avatar || "");
   const [downloadUrl, setDownloadUrl] = useState("");
-
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const handleImageUploaded = (imageUrl) => {
     setDownloadUrl(imageUrl);
     // Set the avatar value to the uploaded image URL
     formikRef.current.setFieldValue("avatar", imageUrl);
   };
   const checkoutSchema = yup.object().shape({
+    email: yup.string().email("Invalid email").required("Required"),
+    password: yup.string().required("Required"),
     fullname: yup.string().required("Required"),
     sex: yup.string().required("Required"),
     status: yup.string().required("Required"),
@@ -65,7 +70,7 @@ const Addtechnician = () => {
     address: "",
     phone: "",
     avatar: "",
-    accountId: "",
+    accountId: uui,
     createAt: new Date(),
     area: "",
   };
@@ -74,17 +79,34 @@ const Addtechnician = () => {
   const formikRef = useRef(null);
 
   const handleFormSubmit = (values, { resetForm }) => {
-    resetForm({ values: initialValues });
+    const { email, password, ...restValues } = values;
+    const updatedInitialValues = {
+      ...restValues,
+      account: {
+        id: uui,
+        createAt: new Date(),
+        email: email, 
+        password: password, 
+        deviceToken:""
+      },
+    };
+    
+    resetForm({
+      values: updatedInitialValues, 
+      values2: initialValues, 
+    });
     setSelectedAccount(null);
     // In ra tất cả dữ liệu đã nhập
-    console.log("Dữ liệu đã nhập:", technician);
-    dispatch(createTechnician(values))
+    console.log("Dữ liệu đã nhập:", updatedInitialValues);
+    dispatch(createTechnician(updatedInitialValues))
       .then((response) => {
         if (response.payload.status === "Success") {
           toast.success("Tạo Tài Khoản Thành Công");
-
-          // Đặt lại giá trị của formik về giá trị ban đầu (rỗng)
+          resetForm();
           formikRef.current.resetForm();
+          formikRef.current.setFieldValue("email", "");
+          formikRef.current.setFieldValue("password", "");
+          formikRef.current.setValues(initialValues);
         } else {
           toast.error("Tạo Tài Khoản không Thành Công vui lòng thử lại");
         }
@@ -150,6 +172,40 @@ const Addtechnician = () => {
                 "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
               }}
             >
+             <TextField
+                fullWidth
+                variant="outlined"
+                type="text"
+                label="Email"
+                onBlur={handleBlur}
+          
+                value={values.email}
+                      onChange={(e) => {
+                  handleChange(e);
+                  setEmail(e.target.value);
+                }}
+                name="email" // Tên trường trong initialValues
+                error={touched.email && errors.email ? true : false}
+                helperText={touched.email && errors.email}
+                sx={{ gridColumn: "span 2" }}
+              />
+              <TextField
+                fullWidth
+                variant="outlined"
+                type="password"
+                label="Password"
+                onBlur={handleBlur}
+              
+                value={values.password}
+                onChange={(e) => {
+                  handleChange(e);
+                  setPassword(e.target.value);
+                }}
+                name="password" // Tên trường trong initialValues
+                error={touched.password && errors.password ? true : false}
+                helperText={touched.password && errors.password}
+                sx={{ gridColumn: "span 2" }}
+              />
               <TextField
                 fullWidth
                 variant="outlined"
@@ -215,7 +271,7 @@ const Addtechnician = () => {
                 </Select>
               </FormControl>
 
-              <Autocomplete
+              {/* <Autocomplete
                 id="account-select"
                 options={data}
                 getOptionLabel={(option) => option.email}
@@ -240,7 +296,7 @@ const Addtechnician = () => {
                     helperText={touched.accountId && errors.accountId}
                   />
                 )}
-              />
+              /> */}
          
 
               <TextField

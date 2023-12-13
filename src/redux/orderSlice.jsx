@@ -366,9 +366,9 @@ export const getFormattedAddressGG = createAsyncThunk(
 
       const response = await axios.get(url);
       const data = response.data;
-      const formattedAddress = data.features[0].place_name;
-      console.log(formattedAddress);
-      return formattedAddress;
+ 
+
+      return data;
     } catch (error) {
       console.error("Failed to get Address ", error.message);
       return rejectWithValue(error.response.data || error.message);

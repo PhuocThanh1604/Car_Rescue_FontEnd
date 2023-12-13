@@ -23,6 +23,7 @@ import { createCustomer } from "../../../redux/customerSlice";
 import { getAccountEmail } from "../../../redux/accountSlice";
 import Header from "../../../components/Header";
 import UploadImageField from "../../../components/uploadImage";
+import { v4 as uuidv4 } from "uuid";
 const AddCustomer = () => {
   const dispatch = useDispatch();
 
@@ -59,8 +60,7 @@ const AddCustomer = () => {
     address: "",
     phone: "",
     avatar: "",
-    accountId: "",
-    date: new Date(),
+    date: new Date()
   };
 
   // Tạo ref để lưu trữ tham chiếu đến formik
@@ -150,6 +150,7 @@ const AddCustomer = () => {
                 "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
               }}
             >
+                
               <TextField
                 fullWidth
                 variant="outlined"

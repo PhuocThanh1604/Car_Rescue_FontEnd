@@ -230,18 +230,44 @@ const ModalEdit = ({
                       }}
                       fullWidth
                       margin="normal"
-                      style={{ display: "none" }}
+                    />
+                    <TextField
+  name="id"
+  label="id"
+  value={edit && edit.account && edit.account.id ? edit.account.id : ''}
+  onChange={(event) => {
+    // Check if it's coming from selectedEditRescuseVehicleOwner and prevent changes
+    if (!selectedEditRescuseVehicleOwner) {
+      handleInputChange(event);
+    }
+  }}
+  fullWidth
+  margin="normal"
+/>
+
+                     {/* <TextField
+                      name="id"
+                      label="id"
+                      value={edit.account.id}
+                      onChange={(event) => {
+                        // Check if it's coming from selectedEditRescuseVehicleOwner and prevent changes
+                        if (!selectedEditRescuseVehicleOwner) {
+                          handleInputChange(event);
+                        }
+                      }}
+                      fullWidth
+                      margin="normal"
                     />
                     <TextField
                       name="fullname"
                       label="Họ Và Tên"
                       type="text"
-                      value={edit.fullname || ""}
+                      value={edit.account.email|| ""}
                       onChange={handleInputChange}
                       // disabled // Disable the TextField
                       fullWidth
                       margin="normal"
-                    />
+                    /> */}
 
                     <TextField
                       name="accountId"

@@ -151,8 +151,9 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
   
   const fetchAddress = async (addressType, addressValue) => {
     if (!addressValue) {
-      return; 
+      return; // Trả về nếu order không tồn tại hoặc địa chỉ đã được lưu trữ
     }
+
     const matches = /lat:\s*([^,]+),\s*long:\s*([^,]+)/.exec(addressValue);
     if (matches && matches.length === 3) {
       const [, lat, lng] = matches;
@@ -160,15 +161,17 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
       if (!isNaN(lat) && !isNaN(lng)) {
         try {
           const response = await dispatch(getFormattedAddressGG({ lat, lng }));
+          console.log(response.payload);
           const formattedAddress =
-            response.payload.results[0].formatted_address;
+            response.payload;
           setFormattedAddresses((prevAddresses) => ({
             ...prevAddresses,
             [addressType]: formattedAddress,
           }));
         } catch (error) {
-          console.error(
-            "Error fetching address:",
+          setLoading(false)
+          toast.error(
+            "Không tìm thấy địa chỉ:",
             error.response ? error.response : error
           );
         } finally {
@@ -177,7 +180,6 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
       }
     }
   };
-
 
   const fetchOrder = (orderId) => {
     console.log(orderId);

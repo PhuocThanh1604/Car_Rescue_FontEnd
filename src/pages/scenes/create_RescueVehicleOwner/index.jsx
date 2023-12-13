@@ -22,24 +22,29 @@ import { createRescueVehicleOwner } from "../../../redux/rescueVehicleOwnerSlice
 import AddIcon from "@mui/icons-material/Add";
 import { getAccountEmail } from "../../../redux/accountSlice";
 import UploadImageField from "../../../components/uploadImage";
+import { v4 as uuidv4 } from "uuid";
 const AddRescueVehicleOwner = () => {
   const dispatch = useDispatch();
   const rescueVehicleOwner = useSelector(
     (state) => state.rescueVehicleOwner.rescueVehicleOwners
   );
+  const uui = uuidv4();
   const isNonMobile = useMediaQuery("(min-width:600px)");
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [currentImageUrl, setCurrentImageUrl] = useState(data.avatar || "");
   const [downloadUrl, setDownloadUrl] = useState("");
-
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const handleImageUploaded = (imageUrl) => {
     setDownloadUrl(imageUrl);
     // Set the avatar value to the uploaded image URL
     formikRef.current.setFieldValue("avatar", imageUrl);
   };
   const checkoutSchema = yup.object().shape({
+    email: yup.string().email("Invalid email").required("Required"),
+    password: yup.string().required("Required"),
     fullname: yup.string().required("Required"),
     sex: yup.string().required("Required"),
     status: yup.string().required("Required"),
@@ -64,7 +69,7 @@ const AddRescueVehicleOwner = () => {
     address: "",
     phone: "",
     avatar: "",
-    accountId: "",
+    accountId: uui,
     createAt: new Date(),
     area: "",
   };
@@ -73,21 +78,40 @@ const AddRescueVehicleOwner = () => {
   const formikRef = useRef(null);
 
   const handleFormSubmit = (values, { resetForm }) => {
-    resetForm({ values: initialValues });
+    const { email, password, ...restValues } = values;
+    const updatedInitialValues = {
+      ...restValues,
+      account: {
+        id: uui,
+        createAt: new Date(),
+        email: email, 
+        password: password, 
+        deviceToken:""
+      },
+    };
+    
+    resetForm({
+      values: updatedInitialValues, 
+      values2: initialValues, 
+    });
     setSelectedAccount(null);
 
     if (values.avatar) {
       URL.revokeObjectURL(values.avatar);
     }
     // In ra tất cả dữ liệu đã nhập
-    console.log("Dữ liệu đã nhập:", rescueVehicleOwner);
-    dispatch(createRescueVehicleOwner(values))
+    console.log("Dữ liệu đã nhập:", updatedInitialValues);
+    dispatch(createRescueVehicleOwner(updatedInitialValues))
       .then((response) => {
         if (response.payload.status === "Success") {
           toast.success("Tạo Tài Khoản Thành Công");
 
-          // Đặt lại giá trị của formik về giá trị ban đầu (rỗng)
+        
+          resetForm();
           formikRef.current.resetForm();
+          formikRef.current.setFieldValue("email", "");
+          formikRef.current.setFieldValue("password", "");
+          formikRef.current.setValues(initialValues);
         } else {
           toast.error("Tạo Tài Khoản không Thành Công vui lòng thử lại");
         }
@@ -153,6 +177,40 @@ const AddRescueVehicleOwner = () => {
                 "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
               }}
             >
+                 <TextField
+                fullWidth
+                variant="outlined"
+                type="text"
+                label="Email"
+                onBlur={handleBlur}
+          
+                value={values.email}
+                      onChange={(e) => {
+                  handleChange(e);
+                  setEmail(e.target.value);
+                }}
+                name="email" // Tên trường trong initialValues
+                error={touched.email && errors.email ? true : false}
+                helperText={touched.email && errors.email}
+                sx={{ gridColumn: "span 2" }}
+              />
+              <TextField
+                fullWidth
+                variant="outlined"
+                type="password"
+                label="Password"
+                onBlur={handleBlur}
+              
+                value={values.password}
+                onChange={(e) => {
+                  handleChange(e);
+                  setPassword(e.target.value);
+                }}
+                name="password" // Tên trường trong initialValues
+                error={touched.password && errors.password ? true : false}
+                helperText={touched.password && errors.password}
+                sx={{ gridColumn: "span 2" }}
+              />
               <TextField
                 fullWidth
                 variant="outlined"
@@ -200,7 +258,7 @@ const AddRescueVehicleOwner = () => {
                 </Select>
               </FormControl>
 
-              <Autocomplete
+              {/* <Autocomplete
                 id="account-select"
                 options={data}
                 getOptionLabel={(option) => option.email}
@@ -225,7 +283,7 @@ const AddRescueVehicleOwner = () => {
                     helperText={touched.accountId && errors.accountId}
                   />
                 )}
-              />
+              /> */}
               <FormControl fullWidth variant="outlined">
                 <InputLabel id="sex-label">Giới Tính</InputLabel>
                 <Select

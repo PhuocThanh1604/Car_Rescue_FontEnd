@@ -49,7 +49,7 @@ const Topbar = () => {
   useEffect(() => {
     const handleMessage = (payload) => {
       toast(
-        `Title: ${payload.notification.title}, Body: ${payload.notification.body}`,
+        `${payload.notification.title}, ${payload.notification.body}`,
         {
           position: "top-right",
           autoClose: 5000,

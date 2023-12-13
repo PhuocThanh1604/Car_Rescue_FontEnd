@@ -25,6 +25,7 @@ const CreateAccount = () => {
     email: "",
     password: "",
     date: new Date(),
+    deviceToken:""
   };
 
   // Tạo ref để lưu trữ tham chiếu đến formik

@@ -20,3 +20,17 @@ export const AccessTokenProvider = ({ children }) => {
     </AccessTokenContext.Provider>
   );
 };
+
+export const UnreadNotificationsContext = createContext();
+
+export const UnreadNotificationsProvider = ({ children }) => {
+  const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
+
+  return (
+    <UnreadNotificationsContext.Provider value={{ unreadNotificationsCount, setUnreadNotificationsCount }}>
+      {children}
+    </UnreadNotificationsContext.Provider>
+  );
+};
+
+export const useUnreadNotifications = () => useContext(UnreadNotificationsContext);
