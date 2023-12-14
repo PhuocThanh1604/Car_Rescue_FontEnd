@@ -47,6 +47,7 @@ const Managers = (props) => {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]);
   const [managerData, setManagerData] = useState([]);
+  const [accountData, setAccountData] = useState({});
   useEffect(() => {
     if (isSuccess) {
     }
@@ -89,7 +90,10 @@ const Managers = (props) => {
     // Fetch the managerId details based on the selected managerId ID
     dispatch(getManagerId({ id: managerId }))
       .then((response) => {
-        const managerDetails = response.payload.data; // No need for .data here
+        const managerDetails = response.payload.data; 
+        const accountData = response.payload.data;
+        console.log(response.payload.data.account);
+        setAccountData(accountData);
         setSelectedEditManager(managerDetails);
         setOpenEditModal(true);
         setIsSuccess(true);
@@ -209,9 +213,19 @@ const Managers = (props) => {
       field: "fullname",
       headerName: "Tên quản lí",
       width: 120,
-      key: "fullname",
+      renderCell: (params) => (
+        <Box>
+          <Box sx={{fontWeight:"bold"}}>{params.row.fullname}</Box>
+          {params.row.account?.email ? (
+        <Box sx={{color:"black"}}>{params.row.account?.email}</Box>
+      ) : (
+        <Box  sx={{color:"black"}} >Không có Email</Box> 
+      )}
+        </Box>
+      ),
       cellClassName: "name-column--cell",
     },
+
     {
       field: "sex",
       headerName: "Gioi Tính",
@@ -255,6 +269,7 @@ const Managers = (props) => {
       valueGetter: (params) =>
         moment(params.row.createAt).utcOffset(7).format("DD-MM-YYYY"),
     },
+    { field: "area", headerName: "Khu vực", width: 60, key: "area" },
     {
       field: "avatar",
       headerName: "Hình ảnh",
@@ -480,6 +495,7 @@ const Managers = (props) => {
       <ModalEdit
         openEditModal={openEditModal}
         setOpenEditModal={setOpenEditModal}
+        accountData={accountData}
         selectedEditManager={selectedEditManager}
         onClose={() => setOpenEditModal(false)}
         loading={loading}

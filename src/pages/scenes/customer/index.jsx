@@ -50,6 +50,7 @@ const Customers = (props) => {
   const startIndex = page * rowsPerPage;
   const endIndex = startIndex + rowsPerPage;
   const customersForCurrentPage = filteredCustomers.slice(startIndex, endIndex);
+  const [accountData, setAccountData] = useState({});
   useEffect(() => {
     if (isSuccess) {
     }
@@ -130,7 +131,10 @@ const Customers = (props) => {
     // Fetch the customer details based on the selected customer ID
     dispatch(getCustomerId({ id: customerId }))
       .then((response) => {
-        const customerDetails = response.payload.data; // No need for .data here
+        const customerDetails = response.payload.data; 
+        const accountData = response.payload.data;
+        console.log(response.payload.data.account);
+        setAccountData(accountData)
         setSelectedEditCustomer(customerDetails);
         setOpenEditModal(true);
         setIsSuccess(true);
@@ -143,9 +147,9 @@ const Customers = (props) => {
   useEffect(() => {
     const filteredCustomers = customers
       ? customers.filter((customer) => {
-          const nameMatch = customer.fullname
-            .toLowerCase()
-            .includes(searchText.toLowerCase());
+          const nameMatch =
+            customer.fullname &&
+            customer.fullname.toLowerCase().includes(searchText.toLowerCase());
           const filterMatch =
             filterOption === "Status" ||
             (filterOption === "ACTIVE" && customer.status === "ACTIVE") ||
@@ -155,6 +159,7 @@ const Customers = (props) => {
       : [];
     setFilteredCustomers(filteredCustomers);
   }, [customers, searchText, filterOption]);
+  
 
   if (customers) {
     customers.forEach((customer) => {
@@ -207,7 +212,17 @@ const Customers = (props) => {
       field: "fullname",
       headerName: "Tên Khách Hàng",
       width: 160,
-      key: "fullname",
+      renderCell: (params) => (
+        <Box>
+        <Box sx={{fontWeight:"bold"}}>{params.row.fullname}</Box>
+        {params.row.account?.email ? (
+      <Box sx={{color:"black"}}>{params.row.account?.email}</Box>
+    ) : (
+      <Box  sx={{color:"black"}} >Không có Email</Box> 
+    )}
+      </Box>
+    ),
+    cellClassName: "name-column--cell",
     },
     {
       field: "phone",
@@ -556,6 +571,7 @@ const Customers = (props) => {
       <ModalEdit
         openEditModal={openEditModal}
         setOpenEditModal={setOpenEditModal}
+        accountData={accountData}
         selectedEditCustomer={selectedEditCustomer}
         onClose={() => setOpenEditModal(false)}
         loading={loading}

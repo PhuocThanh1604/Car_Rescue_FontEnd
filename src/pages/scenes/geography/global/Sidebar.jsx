@@ -249,13 +249,6 @@ const Sidebar = () => {
               sx={{ m: '30px 0 10px 30px' }}>
               Pages
             </Typography>
-             <Item
-              title="Tạo Tài Khoản"
-              to="admin/add/account"
-              icon={<PersonOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
                 <Item
               title="Tạo Khách Hàng"
               to="admin/add/customer"

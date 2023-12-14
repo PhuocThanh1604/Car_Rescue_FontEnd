@@ -130,8 +130,7 @@ const MyModal = (props) => {
         try {
           const response = await dispatch(getFormattedAddressGG({ lat, lng }));
           console.log(response.payload);
-          const formattedAddress =
-            response.payload;
+          const formattedAddress = response.payload.display_name;
           setFormattedAddresses((prevAddresses) => ({
             ...prevAddresses,
             [addressType]: formattedAddress,

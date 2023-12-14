@@ -70,7 +70,7 @@ const Technicians = (props) => {
   const [mapLoading, setMapLoading] = useState(false);
   const [isMapLoaded, setIsMapLoaded] = useState(false);
   const [intervalId, setIntervalId] = useState(null);
-
+  const [accountData, setAccountData] = useState({});
 
   const handleLocationOfTechnician = (technicianId) => {
     console.log(technicianId);
@@ -255,7 +255,9 @@ const Technicians = (props) => {
     // Fetch the technicianId details based on the selected technicianId ID
     dispatch(getTechnicianId({ id: technicianId }))
       .then((response) => {
-        const technicianDetails = response.payload.data; // No need for .data here
+        const technicianDetails = response.payload.data; 
+        const accountData = response.payload.data;
+        setAccountData(accountData);
         setSelectedEditTechnician(technicianDetails);
         setOpenEditModal(true);
         setIsSuccess(true);
@@ -332,7 +334,16 @@ const Technicians = (props) => {
       field: "fullname",
       headerName: "Tên kỹ thuật viên",
       width: 160,
-      key: "fullname",
+      renderCell: (params) => (
+        <Box>
+        <Box sx={{fontWeight:"bold"}}>{params.row.fullname}</Box>
+        {params.row.account?.email ? (
+      <Box sx={{color:"black"}}>{params.row.account?.email}</Box>
+    ) : (
+      <Box  sx={{color:"black"}} >Không có Email</Box> 
+    )}
+      </Box>
+    ),
       cellClassName: "name-column--cell",
     },
     {
@@ -652,6 +663,7 @@ const Technicians = (props) => {
         openEditModal={openEditModal}
         setOpenEditModal={setOpenEditModal}
         selectedEditTechnician={selectedEditTechnician}
+        accountData={accountData}
         onClose={() => setOpenEditModal(false)}
         loading={loading}
       />

@@ -122,6 +122,7 @@ export const getCustomerIdFullName = createAsyncThunk(
 export const editCustomer = createAsyncThunk(
   "customers/edit",
   async ({ data }) => {
+    console.log(data);
     try {
       const res = await axios.put(
         `https://rescuecapstoneapi.azurewebsites.net/api/Customer/Update`,

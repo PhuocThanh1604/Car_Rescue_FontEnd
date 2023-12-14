@@ -77,6 +77,7 @@ export const getRescueVehicleOwnerId = createAsyncThunk(
 export const editRescueVehicleOwner = createAsyncThunk(
   "rescueVehicleOwners/edit",
   async ({ data }) => {
+    console.log(data)
     try {
       const res = await axios.put(
         `https://rescuecapstoneapi.azurewebsites.net/api/RescueVehicleOwner/Update`,

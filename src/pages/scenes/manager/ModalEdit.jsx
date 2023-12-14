@@ -27,6 +27,7 @@ const ModalEdit = ({
   openEditModal,
   setOpenEditModal,
   selectedEditManager,
+  accountData
 }) => {
   const dispatch = useDispatch();
   const managers = useSelector((state) => state.manager.managers);
@@ -45,7 +46,10 @@ const ModalEdit = ({
       avatar: imageUrl,
     }));
   };
+  useEffect(() => {
+    console.log(accountData);
 
+  }, [accountData]);
   const reloadManagers = () => {
     dispatch(fetchManagers())
       .then((response) => {
@@ -96,7 +100,17 @@ const ModalEdit = ({
     // Kiểm tra xem có sự thay đổi trong dữ liệu so với dữ liệu ban đầu
     const hasChanges =
       JSON.stringify(edit) !== JSON.stringify(initialFormState);
-
+      const updatedInitialValues = {
+        ...edit,
+        account: {
+          id: accountData.account.id,
+          email: accountData.account.email,
+          password: accountData.account.password,
+          deviceToken: accountData.account.deviceToken,
+          createAt: accountData.account.createAt
+        },
+      };
+      console.log(updatedInitialValues);
     if (!hasChanges) {
       toast.info("Không có thay đổi để lưu.");
       handleClose();
@@ -202,6 +216,16 @@ const ModalEdit = ({
                       style={{ display: "none" }}
                     />
                     <TextField
+                      name="email"
+                      label="Email"
+                      type="text"
+                      value={accountData?.account?.email || ""}
+                      onChange={handleInputChange}
+                      disabled // Disable the TextField
+                      fullWidth
+                      margin="normal"
+                    /> 
+                    <TextField
                       name="fullname"
                       label="Họ Và Tên"
                       value={edit.fullname|| ""}
@@ -276,7 +300,31 @@ const ModalEdit = ({
                         </MenuItem>
                       </Select>
                     </FormControl>
-
+                    <FormControl fullWidth sx={{ marginTop: 1 }}>
+                      <InputLabel id="demo-simple-select-label">
+                        Khu Vực
+                      </InputLabel>
+                      <Select
+                        labelId="demo-simple-select-label"
+                        id="demo-simple-select"
+                        value={edit.area || ""}
+                        onChange={handleInputChange}
+                        variant="outlined"
+                        className="filter-select"
+                        name="area"
+                        label="Khu vực"
+                      >
+                        <MenuItem key="area-1" value="1">
+                          1
+                        </MenuItem>
+                        <MenuItem key="area-2" value="2">
+                          2
+                        </MenuItem>
+                        <MenuItem key="area-3" value="3">
+                          3
+                        </MenuItem>
+                      </Select>
+                    </FormControl>
                     <TextField
                       name="phone"
                       label="Số Điện Thoại"
@@ -309,10 +357,10 @@ const ModalEdit = ({
                         label="Status"
                       >
                         <MenuItem key="status-active" value="ACTIVE">
-                          Active
+                          Đang Hoạt Động
                         </MenuItem>
                         <MenuItem key="status-INACTIVE" value="INACTIVE">
-                          INACTIVE
+                        Không Hoạt Động
                         </MenuItem>
                   
                       </Select>

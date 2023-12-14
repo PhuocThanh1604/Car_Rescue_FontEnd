@@ -30,7 +30,11 @@ import HowToRegIcon from "@mui/icons-material/HowToReg";
 import EditIcon from "@mui/icons-material/Edit";
 import { tokens } from "../../../theme";
 import Header from "../../../components/Header";
-import { fetchRescueVehicleOwners, getRescueVehicleOwnerId, updateStatusRescueVehicleOwner } from "../../../redux/rescueVehicleOwnerSlice";
+import {
+  fetchRescueVehicleOwners,
+  getRescueVehicleOwnerId,
+  updateStatusRescueVehicleOwner,
+} from "../../../redux/rescueVehicleOwnerSlice";
 import CustomTablePagination from "../../../components/TablePagination";
 const RescueVehicleOwners = (props) => {
   const dispatch = useDispatch();
@@ -54,7 +58,7 @@ const RescueVehicleOwners = (props) => {
   const [data, setData] = useState([]);
   const [initialFormState, setInitialFormState] = useState({});
   const [editStatus, setEditStatus] = useState({});
-
+  const [accountData, setAccountData] = useState({});
   useEffect(() => {
     if (isSuccess) {
     }
@@ -168,7 +172,7 @@ const RescueVehicleOwners = (props) => {
         if (data) {
           setData(data);
           setFilteredRescueVehicleOwners(data);
-          setLoading(false); 
+          setLoading(false);
         }
       })
       .catch((error) => {
@@ -186,7 +190,10 @@ const RescueVehicleOwners = (props) => {
     dispatch(getRescueVehicleOwnerId({ id: rescueVehicleOwnerId }))
       .then((response) => {
         const rescueVehicleOwnerDetails = response.payload.data;
-        
+        console.log(rescueVehicleOwnerDetails.accountId);
+        const accountData = response.payload.data;
+        console.log(response.payload.data.account);
+        setAccountData(accountData);
         setSelectedEditRescueVehicleOwner(rescueVehicleOwnerDetails);
         setOpenEditModal(true);
         setIsSuccess(true);
@@ -284,7 +291,17 @@ const RescueVehicleOwners = (props) => {
       field: "fullname",
       headerName: "Họ Và Tên",
       width: 160,
-      key: "fullname",
+      renderCell: (params) => (
+        <Box>
+        <Box sx={{fontWeight:"bold"}}>{params.row.fullname}</Box>
+        {params.row.account?.email ? (
+      <Box sx={{color:"black"}}>{params.row.account?.email}</Box>
+    ) : (
+      <Box  sx={{color:"black"}} >Không có Email</Box> 
+    )}
+      </Box>
+    ),
+    cellClassName: "name-column--cell",
     },
     { field: "sex", headerName: "Giới Tính", width: 60, key: "sex" },
     { field: "address", headerName: "Địa Chỉ", width: 260, key: "address" },
@@ -429,7 +446,6 @@ const RescueVehicleOwners = (props) => {
             },
           }}
         >
-         
           <Typography
             variant="body1"
             sx={{ ml: "1px", color: "indigo", fontWeight: "bold" }}
@@ -591,6 +607,7 @@ const RescueVehicleOwners = (props) => {
         openEditModal={openEditModal}
         setOpenEditModal={setOpenEditModal}
         selectedEditRescuseVehicleOwner={selectedEditRescueVehicleOwner}
+        accountData={accountData}
         onClose={() => setOpenEditModal(false)}
         loading={loading}
       />

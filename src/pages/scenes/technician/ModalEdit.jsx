@@ -26,6 +26,7 @@ const ModalEdit = ({
   openEditModal,
   setOpenEditModal,
   selectedEditTechnician,
+  accountData
 }) => {
   const dispatch = useDispatch();
   const technicians = useSelector((state) => state.technician.technicians);
@@ -52,7 +53,10 @@ const ModalEdit = ({
     const date = new Date();
     return date.toISOString();
   };
-  
+  useEffect(() => {
+    console.log(accountData);
+
+  }, [accountData]);
 
   const reloadTechnicians = () => {
     dispatch(fetchTechnicians())
@@ -104,7 +108,8 @@ const ModalEdit = ({
     console.log(setEdit);
   };
   const handleSaveClick = () => {
-
+    console.log(accountData.account.id); 
+    console.log(accountData.account.email);
     if (!selectedEditTechnician || !edit) {
       toast.error("Không có thông tin kỹ thuật viên để cập nhật.");
       return;
@@ -112,7 +117,17 @@ const ModalEdit = ({
   
     // Kiểm tra xem có sự thay đổi trong dữ liệu so với dữ liệu ban đầu
     const hasChanges = JSON.stringify(edit) !== JSON.stringify(initialFormState);
-  
+    const updatedInitialValues = {
+      ...edit,
+      account: {
+        id: accountData.account.id,
+        email: accountData.account.email,
+        password: accountData.account.password,
+        deviceToken: accountData.account.deviceToken,
+        createAt: accountData.account.createAt
+      },
+    };
+    console.log(updatedInitialValues);
     if (!hasChanges) {
       toast.info("Không có thay đổi để lưu.");
       handleClose();
@@ -129,10 +144,7 @@ const ModalEdit = ({
         
         return;
       }
-      const currentDate = getCurrentDateISOString();
-      const dataToSend = { ...edit, updatedAt: currentDate };
-      // Gửi yêu cầu cập nhật lên máy chủ
-      dispatch(editTechnician({ data: dataToSend }))
+      dispatch(editTechnician({ data: updatedInitialValues }))
         .then(() => {
           setIsSuccess(true);
           toast.success("Cập nhật thành công.");
@@ -230,7 +242,16 @@ const ModalEdit = ({
                     margin="normal"
                     style={{ display: "none" }}
                   />
-                     
+                     <TextField
+                      name="email"
+                      label="Email"
+                      type="text"
+                      value={accountData?.account?.email || ""}
+                      onChange={handleInputChange}
+                      disabled // Disable the TextField
+                      fullWidth
+                      margin="normal"
+                    /> 
                   <TextField
                     name="fullname"
                     label="Họ Và Tên"

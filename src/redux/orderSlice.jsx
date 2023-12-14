@@ -305,10 +305,14 @@ export const getFormattedAddressGG = createAsyncThunk(
   async ({ lat, lng }) => {
     console.log("lat"+lat,"lng"+lng);
     try {
+        // `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKeyGG}`
+
       const response = await axios.get(
-        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKeyGG}`
+        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`
 
       );
+
+      // const url =` https://nominatim.openstreetmap.org/reverse?format=geocodejson&lat=${lng}&lon=${lat}` 
       const data = response.data;
       console.log(data)
       return data;
@@ -363,8 +367,9 @@ export const getFormattedAddressGG = createAsyncThunk(
 //   "orders/getFormattedAddress",
 //   async ({ lat, lng }, { rejectWithValue }) => {
 //     try {
-//       const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${mapboxToken}`;
-
+//       // const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${mapboxToken}`;
+//       // const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${mapboxToken}`;
+     
 //       const response = await axios.get(url);
 //       const data = response.data;
  
@@ -447,6 +452,7 @@ export const createChangeTypeRescue = createAsyncThunk(
 export const createOrderOfflineFixing = createAsyncThunk(
   "orders/createOrderOfflineFixing",
   async (data) => {
+    console.log(data);
     try {
       const res = await axios.post(
         "https://rescuecapstoneapi.azurewebsites.net/api/Order/CreateFixingOrderForCustomer",
@@ -469,9 +475,10 @@ export const createOrderOfflineFixing = createAsyncThunk(
 export const createOrderOffline = createAsyncThunk(
   "orders/createOrderOffline",
   async (data) => {
+    console.log(data);
     try {
       const res = await axios.post(
-        "https://rescuecapstoneapi.azurewebsites.net/api/Order/CreateTowingOrderForCustomer",
+        `https://rescuecapstoneapi.azurewebsites.net/api/Order/CreateTowingOrderForCustomer`,
         data,
         {
           headers: {

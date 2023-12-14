@@ -26,6 +26,7 @@ const ModalEdit = ({
   openEditModal,
   setOpenEditModal,
   selectedEditCustomer,
+  accountData
 }) => {
   const dispatch = useDispatch();
   const customers = useSelector((state) => state.customer.customers);
@@ -40,6 +41,10 @@ const ModalEdit = ({
   const [downloadUrl, setDownloadUrl] = useState("");
   const [serverError, setServerError] = useState(null);
   const [currentImageUrl, setCurrentImageUrl] = useState(edit.avatar || "");
+  useEffect(() => {
+    console.log(accountData);
+
+  }, [accountData]);
   const reloadCustomers = () => {
     dispatch(fetchCustomers())
       .then((response) => {
@@ -89,6 +94,8 @@ const ModalEdit = ({
   };
 
   const handleSaveClick = () => {
+    console.log(accountData.account.id); 
+    console.log(accountData.account.email); 
     if (!selectedEditCustomer || !edit) {
       toast.error("Không có thông tin khách hàng để cập nhật.");
       return;
@@ -97,13 +104,23 @@ const ModalEdit = ({
     // Kiểm tra xem có sự thay đổi trong dữ liệu so với dữ liệu ban đầu
     const hasChanges =
       JSON.stringify(edit) !== JSON.stringify(initialFormState);
-
+      const updatedInitialValues = {
+        ...edit,
+        account: {
+          id: accountData.account.id,
+          email: accountData.account.email,
+          password: accountData.account.password,
+          deviceToken: accountData.account.deviceToken,
+          createAt: accountData.account.createAt
+        },
+      };
+      console.log(updatedInitialValues);
     if (!hasChanges) {
       toast.info("Không có thay đổi để lưu.");
       handleClose();
     } else {
       // Gửi yêu cầu cập nhật lên máy chủ
-      dispatch(editCustomer({ data: edit }))
+      dispatch(editCustomer({ data: updatedInitialValues }))
         .then(() => {
           setIsSuccess(true);
           toast.success("Cập nhật thành công.");
@@ -205,6 +222,16 @@ const ModalEdit = ({
                    margin="normal"
                    style={{ display: "none" }}
                  />
+                       <TextField
+                      name="email"
+                      label="Email"
+                      type="text"
+                      value={accountData?.account?.email || ""}
+                      onChange={handleInputChange}
+                      disabled // Disable the TextField
+                      fullWidth
+                      margin="normal"
+                    /> 
                  <TextField
                    name="fullname"
                    label="Họ Và Tên"
@@ -308,10 +335,10 @@ const ModalEdit = ({
                      label="Status"
                    >
                      <MenuItem key="status-active" value="ACTIVE">
-                       Active
+                     Đang Hoạt Động
                      </MenuItem>
                      <MenuItem key="status-INACTIVE" value="INACTIVE">
-                       INACTIVE
+                     Không Hoạt Động
                      </MenuItem>
                    </Select>
                  </FormControl>

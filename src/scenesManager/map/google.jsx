@@ -464,7 +464,7 @@ const Map = () => {
     >
       <GoogleMapReact
         bootstrapURLKeys={{
-          key: "AIzaSyDksMnFQUmqOnGZGBIzVacv6YPEgYl8O30",
+          key: "AIzaSyAiyZLdDwpp0_dAOPNBMItItXixgLH9ABo",
         }}
         defaultCenter={defaultCenter}
         defaultZoom={defaultZoom}

@@ -154,8 +154,8 @@ const ModalEdit = ({
         console.log("lat"+lat,"lng"+lng)
         try {
           const response = await dispatch(getFormattedAddressGG({ lat, lng }));
-          console.log(response.payload);
-          const formattedAddress = response.payload.formattedAddress;
+          console.log(response.payload.display_name);
+          const formattedAddress = response.payload.display_name;
           setFormattedAddresses((prevAddresses) => ({
             ...prevAddresses,
             [addressType]: formattedAddress,

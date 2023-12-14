@@ -264,6 +264,7 @@ const CreateOrderOffline = () => {
   //     });
   // };
   const handleFormSubmit = (values, { resetForm }) => {
+    console.log(selectedRescueType)
     console.log(values.nameCustomer);
     const initialPhoneNumber = "+84";
     const customer_name = values.nameCustomer;
@@ -274,8 +275,6 @@ const CreateOrderOffline = () => {
     const sms_message = `Xin chào ${customer_name}!  \nDịch vụ: ${service}\nĐơn hàng: ${order_phone} 
      của bạn đã được nhận và đang được xử lý. Hình thức thanh toán: ${type_payment}. Cảm ơn bạn đã mua hàng!`;
 
-
- 
     if (selectedRescueType === "Fixing") {
       // Loại bỏ distance và destination khỏi values nếu là loại Fixing
       const { distance, destination, ...submissionValues } = values;
@@ -348,7 +347,7 @@ const CreateOrderOffline = () => {
             toast.error("Lỗi khi lỗi khi tạo đơn hàng trực Offline");
           }
         });
-    } else {
+    } else if( selectedRescueType === "Towing"){
       // Assuming service IDs are sent
       // const submissionValues = { ...values, services:  [values.service] };
       const submissionValuesTowing = { ...values, service: [values.service] };
@@ -715,6 +714,7 @@ const CreateOrderOffline = () => {
                 >
                   <MenuItem value="1">1</MenuItem>
                   <MenuItem value="2">2</MenuItem>
+                  <MenuItem value="3">3</MenuItem>
                 </Select>
               </FormControl>
               <FormControl fullWidth>

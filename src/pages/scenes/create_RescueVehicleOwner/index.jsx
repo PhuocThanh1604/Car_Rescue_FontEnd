@@ -94,7 +94,6 @@ const AddRescueVehicleOwner = () => {
       values: updatedInitialValues, 
       values2: initialValues, 
     });
-    setSelectedAccount(null);
 
     if (values.avatar) {
       URL.revokeObjectURL(values.avatar);

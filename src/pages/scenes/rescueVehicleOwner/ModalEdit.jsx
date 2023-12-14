@@ -16,18 +16,23 @@ import {
   Avatar,
   Grid,
 } from "@mui/material";
-import { Close} from "@mui/icons-material";
+import { Close } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
 
 import { ToastContainer, toast } from "react-toastify";
 import UploadImageField from "../../../components/uploadImage";
-import { editRescueVehicleOwner, fetchRescueVehicleOwners } from "../../../redux/rescueVehicleOwnerSlice";
+import {
+  editRescueVehicleOwner,
+  fetchRescueVehicleOwners,
+} from "../../../redux/rescueVehicleOwnerSlice";
 import { getAllVehicleOfUser } from "../../../redux/vehicleSlice";
 
 const ModalEdit = ({
   openEditModal,
   setOpenEditModal,
   selectedEditRescuseVehicleOwner,
+  accountData
+ 
 }) => {
   const dispatch = useDispatch();
   const rescueVehicleOwners = useSelector(
@@ -39,11 +44,16 @@ const ModalEdit = ({
   // const [fullnameValue, setFullnameValue] = useState("");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [filtereRescueVehicleOwners, setFilteredRescueVehicleOwners] = useState([]);
+  const [filtereRescueVehicleOwners, setFilteredRescueVehicleOwners] = useState(
+    []
+  );
   const [currentImageUrl, setCurrentImageUrl] = useState(edit.avatar || "");
   const [downloadUrl, setDownloadUrl] = useState("");
   const [serverError, setServerError] = useState(null);
+  useEffect(() => {
+    console.log(accountData);
 
+  }, [accountData]);
   const reloadRescueVehicleOwners = () => {
     dispatch(fetchRescueVehicleOwners())
       .then((response) => {
@@ -86,9 +96,10 @@ const ModalEdit = ({
     console.log(setEdit);
   };
 
-  
-  
   const handleSaveClick = () => {
+    console.log(accountData.account.id); 
+    console.log(accountData.account.email); 
+
     if (!selectedEditRescuseVehicleOwner || !edit) {
       toast.error("Không có thông tin khách hàng để cập nhật.");
       return;
@@ -119,13 +130,26 @@ const ModalEdit = ({
     // Kiểm tra xem có sự thay đổi trong dữ liệu so với dữ liệu ban đầu
     const hasChanges =
       JSON.stringify(edit) !== JSON.stringify(initialFormState);
-    console.log(edit)
+    console.log(edit);
+
+    const updatedInitialValues = {
+      ...edit,
+      account: {
+        id: accountData.account.id,
+        email: accountData.account.email,
+        password: accountData.account.password,
+        deviceToken: accountData.account.deviceToken,
+        createAt: accountData.account.createAt
+      },
+    };
+    console.log(updatedInitialValues);
+
     if (!hasChanges) {
       toast.info("Không có thay đổi để lưu.");
       handleClose();
     } else {
       // Gửi yêu cầu cập nhật lên máy chủ
-      dispatch(editRescueVehicleOwner({ data: edit }))
+      dispatch(editRescueVehicleOwner({ data: updatedInitialValues }))
         .then(() => {
           toast.success("Cập nhật thành công.");
           handleClose();
@@ -134,7 +158,9 @@ const ModalEdit = ({
         })
         .catch((error) => {
           if (error.response && error.response.data) {
-            toast.error(`Lỗi khi cập nhật khách hàng: ${error.response.data.message}`);
+            toast.error(
+              `Lỗi khi cập nhật khách hàng: ${error.response.data.message}`
+            );
           } else if (error.message) {
             toast.error(`Lỗi khi cập nhật khách hàng: ${error.message}`);
           } else {
@@ -143,7 +169,6 @@ const ModalEdit = ({
         });
     }
   };
-  
 
   const handleClose = () => {
     setOpenEditModal(false);
@@ -204,6 +229,7 @@ const ModalEdit = ({
               >
                 <Close />
               </IconButton>
+          
               <Typography
                 variant="h5"
                 component="h2"
@@ -215,7 +241,7 @@ const ModalEdit = ({
                   : "RescuseVehicleOwner Detail"}
               </Typography>
 
-              {selectedEditRescuseVehicleOwner && (
+              {selectedEditRescuseVehicleOwner &&  (
                 <Card>
                   <CardContent>
                     <TextField
@@ -228,46 +254,30 @@ const ModalEdit = ({
                           handleInputChange(event);
                         }
                       }}
+                      sx={{display: 'none'}}
                       fullWidth
                       margin="normal"
                     />
-                    <TextField
-  name="id"
-  label="id"
-  value={edit && edit.account && edit.account.id ? edit.account.id : ''}
-  onChange={(event) => {
-    // Check if it's coming from selectedEditRescuseVehicleOwner and prevent changes
-    if (!selectedEditRescuseVehicleOwner) {
-      handleInputChange(event);
-    }
-  }}
-  fullWidth
-  margin="normal"
-/>
-
-                     {/* <TextField
-                      name="id"
-                      label="id"
-                      value={edit.account.id}
-                      onChange={(event) => {
-                        // Check if it's coming from selectedEditRescuseVehicleOwner and prevent changes
-                        if (!selectedEditRescuseVehicleOwner) {
-                          handleInputChange(event);
-                        }
-                      }}
+                     <TextField
+                      name="email"
+                      label="Email"
+                      type="text"
+                      value={accountData?.account?.email || ""}
+                      onChange={handleInputChange}
+                      disabled // Disable the TextField
                       fullWidth
                       margin="normal"
-                    />
+                    /> 
                     <TextField
                       name="fullname"
                       label="Họ Và Tên"
                       type="text"
-                      value={edit.account.email|| ""}
+                      value={edit.fullname|| ""}
                       onChange={handleInputChange}
                       // disabled // Disable the TextField
                       fullWidth
                       margin="normal"
-                    /> */}
+                    /> 
 
                     <TextField
                       name="accountId"
@@ -283,7 +293,12 @@ const ModalEdit = ({
                       margin="normal"
                       style={{ display: "none" }}
                     />
-                    <Grid container spacing={4} alignItems="center" marginBottom={2}>
+                    <Grid
+                      container
+                      spacing={4}
+                      alignItems="center"
+                      marginBottom={2}
+                    >
                       <Grid item>
                         <Avatar
                           alt="Avatar"
@@ -308,7 +323,7 @@ const ModalEdit = ({
                       disabled
                       style={{ display: "none" }}
                     />
-               
+
                     <FormControl fullWidth sx={{ marginTop: 1 }}>
                       <InputLabel id="demo-simple-select-label">
                         Giới Tính
@@ -349,10 +364,10 @@ const ModalEdit = ({
                           1
                         </MenuItem>
                         <MenuItem key="area-2" value="2">
-                        2
+                          2
                         </MenuItem>
                         <MenuItem key="area-3" value="3">
-                        3
+                          3
                         </MenuItem>
                       </Select>
                     </FormControl>
@@ -391,14 +406,19 @@ const ModalEdit = ({
                           Hoạt Động
                         </MenuItem>
                         <MenuItem key="status-outofstock" value="INACTIVE">
-                         Không Hoạt Động
+                          Không Hoạt Động
                         </MenuItem>
-                     
                       </Select>
                     </FormControl>
                   </CardContent>
 
-                  <Box sx={{ display: "flex", justifyContent: "center" ,marginBottom:"5px"}}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                      marginBottom: "5px",
+                    }}
+                  >
                     <Button
                       onClick={handleSaveClick}
                       variant="contained"
@@ -413,11 +433,7 @@ const ModalEdit = ({
           </Box>
         </Fade>
       </Modal>
-      {serverError && (
-        <Typography color="error">
-          {serverError}
-        </Typography>
-      )}
+      {serverError && <Typography color="error">{serverError}</Typography>}
     </>
   );
 };
