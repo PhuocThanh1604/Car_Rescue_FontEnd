@@ -182,7 +182,7 @@ const Map = ({ technicianLocation, infoTechnician, loadingMap }) => {
       ) : (
         <GoogleMapReact
           bootstrapURLKeys={{
-            key: "AIzaSyAiyZLdDwpp0_dAOPNBMItItXixgLH9ABo",
+            key: "AIzaSyDksMnFQUmqOnGZGBIzVacv6YPEgYl8O30",
           }}
           loading={loading}
           defaultCenter={coords}

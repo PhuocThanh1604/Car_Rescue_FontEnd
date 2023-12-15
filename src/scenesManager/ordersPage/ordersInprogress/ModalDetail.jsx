@@ -44,6 +44,7 @@ import moment from "moment";
 import { tokens } from "../../../theme";
 import { getOrderDetailId } from "../../../redux/orderSlice";
 import { getServiceId } from "../../../redux/serviceSlice";
+
 const MyModal = (props) => {
   const { openModal, setOpenModal, selectedDetailOrder } = props;
   const dispatch = useDispatch();
@@ -54,6 +55,7 @@ const MyModal = (props) => {
     technician: {},
     vehicle: {},
   });
+
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const iconColor = { color: colors.blueAccent[500] };
@@ -448,30 +450,7 @@ const MyModal = (props) => {
                           </Typography>
                         </Typography>
 
-                        <Typography
-                          variant="body1"
-                          component="p"
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            marginBottom: "8px", // Thêm khoảng cách dưới cùng của dòng
-                            fontSize: "1rem",
-                          }}
-                        >
-                          <CakeIcon style={iconColor} />{" "}
-                          <strong>Ngày sinh: </strong>
-                          <Typography
-                            variant="h6"
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              marginLeft: "10px",
-                            }}
-                          >
-                            {data.customer[selectedDetailOrder.customerId]
-                              ?.birthdate || "Không có thông tin"}
-                          </Typography>
-                        </Typography>
+                    
                       </Grid>
                       <Grid item xs={1}>
                         <Divider
@@ -567,7 +546,7 @@ const MyModal = (props) => {
                               {selectedDetailOrder.area || "khu vực 1"}
                             </Typography>
                           </Typography>
-
+                      
                           <Typography
                             variant="body1"
                             component="p"

@@ -25,7 +25,6 @@ import {
   editRescueVehicleOwner,
   fetchRescueVehicleOwners,
 } from "../../../redux/rescueVehicleOwnerSlice";
-import { getAllVehicleOfUser } from "../../../redux/vehicleSlice";
 
 const ModalEdit = ({
   openEditModal,
@@ -38,7 +37,10 @@ const ModalEdit = ({
   const rescueVehicleOwners = useSelector(
     (state) => state.rescueVehicleOwner.rescueVehicleOwners
   );
-  const [edit, setEdit] = useState({});
+  const [edit, setEdit] = useState({
+    // birthdate: formattedDate, // Khởi tạo giá trị birthdate từ formattedDate
+    // Các trường dữ liệu khác trong edit state...
+  });
   const [isSuccess, setIsSuccess] = useState(false);
   const [initialFormState, setInitialFormState] = useState({});
   // const [fullnameValue, setFullnameValue] = useState("");
@@ -185,6 +187,9 @@ const ModalEdit = ({
       avatar: imageUrl,
     }));
   };
+//   const birthdateISO = selectedEditRescuseVehicleOwner.birthdate; 
+// const dateObject = new Date(birthdateISO);
+// const formattedDate = dateObject.toISOString().split('T')[0];
 
   return (
     <>
@@ -371,6 +376,16 @@ const ModalEdit = ({
                         </MenuItem>
                       </Select>
                     </FormControl>
+                    {/* <TextField
+                      name="birthdate"
+                      label="Ngày Sinh"
+                      type="date"
+                      value={edit.birthdate}
+                      onChange={handleInputChange}
+                      // disabled // Disable the TextField
+                      fullWidth
+                      margin="normal"
+                    />  */}
                     <TextField
                       name="phone"
                       label="Số Điện Thoại"

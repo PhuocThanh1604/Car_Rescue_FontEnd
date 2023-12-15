@@ -24,7 +24,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
 import PlaceIcon from "@mui/icons-material/Place";
 import TimerIcon from "@mui/icons-material/Timer";
-import PriceChangeIcon from "@mui/icons-material/PriceChange";
+import PriceChangeIcon from '@mui/icons-material/PriceChange';
 import {
   addServiceForTechnicians,
   calculatePayment,
@@ -41,10 +41,11 @@ import * as yup from "yup";
 import { tokens } from "../../../theme";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import moment from "moment";
-import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-import servicesPrice from "../../../priceService.json";
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import servicesPrice  from "../../../priceService.json" 
 const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
   const [services, setServices] = useState([]);
+
 
   const dispatch = useDispatch();
   const orders = useSelector((state) => state.order.orders);
@@ -95,14 +96,14 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
     }
   }, [services]);
   useEffect(() => {
-    console.log(dataOrder.rescueType);
+    console.log(dataOrder.rescueType)
     setLoading(true);
-
+  
     const fetchData = async () => {
       if (dataOrder && dataOrder.departure) {
         await fetchAddress("departure", dataOrder.departure);
       }
-
+  
       if (dataOrder) {
         if (dataOrder.rescueType === "Fixing") {
           if (fixingCounter === 1) {
@@ -117,7 +118,7 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
           setLoading(false);
         }
       }
-
+  
       if (selectedEditOrder && selectedEditOrder[0].orderId) {
         await fetchOrder(selectedEditOrder[0].orderId);
         await fetchPayment(selectedEditOrder[0].orderId);
@@ -125,31 +126,31 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
         setLoading(false);
       }
     };
-
+  
     fetchData();
   }, [selectedEditOrder, fixingCounter]);
-
+  
   const resetDestinationAddress = () => {
     setFormattedAddresses((prevAddresses) => ({
       ...prevAddresses,
-      destination: null, // Reset destination address to null or default value based on requirements
+      destination: null // Reset destination address to null or default value based on requirements
     }));
   };
-
+  
   const handleClose = () => {
     if (selectedEditOrder && selectedEditOrder[0]?.rescueType === "Fixing") {
       if (fixingCounter === 1) {
-        setFixingCounter(0);
+        setFixingCounter(0); 
       } else {
-        setFixingCounter(1);
+        setFixingCounter(1); 
       }
     }
-    setOpenEditModal(false);
+    setOpenEditModal(false); 
   };
-
+  
   const fetchAddress = async (addressType, addressValue) => {
     if (!addressValue) {
-      return;
+      return; 
     }
 
     const matches = /lat:\s*([^,]+),\s*long:\s*([^,]+)/.exec(addressValue);
@@ -166,7 +167,7 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
             [addressType]: formattedAddress,
           }));
         } catch (error) {
-          setLoading(false);
+          setLoading(false)
           toast.error(
             "Không tìm thấy địa chỉ:",
             error.response ? error.response : error
@@ -263,7 +264,7 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
       });
   };
   useEffect(() => {
-    console.log(selectedEditOrder);
+    console.log(selectedEditOrder)
     const setSelectedOrderDetails = () => {
       if (selectedEditOrder?.id) {
         const OrderToEdit = orders.find(
@@ -531,6 +532,7 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
         console.error("Lỗi khi tải lại chi tiết đơn:", error);
       });
   };
+ 
 
   useEffect(() => {
     // Ensure selectedEditOrder is not null and is an array
@@ -637,130 +639,133 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
               {selectedEditOrder && (
                 <Card>
                   <CardContent>
-                    <Typography variant="h5" sx={{ marginBottom: 2 }}>
-                      Thông Tin đơn hàng
-                    </Typography>
+                      <Typography variant="h5" sx={{ marginBottom: 2 }}>
+                        Thông Tin đơn hàng
+                      
+                      </Typography>
 
-                    <Typography
-                      variant="body1"
-                      component="p"
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        marginBottom: "8px", // Thêm khoảng cách dưới cùng của dòng
-                        fontSize: "1rem",
-                        marginRight: "2px",
-                      }}
-                    >
-                      <PlaceIcon style={iconColor} />{" "}
-                      <strong>Địa chỉ xe hư:</strong>
                       <Typography
-                        variant="h6"
+                        variant="body1"
+                        component="p"
                         sx={{
                           display: "flex",
                           alignItems: "center",
-                          marginLeft: "10px",
+                          marginBottom: "8px", // Thêm khoảng cách dưới cùng của dòng
+                          fontSize: "1rem",
+                          marginRight: "2px",
                         }}
                       >
-                        {formattedAddresses.departure || "Đang cập nhật"}
+                        <PlaceIcon style={iconColor} />{" "}
+                        <strong>Địa chỉ xe hư:</strong>
+                        <Typography
+                          variant="h6"
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            marginLeft: "10px",
+                          }}
+                        >
+                          {formattedAddresses.departure || "Đang cập nhật"}
+                        </Typography>
                       </Typography>
-                    </Typography>
 
-                    <Typography
-                      variant="body1"
-                      component="p"
-                      sx={{
-                        marginBottom: "8px",
-                        fontSize: "1rem",
-                      }}
-                    >
-                      <LocationOnIcon style={iconColor} />
-                      <strong>Địa chỉ đến: </strong>
                       <Typography
-                        variant="h6"
-                        component="span"
+                        variant="body1"
+                        component="p"
                         sx={{
-                          padding: "8px",
-                          borderRadius: "4px",
-                          marginLeft: "4px",
-                          wordWrap: "break-word",
-                          overflowWrap: "break-word",
-                          whiteSpace: "normal",
-                          flex: 1,
+                          marginBottom: "8px",
+                          fontSize: "1rem",
                         }}
                       >
-                        {}
-                        {formattedAddresses.destination || "Không có thông tin"}
+                        <LocationOnIcon style={iconColor} />
+                        <strong>Địa chỉ đến: </strong>
+                        <Typography
+                          variant="h6"
+                          component="span"
+                          sx={{
+                            padding: "8px",
+                            borderRadius: "4px",
+                            marginLeft: "4px",
+                            wordWrap: "break-word",
+                            overflowWrap: "break-word",
+                            whiteSpace: "normal",
+                            flex: 1,
+                          }}
+                        >
+                          {}
+                          {formattedAddresses.destination || "Không có thông tin"}
+                        </Typography>
                       </Typography>
-                    </Typography>
-                    <Typography
-                      variant="body1"
-                      component="p"
-                      sx={{
-                        marginBottom: "8px",
-                        fontSize: "1rem",
-                      }}
-                    >
-                      <TimerIcon style={iconColor} />
-                      <strong>Thời gian bắt đầu: </strong>
                       <Typography
-                        variant="h6"
-                        component="span"
+                        variant="body1"
+                        component="p"
                         sx={{
-                          padding: "8px",
-                          borderRadius: "4px",
-                          marginLeft: "4px",
-                          wordWrap: "break-word",
-                          overflowWrap: "break-word",
-                          whiteSpace: "normal",
-                          flex: 1,
+                          marginBottom: "8px",
+                          fontSize: "1rem",
                         }}
                       >
-                        {formatDateTime(dataOrder.startTime || "Đang cập nhật")}
+                        <TimerIcon style={iconColor} />
+                        <strong>Thời gian bắt đầu: </strong>
+                        <Typography
+                          variant="h6"
+                          component="span"
+                          sx={{
+                            padding: "8px",
+                            borderRadius: "4px",
+                            marginLeft: "4px",
+                            wordWrap: "break-word",
+                            overflowWrap: "break-word",
+                            whiteSpace: "normal",
+                            flex: 1,
+                          }}
+                        >
+                          {formatDateTime(
+                            dataOrder.startTime || "Đang cập nhật"
+                          )}
+                        </Typography>
                       </Typography>
-                    </Typography>
 
-                    <Typography
-                      variant="body1"
-                      component="p"
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        marginBottom: "8px", // Thêm khoảng cách dưới cùng của dòng
-                        fontSize: "1rem",
-                        marginRight: "2px",
-                      }}
-                    >
-                      <AssignmentIcon style={iconColor} />{" "}
-                      <strong>Ghi chú kỹ thuật viên:</strong>
                       <Typography
-                        variant="h6"
+                        variant="body1"
+                        component="p"
                         sx={{
                           display: "flex",
                           alignItems: "center",
-                          marginLeft: "10px",
+                          marginBottom: "8px", // Thêm khoảng cách dưới cùng của dòng
+                          fontSize: "1rem",
+                          marginRight: "2px",
                         }}
                       >
-                        {" "}
-                        {dataOrder.staffNote || "Không có thông tin"}
+                        <AssignmentIcon style={iconColor} />{" "}
+                        <strong>Ghi chú kỹ thuật viên:</strong>
+                        <Typography
+                          variant="h6"
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            marginLeft: "10px",
+                          }}
+                        >
+                          {" "}
+                          {dataOrder.staffNote || "Không có thông tin"}
+                        </Typography>
                       </Typography>
-                    </Typography>
-                  </CardContent>
-
-                  <TextField
-                    name="id"
-                    label="id"
-                    value={edit.id}
-                    onChange={(event) => {
-                      // Check if it's coming from selectedEditRescuseVehicleOwner and prevent changes
-                      if (!selectedEditOrder) {
-                        handleInputChange(event);
-                      }
-                    }}
-                    fullWidth
-                    margin="normal"
-                    style={{ display: "none" }}
-                  />
+                    </CardContent>
+                 
+                    <TextField
+                      name="id"
+                      label="id"
+                      value={edit.id}
+                      onChange={(event) => {
+                        // Check if it's coming from selectedEditRescuseVehicleOwner and prevent changes
+                        if (!selectedEditOrder) {
+                          handleInputChange(event);
+                        }
+                      }}
+                      fullWidth
+                      margin="normal"
+                      style={{ display: "none" }}
+                    />
                   <Divider />
                   <TableContainer component={Paper}>
                     <Table>
@@ -784,7 +789,7 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
                                   ? orderQuantities[order.id]
                                   : ""}
                               </TableCell>
-                              <TableCell sx={{ fontWeight: "bold" }}>
+                              <TableCell sx={{fontWeight:"bold"}}>
                                 {order.tOtal
                                   ? `${order.tOtal.toLocaleString()} VNĐ`
                                   : ""}
@@ -793,8 +798,40 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
                           ))}
                       </TableBody>
                     </Table>
-                    {dataOrder.rescueType === "Towing" && (
-                      <Typography
+                 {dataOrder.rescueType==="Towing"&& (
+                    <Typography
+                    variant="body1"
+                    component="p"
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      marginBottom: "8px", // Thêm khoảng cách dưới cùng của dòng
+                      fontSize: "1rem",
+                      margin: "20px",
+                    }}
+                  >
+                    <PriceChangeIcon style={iconColor} />{" "}
+                    <strong>Phí Dịch Vụ :</strong>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        marginLeft: "10px",
+                        fontWeight:"bold",
+                        color:colors.redAccent[600]
+                      }}
+                    >
+                      {servicesPrice.services[0].price ? `${servicesPrice.services[0].price.toLocaleString()} VNĐ`
+                              : ""}
+                    </Typography>
+                  </Typography>
+                 )
+                 }
+                  
+                   
+
+                    <Typography
                         variant="body1"
                         component="p"
                         sx={{
@@ -805,54 +842,25 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
                           margin: "20px",
                         }}
                       >
-                        <PriceChangeIcon style={iconColor} />{" "}
-                        <strong>Phí Dịch Vụ :</strong>
+                        <ShoppingCartIcon style={iconColor} />{" "}
+                        <strong>Tổng cộng tất cả chi phí :</strong>
                         <Typography
                           variant="h6"
                           sx={{
                             display: "flex",
                             alignItems: "center",
                             marginLeft: "10px",
-                            fontWeight: "bold",
-                            color: colors.redAccent[600],
+                            fontWeight:"bold",
+                            color:colors.redAccent[600]
                           }}
                         >
-                          {servicesPrice.services[0].price
-                            ? `${servicesPrice.services[0].price.toLocaleString()} VNĐ`
-                            : ""}
+                          {dataPayment.amount ? `${dataPayment.amount.toLocaleString()} VNĐ`
+                                  : ""}
                         </Typography>
                       </Typography>
-                    )}
-
-                    <Typography
-                      variant="body1"
-                      component="p"
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        marginBottom: "8px", // Thêm khoảng cách dưới cùng của dòng
-                        fontSize: "1rem",
-                        margin: "20px",
-                      }}
-                    >
-                      <ShoppingCartIcon style={iconColor} />{" "}
-                      <strong>Tổng cộng tất cả chi phí :</strong>
-                      <Typography
-                        variant="h6"
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          marginLeft: "10px",
-                          fontWeight: "bold",
-                          color: colors.redAccent[600],
-                        }}
-                      >
-                        {dataPayment.amount
-                          ? `${dataPayment.amount.toLocaleString()} VNĐ`
-                          : ""}
-                      </Typography>
-                    </Typography>
                   </TableContainer>
+
+                 
                 </Card>
               )}
             </Box>

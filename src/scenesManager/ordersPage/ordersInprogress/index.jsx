@@ -60,7 +60,6 @@ const OrdersInprogress = (props) => {
   // Thực hiện xử lý khi không có dữ liệu
   return;
 }
-    // Filter the orders based on the entered search query
     const filteredOrders = orders.filter((order) => {
       const nameMatch =
         fullnameData[order.customerId] && // Check if fullname data is available
@@ -125,6 +124,7 @@ const OrdersInprogress = (props) => {
         // Đã lấy dữ liệu thành công
         const data = response.payload.data;
         if (data) {
+          console.log(data)
           setData(data);
           setFilteredOrders(data);
           setLoading(false); // Đặt trạng thái loading thành false sau khi xử lý dữ liệu
@@ -141,13 +141,14 @@ const OrdersInprogress = (props) => {
       });
   }, [dispatch,location.pathname]);
 
-  const handleAddServiceClick = (orderId) => {
+  const handleServiceClickDetail = (orderId) => {
     console.log(orderId);
     // Fetch the rescueVehicleOwnerId details based on the selected rescueVehicleOwnerId ID
     dispatch(getOrderDetailId({ id: orderId }))
       .then((response) => {
         const orderDetails = response.payload.data;
         console.log("orderDetails"+orderDetails)
+      
         setSelectedEditOrder(orderDetails);
         setOpenEditModal(true);
         setIsSuccess(true);
@@ -383,18 +384,18 @@ const OrdersInprogress = (props) => {
                 borderRadius: "4px",
               },
             }}
-            onClick={() => handleAddServiceClick(params.row.id)}
+            onClick={() => handleServiceClickDetail(params.row.id)}
           >
             <AssignmentIcon
               sx={{color:colors.grey[700]}}
-              onClick={() => handleAddServiceClick(params.row.id)}
+              onClick={() => handleServiceClickDetail(params.row.id)}
               aria-label="Chi Tiết Đơn Hàng"
          
             />
             <Typography
               variant="body1"
               sx={{ fontWeight: "bold", marginLeft: "5px" }}
-              onClick={() => handleAddServiceClick(params.row.id)}
+              onClick={() => handleServiceClickDetail(params.row.id)}
             >
               {"Dịch Vụ"}
             </Typography>

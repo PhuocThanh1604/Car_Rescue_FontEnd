@@ -1,0 +1,10 @@
+{
+  "services": [
+    {
+      "id": 1,
+      "name": "Phí vụ dịch",
+      "description": "Kéo xe buộc lấy phí dịch vụ để chi trả tiền di chuyển của nhân sự",
+      "price": 300000
+    }
+  ]
+}

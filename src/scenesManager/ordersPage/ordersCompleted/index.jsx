@@ -18,7 +18,7 @@ import Header from "../../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
 import AddIcon from "@mui/icons-material/Add";
 import ModalDetail from "./ModalDetail";
-// import ModalEdit from "./ModalComponentEdit";
+import AssignmentIcon from '@mui/icons-material/Assignment';
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import SearchIcon from "@mui/icons-material/Search";
@@ -28,6 +28,7 @@ import moment from "moment";
 import {
   fetchOrdersCompleted,
   fetchOrdersNew,
+  getOrderDetailId,
   getOrderId,
 } from "../../../redux/orderSlice";
 import { getCustomerIdFullName } from "../../../redux/customerSlice";
@@ -42,6 +43,7 @@ import TaskAltIcon from "@mui/icons-material/TaskAlt";
 import { useLocation } from "react-router-dom";
 import CustomTablePagination from "../../../components/TablePagination";
 import VisibilityIcon from "@mui/icons-material/Visibility";
+import ModalEdit from "./ModalEdit";
 const Orders = (props) => {
   const dispatch = useDispatch();
   const location = useLocation();
@@ -51,6 +53,7 @@ const Orders = (props) => {
   const [filterOption, setFilterOption] = useState("rescueType");
   const [openModal, setOpenModal] = useState(false);
   const [selectedEditOrder, setSelectedEditOrder] = useState(null);
+  const [selectedOrder, setSelectedOrder] = useState(null);
   const [filteredOrders, setFilteredOrders] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(8);
@@ -177,6 +180,22 @@ const Orders = (props) => {
       });
   };
 
+  const handleServiceClickDetail = (orderId) => {
+    console.log(orderId);
+    // Fetch the rescueVehicleOwnerId details based on the selected rescueVehicleOwnerId ID
+    dispatch(getOrderDetailId({ id: orderId }))
+      .then((response) => {
+        const orderDetails = response.payload.data;
+        console.log("orderDetails"+orderDetails)
+      
+        setSelectedOrder(orderDetails);
+        setOpenEditModal(true);
+        setIsSuccess(true);
+      })
+      .catch((error) => {
+        console.error("Lỗi khi lấy thông tin đơn hàng đang thực hiện:", error);
+      });
+  };
 
  // Use an effect to fetch the fullname when the component mounts or customerId changes
  useEffect(() => {
@@ -354,7 +373,44 @@ const fetchFullname = (customerId) => {
       },
     },
 
-
+    {
+      field: "update",
+      headerName: "Dịch Vụ",
+      width: 120,
+      renderCell: (params) => (
+        <Grid container justifyContent="center" alignItems="center">
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              "&:hover": {
+                cursor: "pointer",
+                // Thay đổi màu sắc hoặc hiệu ứng khác khi hover vào Box
+                backgroundColor: "lightgray",
+                padding: "4px",
+                borderRadius: "4px",
+              },
+            }}
+            onClick={() => handleServiceClickDetail(params.row.id)}
+          >
+            <AssignmentIcon
+              sx={{color:colors.grey[700]}}
+              onClick={() => handleServiceClickDetail(params.row.id)}
+              aria-label="Chi Tiết Đơn Hàng"
+         
+            />
+            <Typography
+              variant="body1"
+              sx={{ fontWeight: "bold", marginLeft: "5px" }}
+              onClick={() => handleServiceClickDetail(params.row.id)}
+            >
+              {"Dịch Vụ"}
+            </Typography>
+          </Box>
+        </Grid>
+      ),
+      key: "orderDetails",
+    },
  
     {
       field: "orderDetails",
@@ -572,6 +628,14 @@ const fetchFullname = (customerId) => {
           components={{ Toolbar: GridToolbar }}
         />
       </Box>
+      <ModalEdit
+      
+      openEditModal={openEditModal}
+      setOpenEditModal={setOpenEditModal}
+      selectedEditOrder={selectedOrder}
+      onClose={() => setOpenEditModal(false)}
+      loading={loading}
+    />
       <ModalDetail
         openModal={openModal}
         setOpenModal={setOpenModal}

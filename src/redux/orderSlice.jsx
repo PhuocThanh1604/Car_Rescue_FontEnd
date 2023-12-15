@@ -835,8 +835,13 @@ const orderSlice = createSlice({
         state.status = "error";
       })
       .addCase(sendNotification.fulfilled, (state, action) => {
-        state.orders.push(action.payload);
+        if (Array.isArray(state.orders)) {
+          state.orders.push(action.payload);
+        } else {
+          state.orders = [action.payload]; // Nếu không phải mảng, khởi tạo một mảng mới với action.payload
+        }
       })
+      
       .addCase(sendNotification.pending, (state) => {
         state.status = "loading";
       })

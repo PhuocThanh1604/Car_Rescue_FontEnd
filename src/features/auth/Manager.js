@@ -47,6 +47,7 @@ import ListReports from "../../scenesManager/listReportRescueCarOwner";
 import Symptoms from "../../scenesManager/symptom";
 import AddSymptom from "../../scenesManager/create_Symtom";
 import AutoLogout from "./AutoLogout";
+import CreateOrderOfflineTowing from "../../scenesManager/create_OrderOffline/towing";
 
 const Manager = () => {
   const user = useSelector(selectCurrentUser);
@@ -186,6 +187,10 @@ const Manager = () => {
                 <Route
                   path="/manager/add/orderOffline"
                   element={<CreateOrderOffline />}
+                />
+                <Route
+                  path="/manager/add/orderOfflineTowing"
+                  element={<CreateOrderOfflineTowing />}
                 />
                 {/*Update Profile*/}
                 <Route

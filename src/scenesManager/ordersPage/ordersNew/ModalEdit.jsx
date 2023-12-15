@@ -17,6 +17,12 @@ import {
   CardActions,
   Collapse,
   Divider,
+  Stack,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 } from "@mui/material";
 import { CategoryRounded, Close } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
@@ -25,6 +31,7 @@ import { toast } from "react-toastify";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ColorLensIcon from "@mui/icons-material/ColorLens";
+import CircularProgress from "@mui/material/CircularProgress";
 import {
   createAcceptOrder,
   fetchOrdersNew,
@@ -35,7 +42,7 @@ import {
   sendNotification,
 } from "../../../redux/orderSlice";
 import AssignmentIcon from "@mui/icons-material/Assignment";
-import { fetchVehicle } from "../../../redux/vehicleSlice";
+import { fetchVehicle, getAllVehicleOfUser } from "../../../redux/vehicleSlice";
 import { fetchTechnicians } from "../../../redux/technicianSlice";
 import TimeToLeaveIcon from "@mui/icons-material/TimeToLeave";
 import CategoryIcon from "@mui/icons-material/Category";
@@ -55,7 +62,10 @@ import SourceRoundedIcon from "@mui/icons-material/SourceRounded";
 import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 import { getServiceId } from "../../../redux/serviceSlice";
 import { getModelCarId } from "../../../redux/modelCarSlice";
-import { getRescueVehicleOwnerId } from "../../../redux/rescueVehicleOwnerSlice";
+import {
+  fetchRescueVehicleOwners,
+  getRescueVehicleOwnerId,
+} from "../../../redux/rescueVehicleOwnerSlice";
 import { getAccountId } from "../../../redux/accountSlice";
 const ModalEdit = ({
   openEditModal,
@@ -76,6 +86,7 @@ const ModalEdit = ({
   const [fullnameValue, setFullnameValue] = useState("");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+
   const [filteredOrders, setFilteredOrders] = useState([]);
   const [serverError, setServerError] = useState(null);
   const [selectedVehicle, setSelectedVehicel] = useState(null);
@@ -84,16 +95,21 @@ const ModalEdit = ({
   const [orderId, setOrderId] = useState(null);
   const [loadingVehicle, setLoadingVehicle] = useState(true);
   const [vehicleData, setVehicleData] = useState([]);
+  const [rvoName, setRvoName] = useState([]);
   const [serviceNames, setServiceNames] = useState({});
   const [loadingTechnician, setLoadingTechnician] = useState(true);
   const [technicianData, setTechnicianData] = useState([]);
+  const [vehicleDataActive, setVehicleDataActive] = useState([]);
+  const [rvoData, setRVOData] = useState([]);
   const [selectedTechnician, setSelectedTechnician] = useState(null);
   const [technicianDetails, setTechnicianDetails] = useState(null);
   const [selectedRescueType, setSelectedRescueType] = useState([
     "Fixing",
     "Towing",
   ]);
+  const [selectedRVO, setSelectedRVO] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [showModalVehicleOfRvo, setShowModalVehicleOfRvo] = useState(false);
   const [collapse, setCollapse] = useState(false);
   const [selectedRescueTypeTowing, setSelectedRescueTypeTowing] =
     useState("Towing");
@@ -113,19 +129,33 @@ const ModalEdit = ({
   const [dataDeparture, setDataDeparture] = useState({});
   const [accountId, setAccountId] = useState("");
   const [accountIdCustomer, setAccountIdCustomer] = useState("");
-
   const [accountDeviceToken, setAccountDeviceToken] = useState("");
   const [accountDeviceTokenCustomer, setAccountDeviceTokenCustomer] =
     useState("");
 
   const [dataModel, setDataModel] = useState("");
   const [fullnameRvo, setFullnameRvo] = useState({});
+  const toggleModal = () => {
+    setShowModalVehicleOfRvo(!showModalVehicleOfRvo);
+  };
+
+  const [openDialog, setOpenDialog] = useState(false);
+
+  // Hàm mở dialog xác nhận
+  const openConfirmationDialog = () => {
+    setOpenDialog(true);
+  };
+
+  // Hàm đóng dialog
+  const closeConfirmationDialog = () => {
+    setOpenDialog(false);
+  };
   const managerString = localStorage.getItem("manager");
   let manager = null;
 
   if (managerString) {
     try {
-      manager = JSON.parse(managerString); 
+      manager = JSON.parse(managerString);
     } catch (error) {
       console.error("Lỗi khi phân tích chuỗi JSON:", error);
     }
@@ -151,7 +181,7 @@ const ModalEdit = ({
       const [, lat, lng] = matches;
 
       if (!isNaN(lat) && !isNaN(lng)) {
-        console.log("lat"+lat,"lng"+lng)
+        console.log("lat" + lat, "lng" + lng);
         try {
           const response = await dispatch(getFormattedAddressGG({ lat, lng }));
           console.log(response.payload.display_name);
@@ -161,7 +191,7 @@ const ModalEdit = ({
             [addressType]: formattedAddress,
           }));
         } catch (error) {
-          setLoading(false)
+          setLoading(false);
           toast.error(
             "Không tìm thấy địa chỉ:",
             error.response ? error.response : error
@@ -214,8 +244,6 @@ const ModalEdit = ({
       // resetFixingState();
     }
   }, [selectedRescueType, technicianData, vehicleData]);
-  
-  
 
   // useEffect(() => {
   //   if (selectedTechnician) {
@@ -353,6 +381,7 @@ const ModalEdit = ({
     fetchData();
   }, [dispatch]);
 
+  //Fetch technician
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -384,7 +413,156 @@ const ModalEdit = ({
 
     fetchData();
   }, [dispatch]);
+  //Fetch rvo
+  // useEffect(() => {
+  //   const fetchRvoData = async () => {
+  //     try {
+  //       const technicianResponse = await dispatch(fetchRescueVehicleOwners());
+  //       const rescueVehicleOwnerData = technicianResponse.payload.data;
 
+  //       if (rescueVehicleOwnerData && rescueVehicleOwnerData.length > 0) {
+  //         const activeTechnicians = rescueVehicleOwnerData.filter(
+  //           (item) => item.status === "ACTIVE"
+  //         );
+  //         setRvoName(activeTechnicians);
+  //         if (activeTechnicians.length > 0) {
+  //           activeTechnicians.forEach(async (technician) => {
+  //             try {
+  //               const technicianId = technician.id;
+  //               const vehiclesResponse = await dispatch(
+  //                 getAllVehicleOfUser({ id: technicianId })
+  //               );
+  //               const vehiclesData = vehiclesResponse.payload.data;
+  //               console.log(vehiclesData);
+  //               if (vehiclesData) {
+  //                 const activeTechnicians = vehiclesData.filter(
+  //                   (item) => item.status === "ACTIVE"
+  //                 );
+  //                 console.log(activeTechnicians);
+  //                 setVehicleDataActive(activeTechnicians);
+
+  //                 if (activeTechnicians.length > 0) {
+  //                   activeTechnicians.forEach((technician) => {
+  //                     // You can also access other properties here if needed.
+  //                   });
+  //                 } else {
+  //                   console.log("No active technicians found.");
+  //                 }
+  //               } else {
+  //                 console.error("Technician response does not contain 'data'.");
+  //               }
+  //             } catch (error) {
+  //               console.error(
+  //                 `Error fetching vehicles for technician with ID ${technician.id}:`,
+  //                 error
+  //               );
+  //             }
+  //           });
+  //         } else {
+  //           console.log("No active technicians found.");
+  //         }
+  //       } else {
+  //         console.error(
+  //           "Technician response does not contain data or data is empty."
+  //         );
+  //       }
+  //     } catch (error) {
+  //       console.error("Error while fetching technician data:", error);
+  //     } finally {
+  //       setLoadingTechnician(false);
+  //     }
+  //   };
+
+  //   fetchRvoData();
+  // }, [dispatch]);
+  const fetchRvoData = async () => {
+    try {
+      const technicianResponse = await dispatch(fetchRescueVehicleOwners());
+      const rescueVehicleOwnerData = technicianResponse.payload.data;
+
+      if (rescueVehicleOwnerData && rescueVehicleOwnerData.length > 0) {
+        const activeRvoData = await Promise.all(
+          rescueVehicleOwnerData.map(async (item) => {
+            const vehiclesResponse = await dispatch(
+              getAllVehicleOfUser({ id: item.id })
+            );
+            const vehiclesData = vehiclesResponse.payload.data;
+
+            // Kiểm tra xem vehiclesData có phải là một mảng và có thuộc tính filter không
+            if (Array.isArray(vehiclesData) && vehiclesData.filter) {
+              // Kiểm tra activeVehicles trong từng rescueVehicleOwnerData
+              const activeVehicles = vehiclesData.filter(
+                (vehicle) => vehicle.status === "ACTIVE"
+              );
+
+              // Chỉ trả về rescueVehicleOwnerData nếu có activeVehicles
+              if (activeVehicles.length > 0) {
+                return {
+                  ...item,
+                  activeVehicles: activeVehicles,
+                };
+              }
+            }
+            return null;
+          })
+        );
+
+        // Lọc ra chỉ những rescueVehicleOwnerData có activeVehicles
+        const activeRvoDataWithActiveVehicles = activeRvoData.filter(
+          (item) => item !== null && item.activeVehicles.length > 0
+        );
+
+        console.log(activeRvoDataWithActiveVehicles);
+        setRvoName(activeRvoDataWithActiveVehicles);
+      } else {
+        console.log("No active technicians found.");
+      }
+    } catch (error) {
+      console.error("Error while fetching rescue vehicle owner data:", error);
+    }
+  };
+
+  const fetchVehiclesData = async (technicianId) => {
+    try {
+      const vehiclesResponse = await dispatch(
+        getAllVehicleOfUser({ id: technicianId })
+      );
+      const vehiclesData = vehiclesResponse.payload.data;
+      if (vehiclesData) {
+        const activeTechnicians = vehiclesData.filter(
+          (item) => item.status === "ACTIVE"
+        );
+        console.log(activeTechnicians);
+        // Xử lý dữ liệu phương tiện cứu hộ của chủ xe đã chọn
+        setVehicleDataActive(activeTechnicians); // Lưu dữ liệu phương tiện cứu hộ
+      } else {
+        console.log("Chủ xe không có xe đang hoạt động.");
+      }
+    } catch (error) {
+      console.error(
+        `Error fetching vehicles for technician with ID ${technicianId}:`,
+        error
+      );
+    }
+  };
+  useEffect(() => {
+    fetchRvoData();
+  }, []);
+
+  useEffect(() => {
+    if (selectedRVO) {
+      fetchVehiclesData(selectedRVO.id);
+    }
+  }, [selectedRVO]);
+  // Xử lý khi người dùng chọn xe cứu hộ từ danh sách
+  const handleVehicleSelect = async (event, newValue) => {
+    setSelectedRVO(newValue); // Lưu lại người dùng được chọn
+
+    // Lấy danh sách xe cứu hộ của người dùng được chọn
+    if (newValue) {
+      fetchVehiclesData(newValue.id);
+    }
+  };
   useEffect(() => {
     if (selectedEditOrder && Array.isArray(orders) && selectedEditOrder.id) {
       const OrderToEdit = orders.find(
@@ -408,7 +586,7 @@ const ModalEdit = ({
 
   useEffect(() => {
     if (orders) {
-      setFilteredOrders(orders); 
+      setFilteredOrders(orders);
     }
   }, [orders]);
   const handleSaveClick = () => {
@@ -428,7 +606,7 @@ const ModalEdit = ({
       title: "Thông báo đơn hàng!! ",
       body: "Hệ thống đã điều phối phương tiện cứu hộ phù hợp Bạn vui lòng đợi!!",
     };
-   
+
     if (!hasChanges) {
       toast.info("Không có thay đổi để lưu.");
       handleClose();
@@ -437,7 +615,8 @@ const ModalEdit = ({
       const requestData = {
         orderID: orderId,
         vehicleID: vehicleId,
-        managerID: manager.id,fetchVehicle
+        managerID: manager.id,
+        fetchVehicle,
       };
       dispatch(createAcceptOrder(requestData))
         .then(() => {
@@ -468,17 +647,20 @@ const ModalEdit = ({
                 isAndroiodDevice: true,
                 title: messageCustomer.title,
                 body: messageCustomer.body,
-                target: accountIdCustomer, 
+                target: accountIdCustomer,
                 orderId: orderId,
               };
-         
+
               // Gửi thông báo bằng hàm sendNotification
               dispatch(sendNotification(notificationData))
                 .then(() => {
                   toast.success("Gửi thông báo đến khách hàng thành công");
                 })
                 .catch((error) => {
-                  toast.error("Lỗi khi gửi thông báo đến khách hàng!! vui lòng thử lại:", error);
+                  toast.error(
+                    "Lỗi khi gửi thông báo đến khách hàng!! vui lòng thử lại:",
+                    error
+                  );
                 });
             })
             .catch((error) => {
@@ -487,7 +669,7 @@ const ModalEdit = ({
           handleClose();
           setIsSuccess(true);
           if (onDataUpdated) {
-            onDataUpdated(); 
+            onDataUpdated();
           }
         })
         .catch((error) => {
@@ -522,7 +704,6 @@ const ModalEdit = ({
             setAccountId(null);
             setAccountIdCustomer(null);
             setFilteredOrders(data);
-            // Đặt loading thành false sau khi tải lại dữ liệu
           }
         })
         .catch((error) => {
@@ -531,6 +712,25 @@ const ModalEdit = ({
     }
   };
 
+  useEffect(() => {
+    if (isSuccess) {
+      // Gọi lại fetchVehiclesData và fetchRvoData ở đây
+      fetchVehiclesData(selectedRVO?.id); // Thay selectedRVO?.id bằng giá trị thích hợp
+      fetchRvoData().then(() => {
+        setIsSuccess(false); // Đặt lại isSuccess thành false sau khi hoàn thành việc tải lại
+        setSelectedRVO(null); // Đặt lại selectedRVO thành null sau khi hoàn thành việc tải lại
+      });
+    }
+  }, [isSuccess]);
+
+  // Cần một useEffect để theo dõi thay đổi của selectedRVO
+  useEffect(() => {
+    if (!isSuccess && selectedRVO) {
+      // Gọi lại fetchVehiclesData và fetchRvoData khi selectedRVO thay đổi
+      fetchVehiclesData(selectedRVO?.id); // Thay selectedRVO?.id bằng giá trị thích hợp
+      fetchRvoData();
+    }
+  }, [selectedRVO]);
 
   // When rescue type is changed, reset the state accordingly
   //get Full NameCustomer
@@ -592,7 +792,7 @@ const ModalEdit = ({
           const data = response.payload.data;
           if (data) {
             console.log("data.accountId" + data.accountId);
-              setAccountIdCustomer(data.accountId)
+            setAccountIdCustomer(data.accountId);
             setDataCustomer((prevData) => ({
               ...prevData,
               [customerId]: data,
@@ -665,68 +865,6 @@ const ModalEdit = ({
     }
   };
 
-  //Hiển thị 1 dịch vụ đầu tiên
-
-  // const fetchOrderDetail = (orderId) => {
-  //   console.log(orderId);
-  //   // Make sure you have a check to prevent unnecessary API calls
-  //   if (orderId) {
-  //     dispatch(getOrderDetailId({ id: orderId }))
-  //       .then((response) => {
-  //         const data = response.payload.data;
-  //         if (data && Array.isArray(data)) {
-  //           const serviceIds = data.map((item) => item.serviceId);
-
-  //           // Tạo mảng promises để gọi API lấy thông tin từng serviceId
-  //           const servicePromises = serviceIds.map((serviceId) => {
-  //             return dispatch(getServiceId({ id: serviceId }))
-  //               .then((serviceResponse) => {
-  //                 const serviceName = serviceResponse.payload.data.name;
-  //                 console.log(
-  //                   `ServiceId: ${serviceId}, ServiceName: ${serviceName}`
-  //                 );
-  //                 return {
-  //                   serviceId,
-  //                   serviceName,
-  //                 };
-  //               })
-  //               .catch((serviceError) => {
-  //                 console.error(
-  //                   `Error while fetching service data for serviceId ${serviceId}:`,
-  //                   serviceError
-  //                 );
-  //                 return null;
-  //               });
-  //           });
-
-  //           // Sử dụng Promise.all để chờ tất cả các promises hoàn thành
-  //           Promise.all(servicePromises)
-  //             .then((serviceData) => {
-  //               // Truy cập serviceName đầu tiên trong danh sách dịch vụ
-  //               const firstServiceName =
-  //                 serviceData[0]?.serviceName || "Không có thông tin";
-
-  //               // Cập nhật chỉ serviceName đầu tiên vào state
-  //               setFirstServiceName(firstServiceName);
-  //             })
-  //             .catch((error) => {
-  //               console.error(
-  //                 "Error while processing service data promises:",
-  //                 error
-  //               );
-  //             });
-  //         } else {
-  //           console.error(
-  //             "Service data not found in the API response or data is not an array."
-  //           );
-  //         }
-  //       })
-  //       .catch((error) => {
-  //         console.error("Error while fetching service data detail:", error);
-  //       });
-  //   }
-  // };
-
   // Hiển thị tất cả dịch vụ và quantity
   const fetchOrderDetail = (orderId) => {
     console.log(orderId);
@@ -790,9 +928,7 @@ const ModalEdit = ({
                 );
               });
           } else {
-            toast.error(
-              "Không có dịch vụ"
-            );
+            toast.error("Không có dịch vụ");
           }
         })
         .catch((error) => {
@@ -823,8 +959,6 @@ const ModalEdit = ({
   //       });
   //   }
   // };
-
-  // // Sử dụng hàm fetchData để fetch dữ liệu order và order detail
   // const fetchOrder = fetchData(dispatch, getPaymentId, setDataOrder);
   // const fetchOrderDetail = fetchData(
   //   dispatch,
@@ -899,7 +1033,7 @@ const ModalEdit = ({
                 <Grid item xs={6}>
                   {selectedEditOrder && (
                     <>
-                      <Card sx={{ height: "400px" }}>
+                      <Card sx={{ height: "400px", overflow: "auto" }}>
                         <CardContent>
                           <Typography variant="h4" sx={{ marginBottom: 1 }}>
                             Chi Tiết Đơn Hàng
@@ -1280,7 +1414,7 @@ const ModalEdit = ({
                   )}
                 </Grid>
                 <Grid item xs={6}>
-                  <Card sx={{ height: "400px" }}>
+                  <Card sx={{ height: "400px", overflow: "auto" }}>
                     <CardContent>
                       <Typography variant="h4" sx={{ marginBottom: 1 }}>
                         Điều phối nhân sự
@@ -1322,7 +1456,7 @@ const ModalEdit = ({
                                   sx={{ marginRight: "10px" }}
                                 />
                                 {option.fullname}
-                                </div>
+                              </div>
                             )}
                           />
 
@@ -1452,7 +1586,7 @@ const ModalEdit = ({
                         </div>
                       )}
 
-                      {edit.rescueType === "Towing" && (
+                      {/* {edit.rescueType === "Towing" && (
                         <div>
                           <Autocomplete
                             id="vehicle-select"
@@ -1482,6 +1616,7 @@ const ModalEdit = ({
                                   display: "flex",
                                   flexDirection: "row",
                                   gap: 2,
+                                  overflow: "auto"
                                 }}
                               >
                                 <Box sx={{ flex: 1 }}>
@@ -1510,7 +1645,7 @@ const ModalEdit = ({
                                   >
                                     <SourceRoundedIcon style={iconColor} />
                                     <Typography variant="body1">
-                                      Biển số xe: {vehicleDetails.vinNumber}
+                                    Mã xe: {vehicleDetails.vinNumber}
                                     </Typography>
                                   </Box>
                                   <Box
@@ -1523,7 +1658,7 @@ const ModalEdit = ({
                                   >
                                     <ReceiptRoundedIcon style={iconColor} />
                                     <Typography variant="body1">
-                                      Mã xe:{vehicleDetails.licensePlate}
+                                    Biển số xe:  {vehicleDetails.licensePlate}
                                     </Typography>
                                   </Box>
                                   <Box
@@ -1596,6 +1731,239 @@ const ModalEdit = ({
                             </div>
                           )}
                         </div>
+                      )} */}
+                      {edit.rescueType === "Towing" && (
+                        <div>
+                          <Stack spacing={3} sx={{ width: "auto" }}>
+                            <Autocomplete
+                              id="vehicle-select"
+                              options={rvoName}
+                              getOptionLabel={(option) =>
+                                (option && option.fullname) || ""
+                              }
+                              value={selectedRVO}
+                              onChange={handleVehicleSelect}
+                              renderOption={(props, option) => (
+                                <Box
+                                  component="li"
+                                  sx={{ display: "flex", alignItems: "center" }}
+                                  {...props}
+                                >
+                                  {option && option.avatar ? (
+                                    <Avatar
+                                      alt={option.avatar}
+                                      src={option.avatar}
+                                    />
+                                  ) : (
+                                    <Avatar>{option && option.initials}</Avatar>
+                                  )}
+                                  <Typography sx={{ ml: 2 }}>
+                                    {option.fullname}
+                                  </Typography>
+                                </Box>
+                              )}
+                              renderInput={(params,option) => (
+                                <TextField
+                                  {...params}
+                                  label="Danh Sách Xe Chủ Xe Đang Hoạt Động"
+                                  variant="outlined"
+                                  margin="normal"
+                                  InputProps={{
+                                    ...params.InputProps,
+                               
+                                    endAdornment: (
+                                      <>
+                                        {loading ? (
+                                          <CircularProgress
+                                            color="inherit"
+                                            size={20}
+                                          />
+                                        ) : null}
+                                        {params.InputProps.endAdornment}
+                                      </>
+                                    ),
+                                  }}
+                                />
+                              )}
+                            />
+                          </Stack>
+
+                          <Autocomplete
+                            id="vehicle-select"
+                            options={vehicleDataActive}
+                            getOptionLabel={(option) =>
+                              option && option.manufacturer
+                            }
+                            value={selectedVehicle}
+                            onChange={(_, newValue) => {
+                              setSelectedVehicel(newValue);
+                              setVehicleId(newValue && newValue.id);
+                            }}
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                label="Danh Sách Xe Cứu Hộ Đang Hoạt Động"
+                                variant="outlined"
+                                margin="normal"
+                              />
+                            )}
+                          />
+
+                          {vehicleDetails && (
+                            <div>
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  flexDirection: "row",
+                                  gap: 2,
+                                  overflow: "auto",
+                                }}
+                              >
+                                <Box sx={{ flex: 1 }}>
+                                  <h3>Thông tin xe đã chọn</h3>
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      gap: 2,
+                                      marginBottom: 1, // Thêm khoảng cách dưới cùng cho mỗi Box
+                                    }}
+                                  >
+                                    <PersonRoundedIcon style={iconColor} />
+                                    <Typography
+                                      sx={{ fontWeight: "bold" }}
+                                      variant="body1"
+                                    >
+                                      Tên Chủ Xe:{" "}
+                                    </Typography>
+                                    {fullnameRvo[vehicleDetails.rvoid]}
+                                  </Box>
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      gap: 2,
+                                      marginBottom: 2, // Thêm khoảng cách dưới cùng cho mỗi Box
+                                    }}
+                                  >
+                                    <SourceRoundedIcon style={iconColor} />
+                                    <Typography variant="body1">
+                                      Mã xe: {vehicleDetails.vinNumber}
+                                    </Typography>
+                                  </Box>
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      gap: 2,
+                                      marginBottom: 2, // Thêm khoảng cách dưới cùng cho mỗi Box
+                                    }}
+                                  >
+                                    <ReceiptRoundedIcon style={iconColor} />
+                                    <Typography variant="body1">
+                                      Biển số xe: {vehicleDetails.licensePlate}
+                                    </Typography>
+                                  </Box>
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      gap: 2,
+                                      marginBottom: 2, // Thêm khoảng cách dưới cùng cho mỗi Box
+                                    }}
+                                  >
+                                    <CategoryRounded style={iconColor} />
+                                    <Typography variant="body1">
+                                      Loại xe: {vehicleDetails.type}
+                                    </Typography>
+                                  </Box>
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      gap: 2,
+                                      marginBottom: 2, // Thêm khoảng cách dưới cùng cho mỗi Box
+                                    }}
+                                  >
+                                    <TimeToLeaveIcon style={iconColor} />
+                                    <Typography variant="body1">
+                                      Hiệu xe: {vehicleDetails.manufacturer}
+                                    </Typography>
+                                  </Box>
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      gap: 2,
+                                      marginBottom: 2, // Thêm khoảng cách dưới cùng cho mỗi Box
+                                    }}
+                                  >
+                                    <CalendarTodayIcon style={iconColor} />
+                                    <Typography variant="body1">
+                                      Đời xe: {vehicleDetails.manufacturingYear}
+                                    </Typography>
+                                  </Box>
+                                </Box>
+
+                                <Box sx={{ flex: 1, marginTop: "10px" }}>
+                                  {vehicleDetails.image ? (
+                                    <img
+                                      src={vehicleDetails.image}
+                                      alt="Hình Ảnh Của Xe"
+                                      style={{
+                                        width: "100%",
+                                        height: "auto",
+                                        border: "2px solid #000",
+                                        objectFit: "cover",
+                                      }}
+                                      onClick={toggleModal} // Khi hình ảnh được click, hiển thị modal
+                                    />
+                                  ) : (
+                                    <img
+                                      src="https://t4.ftcdn.net/jpg/04/70/29/97/360_F_470299797_UD0eoVMMSUbHCcNJCdv2t8B2g1GVqYgs.jpg"
+                                      alt="Hình Ảnh Mặc Định"
+                                      style={{
+                                        width: "100%",
+                                        height: "auto",
+                                        border: "2px solid #000",
+                                        objectFit: "cover",
+                                      }}
+                                    />
+                                  )}
+                                  {showModalVehicleOfRvo && (
+                                    <div
+                                      style={{
+                                        position: "fixed",
+                                        top: 0,
+                                        left: 0,
+                                        width: "100%",
+                                        height: "100%",
+                                        backgroundColor: "rgba(0, 0, 0, 0.7)",
+                                        display: "flex",
+                                        justifyContent: "center",
+                                        alignItems: "center",
+                                      }}
+                                      onClick={toggleModal} // Khi modal được click, đóng modal
+                                    >
+                                      <img
+                                        src={
+                                          vehicleDetails.image ||
+                                          "https://firebasestorage.googleapis.com/v0/b/car-rescue-399511.appspot.com/o/admin%2Fdefault-image-icon-vector-missing-picture-page-website-design-mobile-app-no-photo-available_87543-11093.avif?alt=media&token=e03ee650-5571-430d-8e6b-5146638e8184"
+                                        }
+                                        alt="Hình Ảnh Của Xe"
+                                        style={{
+                                          maxWidth: "80%",
+                                          maxHeight: "80%",
+                                          objectFit: "contain",
+                                        }}
+                                      />
+                                    </div>
+                                  )}
+                                </Box>
+                              </Box>
+                            </div>
+                          )}
+                        </div>
                       )}
                     </CardContent>
                   </Card>
@@ -1648,10 +2016,10 @@ const ModalEdit = ({
                             }}
                           >
                             <PersonRoundedIcon style={iconColor} />
-                            <Typography variant="h6">
+                            <Typography body="h1">
                               <strong> Tên Chủ Xe: </strong>
                               {dataCustomer[edit.customerId]?.fullname ||
-                                "Đang tải..."}
+                                "Không có thông tin"}
                             </Typography>
                           </Box>
                           <Typography
@@ -1673,7 +2041,8 @@ const ModalEdit = ({
                           >
                             <ReceiptRoundedIcon style={iconColor} />
                             <Typography variant="h6">Biển Số: </Typography>
-                            {dataCar[edit.carId]?.licensePlate || "Đang tải..."}
+                            {dataCar[edit.carId]?.licensePlate ||
+                              "Không có thông tin"}
                           </Box>
 
                           <Box
@@ -1685,7 +2054,8 @@ const ModalEdit = ({
                           >
                             <TimeToLeaveIcon style={iconColor} />
                             <Typography variant="h6">Hãng Xe: </Typography>
-                            {dataCar[edit.carId]?.manufacturer || "Đang tải..."}
+                            {dataCar[edit.carId]?.manufacturer ||
+                              "Không có thông tin"}
                           </Box>
 
                           <Box
@@ -1697,7 +2067,7 @@ const ModalEdit = ({
                           >
                             <CategoryRounded style={iconColor} />
                             <Typography variant="h6">Loại Xe: </Typography>
-                            {dataModel || "Đang tải..."}
+                            {dataModel || "Không có thông tin"}
                           </Box>
 
                           <Box
@@ -1710,7 +2080,7 @@ const ModalEdit = ({
                             <CalendarTodayIcon style={iconColor} />
                             <Typography variant="h6">Năm: </Typography>
                             {dataCar[edit.carId]?.manufacturingYear ||
-                              "Đang tải..."}
+                              "Không có thông tin"}
                           </Box>
                           <Box
                             sx={{
@@ -1721,7 +2091,7 @@ const ModalEdit = ({
                           >
                             <ColorLensIcon style={iconColor} />
                             <Typography variant="h6">Màu: </Typography>
-                            {dataCar[edit.carId]?.color || "Đang tải..."}
+                            {dataCar[edit.carId]?.color || "Không có thông tin"}
                           </Box>
                         </Box>
                       </Box>
@@ -1780,7 +2150,27 @@ const ModalEdit = ({
                   </Grid>
                 </CardContent>
               </Collapse>
-
+              <Dialog open={openDialog} onClose={closeConfirmationDialog}>
+                <DialogTitle>Xác nhận</DialogTitle>
+                <DialogContent>
+                  <DialogContentText>
+                    Bạn có chắc chắn muốn thực hiện hành động này không?
+                  </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                  <Button variant="outlined" onClick={closeConfirmationDialog}>
+                    Hủy
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    onClick={handleSaveClick}
+                    autoFocus
+                  >
+                    Xác nhận
+                  </Button>
+                </DialogActions>
+              </Dialog>
+              ;
               <Box
                 sx={{
                   display: "flex",
@@ -1789,7 +2179,11 @@ const ModalEdit = ({
                   marginTop: "5px",
                 }}
               >
-                <Button onClick={handleSaveClick} variant="contained">
+                <Button
+                  onClick={openConfirmationDialog}
+                  sx={{ backgroundColor: colors.lightGreen[400] }}
+                  variant="outlined"
+                >
                   Đồng Ý Điều Phối
                 </Button>
               </Box>
