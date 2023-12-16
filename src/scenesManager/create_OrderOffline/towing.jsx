@@ -358,7 +358,7 @@ const CreateOrderOffline = () => {
   return (
     <Box m="20px">
       <Header
-        title="Tạo Mới Đơn Hàng Offline Kéo Xe"
+        title="Tạo Đơn Hàng Offline Kéo Xe"
         subtitle="Tạo Thông Tin Đơn Hàng Offline Kéo Xe"
       />
 
