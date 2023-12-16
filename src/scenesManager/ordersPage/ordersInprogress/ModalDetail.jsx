@@ -338,7 +338,7 @@ const MyModal = (props) => {
                   >
                     <Grid container spacing={1} alignItems="stretch">
                       <Grid item xs={5} alignItems="center">
-                        <Typography variant="h5" sx={{ marginBottom: 2 }}>
+                        <Typography variant="h5" sx={{ marginBottom: 2 ,fontWeight:"bold"}}>
                           Thông Tin Khách Hàng
                         </Typography>
 
@@ -429,7 +429,7 @@ const MyModal = (props) => {
                           sx={{
                             display: "flex",
                             alignItems: "center",
-                            marginBottom: "8px", // Thêm khoảng cách dưới cùng của dòng
+                            marginBottom: "8px", 
                             fontSize: "1rem",
                             marginRight: "2px",
                           }}

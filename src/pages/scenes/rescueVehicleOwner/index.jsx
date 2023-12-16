@@ -10,6 +10,7 @@ import {
   FormControl,
   Switch,
   Typography,
+  Tooltip,
 } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { useDispatch, useSelector } from "react-redux";
@@ -36,6 +37,8 @@ import {
   updateStatusRescueVehicleOwner,
 } from "../../../redux/rescueVehicleOwnerSlice";
 import CustomTablePagination from "../../../components/TablePagination";
+import InfoIcon from "@mui/icons-material/Info";
+import areaData from "../../../data.json";
 const RescueVehicleOwners = (props) => {
   const dispatch = useDispatch();
   const rescueVehicleOwners = useSelector(
@@ -59,6 +62,15 @@ const RescueVehicleOwners = (props) => {
   const [initialFormState, setInitialFormState] = useState({});
   const [editStatus, setEditStatus] = useState({});
   const [accountData, setAccountData] = useState({});
+  const [dataJson, setDataJson] = useState([]);
+  useEffect(() => {
+    if (dataJson.area && dataJson.area.length > 0) {
+      console.log(dataJson.area[0].name || "Không có ");
+    } else {
+      console.log("Không có dữ liệu");
+    }
+    setDataJson(areaData);
+  }, [dataJson]);
   useEffect(() => {
     if (isSuccess) {
     }
@@ -333,7 +345,53 @@ const RescueVehicleOwners = (props) => {
         }
       },
     },
-    { field: "area", headerName: "Khu vực", width: 60, key: "area" },
+    {
+      field: "area",
+      headerName: "Khu Vực",
+      width: 120,
+      key: "area",
+      renderCell: ({ row }) => {
+        const { area } = row;
+
+        let displayedArea = "Không có dữ liệu";
+        let areaDescription = ""; // Mô tả khu vực
+
+        if (dataJson.area && dataJson.area.length > 0) {
+          switch (area) {
+            case 1:
+              displayedArea = dataJson.area[0]?.name || "Không có";
+              areaDescription =
+                dataJson.area[0]?.description || "Không có mô tả";
+              break;
+            case 2:
+              displayedArea = dataJson.area[1]?.name || "Không có";
+              areaDescription =
+                dataJson.area[1]?.description || "Không có mô tả";
+              break;
+            case 3:
+              displayedArea = dataJson.area[2]?.name || "Không có";
+              areaDescription =
+                dataJson.area[2]?.description || "Không có mô tả";
+              break;
+            default:
+              displayedArea = "Không có dữ liệu";
+          }
+        }
+
+        return (
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <Typography color="inherit">{displayedArea}</Typography>
+            <Tooltip
+              title={areaDescription.split("\n").map((line, i) => (
+                <div key={i}>{line}</div>
+              ))}
+            >
+              <InfoIcon style={{ marginLeft: "5px", fontSize: "16px" }} />
+            </Tooltip>
+          </Box>
+        );
+      },
+    },
 
     {
       field: "avatar",

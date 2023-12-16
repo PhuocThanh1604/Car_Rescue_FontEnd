@@ -3,6 +3,7 @@ import {
   Box,
   Button,
   FormControl,
+  InputAdornment,
   InputLabel,
   MenuItem,
   Select,
@@ -39,17 +40,20 @@ const AddService = () => {
   }
   
   const checkoutSchema = yup.object().shape({
-    name: yup.string().required("Required"),
+    name: yup.string().required("Yêu Cầu"),
     description: yup.string(),
-    status: yup.string().required("Required"),
-    price: yup.number().required("Required"),
-    type: yup.string().required("Required"),
-    createdBy: yup.string().required("Required"),
+    status: yup.string().required("Yêu Cầu"),
+    price: yup
+    .number()
+    .required("Yêu Cầu")
+    .positive("Price must be a positive number")
+    .min(1000, "Gía tiền phải lớn hơn hoặc bằng 1.000 VNĐ"),
+    type: yup.string().required("Yêu Cầu"),
+    createdBy: yup.string().required("Yêu Cầu"),
   });
   const statusMapping = {
     ACTIVE: "Hoạt Động",
     INACTIVE: "Không Hoạt Động",
-    // Thêm các trạng thái khác nếu cần thiết
   };
   const initialValues = {
     name: "",
@@ -155,6 +159,9 @@ const AddService = () => {
                 error={touched.price && errors.price ? true : false}
                 helperText={touched.price && errors.price}
                 sx={{ gridColumn: "span 1" }}
+                InputProps={{
+                  endAdornment: <InputAdornment position="end">VNĐ</InputAdornment>,
+                }}
               />
               <TextField
                 fullWidth
@@ -170,9 +177,6 @@ const AddService = () => {
                 sx={{ gridColumn: "span 1" }}
                 style={{ display: "none" }}
               />
-      
-              
-
               <FormControl fullWidth >
                 <InputLabel id="demo-simple-select-label">Loại Dịch Vụ</InputLabel>
                 <Select

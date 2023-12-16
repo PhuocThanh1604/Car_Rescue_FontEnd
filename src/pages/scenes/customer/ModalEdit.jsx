@@ -21,7 +21,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
 import { editCustomer, fetchCustomers } from "../../../redux/customerSlice";
 import UploadImageField from "../../../components/uploadImage";
-// import { getGenres, getGenresId } from '../../redux/genreSlice';
+
 const ModalEdit = ({
   openEditModal,
   setOpenEditModal,
@@ -41,6 +41,7 @@ const ModalEdit = ({
   const [downloadUrl, setDownloadUrl] = useState("");
   const [serverError, setServerError] = useState(null);
   const [currentImageUrl, setCurrentImageUrl] = useState(edit.avatar || "");
+
   useEffect(() => {
     console.log(accountData);
 
@@ -92,10 +93,16 @@ const ModalEdit = ({
       avatar: imageUrl,
     }));
   };
-
+  const isValidPhoneNumber = (phone) => {
+    return /^[0-9]{10}$/.test(phone);
+  };
   const handleSaveClick = () => {
     console.log(accountData.account.id); 
     console.log(accountData.account.email); 
+    if (!isValidPhoneNumber(edit.phone)) {
+      toast.error("Số điện thoại không hợp lệ");
+      return;
+    }
     if (!selectedEditCustomer || !edit) {
       toast.error("Không có thông tin khách hàng để cập nhật.");
       return;
@@ -200,7 +207,7 @@ const ModalEdit = ({
                 variant="h5"
                 component="h2"
                 id="Customer-detail-modal"
-                sx={{ textAlign: "center" }}
+                sx={{ textAlign: "center",fontWeight: "bold" }}
               >
                 {selectedEditCustomer ? "Sửa Thông Tin Khách Hàng" : "Customer Detail"}
               </Typography>
@@ -213,7 +220,6 @@ const ModalEdit = ({
                    label="id"
                    value={edit.id}
                    onChange={(event) => {
-                     // Check if it's coming from selectedEditRescuseVehicleOwner and prevent changes
                      if (!selectedEditCustomer) {
                        handleInputChange(event);
                      }

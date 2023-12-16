@@ -312,7 +312,6 @@ export const getFormattedAddressGG = createAsyncThunk(
 
       );
 
-      // const url =` https://nominatim.openstreetmap.org/reverse?format=geocodejson&lat=${lng}&lon=${lat}` 
       const data = response.data;
       console.log(data)
       return data;

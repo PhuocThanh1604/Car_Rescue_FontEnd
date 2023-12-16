@@ -12,7 +12,9 @@ import {
   Modal,
   Select,
   TextField,
+  Tooltip,
   Typography,
+  colors,
 } from "@mui/material";
 import { Formik } from "formik";
 import * as yup from "yup";
@@ -23,12 +25,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import LocalPhoneIcon from "@mui/icons-material/LocalPhone";
 import AddIcon from "@mui/icons-material/Add";
-import {
-  createIncidentForFixing,
-  createOrderOffline,
-  createOrderOfflineFixing,
-  sendSMS,
-} from "../../redux/orderSlice";
+import { createOrderOffline, sendSMS } from "../../redux/orderSlice";
 import { fetchServices, fetchSymptom } from "../../redux/serviceSlice";
 import { fetchCustomers } from "../../redux/customerSlice";
 import EditLocationAltIcon from "@mui/icons-material/EditLocationAlt";
@@ -37,7 +34,10 @@ import PlacesAutocomplete, {
   getLatLng,
 } from "react-places-autocomplete";
 import Map from "./google";
-const CreateOrderOfflineTowing = () => {
+import InfoIcon from "@mui/icons-material/Info";
+import areaData from "../../data.json";
+import { FaMapMarkerAlt } from "react-icons/fa";
+const CreateOrderOffline = () => {
   const dispatch = useDispatch();
   const orders = useSelector((state) => state.order.orders);
   const isNonMobile = useMediaQuery("(min-width:600px)");
@@ -57,29 +57,77 @@ const CreateOrderOfflineTowing = () => {
   const [lngDestination, setLngDestination] = useState(null);
   const [lat, setLat] = useState(null);
   const [lng, setLng] = useState(null);
-  //display distance after user input destination
   const [isDestinationSelected, setIsDestinationSelected] = useState(false);
-
   const [selectedMapAddress, setSelectedMapAddress] = useState("");
-  // Khởi tạo showAutocompleteCustomer
   const [showAutocomplete, setShowAutocomplete] = useState(true);
-  // Khai báo state để lưu trữ loại hình thức cứu hộ được chọn
   const [isRescueTypeSelected, setIsRescueTypeSelected] = useState(false);
   const [selectedRescueType, setSelectedRescueType] = useState("");
+  const [distanceValue, setDistanceValue] = useState("");
+
+  const [dataJson, setDataJson] = useState([]);
+  const getValidationSchema = () => {
+    let schema = {
+      customerNote: yup.string().required("Vui lòng nhập ghi chú"),
+      departure: yup.string().required("Vui lòng nhập địa chỉ"),
+      rescueType: yup.string().required("Vui lòng nhập hình thức"),
+      paymentMethod: yup.string().required("Vui lòng nhập phương thức"),
+      area: yup.string().required("Vui lòng nhập khu vực"),
+      customerId: yup.string().required("Yêu cầu"),
+      carId: yup.string(),
+      service: yup.string().required("Vui lòng nhập dịch vụ"),
+      to: yup.string().required("Vui lòng nhập số điện thoại"),
+      nameCustomer: yup.string().required("Vui lòng nhập tên khách hàng"),
+    };
+
+    if (selectedRescueType === "Towing") {
+      schema.destination = yup.string().required("Vui lòng nhập địa chỉ");
+      schema.service = yup
+        .mixed()
+        .test(
+          'is-string-or-array',
+          'Vui lòng nhập dịch vụ',
+          (value) => typeof value === 'string' || (Array.isArray(value) && value.length > 0)
+        );
+    } else {
+      schema.service = yup.string().required("Vui lòng nhập dịch vụ");
+    }
+    return yup.object().shape(schema);
+  };
+
+  const initialValues = {
+    customerNote: "",
+    nameCustomer: "",
+    distance: "",
+    destination: "",
+    departure: "",
+    rescueType: "",
+    paymentMethod: "",
+    area: "",
+    customerId: "",
+    service: [],
+    carId: "",
+    to: "",
+  };
+  useEffect(() => {
+    if (dataJson.area && dataJson.area.length > 0) {
+      console.log(dataJson.area[0].name || "Không có ");
+    } else {
+      console.log("Không có dữ liệu");
+    }
+    setDataJson(areaData);
+  }, [dataJson]);
 
   const filteredServices = servicesData.filter((service) => {
     if (isRescueTypeSelected) {
-    if (selectedRescueType === "Fixing") {
+      if (selectedRescueType === "Towing") {
         return service.type === "Towing";
       } else {
-        // Trả về tất cả các dịch vụ nếu không phải Towing hoặc Fixing
         return true;
       }
     }
-    return false; // Nếu loại hình thức cứu hộ chưa được chọn, không hiển thị dịch vụ
+    return false;
   });
 
-  // Hàm xử lý khi bấm vào TextField "departure" để hiển thị modal
   const handleOpenMapModal = () => {
     setShowMapModal(true);
   };
@@ -134,7 +182,6 @@ const CreateOrderOfflineTowing = () => {
         setIsDestinationSelected(true);
         setSelectedMapAddress(selectedLocation.address);
 
-        // Cập nhật trường "destination"
         formikRef.current.setFieldValue("destination", latLngDestination);
       } else {
         console.error("No results found for this address.");
@@ -146,25 +193,32 @@ const CreateOrderOfflineTowing = () => {
       );
     }
   };
-  useEffect(() => {
-    // Ensure both sets of coordinates are present
-    if (
-      lat != null &&
-      lng != null &&
-      latDestination != null &&
-      lngDestination != null
-    ) {
-      const distance = calculateDistance(
-        lat,
-        lng,
-        latDestination,
-        lngDestination
-      );
-      console.log(`Distance: ${distance.toFixed(2)} km`);
-      // Here you could set the distance in state or in a form field
-      formikRef.current.setFieldValue("distance", distance.toFixed(2));
+ useEffect(() => {
+  // Ensure both sets of coordinates are present
+  if (
+    lat != null &&
+    lng != null &&
+    latDestination != null &&
+    lngDestination != null
+  ) {
+    const distance = calculateDistance(lat, lng, latDestination, lngDestination);
+    console.log(distance);
+    
+    if (distance > 100 && parseFloat(distanceValue) <= 100) {
+      // Khoảng cách hợp lệ và đã vượt quá trước đó, giảm xuống dưới 100km
+      toast.warning("Khoảng cách dưới 100km");
     }
-  }, [lat, lng, latDestination, lngDestination]); // Dependencies array for useEffect
+
+    setDistanceValue(distance.toFixed(2));
+    // Cập nhật trường "distance" nếu khoảng cách hợp lệ
+    formikRef.current.setFieldValue("distance", distance.toFixed(2));
+    formikRef.current.setValues({
+      ...formikRef.current.values,
+      distance: distance.toFixed(2),
+    });
+  }
+}, [lat, lng, latDestination, lngDestination]);
+
 
   // Rest of your component
 
@@ -181,87 +235,17 @@ const CreateOrderOfflineTowing = () => {
         Math.sin(dLon / 2) *
         Math.sin(dLon / 2);
     let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    let d = R * c + 2.23; // Distance in kilometers
+    let d = R * c; // Distance in kilometers
     return d;
   }
-
-  const getValidationSchema = () => {
-    let schema = {
-      customerNote: yup.string().required("Required"),
-      departure: yup.string().required("Required"),
-      rescueType: yup.string().required("Required"),
-      paymentMethod: yup.string().required("Required"),
-      area: yup.string().required("Required"),
-      customerId: yup.string().required("Required"),
-      carId: yup.string(),
-      service: yup.string().required("Required"),
-      symptomId: yup.string().required("Required"),
-    };
-
-    if (selectedRescueType === "Fixing") {
-      schema.destination = yup.string().required("Required");
+  const handleTowingFormSubmit = (values, { resetForm }) => {
+    if (distanceValue > 100) {
+      toast.warning(
+        "Khoảng cách vượt quá 100km. Vui lòng chọn một địa chỉ khác."
+      );
+      return;
     }
-
-    return yup.object().shape(schema);
-  };
-
-  // const checkoutSchema = yup.object().shape({
-  //   customerNote: yup.string().required("Required"),
-  //   departure: yup.string().required("Required"),
-  //   // destination: yup.string().required("Required"),
-  //   rescueType: yup.string().required("Required"),
-  //   paymentMethod: yup.string().required("Required"),
-  //   area: yup.string().required("Required"),
-  //   customerId: yup.string().required("Required"),
-  //   service: yup.string().required("Required"),
-  // });
-
-  const initialValues = {
-    customerNote: "",
-    distance: "",
-    destination: "",
-    departure: "",
-    rescueType: "",
-    paymentMethod: "",
-    area: "",
-    customerId: "",
-    service: [],
-    symptomId: "",
-    carId: "",
-  };
-
-  // Tạo ref để lưu trữ tham chiếu đến formik
-  const formikRef = useRef(null);
-
-  // const handleFormSubmit = (values, { resetForm }) => {
-  //   const selectedServices = selectedService ? [selectedService.name] : [];
-  //   values.service = selectedServices;
-  //   resetForm({ values: initialValues });
-  //   setSelectedService(null);
-  //   setSelectedCustomer(null);
-  //   // In ra tất cả dữ liệu đã nhập
-  //   console.log("Dữ liệu đã nhập:", orders);
-  //   dispatch(createOrderOffline(values))
-  //     .then((response) => {
-  //       console.log(response);
-  //       toast.success("Tạo Đơn Hàng Thành Công");
-
-  //       // Đặt lại giá trị của formik về giá trị ban đầu (rỗng)
-  //       formikRef.current.resetForm();
-  //       setAddress("");
-  //       setAddressDestination("");
-  //     })
-  //     .catch((error) => {
-  //       if (error.response && error.response.data) {
-  //         toast.error(
-  //           `Lỗi khi tạo đơn hàng trực Offline: ${error.response.data.message}`
-  //         );
-  //       } else {
-  //         toast.error("Lỗi khi lỗi khi tạo đơn hàng trực Offline");
-  //       }
-  //     });
-  // };
-  const handleFormSubmit = (values, { resetForm }) => {
+    console.log(selectedRescueType);
     console.log(values.nameCustomer);
     const initialPhoneNumber = "+84";
     const customer_name = values.nameCustomer;
@@ -271,127 +255,80 @@ const CreateOrderOfflineTowing = () => {
     const type_payment = values.paymentMethod;
     const sms_message = `Xin chào ${customer_name}!  \nDịch vụ: ${service}\nĐơn hàng: ${order_phone} 
      của bạn đã được nhận và đang được xử lý. Hình thức thanh toán: ${type_payment}. Cảm ơn bạn đã mua hàng!`;
+    const { ...submissionValues } = values;
+    submissionValues.service = [values.service];
+    submissionValues.distance = distanceValue;
+    console.log("Submitting Fixing data:", submissionValues);
+    dispatch(createOrderOffline(submissionValues))
+      .then((response) => {
+        console.log(response);
+        if (response.payload.message === "Hiện tại không còn xe") {
+          toast.warn("Hiện tại không có kỹ thuật viên vui lòng đợi");
+        } else if (response.payload.message === "Success") {
+          toast.success("Tạo đơn thành công");
+          const smsData = {
+            to: order_phone,
+            body: sms_message,
+          };
+          dispatch(sendSMS(smsData))
+            .then((smsResponse) => {
+              console.log("Tin nhắn SMS đã được gửi:", smsResponse);
+            })
+            .catch((smsError) => {
+              console.error("Lỗi khi gửi tin nhắn SMS:", smsError);
+            });
+        }
+        formikRef.current.setFieldValue("to", "");
+        formikRef.current.setFieldValue("nameCustomer", "");
+        formikRef.current.resetForm();
+        setSelectedService(null);
+        setSelectedSymptom(null);
+        setAddress("");
+        setAddressDestination("");
+        setIsDestinationSelected(false);
+      })
+      .catch((error) => {
+        if (error.response && error.response.data) {
+          toast.error(
+            `Lỗi khi tạo đơn hàng trực Offline: ${error.response.data.message}`
+          );
+        } else {
+          toast.error("Lỗi khi lỗi khi tạo đơn hàng trực Offline");
+        }
+      });
+    // ...
+  };
 
+  // Tạo ref để lưu trữ tham chiếu đến formik
+  const formikRef = useRef(null);
 
- 
-    if (selectedRescueType === "Fixing") {
-      // Loại bỏ distance và destination khỏi values nếu là loại Fixing
-      const { ...submissionValues } = values;
-      submissionValues.service = [values.service];
-      console.log("Submitting Fixing Service:", submissionValues);
-      dispatch(createOrderOffline(submissionValues))
-        .then((response) => {
-          console.log(response);
-          if (response.payload.message === "Hiện tại không kĩ thuật viên") {
-            toast.warn("Hiện tại không có kỹ thuật viên vui lòng đợi");
-          } else {
-
-            //push noti
-            const smsData = {
-              to: order_phone,
-              body: sms_message,
-            };
-            dispatch(sendSMS(smsData))
-              .then((smsResponse) => {
-                console.log("Tin nhắn SMS đã được gửi:", smsResponse);
-              })
-              .catch((smsError) => {
-                console.error("Lỗi khi gửi tin nhắn SMS:", smsError);
-              });
-          }
-          formikRef.current.setFieldValue("to", "");
-          formikRef.current.setFieldValue("nameCustomer", "");
-          formikRef.current.resetForm();
-          setSelectedService(null);
-          setSelectedSymptom(null);
-          setAddress("");
-          setAddressDestination("");
-        })
-        .catch((error) => {
-          if (error.response && error.response.data) {
-            toast.error(
-              `Lỗi khi tạo đơn hàng trực Offline: ${error.response.data.message}`
-            );
-          } else {
-            toast.error("Lỗi khi lỗi khi tạo đơn hàng trực Offline");
-          }
-        });
-    } else {
-      // Assuming service IDs are sent
-      // const submissionValues = { ...values, services:  [values.service] };
-      const submissionValuesTowing = { ...values, service: [values.service] };
-      console.log(
-        "Data sent to createOrderOffline API for Towing:",
-        submissionValuesTowing
-      );
-      dispatch(createOrderOffline(submissionValuesTowing))
-        .then((response) => {
-          console.log(response);
-          if (response.payload.message === "Hiện tại không còn xe cứu hộ") {
-            toast.warn("Hiện tại không có xe cứu hộ vui lòng đợi");
-          } else {
-            const smsData = {
-              to: order_phone,
-              body: sms_message,
-            };
-            dispatch(sendSMS(smsData))
-              .then((smsResponse) => {
-                console.log("Tin nhắn SMS đã được gửi:", smsResponse);
-              })
-              .catch((smsError) => {
-                console.error("Lỗi khi gửi tin nhắn SMS:", smsError);
-              });
-            toast.success("Tạo Đơn Hàng Towing Thành Công");
-          }
-          setIsDestinationSelected(false);
-          formikRef.current.setFieldValue("nameCustomer", "");
-          formikRef.current.setFieldValue("to", "");
-          formikRef.current.setFieldValue("distance", "");
-          formikRef.current.resetForm();
-          setSelectedService(null);
-          setSelectedSymptom(null);
-          setAddress("");
-          setAddressDestination("");
-        })
-        .catch((error) => {
-          console.log(error); // Log the error object to inspect its structure
-          if (error.response && error.response.data) {
-            // Handle specific error message provided by the API
-            toast.error(
-              `Lỗi khi tạo đơn hàng trực Offline: ${error.response.data.message}`
-            );
-          } else if (error.response && error.response.data) {
-            // Handle cases where response data exists but no specific message
-            toast.error(`Lỗi khi tạo đơn hàng trực Offline: Unexpected error`);
-          } else {
-            // Handle cases with no response data or unexpected error structure
-            toast.error("Lỗi khi lỗi khi tạo đơn hàng trực Offline");
-          }
-        });
+  const handleFormSubmit = (values, { resetForm }) => {
+    console.log(selectedRescueType);
+    // Check selectedRescueType and call appropriate handler
+    if (selectedRescueType === "Towing") {
+      handleTowingFormSubmit(values, { resetForm });
     }
   };
+
   useEffect(() => {
     setSelectedService(null);
     setSelectedSymptom(null);
+    console.log(selectedRescueType);
   }, [selectedRescueType]);
 
   useEffect(() => {
     const fetchServicesAndCustomers = async () => {
       try {
         const servicesResponse = await dispatch(fetchServices());
-        const servicesSymptom = await dispatch(fetchSymptom());
         const customersResponse = await dispatch(fetchCustomers());
 
         const services = servicesResponse.payload.data;
         const customers = customersResponse.payload.data;
-        const symptom = servicesSymptom.payload.data;
-        setSymptomData(symptom);
+
         if (services) {
-          // Lọc dịch vụ theo trạng thái "ACTIVE"
           const activeService = services.filter(
             (service) => service.status === "ACTIVE"
           );
-          console.log(activeService)
           setServicesData(activeService);
         }
         if (customers) {
@@ -421,15 +358,14 @@ const CreateOrderOfflineTowing = () => {
   return (
     <Box m="20px">
       <Header
-        title="Tạo Mới Đơn Hàng Offline"
-        subtitle="Tạo Thông Tin Đơn Hàng Offline"
+        title="Tạo Mới Đơn Hàng Offline Kéo Xe"
+        subtitle="Tạo Thông Tin Đơn Hàng Offline Kéo Xe"
       />
 
       <Formik
         onSubmit={handleFormSubmit}
         initialValues={initialValues}
         validationSchema={getValidationSchema()}
-        // Gán formikRef cho ref
         innerRef={formikRef}
       >
         {({
@@ -452,6 +388,7 @@ const CreateOrderOfflineTowing = () => {
                 color="secondary"
                 variant="contained"
                 disableElevation
+                onClick={handleSubmit}
                 sx={{
                   color: "black", // Change 'green' to your desired text color
                   "& .MuiSvgIcon-root": {
@@ -479,10 +416,8 @@ const CreateOrderOfflineTowing = () => {
                 onBlur={handleBlur}
                 onChange={handleChange}
                 value={values.carId}
-                error={
-                  touched.customerNote && errors.customerNote ? true : false
-                }
-                helperText={touched.customerNote && errors.customerNote}
+                error={touched.carId && errors.carId ? true : false}
+                helperText={touched.carId && errors.carId}
                 sx={{ gridColumn: "span 2", display: "none" }}
               />
               <TextField
@@ -545,8 +480,8 @@ const CreateOrderOfflineTowing = () => {
                 onChange={handleChange}
                 value={values.to}
                 name="to"
-                error={touched.to && errors.to ? true : false}
-                helperText={touched.to && errors.to}
+                error={touched.to && Boolean(errors.to)}
+                helperText={touched.to && errors.to ? errors.to : ""}
                 sx={{ gridColumn: "span 2" }}
               />
 
@@ -568,63 +503,40 @@ const CreateOrderOfflineTowing = () => {
                   }}
                   onBlur={handleBlur}
                   error={touched.rescueType && errors.rescueType ? true : false}
+                  helperText={
+                    touched.rescueType && errors.rescueType
+                      ? errors.rescueType
+                      : ""
+                  }
                 >
-                  <MenuItem value="Fixing">Xe Kéo</MenuItem>
+                  <MenuItem value="Towing">Xe Kéo</MenuItem>
                 </Select>
               </FormControl>
-
-              <Autocomplete
-                id="service-select"
-                disabled={!isRescueTypeSelected}
-                options={filteredServices}
-                getOptionLabel={(option) => option.name || "Default Name"}
-                value={selectedService}
-                onChange={(_, newValue) => {
-                  setSelectedService(newValue);
-                  const selectedServiceName = newValue ? newValue.name : "";
-                  handleChange("service")(selectedServiceName);
-                }}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Danh Sách Dịch Vụ"
-                    variant="outlined"
-                    onBlur={handleBlur}
-                    error={touched.service && errors.service ? true : false}
-                    helperText={touched.service && errors.service}
-                  />
-                )}
-              />
-              {/* {selectedRescueType !== "Fixing" && (
-                <div>
-                  <Autocomplete
+              {selectedRescueType === "Towing" && (
+                    <Autocomplete
                     id="service-select"
                     disabled={!isRescueTypeSelected}
-                    options={symptomData}
-                    getOptionLabel={(option) =>
-                      option.symptom1 || "Default Name"
-                    }
-                    value={selectedSymptom}
+                    options={filteredServices}
+                    getOptionLabel={(option) => option.name || "Default Name"}
+                    value={selectedService}
                     onChange={(_, newValue) => {
-                      setSelectedSymptom(newValue);
-                      const selectedServiceName = newValue
-                        ? newValue.id
-                        : "";
-                      handleChange("symptomId")(selectedServiceName);
+                      setSelectedService(newValue);
+                      const selectedServiceName = newValue ? newValue.name : ""; // Lấy tên dịch vụ
+                      handleChange("service")(selectedServiceName.toString()); // Chuyển đổi thành chuỗi và gán
                     }}
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        label="Danh Sách Hiện Tượng"
+                        label="Danh Sách Dịch Vụ"
                         variant="outlined"
                         onBlur={handleBlur}
-                        error={touched.symptomId && errors.symptomId ? true : false}
-                        helperText={touched.symptomId && errors.symptomId}
+                        error={touched.service && errors.service ? true : false}
+                        helperText={touched.service && errors.service }
                       />
                     )}
                   />
-                </div>
-              )} */}
+              )}
+          
 
               <div style={{ display: "none" }}>
                 <Autocomplete
@@ -668,24 +580,43 @@ const CreateOrderOfflineTowing = () => {
                 <Map onLocationSelected={handleMapLocationSelected} />
               </Modal>
 
-              <FormControl fullWidth>
+              <FormControl fullWidth variant="outlined">
                 <InputLabel id="area-label">Khu Vực</InputLabel>
                 <Select
-                  labelId="area-label"
+                  labelId="demo-simple-select-label"
                   id="area"
                   name="area"
-                  label="Khu Vực"
                   variant="outlined"
+                  label="Khu Vực"
                   value={values.area}
                   onChange={handleChange}
                   onBlur={handleBlur}
                   error={touched.area && errors.area ? true : false}
                 >
-                  <MenuItem value="1">1</MenuItem>
-                  <MenuItem value="2">2</MenuItem>
-                  <MenuItem value="3">3</MenuItem>
+                  {dataJson?.area &&
+                    dataJson.area.length >= 3 &&
+                    dataJson.area.slice(0, 3).map((item, index) => (
+                      <MenuItem value={item.value}>
+                        {item.name}
+                        <Tooltip
+                          key={index}
+                          title={
+                            item.description
+                              ? item.description
+                                  .split("\n")
+                                  .map((line, i) => <div key={i}>{line}</div>)
+                              : "Không có mô tả"
+                          }
+                        >
+                          <InfoIcon
+                            style={{ marginLeft: "5px", fontSize: "16px" }}
+                          />
+                        </Tooltip>
+                      </MenuItem>
+                    ))}
                 </Select>
               </FormControl>
+
               <FormControl fullWidth>
                 <InputLabel id="paymentMethod-label">
                   Phương Thức Thanh Toán
@@ -718,7 +649,7 @@ const CreateOrderOfflineTowing = () => {
                   <div style={{ position: "relative" }}>
                     <TextField
                       {...getInputProps({
-                        placeholder: "Nhập địa chỉ xe hư",
+                        placeholder: "Nhập địa chỉ bắt đầu",
                         variant: "outlined",
                         fullWidth: true,
                         InputProps: {
@@ -729,6 +660,10 @@ const CreateOrderOfflineTowing = () => {
                           ),
                         },
                       })}
+                      error={
+                        touched.departure && errors.departure ? true : false
+                      }
+                      helperText={touched.departure && errors.departure}
                     />
                     <div
                       style={{
@@ -745,14 +680,26 @@ const CreateOrderOfflineTowing = () => {
                       {suggestions.map((suggestion, index) => {
                         const style = {
                           backgroundColor: suggestion.active
-                            ? "#fafafa"
+                            ? "#41b6e6"
                             : "#fff",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          maxWidth: "400px",
                         };
                         return (
                           <div
                             key={index}
                             {...getSuggestionItemProps(suggestion, { style })}
                           >
+                            <FaMapMarkerAlt
+                              style={{
+                                color: colors.cyan[200],
+                                marginTop: "5px",
+                                marginLeft: "5px",
+                                marginRight: "5px",
+                              }}
+                            />
                             {suggestion.description}
                           </div>
                         );
@@ -762,107 +709,7 @@ const CreateOrderOfflineTowing = () => {
                 )}
               </PlacesAutocomplete>
 
-              {selectedRescueType === "Fixing" && (
-                <div>
-                  <PlacesAutocomplete
-                    value={addressDestination}
-                    onChange={setAddressDestination}
-                    onSelect={handleMapLocationSelectedDestination}
-                    sx={{ gridColumn: "span 2", width: "80vw" }}
-                  >
-                    {({
-                      getInputProps,
-                      suggestions,
-                      getSuggestionItemProps,
-                    }) => (
-                      <div style={{ position: "relative" }}>
-                        <TextField
-                          {...getInputProps({
-                            placeholder: "Nhập địa chỉ kéo đến",
-                            variant: "outlined",
-                            fullWidth: true,
-                            InputProps: {
-                              endAdornment: (
-                                <IconButton onClick={handleOpenMapModal}>
-                                  <EditLocationAltIcon />
-                                </IconButton>
-                              ),
-                            },
-                          })}
-                        />
-                        <div
-                          style={{
-                            position: "absolute",
-                            top: "100%",
-                            left: 0,
-                            right: 0,
-                            zIndex: 1,
-                            maxHeight: "200px",
-                            overflowY: "auto",
-                            backgroundColor: "white",
-                          }}
-                        >
-                          {suggestions.map((suggestion, index) => {
-                            const style = {
-                              backgroundColor: suggestion.active
-                                ? "#fafafa"
-                                : "#fff",
-                            };
-                            return (
-                              <div
-                                key={index}
-                                {...getSuggestionItemProps(suggestion, {
-                                  style,
-                                })}
-                              >
-                                {suggestion.description}
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    )}
-                  </PlacesAutocomplete>
-                </div>
-              )}
-
-              {!isDestinationSelected && (
-                <TextField
-                  fullWidth
-                  variant="outlined"
-                  type="text"
-                  label="Khoảng cách "
-                  onBlur={handleBlur}
-                  onChange={handleChange}
-                  value={values.distance}
-                  name="distance"
-                  error={touched.distance && errors.distance ? true : false}
-                  helperText={touched.distance && errors.distance}
-                  sx={{
-                    gridColumn: "span 1",
-                    display: selectedRescueType === "Fixing" ? "none" : "block",
-                  }}
-                />
-              )}
-
-              {/* <TextField
-                fullWidth
-               variant="outlined"
-                type="text"
-                label="Khoảng cách "
-                onBlur={handleBlur}
-                onChange={handleChange}
-                value={values.distance}
-                name="distance"
-                error={touched.distance && errors.distance ? true : false}
-                helperText={touched.distance && errors.distance}
-                sx={{
-                  gridColumn: "span 1",
-                  display: selectedRescueType === "Fixing" ? "none" : "block",
-                }}
-              /> */}
-
-              {/* <div  >
+              {selectedRescueType === "Towing" && (
                 <PlacesAutocomplete
                   value={addressDestination}
                   onChange={setAddressDestination}
@@ -870,15 +717,11 @@ const CreateOrderOfflineTowing = () => {
                   sx={{ gridColumn: "span 2", width: "80vw" }}
                 >
                   {({ getInputProps, suggestions, getSuggestionItemProps }) => (
-                    <div
-                      style={{
-                        position: "relative",
-                      }}
-                    >
+                    <div style={{ position: "relative" }}>
                       <TextField
                         {...getInputProps({
-                          placeholder: "Nhập địa chỉ kéo đến",
-                          variant: "filled",
+                          placeholder: "Nhập địa chỉ kết thúc",
+                          variant: "outlined",
                           fullWidth: true,
                           InputProps: {
                             endAdornment: (
@@ -888,6 +731,12 @@ const CreateOrderOfflineTowing = () => {
                             ),
                           },
                         })}
+                        error={
+                          touched.destination && errors.destination
+                            ? true
+                            : false
+                        }
+                        helperText={touched.destination && errors.destination}
                       />
                       <div
                         style={{
@@ -899,20 +748,33 @@ const CreateOrderOfflineTowing = () => {
                           maxHeight: "200px",
                           overflowY: "auto",
                           backgroundColor: "white",
-                          border: "1px solid #ccc",
                         }}
                       >
                         {suggestions.map((suggestion, index) => {
                           const style = {
                             backgroundColor: suggestion.active
-                              ? "#fafafa"
+                              ? "#41b6e6"
                               : "#fff",
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            maxWidth: "400px",
                           };
                           return (
                             <div
                               key={index}
-                              {...getSuggestionItemProps(suggestion, { style })}
+                              {...getSuggestionItemProps(suggestion, {
+                                style,
+                              })}
                             >
+                              <FaMapMarkerAlt
+                                style={{
+                                  color: colors.cyan[200],
+                                  marginTop: "5px",
+                                  marginLeft: "5px",
+                                  marginRight: "5px",
+                                }}
+                              />
                               {suggestion.description}
                             </div>
                           );
@@ -921,7 +783,42 @@ const CreateOrderOfflineTowing = () => {
                     </div>
                   )}
                 </PlacesAutocomplete>
-              </div> */}
+              )}
+
+              {isDestinationSelected && (
+                // Trong phần JSX:
+                <TextField
+                  fullWidth
+                  variant="outlined"
+                  type="text"
+                  label="Khoảng cách "
+                  onBlur={handleBlur}
+                  value={distanceValue}
+                  name="distance"
+                  error={
+                    (touched.distance && errors.distance) || // Kiểm tra lỗi từ formik
+                    (distanceValue && parseFloat(distanceValue) > 100) // Kiểm tra khoảng cách vượt quá 100km
+                      ? true
+                      : false
+                  }
+                  helperText={
+                    touched.distance && errors.distance // Hiển thị lỗi từ formik
+                      ? errors.distance
+                      : distanceValue && parseFloat(distanceValue) > 100 // Hiển thị lỗi khoảng cách vượt quá 100km
+                      ? "Khoảng cách vượt quá 100km"
+                      : ""
+                  }
+                  sx={{
+                    gridColumn: "span 1",
+                  }}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">km</InputAdornment>
+                    ),
+                  }}
+                  readOnly={selectedRescueType !== "Towing"}
+                />
+              )}
             </Box>
           </form>
         )}
@@ -930,4 +827,4 @@ const CreateOrderOfflineTowing = () => {
   );
 };
 
-export default CreateOrderOfflineTowing;
+export default CreateOrderOffline;

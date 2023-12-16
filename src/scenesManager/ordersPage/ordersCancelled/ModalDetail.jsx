@@ -392,7 +392,7 @@ const MyModal = (props) => {
             <Typography
               variant="h4"
               id="book-detail-modal"
-              sx={{ marginBottom: "4px", textAlign: "center" }}
+              sx={{ marginBottom: "4px", textAlign: "center",fontWeight: "bold"  }}
             >
               Chi tiết đơn hàng bị hủy
             </Typography>

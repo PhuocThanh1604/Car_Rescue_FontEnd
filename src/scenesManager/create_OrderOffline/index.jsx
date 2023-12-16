@@ -13,6 +13,7 @@ import {
   Select,
   TextField,
   Typography,
+  colors,
 } from "@mui/material";
 import { Formik } from "formik";
 import * as yup from "yup";
@@ -37,6 +38,7 @@ import PlacesAutocomplete, {
   getLatLng,
 } from "react-places-autocomplete";
 import Map from "./google";
+import { FaMapMarkerAlt } from "react-icons/fa";
 const CreateOrderOffline = () => {
   const dispatch = useDispatch();
   const orders = useSelector((state) => state.order.orders);
@@ -1009,7 +1011,7 @@ const CreateOrderOffline = () => {
                   <div style={{ position: "relative" }}>
                     <TextField
                       {...getInputProps({
-                        placeholder: "Nhập địa chỉ xe hư",
+                        placeholder: "Nhập địa chỉ bắt đầu",
                         variant: "outlined",
                         fullWidth: true,
                         InputProps: {
@@ -1034,16 +1036,18 @@ const CreateOrderOffline = () => {
                       }}
                     >
                       {suggestions.map((suggestion, index) => {
-                        const style = {
-                          backgroundColor: suggestion.active
-                            ? "#fafafa"
-                            : "#fff",
-                        };
+                       const style = {
+                        backgroundColor: suggestion.active ? "#41b6e6" : "#fff",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        maxWidth: "400px",
+                      };
                         return (
                           <div
                             key={index}
                             {...getSuggestionItemProps(suggestion, { style })}
-                          >
+                          > <FaMapMarkerAlt style={{color:colors.cyan[200], marginTop: "5px" ,marginLeft: "5px",marginRight: "5px"}} />
                             {suggestion.description}
                           </div>
                         );

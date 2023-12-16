@@ -10,6 +10,7 @@ import {
   MenuItem,
   Select,
   TextField,
+  Tooltip,
 } from "@mui/material";
 import { Formik } from "formik";
 import * as yup from "yup";
@@ -23,6 +24,8 @@ import AddIcon from "@mui/icons-material/Add";
 import { getAccountEmail } from "../../../redux/accountSlice";
 import UploadImageField from "../../../components/uploadImage";
 import { v4 as uuidv4 } from "uuid";
+import InfoIcon from "@mui/icons-material/Info";
+import areaData from "../../../data.json";
 const AddRescueVehicleOwner = () => {
   const dispatch = useDispatch();
   const rescueVehicleOwner = useSelector(
@@ -37,24 +40,61 @@ const AddRescueVehicleOwner = () => {
   const [downloadUrl, setDownloadUrl] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [dataJson, setDataJson] = useState([]);
+  useEffect(() => {
+    if (dataJson.area && dataJson.area.length > 0) {
+      console.log(dataJson.area[0].name || "Không có ");
+    } else {
+      console.log("Không có dữ liệu về khu vực");
+    }
+    setDataJson(areaData);
+  }, [dataJson]);
   const handleImageUploaded = (imageUrl) => {
     setDownloadUrl(imageUrl);
     // Set the avatar value to the uploaded image URL
     formikRef.current.setFieldValue("avatar", imageUrl);
   };
   const checkoutSchema = yup.object().shape({
-    email: yup.string().email("Invalid email").required("Required"),
-    password: yup.string().required("Required"),
-    fullname: yup.string().required("Required"),
-    sex: yup.string().required("Required"),
-    status: yup.string().required("Required"),
-    address: yup.string().required("Required"),
-    phone: yup.string().required("Required"),
-    avatar: yup.string().required("Required"),
-    birthdate: yup.date().required("Required"), // Date validation
-    createAt: yup.date().required("Required"), // Date validation
-    accountId: yup.string().required("Required"),
-    area: yup.string().required("Required"),
+    email: yup.string().email("Email không hợp lệ").required("Yêu cầu"),
+    password: yup
+      .string()
+      .required("Yêu cầu")
+      .min(8, "Mật khẩu cần dài ít nhất 8 ký tự")
+      .matches(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/,
+        "Mật khẩu phải có ít nhất một chữ hoa, một chữ thường, một số và một ký tự đặc biệt"
+      ),
+    fullname: yup.string().required("Yêu cầu"),
+    sex: yup.string().required("Yêu cầu"),
+    status: yup.string().required("Yêu cầu"),
+    address: yup.string().required("Yêu cầu"),
+    phone: yup
+      .string()
+      .required("Yêu cầu")
+      .matches(/^[0-9]{10}$/, "Số điện thoại phải có 10 chữ số"),
+    avatar: yup
+      .string()
+      .required("Yêu cầu")
+      .test("is-avatar-provided", "Yêu cầu thêm avatar", function (value) {
+        if (this.parent.avatar === "") {
+          return this.createError({
+            message: "Yêu cầu thêm avatar",
+            path: "avatar",
+          });
+        }
+        return true;
+      }),
+    birthdate: yup
+      .date()
+      .required("Yêu cầu")
+      .max(new Date(), "Ngày sinh không được lớn hơn ngày hiện tại")
+      .min(
+        new Date(new Date().getFullYear() - 120, 0, 1),
+        "Ngày sinh không hợp lệ"
+      ),
+    createAt: yup.date().required("Yêu cầu"), // Date validation
+    accountId: yup.string().required("Yêu cầu"),
+    area: yup.string().required("Yêu cầu"),
   });
   const statusMapping = {
     ACTIVE: "Hoạt Động",
@@ -84,15 +124,15 @@ const AddRescueVehicleOwner = () => {
       account: {
         id: uui,
         createAt: new Date(),
-        email: email, 
-        password: password, 
-        deviceToken:""
+        email: email,
+        password: password,
+        deviceToken: "",
       },
     };
-    
+
     resetForm({
-      values: updatedInitialValues, 
-      values2: initialValues, 
+      values: updatedInitialValues,
+      values2: initialValues,
     });
 
     if (values.avatar) {
@@ -105,7 +145,6 @@ const AddRescueVehicleOwner = () => {
         if (response.payload.status === "Success") {
           toast.success("Tạo Tài Khoản Thành Công");
 
-        
           resetForm();
           formikRef.current.resetForm();
           formikRef.current.setFieldValue("email", "");
@@ -176,15 +215,14 @@ const AddRescueVehicleOwner = () => {
                 "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
               }}
             >
-                 <TextField
+              <TextField
                 fullWidth
                 variant="outlined"
                 type="text"
                 label="Email"
                 onBlur={handleBlur}
-          
                 value={values.email}
-                      onChange={(e) => {
+                onChange={(e) => {
                   handleChange(e);
                   setEmail(e.target.value);
                 }}
@@ -199,7 +237,6 @@ const AddRescueVehicleOwner = () => {
                 type="password"
                 label="Password"
                 onBlur={handleBlur}
-              
                 value={values.password}
                 onChange={(e) => {
                   handleChange(e);
@@ -237,6 +274,17 @@ const AddRescueVehicleOwner = () => {
                   onImageUploaded={handleImageUploaded}
                   imageUrl={currentImageUrl}
                 />
+                {touched.avatar && errors.avatar && (
+                  <Box
+                    position="absolute"
+                    bottom={-25}
+                    left={0}
+                    color="red"
+                    fontSize="0.8rem"
+                  >
+                    {errors.avatar}
+                  </Box>
+                )}
               </Box>
               <FormControl fullWidth variant="outlined">
                 <InputLabel id="area-label">Khu Vực</InputLabel>
@@ -251,38 +299,30 @@ const AddRescueVehicleOwner = () => {
                   onBlur={handleBlur}
                   error={touched.area && errors.area ? true : false}
                 >
-                  <MenuItem value="1">1</MenuItem>
-                  <MenuItem value="2">2</MenuItem>
-                  <MenuItem value="2">3</MenuItem>
+                  {dataJson?.area &&
+                    dataJson.area.length >= 3 &&
+                    dataJson.area.slice(0, 3).map((item, index) => (
+                      <MenuItem value={item.value}>
+                        {item.name}
+                        <Tooltip
+                          key={index}
+                          title={
+                            item.description
+                              ? item.description
+                                  .split("\n")
+                                  .map((line, i) => <div key={i}>{line}</div>)
+                              : "Không có mô tả"
+                          }
+                        >
+                          <InfoIcon
+                            style={{ marginLeft: "5px", fontSize: "16px" }}
+                          />
+                        </Tooltip>
+                      </MenuItem>
+                    ))}
                 </Select>
               </FormControl>
 
-              {/* <Autocomplete
-                id="account-select"
-                options={data}
-                getOptionLabel={(option) => option.email}
-                getOptionSelected={(option, value) => option.id === value.id}
-                value={selectedAccount}
-                onChange={(_, newValue) => {
-                  console.log("Selected Account:", newValue);
-                  setSelectedAccount(newValue);
-                  const selectedAccountId = newValue ? newValue.id : "";
-                  console.log("Selected Account ID:", selectedAccountId);
-
-                  // Use Formik's handleChange to update the 'accountId' field
-                  handleChange("accountId")(selectedAccountId);
-                }}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Danh Sách Tài Khoản"
-                    variant="outlined"
-                    onBlur={handleBlur}
-                    error={touched.accountId && errors.accountId ? true : false}
-                    helperText={touched.accountId && errors.accountId}
-                  />
-                )}
-              /> */}
               <FormControl fullWidth variant="outlined">
                 <InputLabel id="sex-label">Giới Tính</InputLabel>
                 <Select

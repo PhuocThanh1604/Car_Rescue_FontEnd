@@ -127,11 +127,7 @@ const ModalEdit = ({
   if (!services) {
     return null;
   }
-  // Hàm kiểm tra URL hợp lệ
-  const isValidUrl = (url) => {
-    const regex = /^(ftp|http|https):\/\/[^ "]+$/;
-    return regex.test(url);
-  };
+
 
   return (
     <>
@@ -180,7 +176,7 @@ const ModalEdit = ({
                 variant="h5"
                 component="h2"
                 id="Service-detail-modal"
-                sx={{textAlign:"center"}}
+                sx={{textAlign:"center",fontWeight:"bold"}}
               >
                 {selectedEditService
                   ? "Sửa Thông Tin Dịch Vụ"

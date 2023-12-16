@@ -168,7 +168,7 @@ const ModalEdit = ({
                 variant="h5"
                 component="h2"
                 id="Service-detail-modal"
-                sx={{ textAlign: "center" }} // Chỉnh style tại đây để căn giữa
+                sx={{ textAlign: "center",fontWeight:"bold" }} // Chỉnh style tại đây để căn giữa
               >
                 {selectedEditService
                   ? "Sửa Thông Tin Mẫu Xe"

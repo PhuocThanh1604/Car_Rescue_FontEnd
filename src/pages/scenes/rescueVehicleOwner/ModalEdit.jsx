@@ -15,6 +15,7 @@ import {
   InputLabel,
   Avatar,
   Grid,
+  Tooltip,
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
@@ -25,7 +26,8 @@ import {
   editRescueVehicleOwner,
   fetchRescueVehicleOwners,
 } from "../../../redux/rescueVehicleOwnerSlice";
-
+import InfoIcon from "@mui/icons-material/Info";
+import areaData from "../../../data.json";
 const ModalEdit = ({
   openEditModal,
   setOpenEditModal,
@@ -38,12 +40,10 @@ const ModalEdit = ({
     (state) => state.rescueVehicleOwner.rescueVehicleOwners
   );
   const [edit, setEdit] = useState({
-    // birthdate: formattedDate, // Khởi tạo giá trị birthdate từ formattedDate
-    // Các trường dữ liệu khác trong edit state...
+   
   });
   const [isSuccess, setIsSuccess] = useState(false);
   const [initialFormState, setInitialFormState] = useState({});
-  // const [fullnameValue, setFullnameValue] = useState("");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [filtereRescueVehicleOwners, setFilteredRescueVehicleOwners] = useState(
@@ -52,6 +52,17 @@ const ModalEdit = ({
   const [currentImageUrl, setCurrentImageUrl] = useState(edit.avatar || "");
   const [downloadUrl, setDownloadUrl] = useState("");
   const [serverError, setServerError] = useState(null);
+  const [dataJson, setDataJson] = useState([]);
+  useEffect(() => {
+    if (dataJson.area && dataJson.area.length > 0) {
+      console.log(dataJson.area[0].name || "Không có ");
+    } else {
+      console.log("Không có dữ liệu về khu vực");
+    }
+    setDataJson(areaData);
+  }, [dataJson]);
+
+  
   useEffect(() => {
     console.log(accountData);
 
@@ -62,7 +73,6 @@ const ModalEdit = ({
         const data = response.payload.data;
         if (data) {
           setFilteredRescueVehicleOwners(data);
-          // Đặt loading thành false sau khi tải lại dữ liệu
           setLoading(false);
         }
       })
@@ -80,7 +90,6 @@ const ModalEdit = ({
         );
         if (RescuseVehicleOwnerToEditToEdit) {
           console.log(RescuseVehicleOwnerToEditToEdit);
-          // setFullnameValue(RescuseVehicleOwnerToEditToEdit.fullname);
           setEdit(RescuseVehicleOwnerToEditToEdit);
           setInitialFormState(RescuseVehicleOwnerToEditToEdit);
         }
@@ -95,13 +104,19 @@ const ModalEdit = ({
       ...prevRescuseVehicleOwner,
       [name]: value,
     }));
-    console.log(setEdit);
+  
   };
 
+  const isValidPhoneNumber = (phone) => {
+    return /^[0-9]{10}$/.test(phone);
+  };
   const handleSaveClick = () => {
     console.log(accountData.account.id); 
     console.log(accountData.account.email); 
-
+    if (!isValidPhoneNumber(edit.phone)) {
+      toast.error("Số điện thoại không hợp lệ");
+      return;
+    }
     if (!selectedEditRescuseVehicleOwner || !edit) {
       toast.error("Không có thông tin khách hàng để cập nhật.");
       return;
@@ -181,15 +196,13 @@ const ModalEdit = ({
   }
 
   const handleImageUploaded = (imageUrl) => {
-    setDownloadUrl(imageUrl); // Set the download URL in the state
+    setDownloadUrl(imageUrl);
     setEdit((prevRescuseVehicleOwner) => ({
       ...prevRescuseVehicleOwner,
       avatar: imageUrl,
     }));
   };
-//   const birthdateISO = selectedEditRescuseVehicleOwner.birthdate; 
-// const dateObject = new Date(birthdateISO);
-// const formattedDate = dateObject.toISOString().split('T')[0];
+
 
   return (
     <>
@@ -239,7 +252,7 @@ const ModalEdit = ({
                 variant="h5"
                 component="h2"
                 id="RescuseVehicleOwner-detail-modal"
-                sx={{ textAlign: "center" }}
+                sx={{ textAlign: "center" ,fontWeight: "bold" }}
               >
                 {selectedEditRescuseVehicleOwner
                   ? "Sửa Thông Tin Chủ Xe Cứu Hộ"
@@ -254,7 +267,6 @@ const ModalEdit = ({
                       label="id"
                       value={edit.id}
                       onChange={(event) => {
-                        // Check if it's coming from selectedEditRescuseVehicleOwner and prevent changes
                         if (!selectedEditRescuseVehicleOwner) {
                           handleInputChange(event);
                         }
@@ -269,7 +281,7 @@ const ModalEdit = ({
                       type="text"
                       value={accountData?.account?.email || ""}
                       onChange={handleInputChange}
-                      disabled // Disable the TextField
+                      disabled 
                       fullWidth
                       margin="normal"
                     /> 
@@ -279,7 +291,6 @@ const ModalEdit = ({
                       type="text"
                       value={edit.fullname|| ""}
                       onChange={handleInputChange}
-                      // disabled // Disable the TextField
                       fullWidth
                       margin="normal"
                     /> 
@@ -289,7 +300,6 @@ const ModalEdit = ({
                       label="AccountId"
                       value={edit.accountId}
                       onChange={(event) => {
-                        // Check if it's coming from selectedEditRescuseVehicleOwner and prevent changes
                         if (!selectedEditRescuseVehicleOwner) {
                           handleInputChange(event);
                         }
@@ -307,7 +317,7 @@ const ModalEdit = ({
                       <Grid item>
                         <Avatar
                           alt="Avatar"
-                          src={edit.avatar} // Set the src attribute to the image URL
+                          src={edit.avatar} 
                           sx={{ width: 50, height: 50 }}
                         />
                       </Grid>
@@ -351,41 +361,47 @@ const ModalEdit = ({
                         </MenuItem>
                       </Select>
                     </FormControl>
-                    <FormControl fullWidth sx={{ marginTop: 1 }}>
-                      <InputLabel id="demo-simple-select-label">
-                        Khu Vực
-                      </InputLabel>
+                    <FormControl fullWidth variant="outlined" sx={{marginTop:"10px"}}>
+                      <InputLabel id="area-label">Khu Vực</InputLabel>
                       <Select
                         labelId="demo-simple-select-label"
-                        id="demo-simple-select"
+                        id="area"
+                        name="area"
+                        variant="outlined"
                         value={edit.area || ""}
                         onChange={handleInputChange}
-                        variant="outlined"
                         className="filter-select"
-                        name="area"
                         label="Khu vực"
                       >
-                        <MenuItem key="area-1" value="1">
-                          1
-                        </MenuItem>
-                        <MenuItem key="area-2" value="2">
-                          2
-                        </MenuItem>
-                        <MenuItem key="area-3" value="3">
-                          3
-                        </MenuItem>
+                        {dataJson?.area &&
+                          dataJson.area.length >= 3 &&
+                          dataJson.area.slice(0, 3).map((item, index) => (
+                            <MenuItem value={item.value}>
+                              {item.name}
+                              <Tooltip
+                                key={index}
+                                title={
+                                  item.description
+                                    ? item.description
+                                        .split("\n")
+                                        .map((line, i) => (
+                                          <div key={i}>{line}</div>
+                                        ))
+                                    : "Không có mô tả"
+                                }
+                              >
+                                <InfoIcon
+                                  style={{
+                                    marginLeft: "5px",
+                                    fontSize: "16px",
+                                  }}
+                                />
+                              </Tooltip>
+                            </MenuItem>
+                          ))}
                       </Select>
                     </FormControl>
-                    {/* <TextField
-                      name="birthdate"
-                      label="Ngày Sinh"
-                      type="date"
-                      value={edit.birthdate}
-                      onChange={handleInputChange}
-                      // disabled // Disable the TextField
-                      fullWidth
-                      margin="normal"
-                    />  */}
+          
                     <TextField
                       name="phone"
                       label="Số Điện Thoại"

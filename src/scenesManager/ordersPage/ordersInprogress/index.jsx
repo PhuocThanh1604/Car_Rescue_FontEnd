@@ -10,6 +10,7 @@ import {
   FormControl,
   Grid,
   Button,
+  Tooltip,
 } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../../theme";
@@ -31,6 +32,8 @@ import { useLocation } from "react-router-dom";
 import CustomTablePagination from "../../../components/TablePagination";
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import AddIcon from "@mui/icons-material/Add";
+import InfoIcon from "@mui/icons-material/Info";
+import areaData from "../../../data.json";
 const OrdersInprogress = (props) => {
   const dispatch = useDispatch();
   const location = useLocation();
@@ -52,6 +55,15 @@ const OrdersInprogress = (props) => {
   const [data, setData] = useState([]);
   const [fullnameData, setFullnameData] = useState({});
 
+  const [dataJson, setDataJson] = useState([]);
+  useEffect(() => {
+    if (dataJson.area && dataJson.area.length > 0) {
+      console.log(dataJson.area[0].name || "Không có ");
+    } else {
+      console.log("Không có dữ liệu");
+    }
+    setDataJson(areaData);
+  }, [dataJson]);
   const handleSearchChange = (event) => {
     const value = event.target.value.toLowerCase();
     setSearchText(value);
@@ -278,7 +290,53 @@ const OrdersInprogress = (props) => {
       .add(7, 'hours') // Adding 3 hours (you can adjust this number as needed)
       .format("DD-MM-YYYY HH:mm:ss")
     },
-    { field: "area", headerName: "khu vực", width: 60, key: "area" },
+    {
+      field: "area",
+      headerName: "Khu Vực",
+      width: 120,
+      key: "area",
+      renderCell: ({ row }) => {
+        const { area } = row;
+
+        let displayedArea = "Không có dữ liệu";
+        let areaDescription = ""; // Mô tả khu vực
+
+        if (dataJson.area && dataJson.area.length > 0) {
+          switch (area) {
+            case 1:
+              displayedArea = dataJson.area[0]?.name || "Không có";
+              areaDescription =
+                dataJson.area[0]?.description || "Không có mô tả";
+              break;
+            case 2:
+              displayedArea = dataJson.area[1]?.name || "Không có";
+              areaDescription =
+                dataJson.area[1]?.description || "Không có mô tả";
+              break;
+            case 3:
+              displayedArea = dataJson.area[2]?.name || "Không có";
+              areaDescription =
+                dataJson.area[2]?.description || "Không có mô tả";
+              break;
+            default:
+              displayedArea = "Không có dữ liệu";
+          }
+        }
+
+        return (
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <Typography color="inherit">{displayedArea}</Typography>
+            <Tooltip
+              title={areaDescription.split("\n").map((line, i) => (
+                <div key={i}>{line}</div>
+              ))}
+            >
+              <InfoIcon style={{ marginLeft: "5px", fontSize: "16px" }} />
+            </Tooltip>
+          </Box>
+        );
+      },
+    },
     {
       field: "rescueType",
       headerName: "Hình Thức",

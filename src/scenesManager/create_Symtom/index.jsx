@@ -23,15 +23,12 @@ const AddSymptom = () => {
 
   const service = useSelector((state) => state.service.services);
   const isNonMobile = useMediaQuery("(min-width:600px)");
-  const [selectedManager, setSelectedManager] = useState(null);
-  const [dataSelect, setDataSelect] = useState([]);
-  const [loading, setLoading] = useState(false);
 
   
 
   
   const checkoutSchema = yup.object().shape({
-    symptom1: yup.string().required("Required"),
+    symptom1: yup.string().required("Yêu cầu"),
    
   });
 

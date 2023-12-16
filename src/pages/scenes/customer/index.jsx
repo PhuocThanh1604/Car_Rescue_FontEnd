@@ -279,31 +279,7 @@ const Customers = (props) => {
         );
       },
     },
-    // {
-    //   field: "status",
-    //   headerName: "Trạng Thái",
-    //   width: 80,
-    //   renderCell: (params) => (
-    //     <Box display="flex" alignItems="center" className="filter-box">
-    //       <ToggleButton
-    //         initialValue={params.value === "ACTIVE"}
-    //         onChange={(value) => {
-    //           const updatedcustomers = customers.map((customer) => {
-    //             if (customer.CustomerId === params.row.CustomerId) {
-    //               return {
-    //                 ...customer,
-    //                 status: value ? "ACTIVE" : "INACTIVE",
-    //               };
-    //             }
-    //             return customer;
-    //           });
-    //           // setFilteredcustomers(updatedcustomers);
-    //         }}
-    //       />
-    //     </Box>
-    //   ),
-    //   key: "status",
-    // },
+
     {
       field: "status",
       headerName: "Trạng Thái",
@@ -444,9 +420,9 @@ const Customers = (props) => {
             onBlur={handleDateFilterChange}
             inputProps={{
               max: moment()
-                .tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
-                .add(7, "hours") // Adding 3 hours (you can adjust this number as needed)
-                .format("DD-MM-YYYY"), // Set the maximum selectable date as today
+                .tz("Asia/Ho_Chi_Minh")
+                .add(7, "hours")
+                .format("DD-MM-YYYY"), 
             }}
             sx={{ ml: 1, mr: 1 }}
           />
@@ -466,9 +442,9 @@ const Customers = (props) => {
             onBlur={handleDateFilterChange}
             inputProps={{
               max: moment()
-                .tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
-                .add(7, "hours") // Adding 3 hours (you can adjust this number as needed)
-                .format("DD-MM-YYYY"), // Set the maximum selectable date as today
+                .tz("Asia/Ho_Chi_Minh") 
+                .add(7, "hours") 
+                .format("DD-MM-YYYY"), 
             }}
             sx={{ mr: 1 }}
           />
@@ -561,13 +537,6 @@ const Customers = (props) => {
           loading={loading}
         />
       </Box>
-      {/* <ModalDetail
-        openModal={openModal}
-        setOpenModal={setOpenModal}
-        onClose={() => setOpenModal(false)}
-        selectedCustomer={selectedCustomer}
-        loading={loading}
-      ></ModalDetail> */}
       <ModalEdit
         openEditModal={openEditModal}
         setOpenEditModal={setOpenEditModal}

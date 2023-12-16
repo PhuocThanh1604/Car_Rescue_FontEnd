@@ -1,0 +1,29 @@
+{
+  "services": [
+    {
+      "id": 1,
+      "name": "Phí vụ dịch",
+      "description": "Kéo xe buộc lấy phí dịch vụ để chi trả tiền di chuyển của nhân sự",
+      "price": 300000
+    }
+  ],
+  "area":[
+    {
+      "name": "Khu vực 1",
+      "value": 1,
+      "description":"Bao gồm:\nCủ Chi\nGò Vấp\nQuận 12\nHóc Môn\nQuận Tân Bình\nQuận Tân Phú"
+    },
+    {
+      "name": "Khu vực 2",
+      "value": 2,
+      "description":
+          "Bao gồm:\nQuận 1\nQuận 3\nQuận 4\nQuận Bình Thạnh\nThành Phố Thủ Đức"
+    },
+    {
+      "name": "Khu vực 3",
+      "value": 3,
+      "description":
+          "Bao gồm:\nQuận 5\nQuận 6\nQuận 7\nQuận 8\nQuận 10\nQuận 11\nBình Chánh\nNhà Bè\nCần Giờ"
+    }
+  ]
+}

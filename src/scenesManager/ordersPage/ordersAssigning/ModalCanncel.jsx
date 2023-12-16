@@ -222,7 +222,7 @@ const ModalCancel = ({
                 variant="h4"
                 component="h2"
                 id="Order-detail-modal"
-                sx={{ textAlign: "center" }}
+                sx={{ textAlign: "center",fontWeight: "bold" }}
               >
                 {selectedCancelOrder ? "Hủy Đơn Cứu Hộ" : "Hủy Đơn Cứu Hộ"}
               </Typography>

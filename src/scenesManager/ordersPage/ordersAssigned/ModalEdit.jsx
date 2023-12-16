@@ -208,7 +208,7 @@ const ModalEdit = ({
                 variant="h4"
                 component="h2"
                 id="Order-detail-modal"
-                sx={{ textAlign: "center" }}
+                sx={{ textAlign: "center",fontWeight: "bold" }}
               >
                 {selectedEditOrder ? "Hủy Đơn Hàng" : "Order Detail"}
               </Typography>

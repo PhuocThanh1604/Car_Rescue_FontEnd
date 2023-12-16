@@ -14,19 +14,24 @@ import {
   FormControl,
   InputLabel,
   Avatar,
+  Tooltip,
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
 import Grid from "@mui/system/Unstable_Grid/Grid";
-import { editTechnician, fetchTechnicians } from "../../../redux/technicianSlice";
+import {
+  editTechnician,
+  fetchTechnicians,
+} from "../../../redux/technicianSlice";
 import UploadImageField from "../../../components/uploadImage";
-// import { getGenres, getGenresId } from '../../redux/genreSlice';
+import InfoIcon from "@mui/icons-material/Info";
+import areaData from "../../../data.json";
 const ModalEdit = ({
   openEditModal,
   setOpenEditModal,
   selectedEditTechnician,
-  accountData
+  accountData,
 }) => {
   const dispatch = useDispatch();
   const technicians = useSelector((state) => state.technician.technicians);
@@ -41,8 +46,20 @@ const ModalEdit = ({
   const [downloadUrl, setDownloadUrl] = useState("");
   const [serverError, setServerError] = useState(null);
   const [currentImageUrl, setCurrentImageUrl] = useState(edit.avatar || "");
+
+  const [dataJson, setDataJson] = useState([]);
+
+  useEffect(() => {
+    if (dataJson.area && dataJson.area.length > 0) {
+      console.log(dataJson.area[0].name || "Không có ");
+    } else {
+      console.log("Không có dữ liệu về khu vực");
+    }
+    setDataJson(areaData);
+  }, [dataJson]);
+
   const handleImageUploaded = (imageUrl) => {
-    setDownloadUrl(imageUrl); // Set the download URL in the state
+    setDownloadUrl(imageUrl);
     setEdit((prevRescuseVehicleOwner) => ({
       ...prevRescuseVehicleOwner,
       avatar: imageUrl,
@@ -55,7 +72,6 @@ const ModalEdit = ({
   };
   useEffect(() => {
     console.log(accountData);
-
   }, [accountData]);
 
   const reloadTechnicians = () => {
@@ -75,28 +91,31 @@ const ModalEdit = ({
   };
 
   useEffect(() => {
-    if (!selectedEditTechnician || !technicians || !Array.isArray(technicians)) {
+    if (
+      !selectedEditTechnician ||
+      !technicians ||
+      !Array.isArray(technicians)
+    ) {
       // Xử lý khi selectedEditTechnician hoặc technicians không tồn tại hoặc không hợp lệ
-      toast.dismiss('Dữ liệu không hợp lệ để thực hiện tác vụ.');
+      toast.dismiss("Dữ liệu không hợp lệ để thực hiện tác vụ.");
       return;
     }
-  
+
     const technicianToEdit = technicians.find(
       (technician) => technician.id === selectedEditTechnician.id
     );
-  
+
     if (!technicianToEdit) {
       // Xử lý khi không tìm thấy technician để chỉnh sửa
-      toast.dismiss('Không tìm thấy thông tin kỹ thuật viên để chỉnh sửa.');
+      toast.dismiss("Không tìm thấy thông tin kỹ thuật viên để chỉnh sửa.");
       return;
     }
-  
+
     console.log("Data của Kỹ Thuật Viên " + technicianToEdit);
     setFullnameValue(technicianToEdit.fullname);
     setEdit(technicianToEdit);
     setInitialFormState(technicianToEdit);
   }, [selectedEditTechnician, technicians]);
-  
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -107,16 +126,24 @@ const ModalEdit = ({
     }));
     console.log(setEdit);
   };
+  const isValidPhoneNumber = (phone) => {
+    return /^[0-9]{10}$/.test(phone);
+  };
   const handleSaveClick = () => {
-    console.log(accountData.account.id); 
+    console.log(accountData.account.id);
     console.log(accountData.account.email);
+    if (!isValidPhoneNumber(edit.phone)) {
+      toast.error("Số điện thoại không hợp lệ");
+      return;
+    }
     if (!selectedEditTechnician || !edit) {
       toast.error("Không có thông tin kỹ thuật viên để cập nhật.");
       return;
     }
-  
+
     // Kiểm tra xem có sự thay đổi trong dữ liệu so với dữ liệu ban đầu
-    const hasChanges = JSON.stringify(edit) !== JSON.stringify(initialFormState);
+    const hasChanges =
+      JSON.stringify(edit) !== JSON.stringify(initialFormState);
     const updatedInitialValues = {
       ...edit,
       account: {
@@ -124,7 +151,7 @@ const ModalEdit = ({
         email: accountData.account.email,
         password: accountData.account.password,
         deviceToken: accountData.account.deviceToken,
-        createAt: accountData.account.createAt
+        createAt: accountData.account.createAt,
       },
     };
     console.log(updatedInitialValues);
@@ -137,11 +164,15 @@ const ModalEdit = ({
         (edit.status === "ACTIVE" || edit.status === "INACTIVE")
       ) {
         if (edit.status === "ACTIVE") {
-          toast.warn("Kỹ thuật viên đang ở trạng thái Đang làm việc không thể chuyển sang trạng thái Hoạt Động");
-        } else  {
-          toast.warn("Kỹ thuật viên đang ở trạng thái Đang làm việc không thể chuyển sang trạng thái Không Hoạt Động.");
-        } 
-        
+          toast.warn(
+            "Kỹ thuật viên đang ở trạng thái Đang làm việc không thể chuyển sang trạng thái Hoạt Động"
+          );
+        } else {
+          toast.warn(
+            "Kỹ thuật viên đang ở trạng thái Đang làm việc không thể chuyển sang trạng thái Không Hoạt Động."
+          );
+        }
+
         return;
       }
       dispatch(editTechnician({ data: updatedInitialValues }))
@@ -162,7 +193,7 @@ const ModalEdit = ({
         });
     }
   };
-  
+
   const handleClose = () => {
     setOpenEditModal(false);
   };
@@ -219,30 +250,32 @@ const ModalEdit = ({
                 variant="h5"
                 component="h2"
                 id="Technician-detail-modal"
-                textAlign= "center"
-
+                textAlign="center"
+                fontWeight="bold"
               >
-                {selectedEditTechnician ? "Sửa Thông Tin Kỹ Thuật Viên" : "Technician Detail"}
+                {selectedEditTechnician
+                  ? "Sửa Thông Tin Kỹ Thuật Viên"
+                  : "Technician Detail"}
               </Typography>
 
               {selectedEditTechnician && (
                 <Card>
-                <CardContent>
-                  <TextField
-                    name="id"
-                    label="id"
-                    value={edit.id}
-                    onChange={(event) => {
-                      // Check if it's coming from selectedEditRescuseVehicleOwner and prevent changes
-                      if (!selectedEditTechnician) {
-                        handleInputChange(event);
-                      }
-                    }}
-                    fullWidth
-                    margin="normal"
-                    style={{ display: "none" }}
-                  />
-                     <TextField
+                  <CardContent>
+                    <TextField
+                      name="id"
+                      label="id"
+                      value={edit.id}
+                      onChange={(event) => {
+                        // Check if it's coming from selectedEditRescuseVehicleOwner and prevent changes
+                        if (!selectedEditTechnician) {
+                          handleInputChange(event);
+                        }
+                      }}
+                      fullWidth
+                      margin="normal"
+                      style={{ display: "none" }}
+                    />
+                    <TextField
                       name="email"
                       label="Email"
                       type="text"
@@ -251,158 +284,190 @@ const ModalEdit = ({
                       disabled // Disable the TextField
                       fullWidth
                       margin="normal"
-                    /> 
-                  <TextField
-                    name="fullname"
-                    label="Họ Và Tên"
-                    value={edit.fullname}
-                    onChange={handleInputChange}
-                    // disabled // Disable the TextField
-                    fullWidth
-                    margin="normal"
-                  />
- 
-                  <TextField
-                    name="accountId"
-                    label="AccountId"
-                    value={edit.accountId}
-                    onChange={(event) => {
-                      // Check if it's coming from selectedEditRescuseVehicleOwner and prevent changes
-                      if (!selectedEditTechnician) {
-                        handleInputChange(event);
-                      }
-                    }}
-                    fullWidth
-                    margin="normal"
-                    style={{ display: "none" }}
-                  />
-                  <Grid container spacing={4} alignItems="center" marginBottom={2}>
-                    <Grid item>
-                      <Avatar
-                        alt="Avatar"
-                        src={edit.avatar} // Set the src attribute to the image URL
-                        sx={{ width: 50, height: 50 }}
-                      />
-                    </Grid>
-                    <Grid item>
-                      <UploadImageField
-                        onImageUploaded={handleImageUploaded}
-                        imageUrl={currentImageUrl}
-                      />
-                    </Grid>
-                  </Grid>
-                  <TextField
-                    label="Download URL"
-                    type="text"
-                    value={downloadUrl}
-                    fullWidth
-                    margin="normal"
-                    disabled
-                    style={{ display: "none" }}
-                  />
-
-                  <FormControl fullWidth sx={{ marginTop: 1 }}>
-                    <InputLabel id="demo-simple-select-label">
-                      Giới Tính
-                    </InputLabel>
-                    <Select
-                      labelId="demo-simple-select-label"
-                      id="demo-simple-select"
-                      value={edit.sex || ""}
+                    />
+                    <TextField
+                      name="fullname"
+                      label="Họ Và Tên"
+                      value={edit.fullname}
                       onChange={handleInputChange}
-                      variant="outlined"
-                      className="filter-select"
-                      name="sex"
-                      label="Giới Tính"
+                      // disabled // Disable the TextField
+                      fullWidth
+                      margin="normal"
+                    />
+
+                    <TextField
+                      name="accountId"
+                      label="AccountId"
+                      value={edit.accountId}
+                      onChange={(event) => {
+                        // Check if it's coming from selectedEditRescuseVehicleOwner and prevent changes
+                        if (!selectedEditTechnician) {
+                          handleInputChange(event);
+                        }
+                      }}
+                      fullWidth
+                      margin="normal"
+                      style={{ display: "none" }}
+                    />
+                    <Grid
+                      container
+                      spacing={4}
+                      alignItems="center"
+                      marginBottom={2}
                     >
-                      <MenuItem key="status-active" value="Nam">
-                        Nam
-                      </MenuItem>
-                      <MenuItem key="status-outofstock" value="Nu">
-                        Nữ
-                      </MenuItem>
-                    </Select>
-                  </FormControl>
-                  <FormControl fullWidth sx={{ marginTop: 1 }}>
+                      <Grid item>
+                        <Avatar
+                          alt="Avatar"
+                          src={edit.avatar} // Set the src attribute to the image URL
+                          sx={{ width: 50, height: 50 }}
+                        />
+                      </Grid>
+                      <Grid item>
+                        <UploadImageField
+                          onImageUploaded={handleImageUploaded}
+                          imageUrl={currentImageUrl}
+                        />
+                      </Grid>
+                    </Grid>
+                    <TextField
+                      label="Download URL"
+                      type="text"
+                      value={downloadUrl}
+                      fullWidth
+                      margin="normal"
+                      disabled
+                      style={{ display: "none" }}
+                    />
+
+                    <FormControl fullWidth sx={{ marginTop: 1 }}>
                       <InputLabel id="demo-simple-select-label">
-                        Khu Vực
+                        Giới Tính
                       </InputLabel>
                       <Select
                         labelId="demo-simple-select-label"
                         id="demo-simple-select"
-                        value={edit.area || ""}
+                        value={edit.sex || ""}
                         onChange={handleInputChange}
                         variant="outlined"
                         className="filter-select"
-                        name="area"
-                        label="Khu vực"
+                        name="sex"
+                        label="Giới Tính"
                       >
-                        <MenuItem key="area-1" value="1">
-                          1
+                        <MenuItem key="status-active" value="Nam">
+                          Nam
                         </MenuItem>
-                        <MenuItem key="area-2" value="2">
-                        2
-                        </MenuItem>
-                        <MenuItem key="area-3" value="3">
-                        3
+                        <MenuItem key="status-outofstock" value="Nu">
+                          Nữ
                         </MenuItem>
                       </Select>
                     </FormControl>
-                  <TextField
-                    name="phone"
-                    label="Số Điện Thoại"
-                    type="text"
-                    value={edit.phone || ""}
-                    onChange={handleInputChange}
-                    fullWidth
-                    margin="normal"
-                  />
-                  <TextField
-                    name="address"
-                    label="Địa Chỉ"
-                    value={edit.address || ""}
-                    onChange={handleInputChange}
-                    fullWidth
-                    margin="normal"
-                  />
-                  <FormControl fullWidth sx={{ marginTop: 1 }}>
-                    <InputLabel id="demo-simple-select-label">
-                      Trạng Thái
-                    </InputLabel>
-                    <Select
-                      labelId="demo-simple-select-label"
-                      id="demo-simple-select"
-                      value={edit.status || ""}
-                      onChange={handleInputChange}
+
+                    <FormControl
+                      fullWidth
                       variant="outlined"
-                      className="filter-select"
-                      name="status"
-                      label="Status"
+                      sx={{ marginTop: "10px" }}
                     >
-                      <MenuItem key="status-active" value="ACTIVE">
-                        Hoạt Động
-                      </MenuItem>
-                      <MenuItem key="status-assigned" value="ASSIGNED">
-                       Đang làm việc
-                      </MenuItem>
-                      <MenuItem key="status-INACTIVE" value="INACTIVE">
-                        Không Hoạt Động
-                      </MenuItem>
-                     
-                    </Select>
-                  </FormControl>
-                </CardContent>
- 
-                <Box sx={{ display: "flex", justifyContent: "center" ,marginBottom:"5px"}}>
-                  <Button
-                    onClick={handleSaveClick}
-                    variant="contained"
-                    color="primary"
+                      <InputLabel id="area-label">Khu Vực</InputLabel>
+                      <Select
+                        labelId="demo-simple-select-label"
+                        id="area"
+                        name="area"
+                        variant="outlined"
+                        value={edit.area || ""}
+                        onChange={handleInputChange}
+                        className="filter-select"
+                        label="Khu vực"
+                      >
+                        {dataJson?.area &&
+                          dataJson.area.length >= 3 &&
+                          dataJson.area.slice(0, 3).map((item, index) => (
+                            <MenuItem value={item.value}>
+                              {item.name}
+                              <Tooltip
+                                key={index}
+                                title={
+                                  item.description
+                                    ? item.description
+                                        .split("\n")
+                                        .map((line, i) => (
+                                          <div key={i}>{line}</div>
+                                        ))
+                                    : "Không có mô tả"
+                                }
+                              >
+                                <InfoIcon
+                                  style={{
+                                    marginLeft: "5px",
+                                    fontSize: "16px",
+                                  }}
+                                />
+                              </Tooltip>
+                            </MenuItem>
+                          ))}
+                      </Select>
+                    </FormControl>
+
+                    <TextField
+                      name="phone"
+                      label="Số Điện Thoại"
+                      type="text"
+                      value={edit.phone || ""}
+                      onChange={handleInputChange}
+                      fullWidth
+                      margin="normal"
+                    />
+                    <TextField
+                      name="address"
+                      label="Địa Chỉ"
+                      value={edit.address || ""}
+                      onChange={handleInputChange}
+                      fullWidth
+                      margin="normal"
+                    />
+                    <FormControl fullWidth sx={{ marginTop: 1 }}>
+                      <InputLabel id="demo-simple-select-label">
+                        Trạng Thái
+                      </InputLabel>
+                      <Select
+                        labelId="demo-simple-select-label"
+                        id="demo-simple-select"
+                        value={edit.status || ""}
+                        onChange={handleInputChange}
+                        variant="outlined"
+                        className="filter-select"
+                        name="status"
+                        label="Status"
+                      >
+                        <MenuItem key="status-active" value="ACTIVE">
+                          Hoạt Động
+                        </MenuItem>
+                        {edit.status === "ASSIGNED" ? ( // Kiểm tra nếu edit.status không phải là "ASSIGNED", hiển thị MenuItem
+                          <MenuItem value="ASSIGNED" sx={{display:"none"}}>Đang làm việc</MenuItem>
+                        ) : null}{" "}
+                 
+                        <MenuItem key="status-INACTIVE" value="INACTIVE">
+                          Không Hoạt Động
+                        </MenuItem>
+                      </Select>
+                    </FormControl>
+                  </CardContent>
+
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                      marginBottom: "5px",
+                    }}
                   >
-                    Lưu
-                  </Button>
-                </Box>
-              </Card>
+                    <Button
+                      onClick={handleSaveClick}
+                      variant="contained"
+                      color="primary"
+                    >
+                      Lưu
+                    </Button>
+                  </Box>
+                </Card>
               )}
             </Box>
           </Box>

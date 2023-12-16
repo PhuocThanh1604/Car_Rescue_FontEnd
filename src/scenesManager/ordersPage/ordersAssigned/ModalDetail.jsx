@@ -389,6 +389,7 @@ const MyModal = (props) => {
               component="h2"
               id="book-detail-modal"
               textAlign={"center"}
+              fontWeight= "bold"
             >
               Thông Tin Chi Tiết Đơn Hàng Đang Điều Phối
             </Typography>

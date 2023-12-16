@@ -174,7 +174,8 @@ const ModalEdit = ({
                 variant="h5"
                 component="h2"
                 id="Service-detail-modal"
-                sx={{textAlign:"center"}}
+                sx={{textAlign:"center",fontWeight:"bold"}}
+                
               >
                 {selectedEditService
                   ? "Sửa Thông Tin Hiện Tượng"

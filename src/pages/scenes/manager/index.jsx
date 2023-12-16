@@ -9,6 +9,7 @@ import {
   IconButton,
   FormControl,
   Typography,
+  Tooltip,
 } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 
@@ -25,6 +26,8 @@ import { fetchManagers, getManagerId, updateStatusManager } from "../../../redux
 import Header from "../../../components/Header";
 import CustomTablePagination from "../../../components/TablePagination";
 import { tokens } from "../../../theme";
+import InfoIcon from "@mui/icons-material/Info";
+import areaData from "../../../data.json";
 const Managers = (props) => {
   const dispatch = useDispatch();
   const managers = useSelector((state) => state.manager.managers);
@@ -38,7 +41,6 @@ const Managers = (props) => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(8);
   const [selectedmanager, setSelectedmanager] = useState(null);
-  // Thêm state để điều khiển hiển thị modal xóa
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [selectedBookId, setSelectedBookId] = useState(null);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -48,12 +50,22 @@ const Managers = (props) => {
   const [data, setData] = useState([]);
   const [managerData, setManagerData] = useState([]);
   const [accountData, setAccountData] = useState({});
+
+   const [dataJson, setDataJson] = useState([]);
+  useEffect(() => {
+    if (dataJson.area && dataJson.area.length > 0) {
+      console.log(dataJson.area[0].name || "Không có ");
+    } else {
+      console.log("Không có dữ liệu");
+    }
+    setDataJson(areaData);
+  }, [dataJson]);
   useEffect(() => {
     if (isSuccess) {
     }
   }, [isSuccess]);
   const handleSearchChange = (event) => {
-    const value = event.target.value || ""; // Use an empty string if the value is null
+    const value = event.target.value || ""; 
     setSearchText(value);
   };
   const handleDateFilterChange = () => {
@@ -75,10 +87,8 @@ const Managers = (props) => {
     setFilterOption(selectedStatusOption);
 
     if (selectedStatusOption === "Status") {
-      // Hiển thị tất cả các trạng thái
       setFilteredManagers(managers);
     } else {
-      // Lọc sản phẩm dựa trên giá trị trạng thái
       const filteredmanagers = managers.filter(
         (manager) => manager.status === selectedStatusOption
       );
@@ -87,7 +97,6 @@ const Managers = (props) => {
   };
   const handleUpdateClick = (managerId) => {
     console.log(managerId);
-    // Fetch the managerId details based on the selected managerId ID
     dispatch(getManagerId({ id: managerId }))
       .then((response) => {
         const managerDetails = response.payload.data; 
@@ -269,7 +278,53 @@ const Managers = (props) => {
       valueGetter: (params) =>
         moment(params.row.createAt).utcOffset(7).format("DD-MM-YYYY"),
     },
-    { field: "area", headerName: "Khu vực", width: 60, key: "area" },
+    {
+      field: "area",
+      headerName: "Khu Vực",
+      width: 120,
+      key: "area",
+      renderCell: ({ row }) => {
+        const { area } = row;
+
+        let displayedArea = "Không có dữ liệu";
+        let areaDescription = ""; // Mô tả khu vực
+
+        if (dataJson.area && dataJson.area.length > 0) {
+          switch (area) {
+            case 1:
+              displayedArea = dataJson.area[0]?.name || "Không có";
+              areaDescription =
+                dataJson.area[0]?.description || "Không có mô tả";
+              break;
+            case 2:
+              displayedArea = dataJson.area[1]?.name || "Không có";
+              areaDescription =
+                dataJson.area[1]?.description || "Không có mô tả";
+              break;
+            case 3:
+              displayedArea = dataJson.area[2]?.name || "Không có";
+              areaDescription =
+                dataJson.area[2]?.description || "Không có mô tả";
+              break;
+            default:
+              displayedArea = "Không có dữ liệu";
+          }
+        }
+
+        return (
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <Typography color="inherit">{displayedArea}</Typography>
+            <Tooltip
+              title={areaDescription.split("\n").map((line, i) => (
+                <div key={i}>{line}</div>
+              ))}
+            >
+              <InfoIcon style={{ marginLeft: "5px", fontSize: "16px" }} />
+            </Tooltip>
+          </Box>
+        );
+      },
+    },
     {
       field: "avatar",
       headerName: "Hình ảnh",

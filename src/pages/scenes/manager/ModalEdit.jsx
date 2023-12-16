@@ -15,19 +15,20 @@ import {
   InputLabel,
   Grid,
   Avatar,
+  Tooltip,
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
-import { textAlign } from "@mui/system";
 import { editManager, fetchManagers } from "../../../redux/managerSlice";
 import UploadImageField from "../../../components/uploadImage";
-// import { getGenres, getGenresId } from '../../redux/genreSlice';
+import InfoIcon from "@mui/icons-material/Info";
+import areaData from "../../../data.json";
 const ModalEdit = ({
   openEditModal,
   setOpenEditModal,
   selectedEditManager,
-  accountData
+  accountData,
 }) => {
   const dispatch = useDispatch();
   const managers = useSelector((state) => state.manager.managers);
@@ -38,9 +39,19 @@ const ModalEdit = ({
   const [loading, setLoading] = useState(false);
   const [filteredCustomers, setFilteredCustomers] = useState([]);
   const [downloadUrl, setDownloadUrl] = useState("");
+  const [dataJson, setDataJson] = useState([]);
+  useEffect(() => {
+    if (dataJson.area && dataJson.area.length > 0) {
+      console.log(dataJson.area[0].name || "Không có ");
+    } else {
+      console.log("Không có dữ liệu về khu vực");
+    }
+    setDataJson(areaData);
+  }, [dataJson]);
+
   const [currentImageUrl, setCurrentImageUrl] = useState(edit.avatar || "");
   const handleImageUploaded = (imageUrl) => {
-    setDownloadUrl(imageUrl); // Set the download URL in the state
+    setDownloadUrl(imageUrl); 
     setEdit((prevManager) => ({
       ...prevManager,
       avatar: imageUrl,
@@ -48,8 +59,8 @@ const ModalEdit = ({
   };
   useEffect(() => {
     console.log(accountData);
-
   }, [accountData]);
+
   const reloadManagers = () => {
     dispatch(fetchManagers())
       .then((response) => {
@@ -90,8 +101,14 @@ const ModalEdit = ({
     }));
     console.log(setEdit);
   };
-
+  const isValidPhoneNumber = (phone) => {
+    return /^[0-9]{10}$/.test(phone);
+  };
   const handleSaveClick = () => {
+    if (!isValidPhoneNumber(edit.phone)) {
+      toast.error("Số điện thoại không hợp lệ");
+      return;
+    }
     if (!selectedEditManager || !edit) {
       toast.error("Không có thông tin khách hàng để cập nhật.");
       return;
@@ -100,17 +117,17 @@ const ModalEdit = ({
     // Kiểm tra xem có sự thay đổi trong dữ liệu so với dữ liệu ban đầu
     const hasChanges =
       JSON.stringify(edit) !== JSON.stringify(initialFormState);
-      const updatedInitialValues = {
-        ...edit,
-        account: {
-          id: accountData.account.id,
-          email: accountData.account.email,
-          password: accountData.account.password,
-          deviceToken: accountData.account.deviceToken,
-          createAt: accountData.account.createAt
-        },
-      };
-      console.log(updatedInitialValues);
+    const updatedInitialValues = {
+      ...edit,
+      account: {
+        id: accountData.account.id,
+        email: accountData.account.email,
+        password: accountData.account.password,
+        deviceToken: accountData.account.deviceToken,
+        createAt: accountData.account.createAt,
+      },
+    };
+    console.log(updatedInitialValues);
     if (!hasChanges) {
       toast.info("Không có thay đổi để lưu.");
       handleClose();
@@ -191,7 +208,7 @@ const ModalEdit = ({
                 variant="h5"
                 component="h2"
                 id="Customer-detail-modal"
-                sx={{textAlign:"center"}}
+                sx={{ textAlign: "center" ,fontWeight: "bold" }}
               >
                 {selectedEditManager
                   ? "Sửa Thông Tin Quản Lí"
@@ -224,11 +241,11 @@ const ModalEdit = ({
                       disabled // Disable the TextField
                       fullWidth
                       margin="normal"
-                    /> 
+                    />
                     <TextField
                       name="fullname"
                       label="Họ Và Tên"
-                      value={edit.fullname|| ""}
+                      value={edit.fullname || ""}
                       onChange={handleInputChange}
                       fullWidth
                       margin="normal"
@@ -300,31 +317,49 @@ const ModalEdit = ({
                         </MenuItem>
                       </Select>
                     </FormControl>
-                    <FormControl fullWidth sx={{ marginTop: 1 }}>
-                      <InputLabel id="demo-simple-select-label">
-                        Khu Vực
-                      </InputLabel>
+
+                    <FormControl fullWidth variant="outlined" sx={{marginTop:"10px"}}>
+                      <InputLabel id="area-label">Khu Vực</InputLabel>
                       <Select
                         labelId="demo-simple-select-label"
-                        id="demo-simple-select"
+                        id="area"
+                        name="area"
+                        variant="outlined"
                         value={edit.area || ""}
                         onChange={handleInputChange}
-                        variant="outlined"
                         className="filter-select"
-                        name="area"
                         label="Khu vực"
                       >
-                        <MenuItem key="area-1" value="1">
-                          1
-                        </MenuItem>
-                        <MenuItem key="area-2" value="2">
-                          2
-                        </MenuItem>
-                        <MenuItem key="area-3" value="3">
-                          3
-                        </MenuItem>
+                        {dataJson?.area &&
+                          dataJson.area.length >= 3 &&
+                          dataJson.area.slice(0, 3).map((item, index) => (
+                            <MenuItem value={item.value}>
+                              {item.name}
+                              <Tooltip
+                                key={index}
+                                title={
+                                  item.description
+                                    ? item.description
+                                        .split("\n")
+                                        .map((line, i) => (
+                                          <div key={i}>{line}</div>
+                                        ))
+                                    : "Không có mô tả"
+                                }
+                              >
+                                <InfoIcon
+                                  style={{
+                                    marginLeft: "5px",
+                                    fontSize: "16px",
+                                  }}
+                                />
+                              </Tooltip>
+                            </MenuItem>
+                          ))}
                       </Select>
                     </FormControl>
+
+                    
                     <TextField
                       name="phone"
                       label="Số Điện Thoại"
@@ -360,14 +395,19 @@ const ModalEdit = ({
                           Đang Hoạt Động
                         </MenuItem>
                         <MenuItem key="status-INACTIVE" value="INACTIVE">
-                        Không Hoạt Động
+                          Không Hoạt Động
                         </MenuItem>
-                  
                       </Select>
                     </FormControl>
                   </CardContent>
 
-                  <Box sx={{ display: "flex", justifyContent: "center" ,marginBottom:"5px"}}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                      marginBottom: "5px",
+                    }}
+                  >
                     <Button
                       onClick={handleSaveClick}
                       variant="contained"

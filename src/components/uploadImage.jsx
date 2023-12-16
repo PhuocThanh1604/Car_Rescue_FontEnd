@@ -6,6 +6,7 @@ import { styled } from '@mui/material/styles';
 import { Box, Button, Input } from "@mui/material";
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 const UploadImageField = ({ onImageUploaded, imageUrl }) => {
+  
   const [imageUpload, setImageUpload] = useState(null);
   const [downloadUrl, setDownloadUrl] = useState(""); // State to store the download URL
   const StyledInput = styled(Input)({

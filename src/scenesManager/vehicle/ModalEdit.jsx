@@ -189,9 +189,10 @@ const ModalEdit = ({
                 variant="h6"
                 component="h2"
                 id="RescuseVehicleOwner-detail-modal"
+                fontWeight="bold"
               >
                 {selectedEditRescuseVehicleOwner
-                  ? "Sửa Thông Tin Chủ Xe cứu hÔ"
+                  ? "Sửa Thông Tin Chủ Xe Cứu Hộ"
                   : "RescuseVehicleOwner Detail"}
               </Typography>
 

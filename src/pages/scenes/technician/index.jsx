@@ -9,12 +9,12 @@ import {
   IconButton,
   FormControl,
   Typography,
+  Tooltip,
 } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { useDispatch, useSelector } from "react-redux";
 import { Edit, FilterList, Search } from "@mui/icons-material";
 import ModalEdit from "./ModalEdit";
-import AddIcon from "@mui/icons-material/Add";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Fade from "@mui/material/Fade";
@@ -34,8 +34,14 @@ import PlacesAutocomplete, {
 import Map from "./google";
 import { tokens } from "../../../theme";
 import Header from "../../../components/Header";
-import { fetchTechnicians, getLocationTechnician, getTechnicianId } from "../../../redux/technicianSlice";
+import {
+  fetchTechnicians,
+  getLocationTechnician,
+  getTechnicianId,
+} from "../../../redux/technicianSlice";
 import CustomTablePagination from "../../../components/TablePagination";
+import InfoIcon from "@mui/icons-material/Info";
+import areaData from "../../../data.json";
 const Technicians = (props) => {
   const dispatch = useDispatch();
   const technicians = useSelector((state) => state.technician.technicians);
@@ -56,11 +62,7 @@ const Technicians = (props) => {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]);
   const [address, setAddress] = useState(""); // Thêm trường address
-  const [addressDestination, setAddressDestination] = useState("");
-  const [departure, setDeparture] = useState("");
-  const [destination, setDestination] = useState("");
-  const [latDestination, setLatDestination] = useState(null);
-  const [lngDestination, setLngDestination] = useState(null);
+
   const [lat, setLat] = useState(null);
   const [lng, setLng] = useState(null);
   const [latTech, setLatTech] = useState(null);
@@ -71,13 +73,21 @@ const Technicians = (props) => {
   const [isMapLoaded, setIsMapLoaded] = useState(false);
   const [intervalId, setIntervalId] = useState(null);
   const [accountData, setAccountData] = useState({});
-
+  const [dataJson, setDataJson] = useState([]);
+  useEffect(() => {
+    if (dataJson.area && dataJson.area.length > 0) {
+      console.log(dataJson.area[0].name || "Không có ");
+    } else {
+      console.log("Không có dữ liệu");
+    }
+    setDataJson(areaData);
+  }, [dataJson]);
   const handleLocationOfTechnician = (technicianId) => {
     console.log(technicianId);
     setShowMapModal(true);
     setIsMapLoaded(true);
     setMapLoading(true);
-  
+
     const intervalId = setInterval(() => {
       dispatch(getLocationTechnician({ id: technicianId }))
         .then((response) => {
@@ -87,11 +97,11 @@ const Technicians = (props) => {
             var bodyObj = JSON.parse(technicianDetails.body);
             const lat = parseFloat(bodyObj.Lat);
             const lng = parseFloat(bodyObj.Long);
-  
+
             if (!isNaN(lat) && !isNaN(lng)) {
               setTechnicianLocation({ lat, lng });
               setIsSuccess(true);
-             
+
               // Check if valid lat and lng before making further API calls
               if (lat !== 0 && lng !== 0) {
                 dispatch(getTechnicianId({ id: technicianId }))
@@ -135,11 +145,10 @@ const Technicians = (props) => {
           );
         });
     }, 3000);
-  
+
     setIntervalId(intervalId);
   };
-  
-  
+
   useEffect(() => {
     // Clear interval when the component unmounts or modal is closed
     return () => {
@@ -148,7 +157,6 @@ const Technicians = (props) => {
       }
     };
   }, [intervalId]);
-
 
   // Effect to handle map loading
   useEffect(() => {
@@ -255,7 +263,7 @@ const Technicians = (props) => {
     // Fetch the technicianId details based on the selected technicianId ID
     dispatch(getTechnicianId({ id: technicianId }))
       .then((response) => {
-        const technicianDetails = response.payload.data; 
+        const technicianDetails = response.payload.data;
         const accountData = response.payload.data;
         setAccountData(accountData);
         setSelectedEditTechnician(technicianDetails);
@@ -336,14 +344,14 @@ const Technicians = (props) => {
       width: 160,
       renderCell: (params) => (
         <Box>
-        <Box sx={{fontWeight:"bold"}}>{params.row.fullname}</Box>
-        {params.row.account?.email ? (
-      <Box sx={{color:"black"}}>{params.row.account?.email}</Box>
-    ) : (
-      <Box  sx={{color:"black"}} >Không có Email</Box> 
-    )}
-      </Box>
-    ),
+          <Box sx={{ fontWeight: "bold" }}>{params.row.fullname}</Box>
+          {params.row.account?.email ? (
+            <Box sx={{ color: "black" }}>{params.row.account?.email}</Box>
+          ) : (
+            <Box sx={{ color: "black" }}>Không có Email</Box>
+          )}
+        </Box>
+      ),
       cellClassName: "name-column--cell",
     },
     {
@@ -380,8 +388,53 @@ const Technicians = (props) => {
           .add(7, "hours")
           .format("DD-MM-YYYY HH:mm:ss"),
     },
-    { field: "area", headerName: "Khu Vực", width: 60, key: "area" },
+    {
+      field: "area",
+      headerName: "Khu Vực",
+      width: 120,
+      key: "area",
+      renderCell: ({ row }) => {
+        const { area } = row;
 
+        let displayedArea = "Không có dữ liệu";
+        let areaDescription = ""; // Mô tả khu vực
+
+        if (dataJson.area && dataJson.area.length > 0) {
+          switch (area) {
+            case 1:
+              displayedArea = dataJson.area[0]?.name || "Không có";
+              areaDescription =
+                dataJson.area[0]?.description || "Không có mô tả";
+              break;
+            case 2:
+              displayedArea = dataJson.area[1]?.name || "Không có";
+              areaDescription =
+                dataJson.area[1]?.description || "Không có mô tả";
+              break;
+            case 3:
+              displayedArea = dataJson.area[2]?.name || "Không có";
+              areaDescription =
+                dataJson.area[2]?.description || "Không có mô tả";
+              break;
+            default:
+              displayedArea = "Không có dữ liệu";
+          }
+        }
+
+        return (
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <Typography color="inherit">{displayedArea}</Typography>
+            <Tooltip
+              title={areaDescription.split("\n").map((line, i) => (
+                <div key={i}>{line}</div>
+              ))}
+            >
+              <InfoIcon style={{ marginLeft: "5px", fontSize: "16px" }} />
+            </Tooltip>
+          </Box>
+        );
+      },
+    },
     {
       field: "avatar",
       headerName: "Hình ảnh",
@@ -701,7 +754,6 @@ const Technicians = (props) => {
           setTechnicianLocation(null);
           setInfoTechnician(null);
           setShowMapModal(false);
-         
         }}
         loading={mapLoading}
       >

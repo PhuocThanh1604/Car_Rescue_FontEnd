@@ -357,7 +357,7 @@ const MyModal = (props) => {
               variant="h4"
               component="h2"
               id="book-detail-modal"
-              sx={{ textAlign: "center" }}
+              sx={{ textAlign: "center",fontWeight: "bold" }}
             >
               Thông Tin Chi Tiết Đơn Hàng Đang Điều Phối
             </Typography>

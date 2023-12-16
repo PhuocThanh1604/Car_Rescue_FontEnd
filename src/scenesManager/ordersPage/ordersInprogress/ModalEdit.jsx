@@ -42,7 +42,7 @@ import { tokens } from "../../../theme";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import moment from "moment";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-import servicesPrice from "../../../priceService.json";
+import servicesPrice from "../../../data.json";
 const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
   const [services, setServices] = useState([]);
 
@@ -628,6 +628,7 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
                 component="h2"
                 id="RescuseVehicleOwner-detail-modal"
                 align="center"
+                fontWeight="bold"
               >
                 {selectedEditOrder
                   ? "Thông Tin Dịch Vụ"

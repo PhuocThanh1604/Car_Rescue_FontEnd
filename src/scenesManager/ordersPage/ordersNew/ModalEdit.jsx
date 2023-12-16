@@ -18,11 +18,7 @@ import {
   Collapse,
   Divider,
   Stack,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
+
 } from "@mui/material";
 import { CategoryRounded, Close } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
@@ -139,17 +135,6 @@ const ModalEdit = ({
     setShowModalVehicleOfRvo(!showModalVehicleOfRvo);
   };
 
-  const [openDialog, setOpenDialog] = useState(false);
-
-  // Hàm mở dialog xác nhận
-  const openConfirmationDialog = () => {
-    setOpenDialog(true);
-  };
-
-  // Hàm đóng dialog
-  const closeConfirmationDialog = () => {
-    setOpenDialog(false);
-  };
   const managerString = localStorage.getItem("manager");
   let manager = null;
 
@@ -1035,7 +1020,7 @@ const ModalEdit = ({
                     <>
                       <Card sx={{ height: "400px", overflow: "auto" }}>
                         <CardContent>
-                          <Typography variant="h4" sx={{ marginBottom: 1 }}>
+                          <Typography variant="h4" sx={{ marginBottom: 1, fontWeight:"bold" }}>
                             Chi Tiết Đơn Hàng
                           </Typography>
                           <TextField
@@ -2150,27 +2135,7 @@ const ModalEdit = ({
                   </Grid>
                 </CardContent>
               </Collapse>
-              <Dialog open={openDialog} onClose={closeConfirmationDialog}>
-                <DialogTitle>Xác nhận</DialogTitle>
-                <DialogContent>
-                  <DialogContentText>
-                    Bạn có chắc chắn muốn thực hiện hành động này không?
-                  </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                  <Button variant="outlined" onClick={closeConfirmationDialog}>
-                    Hủy
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    onClick={handleSaveClick}
-                    autoFocus
-                  >
-                    Xác nhận
-                  </Button>
-                </DialogActions>
-              </Dialog>
-              ;
+        
               <Box
                 sx={{
                   display: "flex",
@@ -2180,7 +2145,7 @@ const ModalEdit = ({
                 }}
               >
                 <Button
-                  onClick={openConfirmationDialog}
+                  onClick={handleSaveClick}
                   sx={{ backgroundColor: colors.lightGreen[400] }}
                   variant="outlined"
                 >
