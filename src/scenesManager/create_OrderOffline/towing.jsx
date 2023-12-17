@@ -75,8 +75,11 @@ const CreateOrderOffline = () => {
       customerId: yup.string().required("Yêu cầu"),
       carId: yup.string(),
       service: yup.string().required("Vui lòng nhập dịch vụ"),
-      to: yup.string().required("Vui lòng nhập số điện thoại"),
-      nameCustomer: yup.string().required("Vui lòng nhập tên khách hàng"),
+      to: yup
+      .string()
+      .required("Vui lòng nhập số điện thoại")
+      .matches(/^[0-9]{10}$/, "Số điện thoại phải có 10 chữ số"),
+      nameCustomer: yup.string().required("Vui lòng nhập tên khách hàng").matches(/^[a-zA-Z]+$/, "Vui lòng nhập chữ cái [a-Z]"),
     };
 
     if (selectedRescueType === "Towing") {

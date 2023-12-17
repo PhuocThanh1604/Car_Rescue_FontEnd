@@ -8,7 +8,6 @@ import {
   MenuItem,
   IconButton,
   FormControl,
-  Switch,
   Typography,
   Tooltip,
 } from "@mui/material";
@@ -71,6 +70,8 @@ const RescueVehicleOwners = (props) => {
     }
     setDataJson(areaData);
   }, [dataJson]);
+
+  
   useEffect(() => {
     if (isSuccess) {
     }

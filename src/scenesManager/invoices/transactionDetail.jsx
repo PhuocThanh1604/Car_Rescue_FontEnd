@@ -356,7 +356,7 @@ const TransactionDetails = () => {
             display="flex"
             justifyContent="center"
             fontSize={8}
-            borderRadius={2} // Corrected prop name from "buserRadius" to "borderRadius"
+            borderRadius={2} 
             backgroundColor={
               type === "Withdraw"
                 ? colors.greenAccent[700]

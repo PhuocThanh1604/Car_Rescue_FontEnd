@@ -210,7 +210,10 @@ const CreateOrderOffline = () => {
       carId: yup.string(),
       service: yup.string().required("Vui lòng nhập dịch vụ"),
       symptomId: yup.string().required("Vui lòng nhập hiện tượng"),
-      to: yup.string().required("Vui lòng nhập số điện thoại"),
+      to: yup
+      .string()
+      .required("Vui lòng nhập số điện thoại")
+      .matches(/^[0-9]{10}$/, "Số điện thoại phải có 10 chữ số"),
       nameCustomer: yup.string().required("Vui lòng nhập tên khách hàng"),
     };
 
