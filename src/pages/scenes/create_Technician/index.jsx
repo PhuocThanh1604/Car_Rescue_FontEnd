@@ -65,26 +65,14 @@ const Addtechnician = () => {
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/,
         "Mật khẩu phải có ít nhất một chữ hoa, một chữ thường, một số và một ký tự đặc biệt"
       ),
-    fullname: yup.string().required("Required"),
+    fullname: yup.string().required("Required").matches(/^[a-zA-Z]+$/, "Vui lòng nhập chữ cái [a-Z]"),
     sex: yup.string().required("Required"),
     status: yup.string().required("Required"),
-    address: yup.string().required("Required"),
+    address: yup.string().required("Required").matches(/^[a-zA-Z]+$/, "Vui lòng nhập chữ cái [a-Z]"),
     phone: yup
       .string()
       .required("Yêu cầu")
       .matches(/^[0-9]{10}$/, "Số điện thoại phải có 10 chữ số"),
-    avatar: yup
-      .string()
-      .required("Yêu cầu")
-      .test("is-avatar-provided", "Yêu cầu thêm avatar", function (value) {
-        if (this.parent.avatar === "") {
-          return this.createError({
-            message: "Yêu cầu thêm avatar",
-            path: "avatar",
-          });
-        }
-        return true;
-      }),
     avatar: yup
       .string()
       .required("Yêu cầu")

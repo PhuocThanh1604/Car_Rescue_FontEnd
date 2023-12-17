@@ -40,8 +40,8 @@ const AddService = () => {
   }
   
   const checkoutSchema = yup.object().shape({
-    name: yup.string().required("Yêu Cầu"),
-    description: yup.string(),
+    name: yup.string().required("Yêu Cầu").matches(/^[a-zA-Z]+$/, "Vui lòng nhập chữ cái [a-Z]"),
+    description: yup.string().matches(/^[a-zA-Z]+$/, "Vui lòng nhập chữ cái [a-Z]"),
     status: yup.string().required("Yêu Cầu"),
     price: yup
     .number()

@@ -67,7 +67,7 @@ const CreateOrderOffline = () => {
   const [dataJson, setDataJson] = useState([]);
   const getValidationSchema = () => {
     let schema = {
-      customerNote: yup.string().required("Vui lòng nhập ghi chú"),
+      customerNote: yup.string().required("Vui lòng nhập ghi chú").matches(/^[a-zA-Z]+$/, "Vui lòng nhập chữ cái [a-Z]"),
       departure: yup.string().required("Vui lòng nhập địa chỉ"),
       rescueType: yup.string().required("Vui lòng nhập hình thức"),
       paymentMethod: yup.string().required("Vui lòng nhập phương thức"),
