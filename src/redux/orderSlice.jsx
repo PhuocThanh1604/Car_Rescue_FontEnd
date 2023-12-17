@@ -391,6 +391,11 @@ export const createAcceptOrder = createAsyncThunk(
         {
           headers: {
             "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers":
+              "Origin, X-Requested-With, Content-Type, Accept ",
+            "Access-Control-Allow-Methods": "POST, GET, PUT, OPTIONS, DELETE",
+            "Access-Control-Max-Age": 3600,
             'Authorization':`${accessToken}`
           },
         }
@@ -414,6 +419,11 @@ export const createCancelOrder = createAsyncThunk(
         {
           headers: {
             "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers":
+              "Origin, X-Requested-With, Content-Type, Accept ",
+            "Access-Control-Allow-Methods": "POST, GET, PUT, OPTIONS, DELETE",
+            "Access-Control-Max-Age": 3600,
             'Authorization':`${accessToken}`
           },
         }
@@ -436,6 +446,11 @@ export const createChangeTypeRescue = createAsyncThunk(
         {
           headers: {
             "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers":
+              "Origin, X-Requested-With, Content-Type, Accept ",
+            "Access-Control-Allow-Methods": "POST, GET, PUT, OPTIONS, DELETE",
+            "Access-Control-Max-Age": 3600,
             'Authorization':`${accessToken}`
           },
         }
@@ -459,6 +474,11 @@ export const createOrderOfflineFixing = createAsyncThunk(
         {
           headers: {
             "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers":
+              "Origin, X-Requested-With, Content-Type, Accept ",
+            "Access-Control-Allow-Methods": "POST, GET, PUT, OPTIONS, DELETE",
+            "Access-Control-Max-Age": 3600,
             'Authorization':`${accessToken}`
           },
         }
@@ -482,6 +502,11 @@ export const createOrderOffline = createAsyncThunk(
         {
           headers: {
             "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers":
+              "Origin, X-Requested-With, Content-Type, Accept ",
+            "Access-Control-Allow-Methods": "POST, GET, PUT, OPTIONS, DELETE",
+            "Access-Control-Max-Age": 3600,
             'Authorization':`${accessToken}`
           },
         }
@@ -574,6 +599,7 @@ export const sendNotification = createAsyncThunk(
         {
           headers: {
             "Content-Type": "application/json",
+            
             'Authorization':`${accessToken}`
           },
         }

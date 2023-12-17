@@ -224,7 +224,7 @@ const Addtechnician = () => {
                   handleChange(e);
                   setEmail(e.target.value);
                 }}
-                name="email" // Tên trường trong initialValues
+                name="email"
                 error={touched.email && errors.email ? true : false}
                 helperText={touched.email && errors.email}
                 sx={{ gridColumn: "span 2" }}
@@ -240,7 +240,7 @@ const Addtechnician = () => {
                   handleChange(e);
                   setPassword(e.target.value);
                 }}
-                name="password" // Tên trường trong initialValues
+                name="password" 
                 error={touched.password && errors.password ? true : false}
                 helperText={touched.password && errors.password}
                 sx={{ gridColumn: "span 2" }}

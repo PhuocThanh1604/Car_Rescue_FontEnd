@@ -17,7 +17,12 @@ export const createRescueVehicleOwner = createAsyncThunk(
         {
           headers: {
             "Content-Type": "application/json",
-            'Authorization':`${accessToken}`
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers":
+              "Origin, X-Requested-With, Content-Type, Accept ",
+            "Access-Control-Allow-Methods": "POST, GET, PUT, OPTIONS, DELETE",
+            "Access-Control-Max-Age": 3600,
+            Authorization: `${accessToken}`,
           },
         }
       );
@@ -38,7 +43,7 @@ export const fetchRescueVehicleOwners = createAsyncThunk(
         {
           headers: {
             "Content-Type": "application/json",
-            'Authorization':`${accessToken}`
+            Authorization: `${accessToken}`,
           },
         }
       );
@@ -54,14 +59,13 @@ export const fetchRescueVehicleOwners = createAsyncThunk(
 export const getRescueVehicleOwnerId = createAsyncThunk(
   "rescueVehicleOwner/getRescueVehicleOwnerId",
   async ({ id }) => {
-
     try {
       const response = await axios.get(
         `https://rescuecapstoneapi.azurewebsites.net/api/RescueVehicleOwner/Get?id=${id}`,
         {
           headers: {
             "Content-Type": "application/json",
-            'Authorization':`${accessToken}`
+            Authorization: `${accessToken}`,
           },
         }
       );
@@ -77,7 +81,7 @@ export const getRescueVehicleOwnerId = createAsyncThunk(
 export const editRescueVehicleOwner = createAsyncThunk(
   "rescueVehicleOwners/edit",
   async ({ data }) => {
-    console.log(data)
+    console.log(data);
     try {
       const res = await axios.put(
         `https://rescuecapstoneapi.azurewebsites.net/api/RescueVehicleOwner/Update`,
@@ -85,7 +89,7 @@ export const editRescueVehicleOwner = createAsyncThunk(
         {
           headers: {
             "Content-Type": "application/json",
-            'Authorization':`${accessToken}`
+            Authorization: `${accessToken}`,
           },
         }
       );
@@ -101,12 +105,12 @@ export const updateStatusRescueVehicleOwner = createAsyncThunk(
   async ({ data }) => {
     try {
       const res = await axios.put(
-        `https://rescuecapstoneapi.azurewebsites.net/api/RescueVehicleOwner/Update`, 
-        data, 
+        `https://rescuecapstoneapi.azurewebsites.net/api/RescueVehicleOwner/Update`,
+        data,
         {
           headers: {
             "Content-Type": "application/json",
-            'Authorization':`${accessToken}`
+            Authorization: `${accessToken}`,
           },
         }
       );
@@ -127,7 +131,7 @@ export const getReportAllNew = createAsyncThunk(
         {
           headers: {
             "Content-Type": "application/json",
-            'Authorization':`${accessToken}`
+            Authorization: `${accessToken}`,
           },
         }
       );
@@ -148,7 +152,7 @@ export const getReportAll = createAsyncThunk(
         {
           headers: {
             "Content-Type": "application/json",
-            'Authorization':`${accessToken}`
+            Authorization: `${accessToken}`,
           },
         }
       );
@@ -169,7 +173,7 @@ export const getReportById = createAsyncThunk(
         {
           headers: {
             "Content-Type": "application/json",
-            'Authorization':`${accessToken}`
+            Authorization: `${accessToken}`,
           },
         }
       );
@@ -190,11 +194,11 @@ export const acceptReport = createAsyncThunk(
     try {
       console.log(id, boolean);
       const response = await axios.post(
-        `https://rescuecapstoneapi.azurewebsites.net/api/Report/Accept?id=${id}&boolean=${boolean}`, 
+        `https://rescuecapstoneapi.azurewebsites.net/api/Report/Accept?id=${id}&boolean=${boolean}`,
         {
           headers: {
             "Content-Type": "application/json",
-            'Authorization':`${accessToken}`
+            Authorization: `${accessToken}`,
           },
         }
       );
@@ -203,10 +207,7 @@ export const acceptReport = createAsyncThunk(
       console.log(data);
       return data;
     } catch (error) {
-      console.error(
-        "Failed to create Accept Report of RVO:",
-        error.response
-      );
+      console.error("Failed to create Accept Report of RVO:", error.response);
       throw error.response.data || error.message;
     }
   }
