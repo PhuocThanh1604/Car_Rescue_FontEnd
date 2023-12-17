@@ -538,7 +538,7 @@ const MyModal = (props) => {
                           sx={{
                             display: "flex",
                             alignItems: "center",
-                            marginBottom: "8px", // Thêm khoảng cách dưới cùng của dòng
+                            marginBottom: "8px",
                             fontSize: "1rem",
                             marginRight: "2px",
                           }}

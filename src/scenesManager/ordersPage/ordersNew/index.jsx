@@ -85,10 +85,9 @@ const Orders = (props) => {
         if (data) {
           setData(data);
           setFilteredOrders(data);
-          // Đặt loading thành false sau khi tải lại dữ liệu
           setLoading(false);
         } else {
-          toast.dismiss("Không có dữ liệu từ phản hồi");
+          toast.dismiss("Không có dữ liệu từ phản hồi từ server");
         }
       })
       .catch((error) => {

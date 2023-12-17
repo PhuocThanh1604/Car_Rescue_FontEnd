@@ -65,10 +65,10 @@ const Addtechnician = () => {
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/,
         "Mật khẩu phải có ít nhất một chữ hoa, một chữ thường, một số và một ký tự đặc biệt"
       ),
-    fullname: yup.string().required("Required").matches(/^[a-zA-Z]+$/, "Vui lòng nhập chữ cái [a-Z]"),
+    fullname: yup.string().required("Required"),
     sex: yup.string().required("Required"),
     status: yup.string().required("Required"),
-    address: yup.string().required("Required").matches(/^[a-zA-Z]+$/, "Vui lòng nhập chữ cái [a-Z]"),
+    address: yup.string().required("Required"),
     phone: yup
       .string()
       .required("Yêu cầu")

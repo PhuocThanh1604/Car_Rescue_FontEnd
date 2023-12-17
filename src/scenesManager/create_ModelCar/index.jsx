@@ -42,7 +42,7 @@ const AddModelCar = () => {
 
 
   const checkoutSchema = yup.object().shape({
-    model1: yup.string().required("Required").matches(/^[a-zA-Z]+$/, "Vui lòng nhập chữ cái [a-Z]"),
+    model1: yup.string().required("Required"),
     status: yup.string().required("Required"),
   });
   const statusMapping = {

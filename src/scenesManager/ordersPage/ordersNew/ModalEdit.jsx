@@ -1172,7 +1172,7 @@ const ModalEdit = ({
                           >
                             <PlaceIcon style={iconColor} />
                             <strong style={{ flexShrink: 0 }}>
-                              Địa điểm xe hư:{" "}
+                              Địa điểm bắt đầu:{" "}
                             </strong>{" "}
                             <Typography
                               variant="h5"
@@ -1200,7 +1200,7 @@ const ModalEdit = ({
                                 flexShrink: 0,
                               }}
                             >
-                              Địa điểm kéo đến:
+                              Địa điểm kết thúc:
                             </strong>{" "}
                             <Tooltip title={edit.destination}>
                               <Typography

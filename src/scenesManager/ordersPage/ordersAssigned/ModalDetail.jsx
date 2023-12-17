@@ -571,7 +571,7 @@ const MyModal = (props) => {
                             }}
                           >
                             <LocationOnIcon style={iconColor} />
-                            <strong>Địa chỉ xe hư: </strong>
+                            <strong>Địa chỉ bắt đầu: </strong>
                             <Typography
                               variant="h6"
                               component="span"
@@ -598,7 +598,7 @@ const MyModal = (props) => {
                             }}
                           >
                             <LocationOnIcon style={iconColor} />
-                            <strong>Địa chỉ đến: </strong>
+                            <strong>Địa chỉ kết thúc: </strong>
                             <Typography
                               variant="h6"
                               component="span"

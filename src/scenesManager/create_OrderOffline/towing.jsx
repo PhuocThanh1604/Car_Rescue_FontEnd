@@ -67,7 +67,7 @@ const CreateOrderOffline = () => {
   const [dataJson, setDataJson] = useState([]);
   const getValidationSchema = () => {
     let schema = {
-      customerNote: yup.string().required("Vui lòng nhập ghi chú").matches(/^[a-zA-Z]+$/, "Vui lòng nhập chữ cái [a-Z]"),
+      customerNote: yup.string().required("Vui lòng nhập ghi chú"),
       departure: yup.string().required("Vui lòng nhập địa chỉ"),
       rescueType: yup.string().required("Vui lòng nhập hình thức"),
       paymentMethod: yup.string().required("Vui lòng nhập phương thức"),
@@ -79,7 +79,7 @@ const CreateOrderOffline = () => {
       .string()
       .required("Vui lòng nhập số điện thoại")
       .matches(/^[0-9]{10}$/, "Số điện thoại phải có 10 chữ số"),
-      nameCustomer: yup.string().required("Vui lòng nhập tên khách hàng").matches(/^[a-zA-Z]+$/, "Vui lòng nhập chữ cái [a-Z]"),
+      nameCustomer: yup.string().required("Vui lòng nhập tên khách hàng"),
     };
 
     if (selectedRescueType === "Towing") {

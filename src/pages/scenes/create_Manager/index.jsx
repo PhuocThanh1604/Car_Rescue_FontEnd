@@ -64,10 +64,10 @@ const AddManager = () => {
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/,
       "Mật khẩu phải có ít nhất một chữ hoa, một chữ thường, một số và một ký tự đặc biệt"
     ),
-    fullname: yup.string().required("Yêu cầu").matches(/^[a-zA-Z]+$/, "Vui lòng nhập chữ cái [a-Z]"),
+    fullname: yup.string().required("Yêu cầu"),
     sex: yup.string().required("Yêu cầu"),
     status: yup.string().required("Yêu cầu"),
-    address: yup.string().required("Yêu cầu").matches(/^[a-zA-Z]+$/, "Vui lòng nhập chữ cái [a-Z]"),
+    address: yup.string().required("Yêu cầu"),
     phone: yup
       .string()
       .required("Yêu cầu")

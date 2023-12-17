@@ -270,14 +270,7 @@ const Managers = (props) => {
         }
       },
     },
-    {
-      field: "publicDate",
-      headerName: "Date",
-      width: 100,
-      key: "status",
-      valueGetter: (params) =>
-        moment(params.row.createAt).utcOffset(7).format("DD-MM-YYYY"),
-    },
+
     {
       field: "area",
       headerName: "Khu Vực",
