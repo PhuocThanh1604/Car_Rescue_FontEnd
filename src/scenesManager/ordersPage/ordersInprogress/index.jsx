@@ -74,7 +74,7 @@ const OrdersInprogress = (props) => {
 }
     const filteredOrders = orders.filter((order) => {
       const nameMatch =
-        fullnameData[order.customerId] && // Check if fullname data is available
+        fullnameData[order.customerId] && 
         fullnameData[order.customerId].toLowerCase().includes(value);
       const filterMatch =
         filterOption === "rescueType" ||
@@ -133,19 +133,17 @@ const OrdersInprogress = (props) => {
     setLoading(true);
     dispatch(fetchOrdersInprogress())
       .then((response) => {
-        // Đã lấy dữ liệu thành công
         const data = response.payload.data;
         if (data) {
           console.log(data)
           setData(data);
           setFilteredOrders(data);
-          setLoading(false); // Đặt trạng thái loading thành false sau khi xử lý dữ liệu
+          setLoading(false); 
         }else{
           toast.dismiss("Lỗi khi lấy dữ liệu đơn đang thực hiện");
         }
       })
       .catch(error => {
-        // Xử lý lỗi ở đây
         toast.dismiss("Lỗi khi lấy dữ liệu đơn đang thực hiện:", error);
       })
       .finally(() => {

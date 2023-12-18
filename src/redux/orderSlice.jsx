@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-const apiKeyGG = "AIzaSyCKENObap2mBz7hbIrDnONJwIBdBSVNJTE";
+const apiKeyGG = "AIzaSyChI9DuNbyJd4I5Od1hBrs9n3VB-EYEh2E";
+const apiKeyGong = "267Zysi7kKypsNGSqcIBzWc3wxpz7rkeWguYkiM4";
 // const apiKeyGG = process.env.API_KEY_GG;
 const mapboxToken =
   "pk.eyJ1IjoidGhhbmgyazEiLCJhIjoiY2xvZjMxcWppMG5oejJqcnI2M2ZleTJtZiJ9.yvWTA-yYNqTdr2OstpB7bw";
@@ -300,44 +301,20 @@ export const getOrderDetailId = createAsyncThunk(
     }
   }
 );
-export const getFormattedAddressGG = createAsyncThunk(
-  "orders/getFormattedAddress",
-  async ({ lat, lng }) => {
-    console.log("lat"+lat,"lng"+lng);
-    try {
-        // `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKeyGG}`
-
-      const response = await axios.get(
-        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`
-
-      );
-
-      const data = response.data;
-      console.log(data)
-      return data;
-    } catch (error) {
-      console.error("Failed to get Address ", error.error_message);
-      throw error.response.data || error.message;
-    }
-  }
-);
 // export const getFormattedAddressGG = createAsyncThunk(
 //   "orders/getFormattedAddress",
 //   async ({ lat, lng }) => {
-//     const key = `formattedAddress_${lat}_${lng}`;
-//     const storedData = getFromStorage(key);
-
-//     if (storedData) {
-//       return storedData; // Trả về dữ liệu đã lưu nếu có
-//     }
-
+//     console.log("lat"+lat,"lng"+lng);
 //     try {
-//       removeFromStorage(storedData);
+//         // `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKeyGG}`
+
 //       const response = await axios.get(
-//         `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKeyGG}`
+//         `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`
+
 //       );
+
 //       const data = response.data;
-//       saveToStorage(key, data); // Lưu dữ liệu mới vào storage
+//       console.log(data)
 //       return data;
 //     } catch (error) {
 //       console.error("Failed to get Address ", error.error_message);
@@ -345,6 +322,34 @@ export const getFormattedAddressGG = createAsyncThunk(
 //     }
 //   }
 // );
+export const getFormattedAddressGG = createAsyncThunk(
+  "orders/getFormattedAddress",
+  async ({ lat, lng }) => {
+
+    try {
+  
+      const response = await axios.get(
+        // `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKeyGG}`,
+        `https://rsapi.goong.io/Geocode?latlng=${lat},${lng}&api_key=${apiKeyGong}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Headers": "*",
+            "Access-Control-Allow-Methods": "POST, GET, PUT, OPTIONS, DELETE",
+            "Access-Control-Max-Age": 3600,
+            "Access-Control-Allow-Credentials":true,
+            'Authorization':"AIzaSyChI9DuNbyJd4I5Od1hBrs9n3VB-EYEh2E"
+          },
+        }
+      );
+      const data = response.data;
+      return data;
+    } catch (error) {
+      console.error("Failed to get Address ", error.error_message);
+      throw error.response.data || error.message;
+    }
+  }
+);
 
 // export const getFormattedAddressGG = createAsyncThunk(
 //   "orders/getFormattedAddress",

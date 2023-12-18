@@ -78,7 +78,7 @@ const CreateOrderOffline = () => {
       to: yup
       .string()
       .required("Vui lòng nhập số điện thoại")
-      .matches(/^[0-9]{10}$/, "Số điện thoại phải có 10 chữ số"),
+      .matches(/^[0-9]{9}$/, "Số điện thoại phải có 9 chữ số"),
       nameCustomer: yup.string().required("Vui lòng nhập tên khách hàng"),
     };
 

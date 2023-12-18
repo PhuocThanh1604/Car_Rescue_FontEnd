@@ -323,7 +323,7 @@ const fetchOrder = (orderId, uniqueKey) => {
             {status === "FAILED"
                 ? "Không Thành Công"
                 : status === "FINISHED"
-                ? "Hoành Thành"
+                ? "Hoàn Thành"
                 : status}
             </Typography>
           </Box>

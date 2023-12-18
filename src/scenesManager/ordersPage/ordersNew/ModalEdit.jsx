@@ -131,9 +131,11 @@ const ModalEdit = ({
 
   const [dataModel, setDataModel] = useState("");
   const [fullnameRvo, setFullnameRvo] = useState({});
+  const [dataManager, setDataManager] = useState({});
   const toggleModal = () => {
     setShowModalVehicleOfRvo(!showModalVehicleOfRvo);
   };
+
 
   const managerString = localStorage.getItem("manager");
   let manager = null;
@@ -145,6 +147,7 @@ const ModalEdit = ({
       console.error("Lỗi khi phân tích chuỗi JSON:", error);
     }
   }
+ 
 
   useEffect(() => {
     if (edit.departure) {
@@ -170,7 +173,9 @@ const ModalEdit = ({
         try {
           const response = await dispatch(getFormattedAddressGG({ lat, lng }));
           console.log(response.payload.display_name);
-          const formattedAddress = response.payload.display_name;
+          // const formattedAddress = response.payload.display_name;
+          const formattedAddress = response.payload.results.formatted_address; // gong
+          // console.log( formatted_address) // gong
           setFormattedAddresses((prevAddresses) => ({
             ...prevAddresses,
             [addressType]: formattedAddress,
@@ -381,7 +386,6 @@ const ModalEdit = ({
 
           if (activeTechnicians.length > 0) {
             activeTechnicians.forEach((technician) => {
-              // You can also access other properties here if needed.
             });
           } else {
             console.log("No active technicians found.");
@@ -596,7 +600,6 @@ const ModalEdit = ({
       toast.info("Không có thay đổi để lưu.");
       handleClose();
     } else {
-      // Gửi yêu cầu cập nhật lên máy chủ, bao gồm vehicleId và orderId
       const requestData = {
         orderID: orderId,
         vehicleID: vehicleId,

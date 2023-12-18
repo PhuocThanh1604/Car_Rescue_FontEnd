@@ -34,43 +34,93 @@ const UpdateProfileManager = () => {
   const [loading, setLoading] = useState(false);
   const [currentImageUrl, setCurrentImageUrl] = useState(data.avatar || "");
   const [downloadUrl, setDownloadUrl] = useState("");
-const [dataManager,setDataManager] = useState({})
+  const [dataManager, setDataManager] = useState({});
+  const [formattedDate, setFormattedDate] = useState('');
   const handleImageUploaded = (imageUrl) => {
     setDownloadUrl(imageUrl);
     // Set the avatar value to the uploaded image URL
     formikRef.current.setFieldValue("avatar", imageUrl);
   };
-// Lấy dữ liệu từ localStorage
-const managerData = localStorage.getItem("manager");
+  // const convertDateFormat = (inputDate) => {
+  //   // Tách ngày, tháng và năm từ chuỗi "mm/dd/yyyy"
+  //   const [month, day, year] = inputDate.split('/');
+  
+  //   // Chuyển đổi thành định dạng "yyyy-MM-dd"
+  //   const formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+  
+  //   return formattedDate;
+  // };
+  
+  const formatDate = (birthdate) => {
+    // const formattedDate = convertDateFormat(birthdate);
+    console.log(formattedDate)
+    return formattedDate;
+  };
+  useEffect(() => {
+    // Lấy dữ liệu từ localStorage
+    const managerData = localStorage.getItem("manager");
 
-useEffect(() => {
-  // Lấy dữ liệu từ localStorage
-  const managerData = localStorage.getItem("manager");
+    if (managerData) {
+      const manager = JSON.parse(managerData);
+      formatDate(manager.birthdate);
+      console.log(manager.birthdate)
+      setDataManager(manager);
+    } else {
+      console.log("Manager data not found");
+    }
+  }, []); 
+  const statusMapping = {
+    ACTIVE: "Hoạt Động",
+    INACTIVE: "Không Hoạt Động",
+  };
+// Thêm mảng phụ thuộc rỗng để chỉ chạy một lần sau khi component mount
 
-  if (managerData) {
-    const manager = JSON.parse(managerData);
-    setDataManager(manager);
-  } else {
-    console.log("Manager data not found");
-  }
-}, []); // Thêm mảng phụ thuộc rỗng để chỉ chạy một lần sau khi component mount
-
-useEffect(() => {
-  if (Object.keys(dataManager).length > 0) {
-    formikRef.current.setValues(dataManager);
-  }
-}, [dataManager]); 
+  useEffect(() => {
+    if (Object.keys(dataManager).length > 0) {
+      formikRef.current.setValues(dataManager);
+    }
+  }, [dataManager]);
   const checkoutSchema = yup.object().shape({
-    fullname: yup.string().required("Required"),
+    email: yup.string().email("Email không hợp lệ").required("Yêu cầu"),
+    password: yup
+      .string()
+      .required("Yêu cầu")
+      .min(8, "Mật khẩu cần dài ít nhất 8 ký tự")
+      .matches(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/,
+        "Mật khẩu phải có ít nhất một chữ hoa, một chữ thường, một số và một ký tự đặc biệt"
+      ),
+    fullname: yup.string().required("Yêu cầu"),
     sex: yup.string().required("Required"),
     status: yup.string().required("Required"),
     address: yup.string().required("Required"),
-    phone: yup.string().required("Required"),
-    avatar: yup.string().required("Required"),
-    birthdate: yup.date().required("Required"), // Date validation
+    phone: yup
+      .string()
+      .required("Yêu cầu")
+      .matches(/^[0-9]{10}$/, "Số điện thoại phải có 10 chữ số"),
+    avatar: yup
+      .string()
+      .required("Yêu cầu")
+      .test("is-avatar-provided", "Yêu cầu thêm avatar", function (value) {
+        if (this.parent.avatar === "") {
+          return this.createError({
+            message: "Yêu cầu thêm avatar",
+            path: "avatar",
+          });
+        }
+        return true;
+      }),
+    birthdate: yup
+      .date()
+      .required("Yêu cầu")
+      .max(new Date(), "Ngày sinh không được lớn hơn ngày hiện tại")
+      .min(
+        new Date(new Date().getFullYear() - 120, 0, 1),
+        "Ngày sinh không hợp lệ"
+      ),
     accountId: yup.string().required("Required"),
   });
-  const statusOptions = ["ACTIVE", "INACTIVE"];
+
   const initialValues = {
     fullname: "",
     sex: "",
@@ -108,6 +158,10 @@ useEffect(() => {
         }
       });
   };
+  const handleChange = (event) => {
+    setFormattedDate(event.target.value);
+    // You can also update the state 'apiDate' here if needed
+  };
   useEffect(() => {
     dispatch(getAccountEmail())
       .then((response) => {
@@ -118,18 +172,20 @@ useEffect(() => {
           setLoading(false);
         }
       })
-      .catch(error => {
+      .catch((error) => {
         toast.dismiss("Error fetching account email:", error);
-        // Xử lý lỗi hoặc đặt giá trị mặc định nếu cần
       })
       .finally(() => {
         setLoading(false);
       });
   }, [dispatch]);
-  
+
   return (
     <Box m="20px">
-      <Header title="Cập Nhật Thông Tin Cá Nhân" subtitle="Cập Nhật Thông Tin Cá Nhân" />
+      <Header
+        title="Cập Nhật Thông Tin Cá Nhân"
+        subtitle="Cập Nhật Thông Tin Cá Nhân"
+      />
 
       <Formik
         onSubmit={handleFormSubmit}
@@ -149,7 +205,7 @@ useEffect(() => {
           <form onSubmit={handleSubmit}>
             <Box display="flex" justifyContent="left" mb="20px">
               <Button type="submit" color="secondary" variant="contained">
-              Cập Nhật Thông Tin Cá Nhân
+                Cập Nhật Thông Tin Cá Nhân
               </Button>
             </Box>
             <Box
@@ -162,7 +218,22 @@ useEffect(() => {
             >
               <TextField
                 fullWidth
-                variant="filled"
+                variant="outlined"
+                type="text"
+                label="Email"
+                onBlur={handleBlur}
+                value={values.account?.email}
+                onChange={(e) => {
+                  handleChange(e);
+                }}
+                name="email"
+                error={touched.email && errors.email ? true : false}
+                helperText={touched.email && errors.email}
+                sx={{ gridColumn: "span 1" }}
+              />
+              <TextField
+                fullWidth
+                variant="outlined"
                 type="text"
                 label="Họ Và Tên"
                 onBlur={handleBlur}
@@ -173,57 +244,40 @@ useEffect(() => {
                 helperText={touched.fullname && errors.fullname}
                 sx={{ gridColumn: "span 1" }}
               />
-              <Grid container spacing={4} alignItems="center" marginBottom={2}>
-                <Grid item xs={6}>
-                  <Grid container spacing={1} alignItems="center">
-                    <Grid item>
-                      <Avatar
-                        alt="Avatar"
-                        src={values.avatar} // Bind the src to values.avatar
-                        sx={{ width: 50, height: 50 }}
-                      />
-                    </Grid>
-                    <Grid item>
-                      <UploadImageField
-                        onImageUploaded={handleImageUploaded}
-                        imageUrl={currentImageUrl}
-                      />
-                    </Grid>
-                  </Grid>
-                </Grid>
-              </Grid>
-              <Autocomplete
-                id="account-select"
-                options={data}
-                getOptionLabel={(option) => option.email}
-                getOptionSelected={(option, value) => option.id === value.id}
-                value={selectedAccount}
-                onChange={(_, newValue) => {
-                  console.log("Selected Account:", newValue);
-                  setSelectedAccount(newValue);
-                  const selectedAccountId = newValue ? newValue.id : "";
-                  console.log("Selected Account ID:", selectedAccountId);
-
-                  // Use Formik's handleChange to update the 'accountId' field
-                  handleChange("accountId")(selectedAccountId);
-                }}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Danh Sách Tài Khoản"
-                    variant="filled"
-                    onBlur={handleBlur}
-                    error={touched.accountId && errors.accountId ? true : false}
-                    helperText={touched.accountId && errors.accountId}
-                  />
+              <Box
+                display="flex"
+                alignItems="center"
+                sx={{ gridColumn: "span 1", gap: "10px" }}
+              >
+                <Avatar
+                  alt="Avatar"
+                  src={values.avatar}
+                  sx={{ width: 50, height: 50 }}
+                />
+                <UploadImageField
+                  onImageUploaded={handleImageUploaded}
+                  imageUrl={currentImageUrl}
+                />
+                {touched.avatar && errors.avatar && (
+                  <Box
+                    position="absolute"
+                    bottom={-25}
+                    left={0}
+                    color="red"
+                    fontSize="0.8rem"
+                  >
+                    {errors.avatar}
+                  </Box>
                 )}
-              />
+              </Box>
+
               <FormControl fullWidth variant="filled">
                 <InputLabel id="sex-label">Giới Tính</InputLabel>
                 <Select
                   labelId="sex-label"
                   id="sex"
                   name="sex"
+                  variant="outlined"
                   value={values.sex}
                   onChange={handleChange}
                   onBlur={handleBlur}
@@ -236,7 +290,7 @@ useEffect(() => {
 
               <TextField
                 fullWidth
-                variant="filled"
+                variant="outlined"
                 type="text"
                 label="Địa Chỉ"
                 onBlur={handleBlur}
@@ -249,7 +303,7 @@ useEffect(() => {
               />
               <TextField
                 fullWidth
-                variant="filled"
+                variant="outlined"
                 type="phone"
                 label="Số Điện Thoại"
                 onBlur={handleBlur}
@@ -268,7 +322,7 @@ useEffect(() => {
                 label="Ngày Sinh"
                 onBlur={handleBlur}
                 onChange={handleChange}
-                value={values.birthdate}
+                value={  values.birthday}
                 name="birthdate"
                 error={touched.birthdate && errors.birthdate ? true : false}
                 helperText={touched.birthdate && errors.birthdate}
@@ -294,9 +348,9 @@ useEffect(() => {
                     value={values.status}
                     sx={{ gridColumn: "span 4" }}
                   >
-                    {statusOptions.map((status) => (
-                      <MenuItem key={status} value={status}>
-                        {status}
+                    {Object.keys(statusMapping).map((statusKey) => (
+                      <MenuItem key={statusKey} value={statusKey}>
+                        {statusMapping[statusKey]}{" "}
                       </MenuItem>
                     ))}
                   </Select>

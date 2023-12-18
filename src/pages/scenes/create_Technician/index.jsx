@@ -101,7 +101,6 @@ const Addtechnician = () => {
   const statusMapping = {
     ACTIVE: "Hoạt Động",
     INACTIVE: "Không Hoạt Động",
-    // Thêm các trạng thái khác nếu cần thiết
   };
   const initialValues = {
     fullname: "",
@@ -137,7 +136,6 @@ const Addtechnician = () => {
       values2: initialValues,
     });
     setSelectedAccount(null);
-    // In ra tất cả dữ liệu đã nhập
     console.log("Dữ liệu đã nhập:", updatedInitialValues);
     dispatch(createTechnician(updatedInitialValues))
       .then((response) => {
@@ -188,7 +186,6 @@ const Addtechnician = () => {
         onSubmit={handleFormSubmit}
         initialValues={initialValues}
         validationSchema={checkoutSchema}
-        // Gán formikRef cho ref
         innerRef={formikRef}
       >
         {({

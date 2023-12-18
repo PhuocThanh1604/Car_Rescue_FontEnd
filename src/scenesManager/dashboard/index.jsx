@@ -114,7 +114,6 @@ const Dashboard = () => {
       });
   }, [dispatch]);
 
-
   useEffect(() => {
     setLoading(true);
     dispatch(fetchCustomers())
@@ -149,14 +148,12 @@ const Dashboard = () => {
             (transaction) => transaction.walletId
           );
 
-
           // Tạo một mảng chứa các promise từ việc gọi getRVOOfWallet cho từng ID
           const promises = withdrawTransactionIds.map((walletId) => {
             return dispatch(getRVOOfWallet({ id: walletId }))
               .then((response) => {
                 const data = response.payload.data;
                 if (data) {
-
                   setFullNameRvo((prevFullNameRvo) => ({
                     ...prevFullNameRvo,
                     [walletId]: data.rvo.fullname,
@@ -489,6 +486,7 @@ const Dashboard = () => {
             </Typography>
           </Box>
         </Box>
+
         <Box
           gridColumn="span 4"
           gridRow="span 2"
@@ -514,23 +512,21 @@ const Dashboard = () => {
               key={`${dataCustomer.id}-${i}`}
               display="flex"
               justifyContent="space-between"
-              alignItems="center"
-              borderBottom={`1px solid ${colors.primary[500]}`}
               p="10px"
             >
-              <Box>
+              <Box style={{ minWidth: "200px", maxWidth: "200px" }}>
                 <Typography
                   color={colors.greenAccent[500]}
                   variant="h5"
                   fontWeight="600"
+                  style={{ wordWrap: "break-word" }}
                 >
                   {dataCustomer.fullname}
                 </Typography>
               </Box>
 
-              <Box color={colors.grey[100]}>
+              <Box color={colors.grey[100]} style={{ minWidth: "100px" }}>
                 {new Date(dataCustomer.birthdate).toLocaleDateString()}{" "}
-                {/* Sử dụng order.createdAt thay vì dataOrder.createdAt */}
               </Box>
 
               <Avatar src={dataCustomer.avatar} />
@@ -539,7 +535,6 @@ const Dashboard = () => {
         </Box>
 
         {/* ROW 3 */}
-     
 
         <Box
           gridColumn="span 4"
@@ -580,7 +575,6 @@ const Dashboard = () => {
 
               <Box color={colors.grey[100]}>
                 {new Date(dataTransaction.createdAt).toLocaleDateString()}{" "}
-                {/* Sử dụng order.createdAt thay vì dataOrder.createdAt */}
               </Box>
 
               <Typography
