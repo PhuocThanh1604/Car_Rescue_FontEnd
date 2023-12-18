@@ -80,7 +80,7 @@ const OrdersCancelled = (props) => {
         setOpenModal(true);
       })
       .catch((error) => {
-        console.error("Lỗi khi lấy thông tin đơn hàng mới:", error);
+        console.error("Lỗi khi lấy thông tin đơn hàng bị hủy:", error);
       });
   };
 
@@ -175,14 +175,13 @@ const OrdersCancelled = (props) => {
     setLoading(true);
     dispatch(fetchOrdersCancelled())
       .then((response) => {
-        // Đã lấy dữ liệu thành công
         const data = response.payload.data;
         if (data) {
           setData(data);
           setFilteredOrders(data);
-          setLoading(false); // Đặt trạng thái loading thành false sau khi xử lý dữ liệu
+          setLoading(false); 
         }else{
-          toast.error("Lỗi khi lấy dữ liệu đơn hủy");
+          toast.error("Không có dữ liệu đơn hủy");
         }
       })
       .catch(error => {

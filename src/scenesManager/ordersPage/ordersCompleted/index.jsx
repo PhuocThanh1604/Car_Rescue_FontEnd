@@ -292,8 +292,8 @@ const fetchFullname = (customerId) => {
       key: "createdAt",
       valueGetter: (params) =>
       moment(params.row.createdAt)
-        .tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
-        .add(7, 'hours') // Adding 3 hours (you can adjust this number as needed)
+        .tz("Asia/Ho_Chi_Minh") 
+        .add(7, 'hours') 
         .format("DD-MM-YYYY HH:mm:ss")
     },
     {

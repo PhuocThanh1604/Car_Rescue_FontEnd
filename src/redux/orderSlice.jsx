@@ -2,11 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 const apiKeyGG = "AIzaSyChI9DuNbyJd4I5Od1hBrs9n3VB-EYEh2E";
 const apiKeyGong = "267Zysi7kKypsNGSqcIBzWc3wxpz7rkeWguYkiM4";
-// const apiKeyGG = process.env.API_KEY_GG;
-const mapboxToken =
-  "pk.eyJ1IjoidGhhbmgyazEiLCJhIjoiY2xvZjMxcWppMG5oejJqcnI2M2ZleTJtZiJ9.yvWTA-yYNqTdr2OstpB7bw";
-// const apiKey = '';
-// Hàm lưu dữ liệu vào storage
+
 const saveToStorage = (key, data) => {
   const jsonData = JSON.stringify(data);
   localStorage.setItem(key, jsonData); 
@@ -496,6 +492,34 @@ export const createOrderOfflineFixing = createAsyncThunk(
     }
   }
 );
+
+export const getImageOfOrder = createAsyncThunk(
+  "orders/getImageOfOrder",
+  async ({ id }) => {
+    try {
+      console.log(id);
+      const response = await axios.get(
+        `https://rescuecapstoneapi.azurewebsites.net/api/Order/GetImagesOfOrder?id=${id}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            'Authorization':`${accessToken}`
+          },
+        }
+      );
+      const data = response.data;
+      return data;
+    } catch (response) {
+      console.error(
+        "Failed to retrieve image from order:",
+        response.status,
+        response.message
+      );
+      throw response.status || response.message;
+    }
+  }
+);
+
 export const createOrderOffline = createAsyncThunk(
   "orders/createOrderOffline",
   async (data) => {
@@ -810,6 +834,9 @@ const orderSlice = createSlice({
         state.orderData = action.payload.data;
       })
       .addCase(getCarById.fulfilled, (state, action) => {
+        state.orderData = action.payload.data;
+      })
+      .addCase(getImageOfOrder.fulfilled, (state, action) => {
         state.orderData = action.payload.data;
       })
       .addCase(getOrderDetailId.fulfilled, (state, action) => {

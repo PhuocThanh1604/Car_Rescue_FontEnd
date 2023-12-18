@@ -1225,7 +1225,7 @@ const CreateOrderOffline = () => {
                     >
                       <TextField
                         {...getInputProps({
-                          placeholder: "Nhập địa chỉ kéo đến",
+                          placeholder: "Nhập Địa chỉ kết thúc",
                           variant: "filled",
                           fullWidth: true,
                           InputProps: {

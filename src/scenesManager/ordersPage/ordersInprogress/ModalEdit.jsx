@@ -534,25 +534,21 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
   };
 
   useEffect(() => {
-    // Ensure selectedEditOrder is not null and is an array
     if (Array.isArray(selectedEditOrder) && selectedEditOrder.length > 0) {
-      // Extract service IDs, removing duplicates based on custom criteria
-      const serviceIdsSeen = new Set(); // To keep track of serviceIds we have seen
+      const serviceIdsSeen = new Set();
       const uniqueServiceIds = selectedEditOrder
         .map((order) => order.serviceId)
         .filter((serviceId) => {
           const isDuplicate = serviceIdsSeen.has(serviceId);
-          serviceIdsSeen.add(serviceId); // Add the current serviceId to the set
-          return !isDuplicate && serviceId && !nameService[serviceId]; // Return true if it's not a duplicate and not already fetched
+          serviceIdsSeen.add(serviceId); 
+          return !isDuplicate && serviceId && !nameService[serviceId]; 
         });
 
-      // Fetch service names for unique service IDs
       uniqueServiceIds.forEach(fetchServiceName);
     }
   }, [selectedEditOrder]);
 
   const fetchServiceName = (serviceId) => {
-    // Make sure you have a check to prevent unnecessary API calls
     if (!nameService[serviceId]) {
       dispatch(getServiceId({ id: serviceId }))
         .then((response) => {
@@ -655,7 +651,7 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
                       }}
                     >
                       <PlaceIcon style={iconColor} />{" "}
-                      <strong>Địa chỉ xe hư:</strong>
+                      <strong>Địa chỉ bắt đầu:</strong>
                       <Typography
                         variant="h6"
                         sx={{

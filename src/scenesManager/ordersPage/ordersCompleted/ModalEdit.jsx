@@ -45,8 +45,6 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import servicesPrice  from "../../../data.json" 
 const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
   const [services, setServices] = useState([]);
-
-
   const dispatch = useDispatch();
   const orders = useSelector((state) => state.order.orders);
   const isNonMobile = useMediaQuery("(min-width:600px)");

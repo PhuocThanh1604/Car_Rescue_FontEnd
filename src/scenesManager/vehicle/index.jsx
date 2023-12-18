@@ -293,20 +293,6 @@ const Vehicles = (props) => {
     const value = event.target.value || ""; // Use an empty string if the value is null
     setSearchText(value);
   };
-  const handleDateFilterChange = () => {
-    if (startDate && endDate) {
-      const filteredVehicles = vehicles.filter((user) => {
-        const orderDate = moment(user.createAt).format("YYYY-MM-DD");
-        const isAfterStartDate = moment(orderDate).isSameOrAfter(startDate);
-        const isBeforeEndDate = moment(orderDate).isSameOrBefore(endDate);
-        return isAfterStartDate && isBeforeEndDate;
-      });
-      setFilteredVehicles(filteredVehicles);
-      setFilterOption("Date");
-    } else {
-      setFilteredVehicles(vehicles);
-    }
-  };
   const handleFilterChange = (event) => {
     const selectedStatusOption = event.target.value;
     setFilterOption(selectedStatusOption);
@@ -361,10 +347,9 @@ const Vehicles = (props) => {
     setLoading(true);
     dispatch(fetchVehicleWatting())
       .then((response) => {
-        // Kiểm tra nếu response.payload tồn tại và có thuộc tính 'data'
         if (!response.payload || !response.payload.data) {
           setLoading(false);
-          return; // Kết thúc sớm hàm useEffect() nếu không có dữ liệu
+          return;
         }
 
         const data = response.payload.data;
@@ -372,13 +357,13 @@ const Vehicles = (props) => {
         setData(data);
         setFilteredVehicles(data);
         setDetailedData(data);
-        setLoading(false); // Đặt trạng thái loading thành false sau khi xử lý dữ liệu
+        setLoading(false); 
       })
       .catch((error) => {
         setLoading(false);
       })
       .finally(() => {
-        setLoading(false); // Đặt trạng thái loading thành false
+        setLoading(false); 
       });
   }, [dispatch]);
 
@@ -400,25 +385,25 @@ const Vehicles = (props) => {
 
   const columns = [
     {
+      field: "manufacturer",
+      headerName: "Hiệu xe",
+      width: 100,
+      key: "manufacturer",
+    },
+    {
       field: "vinNumber",
-      headerName: "vinNumber",
+      headerName: "Số khung",
       width: 100,
       key: "vinNumber",
     },
     {
       field: "licensePlate",
-      headerName: "licensePlate",
+      headerName: "Biển số xe",
       width: 100,
       key: "licensePlate",
     },
 
     { field: "type", headerName: "Loại Xe", width: 140, key: "type" },
-    {
-      field: "manufacturer",
-      headerName: "Hiệu xe  ",
-      width: 100,
-      key: "manufacturer",
-    },
     {
       field: "manufacturingYear",
       headerName: "Năm sản xuất",
