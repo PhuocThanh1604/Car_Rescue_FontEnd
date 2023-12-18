@@ -445,7 +445,7 @@ const Sidebar = ({ selectedWalletId, selectedItemId }) => {
               <Link to="#" />
             </MenuItem>
             {showSubItemsSchedule && (
-              <div style={{ marginLeft: "20px" }}>
+              <Box style={{ marginLeft: "20px" }}>
                 <Item
                   title="Lịch Kỹ Thuật Viên"
                   to="manager/calendarTechnicians"
@@ -453,7 +453,7 @@ const Sidebar = ({ selectedWalletId, selectedItemId }) => {
                   selected={selected}
                   setSelected={setSelected}
                 />
-              </div>
+              </Box>
             )}
              <Item
               title="Dịch Vụ"
@@ -494,7 +494,7 @@ const Sidebar = ({ selectedWalletId, selectedItemId }) => {
               <Link to="#" />
             </MenuItem>
             {showSubItemsRescue && (
-              <div style={{ marginLeft: "20px" }}>
+              <Box style={{ marginLeft: "20px" }}>
                 <Item
                   title="Đơn Xe Cứu Hộ"
                   to="manager/vehicles"
@@ -523,7 +523,7 @@ const Sidebar = ({ selectedWalletId, selectedItemId }) => {
                   selected={selected}
                   setSelected={setSelected}
                 />
-              </div>
+              </Box>
             )}
             {shouldShowItem && (
               <Item
@@ -557,8 +557,15 @@ const Sidebar = ({ selectedWalletId, selectedItemId }) => {
             />
  
             <Item
-              title="Tạo Đơn Hàng Offline Towing"
+              title="Tạo Đơn Offline Kéo Xe"
               to="manager/add/orderOfflineTowing"
+              icon={<AddToQueueIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+            <Item
+              title="Tạo Đơn Offline Sữa Chữa"
+              to="manager/add/orderOffline"
               icon={<AddToQueueIcon />}
               selected={selected}
               setSelected={setSelected}

@@ -124,8 +124,6 @@ const OrdersInprogress = (props) => {
       setFilterOption("Date");
     } else {
       toast.error('Ngày bắt đầu hoặc ngày kết thúc không hợp lệ.');
-      // Xử lý khi startDate hoặc endDate không hợp lệ, ví dụ: hiển thị thông báo lỗi hoặc không thực hiện bất kỳ thay đổi nào
-      // Ở đây có thể hiển thị thông báo lỗi hoặc không thực hiện bất kỳ thay đổi nào tùy theo yêu cầu cụ thể của bạn.
     }
   };
 

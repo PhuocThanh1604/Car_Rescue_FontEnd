@@ -181,14 +181,11 @@ const Vehicles = (props) => {
     }
   };
 
-  //Hủy đăng kí xe
   const handleCancel = () => {
-    // Đóng modal và đặt lại orderId
     setOpenConfirmModal(false);
     setVehicleId(null);
   };
 
-  //Reload data after accept resgistration vehicle
 
   const reloadVehicle = () => {
     dispatch(fetchVehicleWatting())
@@ -197,7 +194,6 @@ const Vehicles = (props) => {
 
         if (data) {
           setFilteredVehicles(data);
-          // Đặt loading thành false sau khi tải lại dữ liệu
           setLoading(false);
           console.log("Services reloaded:", data);
         }
@@ -219,7 +215,6 @@ const Vehicles = (props) => {
       title: "Không chấp nhận đơn đăng kí ",
       body: "Xin lỗi!! xe của bạn không đủ điều kiện vào hệ thống!!",
     };
-    // Fetch the VehicleId details based on the selected Vehicle ID
     dispatch(createAcceptRegisterVehicle({ id: vehicleId, boolean: accept }))
       .then(() => {
         const updatedFilteredVehicles = filteredVehicles.filter(
@@ -264,7 +259,7 @@ const Vehicles = (props) => {
             body: messageRejected.body,
             target:vehicleId
           };
-          // Gửi thông báo bằng hàm sendNotification
+         console.log(notificationData)
           dispatch(sendNotification(notificationData))
             .then((res) => {
               if (res.payload.message === "Notification sent successfully")

@@ -152,9 +152,8 @@ const MyModal = (props) => {
       if (!isNaN(lat) && !isNaN(lng)) {
         try {
           const response = await dispatch(getFormattedAddressGG({ lat, lng }));
-          console.log(response.payload);
           // const formattedAddress = response.payload.display_name;//osm
-          const formattedAddress = response.payload.formatted_address; // gong
+          const formattedAddress = response.payload.results[0].formatted_address;
           setFormattedAddresses((prevAddresses) => ({
             ...prevAddresses,
             [addressType]: formattedAddress,

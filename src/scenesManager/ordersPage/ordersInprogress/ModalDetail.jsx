@@ -211,14 +211,7 @@ const MyModal = (props) => {
     }/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`;
   }
 
-  const technicianInfo = selectedDetailOrder &&
-    selectedDetailOrder.technicianId && (
-      <Grid item xs={5} alignItems="center">
-        <p>Không có thông tin</p>
-        {/* Đảm bảo rằng bạn đặt tất cả JSX liên quan đến thông tin kỹ thuật viên ở đây */}
-      </Grid>
-    );
-  // Hiển thị tất cả dịch vụ và quantity
+  
   const fetchOrderDetail = (orderId) => {
     console.log(orderId);
     setServiceNames(null);
@@ -368,7 +361,7 @@ const MyModal = (props) => {
               variant="h4"
               component="h2"
               id="book-detail-modal"
-              sx={{ textAlign: "center" }}
+              sx={{ textAlign: "center", fontWeight: "bold" }}
             >
               Thông Tin Chi Tiết Đơn Hàng Đang Điều Phối
             </Typography>

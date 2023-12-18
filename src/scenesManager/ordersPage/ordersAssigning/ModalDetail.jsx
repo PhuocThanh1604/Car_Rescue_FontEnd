@@ -114,8 +114,7 @@ const MyModal = (props) => {
       if (!isNaN(lat) && !isNaN(lng)) {
         try {
           const response = await dispatch(getFormattedAddressGG({ lat, lng }));
-          console.log(response.payload);
-          const formattedAddress = response.payload.display_name;
+          const formattedAddress = response.payload.results[0].formatted_address;
           setFormattedAddresses((prevAddresses) => ({
             ...prevAddresses,
             [addressType]: formattedAddress,
@@ -1168,7 +1167,7 @@ const MyModal = (props) => {
                                       display: "flex",
                                       justifyContent: "center",
                                       alignItems: "center",
-                                      height: imageHeight, // Set height to match image container
+                                      height: imageHeight,
                                     }}
                                   >
                                      <ReportProblemOutlinedIcon

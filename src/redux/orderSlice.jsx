@@ -338,7 +338,9 @@ export const getFormattedAddressGG = createAsyncThunk(
           },
         }
       );
+  
       const data = response.data;
+      console.log(data);
       return data;
     } catch (error) {
       console.error("Failed to get Address ", error.error_message);

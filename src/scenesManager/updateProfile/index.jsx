@@ -1,15 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
-  Autocomplete,
   Avatar,
   Box,
   Button,
   FormControl,
-  Grid,
   InputLabel,
   MenuItem,
   Select,
   TextField,
+  Tooltip,
 } from "@mui/material";
 import { Formik } from "formik";
 import * as yup from "yup";
@@ -18,11 +17,11 @@ import Header from "../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { createAccount, getAccountEmail } from "../../redux/accountSlice";
-import { createRescueVehicleOwner } from "../../redux/rescueVehicleOwnerSlice";
+import {  getAccountEmail } from "../../redux/accountSlice";
 import UploadImageField from "../../components/uploadImage";
-import { editManager, editmanager } from "../../redux/managerSlice";
-
+import { editManager } from "../../redux/managerSlice";
+import InfoIcon from "@mui/icons-material/Info";
+import areaData from "../../data.json";
 const UpdateProfileManager = () => {
   const dispatch = useDispatch();
   const rescueVehicleOwner = useSelector(
@@ -35,25 +34,24 @@ const UpdateProfileManager = () => {
   const [currentImageUrl, setCurrentImageUrl] = useState(data.avatar || "");
   const [downloadUrl, setDownloadUrl] = useState("");
   const [dataManager, setDataManager] = useState({});
-  const [formattedDate, setFormattedDate] = useState('');
+  const [formattedDate, setFormattedDate] = useState("");
   const handleImageUploaded = (imageUrl) => {
     setDownloadUrl(imageUrl);
     // Set the avatar value to the uploaded image URL
     formikRef.current.setFieldValue("avatar", imageUrl);
   };
-  // const convertDateFormat = (inputDate) => {
-  //   // Tách ngày, tháng và năm từ chuỗi "mm/dd/yyyy"
-  //   const [month, day, year] = inputDate.split('/');
-  
-  //   // Chuyển đổi thành định dạng "yyyy-MM-dd"
-  //   const formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-  
-  //   return formattedDate;
-  // };
-  
+  const [dataJson, setDataJson] = useState([]);
+  useEffect(() => {
+    if (dataJson.area && dataJson.area.length > 0) {
+      console.log(dataJson.area[0].name || "Không có ");
+    } else {
+      console.log("Không có dữ liệu về khu vực");
+    }
+    setDataJson(areaData);
+  }, [dataJson]);
   const formatDate = (birthdate) => {
     // const formattedDate = convertDateFormat(birthdate);
-    console.log(formattedDate)
+    console.log(formattedDate);
     return formattedDate;
   };
   useEffect(() => {
@@ -63,17 +61,16 @@ const UpdateProfileManager = () => {
     if (managerData) {
       const manager = JSON.parse(managerData);
       formatDate(manager.birthdate);
-      console.log(manager.birthdate)
+      console.log(manager.birthdate);
       setDataManager(manager);
     } else {
       console.log("Manager data not found");
     }
-  }, []); 
+  }, []);
   const statusMapping = {
     ACTIVE: "Hoạt Động",
     INACTIVE: "Không Hoạt Động",
   };
-// Thêm mảng phụ thuộc rỗng để chỉ chạy một lần sau khi component mount
 
   useEffect(() => {
     if (Object.keys(dataManager).length > 0) {
@@ -301,6 +298,8 @@ const UpdateProfileManager = () => {
                 helperText={touched.address && errors.address}
                 sx={{ gridColumn: "span 2" }}
               />
+
+           
               <TextField
                 fullWidth
                 variant="outlined"
@@ -312,7 +311,7 @@ const UpdateProfileManager = () => {
                 name="phone"
                 error={touched.phone && errors.phone ? true : false}
                 helperText={touched.phone && errors.phone}
-                sx={{ gridColumn: "span 2" }}
+                sx={{ gridColumn: "span 1" }}
               />
 
               <TextField
@@ -322,12 +321,13 @@ const UpdateProfileManager = () => {
                 label="Ngày Sinh"
                 onBlur={handleBlur}
                 onChange={handleChange}
-                value={  values.birthday}
+                value={values.birthday}
                 name="birthdate"
                 error={touched.birthdate && errors.birthdate ? true : false}
                 helperText={touched.birthdate && errors.birthdate}
-                sx={{ gridColumn: "span 2" }}
+                sx={{ gridColumn: "span 1" }}
               />
+              
               <Box sx={{ minWidth: 120 }}>
                 <FormControl
                   fullWidth
@@ -341,7 +341,6 @@ const UpdateProfileManager = () => {
                     id="demo-simple-select"
                     label="Trạng Thái"
                     variant="outlined"
-                    className="filter-select"
                     name="status"
                     onBlur={handleBlur}
                     onChange={handleChange}
@@ -356,6 +355,48 @@ const UpdateProfileManager = () => {
                   </Select>
                 </FormControl>
               </Box>
+              <FormControl
+                fullWidth
+                variant="outlined"
+               
+              >
+                <InputLabel id="area-label">Khu Vực</InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="area"
+                  name="area"
+                  variant="outlined"
+                  value={values.area || ""}
+                  onChange={handleChange}
+                  className="filter-select"
+                  label="Khu vực"
+                >
+                  {dataJson?.area &&
+                    dataJson.area.length >= 3 &&
+                    dataJson.area.slice(0, 3).map((item, index) => (
+                      <MenuItem value={item.value}>
+                        {item.name}
+                        <Tooltip
+                          key={index}
+                          title={
+                            item.description
+                              ? item.description
+                                  .split("\n")
+                                  .map((line, i) => <div key={i}>{line}</div>)
+                              : "Không có mô tả"
+                          }
+                        >
+                          <InfoIcon
+                            style={{
+                              marginLeft: "5px",
+                              fontSize: "16px",
+                            }}
+                          />
+                        </Tooltip>
+                      </MenuItem>
+                    ))}
+                </Select>
+              </FormControl>
             </Box>
           </form>
         )}

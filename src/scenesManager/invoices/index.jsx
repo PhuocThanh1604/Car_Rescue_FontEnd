@@ -186,23 +186,18 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
       console.log(transactionId);
       setIsAccepted(accept);
       console.log(accept);
-      const messageAccept = {
+      const messageAcceptWithdraw = {
         title: "Chấp nhận đơn rút ví",
-        body: "Chúc mừng xe của bạn đã đủ điều kiện vào hệ thống",
+        body: "Đơn rút tiền của bạn đã được hệ thống chấp nhận!!",
       };
-      const messageRejected = {
+      const messageRejectedWithdraw = {
         title: "Không chấp nhận đơn rút ví đăng kí ",
-        body: "Xin lỗi!! xe của bạn không đủ điều kiện vào hệ thống!!",
+        body: "Xin lỗi!! tài khoản bạn không đủ điều kiện rút!!",
       };
       dispatch(
         createAcceptWithdrawRequest({ id: transactionId, boolean: accept })
       ).then(() => {
-          // const updatedFilteredServices = filteredTransaction.filter(
-          //   (transaction) => transaction.id !== transactionId
-          // );
-    
-          
-          // filteredTransaction(updatedFilteredServices);
+         
           setTransactionId(transactionId);
           setOpenConfirmModal(false);
           setIsSuccess(true);
@@ -213,12 +208,11 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
             const notificationData = {
               deviceId:  accountDeviceToken,
               isAndroiodDevice: true,
-              title: messageAccept.title,
-              body: messageAccept.body,
+              title: messageAcceptWithdraw.title,
+              body: messageAcceptWithdraw.body,
               target:accountId
             };
             console.log("notificationData Accepted withdraw: "+notificationData)
-            // Gửi thông báo bằng hàm sendNotification
             dispatch(sendNotification(notificationData))
               .then((res) => {
                 if (res.payload.message === "Notification sent successfully")
@@ -238,11 +232,9 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
             const notificationData = {
               deviceId:accountDeviceToken,
               isAndroiodDevice: true,
-              title: messageRejected.title,
-              body: messageRejected.body,
+              title: messageRejectedWithdraw.title,
+              body: messageRejectedWithdraw.body,
               target:accountId
-        
-              
             };
             console.log("notificationData Accepted withdraw"+notificationData)
             // Gửi thông báo bằng hàm sendNotification
@@ -404,8 +396,6 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
               ...prevData,
               [walletId]: data.rvo.fullname,
             }
-           
-            
             ));
             setRvoId(data.rvoid)
           } else {
@@ -475,10 +465,7 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
     setPage(0);
   };
 
-  // const filteredVehiclePagination = filteredTransaction.slice(
-  //   page * rowsPerPage,
-  //   page * rowsPerPage + rowsPerPage
-  // );
+
   let filteredVehiclePagination = [];
 
   if (Array.isArray(filteredTransaction)) {

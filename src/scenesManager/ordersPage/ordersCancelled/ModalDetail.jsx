@@ -18,7 +18,6 @@ import {
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
-
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
@@ -76,10 +75,8 @@ const MyModal = (props) => {
       fetchAddress("departure", selectedEditOrder.departure);
     }
     if (selectedEditOrder && selectedEditOrder.rescueType === "Fixing") {
-      // Đặt lại địa chỉ điểm đến nếu rescueType là Fixing
       resetDestinationAddress();
     } else if (selectedEditOrder && selectedEditOrder.destination) {
-      // Nếu không phải Fixing, thực hiện fetchAddress cho destination
       fetchAddress("destination", selectedEditOrder.destination);
     }
 
@@ -107,7 +104,8 @@ const MyModal = (props) => {
         try {
           const response = await dispatch(getFormattedAddressGG({ lat, lng }));
           console.log(response.payload);
-          const formattedAddress = response.payload.display_name;
+          // const formattedAddress = response.payload.display_name;
+          const formattedAddress = response.payload.results[0].formatted_address;
           setFormattedAddresses((prevAddresses) => ({
             ...prevAddresses,
             [addressType]: formattedAddress,

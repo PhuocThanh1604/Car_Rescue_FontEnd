@@ -161,7 +161,7 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
           const response = await dispatch(getFormattedAddressGG({ lat, lng }));
           console.log(response.payload);
           // const formattedAddress = response.payload.display_name;//osm
-          const formattedAddress = response.payload.formatted_address; // gong
+          const formattedAddress = response.payload.results[0].formatted_address; // gong
           setFormattedAddresses((prevAddresses) => ({
             ...prevAddresses,
             [addressType]: formattedAddress,

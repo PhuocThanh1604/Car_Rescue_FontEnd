@@ -196,7 +196,7 @@ const ModalEdit = ({
           const response = await dispatch(getFormattedAddressGG({ lat, lng }));
           console.log(response.payload.display_name);
           // const formattedAddress = response.payload.display_name;
-          const formattedAddress = response.payload.results.formatted_address; // gong
+          const formattedAddress = response.payload.results[0].formatted_address; // gong
           // console.log( formatted_address) // gong
           setFormattedAddresses((prevAddresses) => ({
             ...prevAddresses,
@@ -634,6 +634,8 @@ const ModalEdit = ({
             target: accountId,
             orderId: orderId,
           };
+          console.log("Nhân sự",notificationData)
+
           dispatch(sendNotification(notificationData))
             .then(() => {
               toast.success("Gửi thông báo đến nhân sự thành công");
@@ -645,8 +647,8 @@ const ModalEdit = ({
                 target: accountIdCustomer,
                 orderId: orderId,
               };
+              console.log("Khách hàng",notificationData)
 
-              // Gửi thông báo bằng hàm sendNotification
               dispatch(sendNotification(notificationData))
                 .then(() => {
                   toast.success("Gửi thông báo đến khách hàng thành công");
@@ -709,26 +711,21 @@ const ModalEdit = ({
 
   useEffect(() => {
     if (isSuccess) {
-      // Gọi lại fetchVehiclesData và fetchRvoData ở đây
-      fetchVehiclesData(selectedRVO?.id); // Thay selectedRVO?.id bằng giá trị thích hợp
+      fetchVehiclesData(selectedRVO?.id);
       fetchRvoData().then(() => {
-        setIsSuccess(false); // Đặt lại isSuccess thành false sau khi hoàn thành việc tải lại
-        setSelectedRVO(null); // Đặt lại selectedRVO thành null sau khi hoàn thành việc tải lại
+        setIsSuccess(false); 
+        setSelectedRVO(null);
       });
     }
   }, [isSuccess]);
 
-  // Cần một useEffect để theo dõi thay đổi của selectedRVO
   useEffect(() => {
     if (!isSuccess && selectedRVO) {
-      // Gọi lại fetchVehiclesData và fetchRvoData khi selectedRVO thay đổi
-      fetchVehiclesData(selectedRVO?.id); // Thay selectedRVO?.id bằng giá trị thích hợp
+      fetchVehiclesData(selectedRVO?.id); 
       fetchRvoData();
     }
   }, [selectedRVO]);
 
-  // When rescue type is changed, reset the state accordingly
-  //get Full NameCustomer
 
   useEffect(() => {
     if (edit.carId && edit.carId !== carId) {
@@ -983,10 +980,26 @@ const ModalEdit = ({
   // );
   // Thay someOrderId bằng dependency của useEffect của bạn, để đảm bảo useEffect chạy khi dependency thay đổi
 
-  const date = new Date(edit.createdAt);
-  const formattedDate = `${date.getDate()}/${
-    date.getMonth() + 1
-  }/${date.getFullYear()} ${date.getHours() + 7}:${date.getMinutes()}`;
+ 
+
+
+  let formattedDateStart = "Không có thông tin";
+
+  if (
+    selectedEditOrder &&
+    selectedEditOrder.createdAt 
+  ) {
+    const dateStart = moment(selectedEditOrder.createdAt)
+      .tz("Asia/Ho_Chi_Minh")
+      .add(7, "hours")
+      .format("DD/MM/YYYY HH:mm"); // Format start date and time
+
+
+    formattedDateStart =
+      dateStart !== "Invalid date" ? dateStart : "Không có thông tin";
+
+  }
+
 
   return (
     <>
@@ -1192,7 +1205,7 @@ const ModalEdit = ({
                                 marginLeft: "10px",
                               }}
                             >
-                              {formattedDate}
+                              {formattedDateStart}
                             </Typography>
                           </Typography>
 
