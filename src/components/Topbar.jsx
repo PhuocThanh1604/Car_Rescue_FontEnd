@@ -114,25 +114,24 @@ if (isAdmin) {
 useEffect(() => {
   if (manager && manager.accountId !== accountId) {
     setLoading(true);
-    setAccountId(manager.accountId); // Di chuyển setAccountId vào đây
+    setAccountId(manager.accountId); 
   }
 }, [manager, accountId]);
 
 useEffect(() => {
   if (accountId !== null) {
     setLoading(true);
-    dispatch(getAllNotification({ id:accountId })) // Gửi accountId trong payload
+    dispatch(getAllNotification({ id:accountId })) 
       .then((response) => {
         if (!response.payload) {
           setLoading(false);
-          return; // Kết thúc sớm hàm useEffect() nếu không có dữ liệu
+          return; 
         }
         console.log(response.payload);
         setDataNotification(response.payload);
       })
       .catch((error) => {
         setLoading(false);
-        // Xử lý lỗi nếu cần
       })
       .finally(() => {
         setLoading(false);

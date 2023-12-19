@@ -35,8 +35,6 @@ import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import TimeToLeaveIcon from "@mui/icons-material/TimeToLeave";
 import { CategoryRounded } from "@mui/icons-material";
 import ReceiptRoundedIcon from "@mui/icons-material/ReceiptRounded";
-import SupportIcon from "@mui/icons-material/Support";
-import HandymanIcon from "@mui/icons-material/Handyman";
 import CreditScoreIcon from "@mui/icons-material/CreditScore";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import TimerIcon from "@mui/icons-material/Timer";
@@ -75,6 +73,7 @@ const MyModal = (props) => {
   });
   const [dataPayment, setDataPayment] = useState([]);
   const [dataRescueVehicleOwner, setDataRescueVehicleOwner] = useState({});
+  const [dataTechnician, setDataTechnician] = useState({});
   const [dataFeedBack, setDataFeedBack] = useState({});
   const [rescueVehicleOwnerId, setRescueVehicleOwnerId] = useState({});
   const [rating, setRating] = useState(0); // Initialize with a default rating, e.g., 0
@@ -249,10 +248,10 @@ const MyModal = (props) => {
     }
   }, [selectedEditOrder, data.vehicle]);
 
-  const fetchRescueVehicleOwner = (vehicleRvoidId) => {
+  const fetchRescueVehicleOwner = (technicianId) => {
     // Make sure you have a check to prevent unnecessary API calls
-    if (vehicleRvoidId) {
-      dispatch(getRescueVehicleOwnerId({ id: vehicleRvoidId }))
+    if (technicianId) {
+      dispatch(getTechnicianId({ id: technicianId }))
         .then((response) => {
           const data = response.payload.data;
           console.log(data);
@@ -273,6 +272,7 @@ const MyModal = (props) => {
         });
     }
   };
+
 
   const fetchOrder = (orderId) => {
     if (orderId) {
@@ -1098,7 +1098,9 @@ const MyModal = (props) => {
                                 }}
                               >
                                 <MapRoundedIcon style={iconColor} />
+                              
                                 <Typography variant="h6">
+
                                   {data.technician[
                                     selectedEditOrder.technicianId
                                   ]?.area === 1 ? (
@@ -1117,11 +1119,33 @@ const MyModal = (props) => {
                                   ) : data.technician[
                                       selectedEditOrder.technicianId
                                     ]?.area === 2 ? (
-                                    <Typography></Typography>
+                                      <Typography>
+                                      {dataJson.area[1]?.name || "Không có"}
+                                      <Tooltip
+                                        title={dataJson.area[1]?.description}
+                                      >
+                                        <InfoIcon
+                                          style={{
+                                            fontSize: "16px",
+                                          }}
+                                        />
+                                      </Tooltip>
+                                    </Typography>
                                   ) : data.technician[
                                       selectedEditOrder.technicianId
                                     ]?.area === 3 ? (
-                                    <Typography></Typography>
+                                      <Typography>
+                                      {dataJson.area[2]?.name || "Không có"}
+                                      <Tooltip
+                                        title={dataJson.area[2]?.description}
+                                      >
+                                        <InfoIcon
+                                          style={{
+                                            fontSize: "16px",
+                                          }}
+                                        />
+                                      </Tooltip>
+                                    </Typography>
                                   ) : (
                                     <Typography>Không có thông tin</Typography>
                                   )}

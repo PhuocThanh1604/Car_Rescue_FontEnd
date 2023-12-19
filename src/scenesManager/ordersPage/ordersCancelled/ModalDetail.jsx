@@ -9,11 +9,13 @@ import {
   Card,
   CardActions,
   CardContent,
+  CardMedia,
   Collapse,
   Divider,
   Grid,
   IconButton,
   Rating,
+  Tooltip,
   useTheme,
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
@@ -40,13 +42,17 @@ import { CategoryRounded } from "@mui/icons-material";
 import ReceiptRoundedIcon from "@mui/icons-material/ReceiptRounded";
 import MapIcon from '@mui/icons-material/Map';
 import CakeIcon from "@mui/icons-material/Cake"
-import TimerIcon from "@mui/icons-material/Timer";
+import InfoIcon from "@mui/icons-material/Info";
+import areaData from "../../../data.json";
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import { tokens } from "../../../theme";
 import { getServiceId } from "../../../redux/serviceSlice";
 import { getFormattedAddressGG, getOrderDetailId } from "../../../redux/orderSlice";
 import { toast } from "react-toastify";
 import moment from "moment";
+import SwipeableViews from "react-swipeable-views";
+import { autoPlay } from "react-swipeable-views-utils";
+const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
 const MyModal = (props) => {
   const dispatch = useDispatch();
   const { openModal, setOpenModal, selectedEditOrder } = props;
@@ -59,16 +65,30 @@ const MyModal = (props) => {
   });
   const [serviceNames, setServiceNames] = useState([]);
   const [dataRescueVehicleOwner, setDataRescueVehicleOwner] = useState({});
-  const [dataFeedBack, setDataFeedBack] = useState({});
+
   const [rescueVehicleOwnerId, setRescueVehicleOwnerId] = useState({});
-  const [orderId, setOrderId] = useState(null);
-  const [rating, setRating] = useState(0); // Initialize with a default rating, e.g., 0
+
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const iconColor = { color: colors.blueAccent[500] };
   const [loading, setLoading] = useState(false);
   const [formattedAddresses, setFormattedAddresses] = useState({});
-
+  const [activeStep, setActiveStep] = React.useState(0);
+  const handleStepChange = (step) => {
+    setActiveStep(step);
+  };
+  const [dataJson, setDataJson] = useState([]);
+  const imageWidth = "300px";
+  const imageHeight = "300px";
+  const [dataImage, setDataImage] = useState([]);
+  useEffect(() => {
+    if (dataJson.area && dataJson.area.length > 0) {
+      console.log(dataJson.area[0].name || "Không có ");
+    } else {
+      console.log("Không có dữ liệu");
+    }
+    setDataJson(areaData);
+  }, [dataJson]);
   useEffect(() => {
     setLoading(true)
     if (selectedEditOrder && selectedEditOrder.departure) {
@@ -789,13 +809,6 @@ const MyModal = (props) => {
                 <Collapse in={collapse}>
                   <Divider sx={{ margin: 0 }} />
                   <CardContent>
-                    <Typography
-                      variant="h4"
-                      sx={{ marginBottom: 2, textAlign: "center" }}
-                    >
-                      Thông Tin Nhân Sự Đã Nhận Đơn
-                    </Typography>
-
                     <Box
                       sx={{
                         display: "flex",
@@ -805,168 +818,98 @@ const MyModal = (props) => {
                       }}
                     >
                       <Grid container spacing={2} alignItems="stretch">
-                        <Grid item xs={5} alignItems="center">
-                          <Typography
-                            variant="h6"
-                            sx={{ marginBottom: 2, textAlign: "center" }}
-                          >
-                            Kỹ Thuật Viên Nhận Đơn
-                          </Typography>
-                          <Box
-                            sx={{
-                              mr: 2,
-                              display: "flex",
-                              alignItems: "center",
-                              marginBottom: "10px",
-                            }}
-                          >
-                            <Avatar
-                              alt="Avatar"
-                              src={
-                                data.technician[selectedEditOrder.technicianId]
-                                  ?.avatar || "URL mặc định của avatar"
-                              }
-                              sx={{
-                                width: 44,
-                                height: 44,
-                                marginLeft: 1.75,
-                              }}
-                            />
-                            <Typography
-                              variant="h6"
-                              sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                marginLeft: "10px",
-                              }}
-                            >
-                              <strong> Tên:  </strong>{" "}
-                              {data.technician[selectedEditOrder.technicianId]
-                                ?.fullname || "Không có thông tin"}
-                            </Typography>
-                          </Box>
-                          <Box
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 1, // Khoảng cách giữa icon và văn bản
-                            }}
-                          >
-                            <PeopleAltRoundedIcon style={{iconColor}}/>
-                            <Typography variant="h6">
-                              Giới Tính:{" "}
-                              {data.technician[selectedEditOrder.technicianId]
-                                ?.sex || "Không có thông tin"}
-                            </Typography>
-                          </Box>
-                          <Box
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 1, // Khoảng cách giữa icon và văn bản
-                            }}
-                          >
-                            <PhoneRoundedIcon style={iconColor}/>
-                            <Typography variant="h6">
-                              SĐT:{" "}
-                              {data.technician[selectedEditOrder.technicianId]
-                                ?.phone || "Không có thông tin"}
-                            </Typography>
-                          </Box>
-                          <Box
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 1, // Khoảng cách giữa icon và văn bản
-                            }}
-                          >
-                            <PlaceIcon style={iconColor}/>
-                            <Typography variant="h6">
-                              Địa Chỉ:{" "}
-                              {data.technician[selectedEditOrder.technicianId]
-                                ?.address || "Không có thông tin"}
-                            </Typography>
-                          </Box>
-
-                          <Box
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 1, // Khoảng cách giữa icon và văn bản
-                            }}
-                          >
-                            <MapRoundedIcon style={iconColor}/>
-                            <Typography variant="h6">
-                              Khu vực:{" "}
-                              {data.technician[selectedEditOrder.technicianId]
-                                ?.area || "Không có thông tin"}
-                            </Typography>
-                          </Box>
-                        </Grid>
-
-                        <Grid item xs={1}>
-                          <Divider
-                            orientation="vertical"
-                            sx={{ height: "100%" }}
-                          />
-                        </Grid>
-
-                        {/*CarOWnẻ*/}
-                        <Grid item xs={5} alignItems="center">
-                          <Typography
-                            variant="h6"
-                            sx={{ marginBottom: 2, textAlign: "center" }}
-                          >
-                            Xe Cứu Hộ Nhận Đơn
-                          </Typography>
-                          <Grid container>
-                            <Box
-                              sx={{
-                                mr: 2,
-                                display: "flex",
-                                alignItems: "center",
-                                marginBottom: "10px",
-                              }}
-                            >
-                              <Avatar
-                                alt="Avatar"
-                                src={
-                                  dataRescueVehicleOwner[vehicleRvoidId]
-                                    ?.avatar ||
-                                  "https://t4.ftcdn.net/jpg/03/59/58/91/360_F_359589186_JDLl8dIWoBNf1iqEkHxhUeeOulx0wOC5.jpg"
-                                }
-                                sx={{
-                                  width: 44,
-                                  height: 44,
-                                  marginLeft: 1.75,
-                                }}
-                              />
+                        {selectedEditOrder.rescueType === "Fixing" && (
+                          <>
+                            {" "}
+                            <Grid item xs={3} alignItems="center">
                               <Typography
                                 variant="h6"
-                                sx={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  marginLeft: "10px",
-                                }}
+                                sx={{ marginBottom: 2, textAlign: "center" }}
                               >
-                                <strong> Tên Chủ Xe: </strong>{" "}
-                                {dataRescueVehicleOwner[vehicleRvoidId]
-                                  ?.fullname || "Không có thông tin"}
+                                Kỹ Thuật Viên Nhận Đơn
                               </Typography>
-                            </Box>
-                            <Grid item xs={6}>
+                              <Box
+                                sx={{
+                                  mr: 2,
+                                  display: "flex",
+                                  alignItems: "center",
+                                  marginBottom: "10px",
+                                }}
+                              >
+                                <Avatar
+                                  alt="Avatar"
+                                  src={
+                                    data.technician[
+                                      selectedEditOrder.technicianId
+                                    ]?.avatar || "URL mặc định của avatar"
+                                  }
+                                  sx={{
+                                    width: 44,
+                                    height: 44,
+                                    marginLeft: 1.75,
+                                  }}
+                                />
+                              </Box>
+
                               <Box
                                 sx={{
                                   display: "flex",
                                   alignItems: "center",
-                                  gap: 1, // Khoảng cách giữa icon và văn bản
+                                  gap: 1,
                                 }}
                               >
-                                <ReceiptRoundedIcon style={iconColor}/>
+                                <PeopleAltRoundedIcon style={iconColor} />
                                 <Typography variant="h6">
-                                  Biển Số:{" "}
-                                  {data.vehicle[selectedEditOrder.vehicleId]
-                                    ?.licensePlate || "Không có thông tin"}
+                                  {" "}
+                                  Tên:
+                                  {data.technician[
+                                    selectedEditOrder.technicianId
+                                  ]?.fullname || "Không có thông tin"}{" "}
+                                </Typography>
+                              </Box>
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 1,
+                                }}
+                              >
+                                <PeopleAltRoundedIcon style={iconColor} />
+                                <Typography variant="h6">
+                                  Giới Tính:{" "}
+                                  {data.technician[
+                                    selectedEditOrder.technicianId
+                                  ]?.sex || "Không có thông tin"}
+                                </Typography>
+                              </Box>
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 1,
+                                }}
+                              >
+                                <PhoneRoundedIcon style={iconColor} />
+                                <Typography variant="h6">
+                                  SĐT:{" "}
+                                  {data.technician[
+                                    selectedEditOrder.technicianId
+                                  ]?.phone || "Không có thông tin"}
+                                </Typography>
+                              </Box>
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 1,
+                                }}
+                              >
+                                <PlaceIcon style={iconColor} />
+                                <Typography variant="h6">
+                                  Địa Chỉ:{" "}
+                                  {data.technician[
+                                    selectedEditOrder.technicianId
+                                  ]?.address || "Không có thông tin"}
                                 </Typography>
                               </Box>
 
@@ -974,113 +917,383 @@ const MyModal = (props) => {
                                 sx={{
                                   display: "flex",
                                   alignItems: "center",
-                                  gap: 1, // Khoảng cách giữa icon và văn bản
+                                  gap: 1,
                                 }}
                               >
-                                <TimeToLeaveIcon style={iconColor}/>
+                                <MapRoundedIcon style={iconColor} />
+                              
                                 <Typography variant="h6">
-                                  Hãng Xe:{" "}
-                                  {data.vehicle[selectedEditOrder.vehicleId]
-                                    ?.manufacturer || "Không có thông tin"}
-                                </Typography>
-                              </Box>
-                              <Box
-                                sx={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: 1, // Khoảng cách giữa icon và văn bản
-                                }}
-                              >
-                                <CategoryRounded style={iconColor}/>
-                                <Typography variant="h6">
-                                  Loại Xe:{" "}
-                                  {data.vehicle[selectedEditOrder.vehicleId]
-                                    ?.type || "Không có thông tin"}
-                                </Typography>
-                              </Box>
 
-                              <Box
-                                sx={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: 1, // Khoảng cách giữa icon và văn bản
-                                }}
-                              >
-                                <CalendarTodayIcon style={iconColor}/>
-                                <Typography variant="h6">
-                                  Năm:{" "}
-                                  {data.vehicle[selectedEditOrder.vehicleId]
-                                    ?.manufacturingYear || "Không có thông tin"}
+                                  {data.technician[
+                                    selectedEditOrder.technicianId
+                                  ]?.area === 1 ? (
+                                    <Typography>
+                                      {dataJson.area[0]?.name || "Không có"}
+                                      <Tooltip
+                                        title={dataJson.area[0]?.description}
+                                      >
+                                        <InfoIcon
+                                          style={{
+                                            fontSize: "16px",
+                                          }}
+                                        />
+                                      </Tooltip>
+                                    </Typography>
+                                  ) : data.technician[
+                                      selectedEditOrder.technicianId
+                                    ]?.area === 2 ? (
+                                      <Typography>
+                                      {dataJson.area[1]?.name || "Không có"}
+                                      <Tooltip
+                                        title={dataJson.area[1]?.description}
+                                      >
+                                        <InfoIcon
+                                          style={{
+                                            fontSize: "16px",
+                                          }}
+                                        />
+                                      </Tooltip>
+                                    </Typography>
+                                  ) : data.technician[
+                                      selectedEditOrder.technicianId
+                                    ]?.area === 3 ? (
+                                      <Typography>
+                                      {dataJson.area[2]?.name || "Không có"}
+                                      <Tooltip
+                                        title={dataJson.area[2]?.description}
+                                      >
+                                        <InfoIcon
+                                          style={{
+                                            fontSize: "16px",
+                                          }}
+                                        />
+                                      </Tooltip>
+                                    </Typography>
+                                  ) : (
+                                    <Typography>Không có thông tin</Typography>
+                                  )}
                                 </Typography>
                               </Box>
                             </Grid>
-
-                            <Grid item xs={4}>
-                              <Box sx={{ marginLeft: "6px" }}>
-                                {data.vehicle[selectedEditOrder.vehicleId]
-                                  ?.image ? (
-                                  <img
-                                    src={
-                                      data.vehicle[selectedEditOrder.vehicleId]
-                                        ?.image
-                                    }
-                                    alt="Hình Ảnh Của Xe"
-                                    style={{
-                                      width: "160px",
-                                      height: "100px",
-                                      border: "2px solid #000",
-                                      objectFit: "cover",
-                                    }}
-                                    onClick={() => setShowModal(true)}
-                                    title="Nhấp để xem ảnh rõ hơn"
-                                  />
-                                ) : (
-                                  <img
-                                    src="https://t4.ftcdn.net/jpg/04/70/29/97/360_F_470299797_UD0eoVMMSUbHCcNJCdv2t8B2g1GVqYgs.jpg"
-                                    alt="Hình Ảnh Mặc Định"
-                                    style={{
-                                      width: "100%",
-                                      height: "auto",
-                                      border: "2px solid #000",
-                                      objectFit: "cover",
-                                    }}
-                                  />
-                                )}
-                                {showModal && (
-                                  <div
-                                    style={{
-                                      position: "fixed",
-                                      top: 0,
-                                      left: 0,
-                                      width: "100%",
-                                      height: "100%",
-                                      backgroundColor: "rgba(0, 0, 0, 0.7)",
-                                      display: "flex",
-                                      justifyContent: "center",
-                                      alignItems: "center",
-                                    }}
-                                    onClick={() => setShowModal(false)}
-                                  >
-                                    <img
-                                      src={
-                                        data.vehicle[
-                                          selectedEditOrder.vehicleId
-                                        ]?.image
-                                      }
-                                      alt="Hình Ảnh Của Xe"
+                            <Grid item xs={1}>
+                              <Divider
+                                orientation="vertical"
+                                sx={{ height: "100%" }}
+                              />
+                            </Grid>
+                            <Grid item xs={8}>
+                              <Typography
+                                variant="h6"
+                                sx={{ textAlign: "center" }}
+                              >
+                                Hình ảnh đơn hàng
+                              </Typography>
+                              <CardMedia>
+                                <AutoPlaySwipeableViews
+                                  axis={
+                                    theme.direction === "rtl"
+                                      ? "x-reverse"
+                                      : "x"
+                                  }
+                                  index={activeStep}
+                                  onChangeIndex={handleStepChange}
+                                  enableMouseEvents
+                                >
+                                  {dataImage.map((item, index) => (
+                                    <Box
+                                      key={index}
                                       style={{
-                                        maxWidth: "80%",
-                                        maxHeight: "80%",
-                                        objectFit: "contain",
+                                        display: "flex",
+                                        justifyContent: "center",
+                                        alignItems: "center",
                                       }}
-                                    />
-                                  </div>
-                                )}
-                              </Box>
+                                    >
+                                      <img
+                                        src={item.url}
+                                        alt={`Image ${index}`}
+                                        style={{
+                                          width: imageWidth,
+                                          height: imageHeight,
+                                          objectFit: "contain",
+                                        }}
+                                      />
+                                    </Box>
+                                  ))}
+                                </AutoPlaySwipeableViews>
+                              </CardMedia>
                             </Grid>
-                          </Grid>
-                        </Grid>
+                          </>
+                        )}
 
+                        {selectedEditOrder.rescueType === "Towing" && (
+                          <>
+                            <Grid item xs={5}>
+                              <Typography
+                                variant="h6"
+                                sx={{ marginBottom: 2, textAlign: "center" }}
+                              >
+                                Xe Cứu Hộ Nhận Đơn
+                              </Typography>
+                              <Grid container spacing={2}>
+                                <Box
+                                  sx={{
+                                    mr: 2,
+                                    display: "flex",
+                                    alignItems: "center",
+                                    marginBottom: "10px",
+                                  }}
+                                >
+                                  <Avatar
+                                    alt="Avatar"
+                                    src={
+                                      dataRescueVehicleOwner[vehicleRvoidId]
+                                        ?.avatar ||
+                                      "https://t4.ftcdn.net/jpg/03/59/58/91/360_F_359589186_JDLl8dIWoBNf1iqEkHxhUeeOulx0wOC5.jpg"
+                                    }
+                                    sx={{
+                                      width: 44,
+                                      height: 44,
+                                      marginLeft: 1.75,
+                                    }}
+                                  />
+                                  <Typography
+                                    variant="h6"
+                                    sx={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      marginLeft: "10px",
+                                    }}
+                                  >
+                                    {" "}
+                                    Tên Chủ Xe:
+                                    {dataRescueVehicleOwner[vehicleRvoidId]
+                                      ?.fullname || "Không có thông tin"}
+                                  </Typography>
+                                </Box>
+                                <Grid item xs={6}>
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      gap: 1,
+                                    }}
+                                  >
+                                    <MapRoundedIcon style={iconColor} />
+                                    <Typography variant="h6">
+                                      {dataRescueVehicleOwner[vehicleRvoidId]
+                                        ?.area === 1 ? (
+                                        <Typography>
+                                          {dataJson.area[0]?.name || "Không có"}
+                                          <Tooltip
+                                            title={
+                                              dataJson.area[0]?.description
+                                            }
+                                          >
+                                            <InfoIcon
+                                              style={{
+                                                fontSize: "16px",
+                                              }}
+                                            />
+                                          </Tooltip>
+                                        </Typography>
+                                      ) : data.technician[
+                                          selectedEditOrder.technicianId
+                                        ]?.area === 2 ? (
+                                          <Typography>
+                                          {dataJson.area[1]?.name || "Không có"}
+                                          <Tooltip
+                                            title={dataJson.area[1]?.description}
+                                          >
+                                            <InfoIcon
+                                              style={{
+                                                fontSize: "16px",
+                                              }}
+                                            />
+                                          </Tooltip>
+                                        </Typography>
+                                      ) : data.technician[
+                                          selectedEditOrder.technicianId
+                                        ]?.area === 3 ? (
+                                          <Typography>
+                                          {dataJson.area[2]?.name || "Không có"}
+                                          <Tooltip
+                                            title={dataJson.area[2]?.description}
+                                          >
+                                            <InfoIcon
+                                              style={{
+                                                fontSize: "16px",
+                                              }}
+                                            />
+                                          </Tooltip>
+                                        </Typography>
+                                      ) : (
+                                        <Typography>
+                                          Không có thông tin
+                                        </Typography>
+                                      )}
+                                    </Typography>
+                                  </Box>
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      gap: 1, // Khoảng cách giữa icon và văn bản
+                                    }}
+                                  >
+                                    <ReceiptRoundedIcon style={iconColor} />
+                                    <Typography variant="h6">
+                                      Biển Số:{" "}
+                                      {data.vehicle[selectedEditOrder.vehicleId]
+                                        ?.licensePlate || "Không có thông tin"}
+                                    </Typography>
+                                  </Box>
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      gap: 1, // Khoảng cách giữa icon và văn bản
+                                    }}
+                                  >
+                                    <CalendarTodayIcon style={iconColor} />
+                                    <Typography variant="h6">
+                                      Đời xe:
+                                      {data.vehicle[selectedEditOrder.vehicleId]
+                                        ?.manufacturingYear ||
+                                        "Không có thông tin"}
+                                    </Typography>
+                                  </Box>
+
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      gap: 1, // Khoảng cách giữa icon và văn bản
+                                    }}
+                                  >
+                                    <TimeToLeaveIcon style={iconColor} />
+                                    <Typography variant="h6">
+                                      Hãng Xe:{" "}
+                                      {data.vehicle[selectedEditOrder.vehicleId]
+                                        ?.manufacturer || "Không có thông tin"}
+                                    </Typography>
+                                  </Box>
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      gap: 1, // Khoảng cách giữa icon và văn bản
+                                    }}
+                                  >
+                                    <CategoryRounded style={iconColor} />
+                                    <Typography variant="h6">
+                                      Loại Xe:{" "}
+                                      {data.vehicle[selectedEditOrder.vehicleId]
+                                        ?.type || "Không có thông tin"}
+                                    </Typography>
+                                  </Box>
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      gap: 1, // Khoảng cách giữa icon và văn bản
+                                    }}
+                                  >
+                                    <ReceiptRoundedIcon style={iconColor} />
+                                    <Typography variant="h6">
+                                      Số khung xe:{" "}
+                                      {data.vehicle[selectedEditOrder.vehicleId]
+                                        ?.vinNumber || "Không có thông tin"}
+                                    </Typography>
+                                  </Box>
+                                </Grid>
+
+                                <Grid item xs={4}>
+                                  <Box sx={{ marginLeft: "0px" }}>
+                                    {data.vehicle[selectedEditOrder.vehicleId]
+                                      ?.image ? (
+                                      <img
+                                        src={
+                                          data.vehicle[
+                                            selectedEditOrder.vehicleId
+                                          ]?.image
+                                        }
+                                        alt="Hình Ảnh Của Xe"
+                                        style={{
+                                          width: "160px",
+                                          height: "100px",
+                                          border: "2px solid #000",
+                                          objectFit: "cover",
+                                        }}
+                                        onClick={() => setShowModal(true)}
+                                        title="Nhấp để xem ảnh rõ hơn"
+                                      />
+                                    ) : (
+                                      <img
+                                        src="https://t4.ftcdn.net/jpg/04/70/29/97/360_F_470299797_UD0eoVMMSUbHCcNJCdv2t8B2g1GVqYgs.jpg"
+                                        alt="Hình Ảnh Mặc Định"
+                                        style={{
+                                          width: "100%",
+                                          height: "auto",
+                                          border: "2px solid #000",
+                                          objectFit: "cover",
+                                        }}
+                                      />
+                                    )}
+                                  </Box>
+                                </Grid>
+                              </Grid>
+                            </Grid>
+                            <Grid item xs={1}>
+                              <Divider
+                                orientation="vertical"
+                                sx={{ height: "100%" }}
+                              />
+                            </Grid>
+                            <Grid item xs={6}>
+                              <Typography
+                                variant="h6"
+                                sx={{ textAlign: "center" }}
+                              >
+                                Hình ảnh đơn hàng
+                              </Typography>
+                              <CardMedia>
+                                <AutoPlaySwipeableViews
+                                  axis={
+                                    theme.direction === "rtl"
+                                      ? "x-reverse"
+                                      : "x"
+                                  }
+                                  index={activeStep}
+                                  onChangeIndex={handleStepChange}
+                                  enableMouseEvents
+                                >
+                                  {dataImage.map((item, index) => (
+                                    <Box
+                                      key={index}
+                                      style={{
+                                        display: "flex",
+                                        justifyContent: "center",
+                                        alignItems: "center",
+                                      }}
+                                    >
+                                      <img
+                                        src={item.url}
+                                        alt={`Image ${index}`}
+                                        style={{
+                                          width: imageWidth,
+                                          height: imageHeight,
+                                          objectFit: "contain",
+                                        }}
+                                      />
+                                    </Box>
+                                  ))}
+                                </AutoPlaySwipeableViews>
+                              </CardMedia>
+                            </Grid>
+                          </>
+                        )}
+
+                        {/*iMAGE*/}
                       </Grid>
                     </Box>
                   </CardContent>
