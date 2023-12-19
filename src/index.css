@@ -197,3 +197,16 @@ body,
     background-color: red;
   }
 }
+
+.custom-dialog-content {
+  font-size: 30px;
+}
+
+.custom-dialog-content h5,
+.custom-dialog-content h6,
+.custom-dialog-content strong,
+.custom-dialog-content span,
+.custom-dialog-content p,
+.custom-dialog-content div {
+  font-size: 30px;
+}

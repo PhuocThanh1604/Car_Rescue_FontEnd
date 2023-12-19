@@ -359,7 +359,7 @@ const TransactionDetails = () => {
             borderRadius={2} 
             backgroundColor={
               type === "Withdraw"
-                ? colors.greenAccent[700]
+                ? colors.lime[500]
                 : type === "Deposit"
                 ? colors.purpleAccent[200]
                 : colors.purpleAccent[200]

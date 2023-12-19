@@ -173,9 +173,9 @@ const Sidebar = ({ selectedWalletId, selectedItemId }) => {
       sx={{
         ...sidebarStyles, // Apply the sidebar styles
         display: "flex",
-        height: isSmallScreen
-          ? "100vh"
-          : userRole === "manager"
+        height: 
+       
+         userRole === "Manager"
           ? "100%"
           : "auto",
 
@@ -200,7 +200,6 @@ const Sidebar = ({ selectedWalletId, selectedItemId }) => {
     >
       <ProSidebar collapsed={isCollapsed}>
         <Menu iconShape="square">
-          {/* LOGO AND MENU ICON */}
           <MenuItem
             onClick={() => setIsCollapsed(!isCollapsed)}
             icon={isCollapsed ? <MenuOutlinedIcon /> : undefined}

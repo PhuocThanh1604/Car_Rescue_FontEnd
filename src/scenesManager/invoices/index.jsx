@@ -82,13 +82,13 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
   const colors = tokens(theme.palette.mode);
   const CustomButton = styled(Box)({
     backgroundColor: colors.lightGreen[300],
-    borderRadius:"10px",
-    padding:"2px",
-    transition: 'background-color 0.3s',
-    '&:hover': {
+    borderRadius: "10px",
+    padding: "2px",
+    transition: "background-color 0.3s",
+    "&:hover": {
       backgroundColor: colors.lightGreen[500], // Màu sẽ thay đổi khi hover
-      cursor: 'pointer',
-      borderRadius:"10px"
+      cursor: "pointer",
+      borderRadius: "10px",
     },
   });
   useEffect(() => {
@@ -181,84 +181,84 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
       });
   };
   //Chấp nhận order
-    const handleConfirmWithdraw = (transactionId, accept) => {
-      console.log(accountId)
-      console.log(transactionId);
-      setIsAccepted(accept);
-      console.log(accept);
-      const messageAcceptWithdraw = {
-        title: "Chấp nhận đơn rút ví",
-        body: "Đơn rút tiền của bạn đã được hệ thống chấp nhận!!",
-      };
-      const messageRejectedWithdraw = {
-        title: "Không chấp nhận đơn rút ví đăng kí ",
-        body: "Xin lỗi!! tài khoản bạn không đủ điều kiện rút!!",
-      };
-      dispatch(
-        createAcceptWithdrawRequest({ id: transactionId, boolean: accept })
-      ).then(() => {
-         
+  const handleConfirmWithdraw = (transactionId, accept) => {
+    console.log(accountId);
+    console.log(transactionId);
+    setIsAccepted(accept);
+    console.log(accept);
+    const messageAcceptWithdraw = {
+      title: "Chấp nhận đơn rút ví",
+      body: "Đơn rút tiền của bạn đã được hệ thống chấp nhận!!",
+    };
+    const messageRejectedWithdraw = {
+      title: "Không chấp nhận đơn rút ví đăng kí ",
+      body: "Xin lỗi!! tài khoản bạn không đủ điều kiện rút!!",
+    };
+    dispatch(
+      createAcceptWithdrawRequest({ id: transactionId, boolean: accept })
+    )
+      .then(() => {
+        setTransactionId(transactionId);
+        setOpenConfirmModal(false);
+        setIsSuccess(true);
+        reloadTrsansaction();
+
+        if (accept) {
+          toast.success("Chấp nhận rút tiền ví thành công.");
+          const notificationData = {
+            deviceId: accountDeviceToken,
+            isAndroiodDevice: true,
+            title: messageAcceptWithdraw.title,
+            body: messageAcceptWithdraw.body,
+            target: accountId,
+          };
+          console.log(
+            "notificationData Accepted withdraw: " + notificationData
+          );
+          dispatch(sendNotification(notificationData))
+            .then((res) => {
+              if (res.payload.message === "Notification sent successfully")
+                toast.success("Gửi thông báo thành công");
+              console.log("Gửi thông báo thành công");
+            })
+            .catch((error) => {
+              toast.error("Gửi thông không thành công vui lòng thử lại!!");
+              console.error("Lỗi khi gửi thông báo:", error);
+            });
+        } else {
+          toast.error("Không đồng ý rút tiền ví.");
           setTransactionId(transactionId);
           setOpenConfirmModal(false);
           setIsSuccess(true);
           reloadTrsansaction();
-          
-          if (accept) {
-            toast.success("Chấp nhận rút tiền ví thành công.");
-            const notificationData = {
-              deviceId:  accountDeviceToken,
-              isAndroiodDevice: true,
-              title: messageAcceptWithdraw.title,
-              body: messageAcceptWithdraw.body,
-              target:accountId
-            };
-            console.log("notificationData Accepted withdraw: "+notificationData)
-            dispatch(sendNotification(notificationData))
-              .then((res) => {
-                if (res.payload.message === "Notification sent successfully")
-                  toast.success("Gửi thông báo thành công");
-                console.log("Gửi thông báo thành công");
-              })
-              .catch((error) => {
-                toast.error("Gửi thông không thành công vui lòng thử lại!!");
-                console.error("Lỗi khi gửi thông báo:", error);
-              });
-          } else {
-            toast.error("Không đồng ý rút tiền ví.");
-            setTransactionId(transactionId);
-            setOpenConfirmModal(false);
-            setIsSuccess(true);
-            reloadTrsansaction();
-            const notificationData = {
-              deviceId:accountDeviceToken,
-              isAndroiodDevice: true,
-              title: messageRejectedWithdraw.title,
-              body: messageRejectedWithdraw.body,
-              target:accountId
-            };
-            console.log("notificationData Accepted withdraw"+notificationData)
-            // Gửi thông báo bằng hàm sendNotification
-            dispatch(sendNotification(notificationData))
-              .then((res) => {
-                if (res.payload.message === "Notification sent successfully")
-                  toast.success("Gửi thông báo thành công");
-                console.log("Gửi thông báo thành công");
-              })
-              .catch((error) => {
-                toast.error("Gửi thông không thành công vui lòng thử lại!!");
-                console.error("Lỗi khi gửi thông báo:", error);
-              });
-          }
-        })
-        .catch((error) => {
-          console.error(
-            "Lỗi khi lấy thông tin giao dịch mới:",
-            error.status || error.message
-          );
-        });
-    };
-
-
+          const notificationData = {
+            deviceId: accountDeviceToken,
+            isAndroiodDevice: true,
+            title: messageRejectedWithdraw.title,
+            body: messageRejectedWithdraw.body,
+            target: accountId,
+          };
+          console.log("notificationData Accepted withdraw" + notificationData);
+          // Gửi thông báo bằng hàm sendNotification
+          dispatch(sendNotification(notificationData))
+            .then((res) => {
+              if (res.payload.message === "Notification sent successfully")
+                toast.success("Gửi thông báo thành công");
+              console.log("Gửi thông báo thành công");
+            })
+            .catch((error) => {
+              toast.error("Gửi thông không thành công vui lòng thử lại!!");
+              console.error("Lỗi khi gửi thông báo:", error);
+            });
+        }
+      })
+      .catch((error) => {
+        console.error(
+          "Lỗi khi lấy thông tin giao dịch mới:",
+          error.status || error.message
+        );
+      });
+  };
 
   useEffect(() => {
     if (isSuccess) {
@@ -364,40 +364,40 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
     setFilteredTransaction(filteredTransactionDetail);
   }, [transactions, searchText, filterOption]);
 
-
   //Fetch fullname rvo
   useEffect(() => {
     // Tạo danh sách duy nhất từ walletId và chuyển đổi thành mảng
-    const uniqueWalletIds = Array.from(new Set(data.map((row) => row.walletId)));
-  
-     // Lấy thông tin đầy đủ từ uniqueWalletIds
-  const fetchFullNames = async (walletIds) => {
-    for (const walletId of walletIds) {
-      if (!fullnameData[walletId]) {
-        await fetchFullname(walletId);
+    const uniqueWalletIds = Array.from(
+      new Set(data.map((row) => row.walletId))
+    );
+
+    // Lấy thông tin đầy đủ từ uniqueWalletIds
+    const fetchFullNames = async (walletIds) => {
+      for (const walletId of walletIds) {
+        if (!fullnameData[walletId]) {
+          await fetchFullname(walletId);
+        }
       }
-    }
-  };
-  
+    };
+
     fetchFullNames(uniqueWalletIds);
   }, [data, fullnameData]);
-  
+
   const fetchFullname = (walletId) => {
-    console.log(walletId)
+    console.log(walletId);
     if (!fullnameData[walletId]) {
       dispatch(getRVOOfWallet({ id: walletId }))
         .then((response) => {
           const data = response.payload.data;
           if (data && data.rvo.fullname) {
-            console.log(data.rvo.id)
-           console.log(data.rvo.accountId)
-           setAccountId(data.rvo.accountId)
+            console.log(data.rvo.id);
+            console.log(data.rvo.accountId);
+            setAccountId(data.rvo.accountId);
             setFullnameData((prevData) => ({
               ...prevData,
               [walletId]: data.rvo.fullname,
-            }
-            ));
-            setRvoId(data.rvoid)
+            }));
+            setRvoId(data.rvoid);
           } else {
             console.error("Fullname not found in the API response.");
           }
@@ -436,17 +436,15 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
     setLoading(true);
     dispatch(fetchTransactionsNew())
       .then((response) => {
-
         if (!response && !response.payload && !response.payload.data) {
           setLoading(false);
           return; // Kết thúc sớm hàm useEffect() nếu không có dữ liệu
         }
-          // Đã lấy dữ liệu thành công
-          const data = response.payload.data;
-          setData(data);
-          setFilteredTransaction(data);
-          setDetailedData(data);
-      
+        // Đã lấy dữ liệu thành công
+        const data = response.payload.data;
+        setData(data);
+        setFilteredTransaction(data);
+        setDetailedData(data);
       })
       .catch((error) => {
         setLoading(false);
@@ -456,7 +454,6 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
       });
   }, [dispatch]);
 
-
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -464,7 +461,6 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
-
 
   let filteredVehiclePagination = [];
 
@@ -477,8 +473,24 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
       );
   }
 
+  // Kiểm tra nếu detailedData không có giá trị hoặc là null
+if (!detailedData || detailedData === null) {
+  return "Không có thông tin";
+}
 
+// Truy cập thuộc tính transactionAmount và totalAmount
+const transactionAmount = parseFloat(detailedData.transactionAmount) || 0;
+const totalAmount = parseFloat(detailedData.totalAmount) || 0;
 
+// Kiểm tra xem transactionAmount và totalAmount có phải là số
+if (isNaN(transactionAmount) || isNaN(totalAmount)) {
+  return "Không có thông tin";
+}
+
+// Tính toán số dư ví mới (tổng số tiền giao dịch - tổng số dư ví)
+const remainingBalance = totalAmount - transactionAmount;
+
+  // Hiển thị số dư ví mới
   const columns = [
     {
       field: "id",
@@ -506,45 +518,45 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
       valueGetter: (params) =>
         moment(params.row.createdAt)
           .tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
-          .add(7, "hours") // Adding 3 hours (you can adjust this number as needed)
+          .add(7, "hours") 
           .format("DD-MM-YYYY HH:mm:ss"),
     },
-    {
-      field: "type",
-      headerName: "Hình thức",
-      width: 120,
-      key: "type",
-      renderCell: ({ row: { type } }) => {
-        return (
-          <Box
-            width="86%"
-            m="0 auto"
-            p="4px"
-            display="flex"
-            justifyContent="center"
-            fontSize={8}
-            borderRadius={2} // Corrected prop name from "buserRadius" to "borderRadius"
-            backgroundColor={
-              type === "Withdraw"
-                ? colors.greenAccent[700]
-                : type === "Deposit"
-                ? colors.purpleAccent[200]
-                : colors.purpleAccent[200]
-            }
-          >
-            {type === "Rút" && <CurrencyExchangeIcon />}
-            {type === "Deposit" && <AssuredWorkloadIcon />}
-            <Typography color={colors.grey[100]} sx={{ ml: "2px" }}>
-              {type === "Withdraw"
-                ? "Mới"
-                : type === "Deposit"
-                ? "Tiền gửi"
-                : type}
-            </Typography>
-          </Box>
-        );
-      },
-    },
+    // {
+    //   field: "type",
+    //   headerName: "Hình thức",
+    //   width: 120,
+    //   key: "type",
+    //   renderCell: ({ row: { type } }) => {
+    //     return (
+    //       <Box
+    //         width="86%"
+    //         m="0 auto"
+    //         p="4px"
+    //         display="flex"
+    //         justifyContent="center"
+    //         fontSize={8}
+    //         borderRadius={2} // Corrected prop name from "buserRadius" to "borderRadius"
+    //         backgroundColor={
+    //           type === "Withdraw"
+    //             ? colors.greenAccent[700]
+    //             : type === "Deposit"
+    //             ? colors.purpleAccent[200]
+    //             : colors.purpleAccent[200]
+    //         }
+    //       >
+    //         {type === "Rút" && <CurrencyExchangeIcon />}
+    //         {type === "Deposit" && <AssuredWorkloadIcon />}
+    //         <Typography color={colors.grey[100]} sx={{ ml: "2px",fontWeight:"bold" }}>
+    //           {type === "Withdraw"
+    //             ? "Mới"
+    //             : type === "Deposit"
+    //             ? "Tiền gửi"
+    //             : type}
+    //         </Typography>
+    //       </Box>
+    //     );
+    //   },
+    // },
     {
       field: "status",
       headerName: "Trạng Thái",
@@ -553,13 +565,14 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
       renderCell: ({ row: { status } }) => {
         return (
           <Box
-            width="auto"
-            p="4px"
-            m="0 auto"
-            display="flex"
-            justifyContent="center"
-            borderRadius={2}
-            backgroundColor={
+          width="86%"
+                  m="0 auto"
+                  p="4px"
+                  display="flex"
+                  justifyContent="center"
+                  fontSize={8}
+                  borderRadius={2} // Corrected prop name from "buserRadius" to "borderRadius"
+                  backgroundColor={
               status === "NEW"
                 ? colors.greenAccent[700]
                 : status === "FAILD"
@@ -577,7 +590,7 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
             }
           >
             <Typography color="inherit" sx={{ ml: "1px", fontWeight: "bold" }}>
-            {status === "NEW"
+              {status === "NEW"
                 ? "Mới"
                 : status === "FAILD"
                 ? "Thất Bại"
@@ -586,15 +599,15 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
                 : status === "Canneclled"
                 ? "Đã Hủy"
                 : status === "ASSIGNING"
-                ? "Đang Điều Phối" 
-                : status ==="INPROGRESS"
-                ? "Đang thực hiện":status}
+                ? "Đang Điều Phối"
+                : status === "INPROGRESS"
+                ? "Đang thực hiện"
+                : status}
             </Typography>
           </Box>
         );
       },
     },
-
 
     {
       field: "orderDetails",
@@ -643,18 +656,16 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
           color="error"
           onClick={() => handleClickModalDetail(params.row.id)}
         >
-            <CustomButton
-          onClick={() => handleClickModalDetail(params.row.id)}
-        >
+          <CustomButton onClick={() => handleClickModalDetail(params.row.id)}>
             <Typography
               variant="body1"
               color="error"
-              sx={{ fontWeight: "bold",  color: "green" }}
+              sx={{ fontWeight: "bold", color: "green" }}
               onClick={() => handleClickModalDetail(params.row.id)}
             >
               {"Chấp Nhận Đơn"}
             </Typography>
-        </CustomButton>
+          </CustomButton>
         </IconButton>
       ),
       key: "acceptWithdraw",
@@ -668,12 +679,14 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
         subtitle="Danh sách xe cứu hộ chờ duyệt"
       />
       <Box display="flex" className="box" left={0}>
-        <Box    display="flex"
-            borderRadius="6px"
-            border={1}
-            marginRight={1}
-            marginLeft={1}
-            width={500}>
+        <Box
+          display="flex"
+          borderRadius="6px"
+          border={1}
+          marginRight={1}
+          marginLeft={1}
+          width={500}
+        >
           <InputBase
             sx={{ ml: 4, flex: 1 }}
             placeholder="Tìm kiếm"
@@ -709,7 +722,12 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
             </Select>
           </FormControl>
         </Box>
-        <Box display="flex" alignItems="center" className="filter-box" sx={{marginLeft:"14px"}}>
+        <Box
+          display="flex"
+          alignItems="center"
+          className="filter-box"
+          sx={{ marginLeft: "14px" }}
+        >
           <FormControl fullWidth>
             <Select
               labelId="demo-simple-select-label"
@@ -734,8 +752,6 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
             </Select>
           </FormControl>
         </Box>
-
-
 
         <Box display="flex" alignItems="center" className="startDate-box">
           <TextField
@@ -783,40 +799,40 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
       </Box>
 
       <Box
-          m="10px 0 0 0"
-          height="auto"
-          sx={{
-            fontSize: "20px",
-            padding: "20px",
-            borderRadius: "20px",
-            boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.4)",
-            "& .MuiDataGrid-root": {
-              border: "none",
-            },
-            "& .MuiDataGrid-cell": {
-              borderBottom: "none",
-            },
-            "& .name-column--cell": {
-              color: colors.greenAccent[300],
-            },
-            "& .MuiDataGrid-columnHeaders": {
-              backgroundColor: colors.orange[50],
-              borderBottom: "none",
-            },
-            "& .MuiDataGrid-virtualScroller": {
-              backgroundColor: colors.white[50],
-            },
-            "& .MuiDataGrid-footerContainer": {
-              display: "none",
-            },
-            "& .MuiCheckbox-root": {
-              color: `${colors.greenAccent[200]} !important`,
-            },
-            "& .MuiDataGrid-row": {
-              borderBottom: "none",
-            },
-          }}
-        >
+        m="10px 0 0 0"
+        height="auto"
+        sx={{
+          fontSize: "20px",
+          padding: "20px",
+          borderRadius: "20px",
+          boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.4)",
+          "& .MuiDataGrid-root": {
+            border: "none",
+          },
+          "& .MuiDataGrid-cell": {
+            borderBottom: "none",
+          },
+          "& .name-column--cell": {
+            color: colors.greenAccent[300],
+          },
+          "& .MuiDataGrid-columnHeaders": {
+            backgroundColor: colors.orange[50],
+            borderBottom: "none",
+          },
+          "& .MuiDataGrid-virtualScroller": {
+            backgroundColor: colors.white[50],
+          },
+          "& .MuiDataGrid-footerContainer": {
+            display: "none",
+          },
+          "& .MuiCheckbox-root": {
+            color: `${colors.greenAccent[200]} !important`,
+          },
+          "& .MuiDataGrid-row": {
+            borderBottom: "none",
+          },
+        }}
+      >
         <DataGrid
           rows={filteredVehiclePagination.map((row, index) => ({
             ...row,
@@ -848,14 +864,15 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
         aria-describedby="alert-dialog-description"
         PaperProps={{
           style: {
-            width: "600px", // Set your desired maximum width
-            height: "auto", // Set your desired maximum height
+            width: "600px",
+            height: "auto",
+            fontSize: "28px",
           },
         }}
       >
         <DialogTitle
           id="alert-dialog-title"
-          sx={{ color: "indigo", fontSize: "24px", textAlign: "center" }}
+          sx={{ color: "indigo", fontSize: "28px", textAlign: "center" }}
         >
           Xác nhận rút ví của đối tác
         </DialogTitle>
@@ -867,7 +884,11 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
                   <CardContent>
                     <Typography
                       variant="h5"
-                      sx={{ marginBottom: "4px", textAlign: "center" }}
+                      sx={{
+                        marginBottom: "4px",
+                        textAlign: "center",
+                        fontWeight: "bold",
+                      }}
                     >
                       Thông tin giao dịch
                     </Typography>
@@ -880,12 +901,13 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
                       }}
                     >
                       <PriceChangeIcon style={{ color: "blue" }} />
-                      <Typography variant="h6">
+                      <Typography variant="h6" >
                         <strong> Tổng tiền giao dịch: </strong>{" "}
                         <Box
-                          component="span" // Sử dụng Box như là một span
+                          component="span"
                           sx={{
                             color: "red",
+                            fontWeight: "bold"
                           }}
                         >
                           {formatToVND(
@@ -899,18 +921,48 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
                       sx={{
                         display: "flex",
                         alignItems: "center",
+                        gap: 1,
+                      }}
+                    >
+                      <PriceChangeIcon style={{ color: "blue" }} />
+                      <Typography variant="h6">
+                     
+                        <strong>Số dư ví: </strong>{" "}
+                        <Box
+                          component="span"
+                          sx={{
+                            fontWeight: "bold"
+                          }}
+                        >
+                        {formatToVND(
+                          detailedData.totalAmount || "Không có thông tin"
+                        )}
+                            </Box>
+                      </Typography>
+                    </Box>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
                         gap: 1, // Khoảng cách giữa icon và văn bản
                       }}
                     >
                       <PriceChangeIcon style={{ color: "blue" }} />
                       <Typography variant="h6">
-                        <strong>Tổng tiền còn lại: </strong>{" "}
-                        {formatToVND(
-                          detailedData.totalAmount || "Không có thông tin"
-                        )}
+                    
+                        <strong> Số dư ví sau giao dịch: </strong>{" "}
+                        <Box
+                          component="span"
+                          sx={{
+                            color: "red",
+                            fontWeight: "bold"
+                          }}
+                        >
+                        {formatToVND(remainingBalance)}
+                        </Box>
                       </Typography>
                     </Box>
-                    <Box
+                    {/* <Box
                       sx={{
                         display: "flex",
                         alignItems: "center",
@@ -926,17 +978,19 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
                             backgroundColor: "lightblue",
                             padding: "4px 8px",
                             borderRadius: 4,
+                            fontWeight:"bold",
+                            color:colors.greenAccent[300]
                           }}
                         >
                           {detailedData.type || "Không có thông tin"}
                         </Box>
                       </Typography>
-                    </Box>
+                    </Box> */}
                     <Box
                       sx={{
                         display: "flex",
                         alignItems: "center",
-                        gap: 1, // Khoảng cách giữa icon và văn bản
+                        gap: 1,
                       }}
                     >
                       <TodayIcon style={{ color: "blue" }} />
@@ -951,7 +1005,7 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
                       sx={{
                         display: "flex",
                         alignItems: "center",
-                        gap: 1, // Khoảng cách giữa icon và văn bản
+                        gap: 1,
                       }}
                     >
                       <TextSnippetIcon style={{ color: "blue" }} />

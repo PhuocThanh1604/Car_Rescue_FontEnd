@@ -183,14 +183,12 @@ const Managers = (props) => {
   useEffect(() => {
     dispatch(fetchManagers())
       .then((response) => {
-        // Đã lấy dữ liệu thành công
         const data = response.payload.data;
 
         if (data) {
           setData(data);
           setFilteredManagers(data);
-          // Truy xuất và xử lý từng đối tượng khách hàng ở đây
-          setLoading(false); // Đặt trạng thái loading thành false sau khi xử lý dữ liệu
+          setLoading(false); 
         }
       })
       .catch(error => {

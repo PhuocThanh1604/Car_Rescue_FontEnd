@@ -1276,11 +1276,33 @@ const MyModal = (props) => {
                                       ) : data.technician[
                                           selectedEditOrder.technicianId
                                         ]?.area === 2 ? (
-                                        <Typography></Typography>
+                                          <Typography>
+                                          {dataJson.area[1]?.name || "Không có"}
+                                          <Tooltip
+                                            title={dataJson.area[1]?.description}
+                                          >
+                                            <InfoIcon
+                                              style={{
+                                                fontSize: "16px",
+                                              }}
+                                            />
+                                          </Tooltip>
+                                        </Typography>
                                       ) : data.technician[
                                           selectedEditOrder.technicianId
                                         ]?.area === 3 ? (
-                                        <Typography></Typography>
+                                          <Typography>
+                                          {dataJson.area[2]?.name || "Không có"}
+                                          <Tooltip
+                                            title={dataJson.area[2]?.description}
+                                          >
+                                            <InfoIcon
+                                              style={{
+                                                fontSize: "16px",
+                                              }}
+                                            />
+                                          </Tooltip>
+                                        </Typography>
                                       ) : (
                                         <Typography>
                                           Không có thông tin

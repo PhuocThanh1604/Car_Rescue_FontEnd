@@ -47,7 +47,7 @@ import areaData from "../../../data.json";
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import { tokens } from "../../../theme";
 import { getServiceId } from "../../../redux/serviceSlice";
-import { getFormattedAddressGG, getOrderDetailId } from "../../../redux/orderSlice";
+import { getFormattedAddressGG, getImageOfOrder, getOrderDetailId } from "../../../redux/orderSlice";
 import { toast } from "react-toastify";
 import moment from "moment";
 import SwipeableViews from "react-swipeable-views";
@@ -102,7 +102,29 @@ const MyModal = (props) => {
 
   }, [selectedEditOrder]);
 
+  const fetchImageOfOrder = (orderId) => {
+    if (orderId) {
+      dispatch(getImageOfOrder({ id: orderId }))
+        .then((response) => {
+          
+          const data = response.payload.data;
+          if (data && Array.isArray(data) && data.length > 0) {
+            const urls = data.map((item) => item.url);
+            console.log(urls);
 
+            setDataImage(data);
+          } else {
+            toast.dismiss("Image URLs not found in the API response.");
+          }
+        })
+        .catch((error) => {
+          toast.error(
+            "Error while fetching image data!! Please try loading again.",
+            error
+          );
+        });
+    }
+  };
   
   const resetDestinationAddress = () => {
     setFormattedAddresses((prevAddresses) => ({
@@ -145,8 +167,7 @@ const MyModal = (props) => {
   useEffect(() => {
     if (selectedEditOrder && selectedEditOrder.vehicleId) {
       const vehicleRvoidId = data.vehicle[selectedEditOrder.vehicleId]?.rvoid;
-      const orderId = selectedEditOrder.id;
-      console.log("orderId: " + orderId);
+      fetchImageOfOrder(selectedEditOrder.id);
       if (vehicleRvoidId) {
         setRescueVehicleOwnerId(vehicleRvoidId);
         fetchRescueVehicleOwner(vehicleRvoidId);

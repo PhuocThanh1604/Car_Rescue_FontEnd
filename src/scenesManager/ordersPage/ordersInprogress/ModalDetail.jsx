@@ -48,7 +48,6 @@ import { getImageOfOrder, getOrderDetailId } from "../../../redux/orderSlice";
 import { getServiceId } from "../../../redux/serviceSlice";
 import InfoIcon from "@mui/icons-material/Info";
 import areaData from "../../../data.json";
-import { getAccountId } from "../../../redux/accountSlice";
 import SwipeableViews from "react-swipeable-views";
 import { autoPlay } from "react-swipeable-views-utils";
 import { toast } from "react-toastify";
@@ -979,11 +978,33 @@ const MyModal = (props) => {
                                       ) : data.technician[
                                         selectedDetailOrder.technicianId
                                         ]?.area === 2 ? (
-                                        <Typography></Typography>
+                                          <Typography>
+                                          {dataJson.area[1]?.name || "Không có"}
+                                          <Tooltip
+                                            title={dataJson.area[1]?.description}
+                                          >
+                                            <InfoIcon
+                                              style={{
+                                                fontSize: "16px",
+                                              }}
+                                            />
+                                          </Tooltip>
+                                        </Typography>
                                       ) : data.technician[
                                         selectedDetailOrder.technicianId
                                         ]?.area === 3 ? (
-                                        <Typography></Typography>
+                                          <Typography>
+                                          {dataJson.area[2]?.name || "Không có"}
+                                          <Tooltip
+                                            title={dataJson.area[2]?.description}
+                                          >
+                                            <InfoIcon
+                                              style={{
+                                                fontSize: "16px",
+                                              }}
+                                            />
+                                          </Tooltip>
+                                        </Typography>
                                       ) : (
                                         <Typography>
                                           Không có thông tin

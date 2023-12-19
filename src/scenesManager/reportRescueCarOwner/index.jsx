@@ -20,6 +20,7 @@ import {
   Divider,
   Grid,
   styled,
+  Avatar,
 } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import Header from "../../components/Header";
@@ -618,7 +619,7 @@ const Reports = (props) => {
       >
         <DialogTitle
           id="alert-dialog-title"
-          sx={{ color: "indigo", fontSize: "24px", textAlign: "center" }}
+          sx={{ color: "indigo", fontSize: "24px", textAlign: "center" , fontWeight:"bold"}}
         >
           Đơn Báo Cáo Từ Khách Hàng
         </DialogTitle>
@@ -675,15 +676,35 @@ const Reports = (props) => {
 
                   <Divider light />
                   <Grid container spacing={2} alignItems="stretch">
-                    <Grid item xs={5} alignItems="center">
+                    <Grid item xs={5} >
                       <CardContent>
                         <Typography
                           variant="h5"
-                          sx={{ marginBottom: "4px", textAlign: "center" }}
+                          sx={{ marginBottom: "4px", textAlign: "center", fontWeight:"bold" }}
                         >
                           Thông tin chủ xe
                         </Typography>
-
+                        <Box
+                            sx={{
+                              mr: 2,
+                              display: "flex",
+                              alignItems: "center",
+                              marginBottom: "10px",
+                            }}
+                          >
+                            <Avatar
+                              alt="Avatar"
+                              src={
+                                dataCustomer.avatar || "URL mặc định của avatar"
+                              }
+                              sx={{
+                                width: 44,
+                                height: 44,
+                                marginLeft: 1.75,
+                              }}
+                            />
+                            
+                          </Box>
                         <Box
                           sx={{
                             display: "flex",
@@ -693,7 +714,7 @@ const Reports = (props) => {
                         >
                           <PersonRoundedIcon style={iconColor} />
                           <Typography variant="h6">
-                            <strong>Chủ xe: </strong>{" "}
+                            <strong>Tên chủ xe: </strong>{" "}
                             {dataCustomer.fullname || "Không có thông tin"}
                           </Typography>
                         </Box>
@@ -710,7 +731,7 @@ const Reports = (props) => {
                             {dataCustomer.phone || "Không có thông tin"}
                           </Typography>
                         </Box>
-
+                  
                         <Box
                           sx={{
                             display: "flex",
@@ -737,7 +758,6 @@ const Reports = (props) => {
                             {dataCustomer.address || "Không có thông tin"}
                           </Typography>
                         </Box>
-
                         <Box
                           sx={{
                             display: "flex",
@@ -747,10 +767,11 @@ const Reports = (props) => {
                         >
                           <MapRoundedIcon style={iconColor} />
                           <Typography variant="h6">
-                            <strong>Khu vực: </strong>{" "}
-                            {dataCustomer.area || "Chưa cập nhật"}
+                            <strong>Bằng lái: </strong>{" "}
+                            {dataCustomer.licensePlate || "Chưa cập nhật"}
                           </Typography>
                         </Box>
+                       
                       </CardContent>
                     </Grid>
                    
