@@ -303,12 +303,10 @@ const CreateOrderOffline = () => {
     // ...
   };
 
-  // Tạo ref để lưu trữ tham chiếu đến formik
   const formikRef = useRef(null);
 
   const handleFormSubmit = (values, { resetForm }) => {
     console.log(selectedRescueType);
-    // Check selectedRescueType and call appropriate handler
     if (selectedRescueType === "Towing") {
       handleTowingFormSubmit(values, { resetForm });
     }

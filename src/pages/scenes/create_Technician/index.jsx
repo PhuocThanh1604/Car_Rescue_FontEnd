@@ -26,6 +26,7 @@ import UploadImageField from "../../../components/uploadImage";
 import { v4 as uuidv4 } from "uuid";
 import InfoIcon from "@mui/icons-material/Info";
 import areaData from "../../../data.json";
+import axios from "axios";
 const Addtechnician = () => {
   const dispatch = useDispatch();
   const uui = uuidv4();
@@ -65,7 +66,7 @@ const Addtechnician = () => {
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/,
         "Mật khẩu phải có ít nhất một chữ hoa, một chữ thường, một số và một ký tự đặc biệt"
       ),
-    fullname: yup.string().required("Required"),
+    fullname: yup.string().required("Required").matches(/^[\p{L}\s]+$/u, "Tên chỉ chứa ký tự chữ cái và khoảng trắng"),
     sex: yup.string().required("Required"),
     status: yup.string().required("Required"),
     address: yup.string().required("Required"),
@@ -115,9 +116,48 @@ const Addtechnician = () => {
     area: "",
   };
 
-  // Tạo ref để lưu trữ tham chiếu đến formik
   const formikRef = useRef(null);
 
+  useEffect(() => {
+    dispatch(getAccountEmail())
+      .then((response) => {
+        const data = response.payload.data;
+        console.log(data[0].email)
+   
+      })
+      .catch((error) => {
+        setLoading(false);
+        toast.dismiss("Lỗi khi lấy dữ liệu báo cáo:", error);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [dispatch]);
+
+  // const handleEmailBlur = (event) => {
+  //   const enteredEmail = event.target.value;
+  
+  //   // Gửi yêu cầu kiểm tra email đến API
+  //   // Nếu email đã tồn tại, hiển thị thông báo
+  
+  //   // Ví dụ sử dụng axios
+  //   dispatch(getAccountEmail())
+  //     .then((response) => {
+  //       if (response.data.exists) {
+  //         toast.error("Email đã tồn tại");
+  //       } else {
+  //         // Email hợp lệ
+  //         toast.success("Email hợp lệ");
+  //       }
+  //     })
+  //     .catch((error) => {
+  //       // Xử lý lỗi
+  //       toast.error("Lỗi khi kiểm tra email");
+  //     });
+  // };
+  
+  
+  
   const handleFormSubmit = (values, { resetForm }) => {
     const { email, password, ...restValues } = values;
     const updatedInitialValues = {
@@ -146,8 +186,8 @@ const Addtechnician = () => {
           formikRef.current.setFieldValue("email", "");
           formikRef.current.setFieldValue("password", "");
           formikRef.current.setValues(initialValues);
-        } else {
-          toast.error("Tạo Tài Khoản không Thành Công vui lòng thử lại");
+        } else if (response.payload.status === "Fail") {
+          toast.error("Email đã tồn tại vui lòng thử lại");
         }
       })
       .catch((error) => {
@@ -160,24 +200,7 @@ const Addtechnician = () => {
         }
       });
   };
-  useEffect(() => {
-    dispatch(getAccountEmail())
-      .then((response) => {
-        const data = response.payload.data;
 
-        if (data) {
-          setData(data);
-          setLoading(false);
-        }
-      })
-      .catch((error) => {
-        setLoading(false);
-        toast.dismiss("Lỗi khi lấy dữ liệu báo cáo:", error);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, [dispatch]);
   return (
     <Box m="20px">
       <Header title="Tạo Thông Tin" subtitle="Tạo Thông Tin Kỹ Thuật Viên" />

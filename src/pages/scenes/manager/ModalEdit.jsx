@@ -24,6 +24,8 @@ import { editManager, fetchManagers } from "../../../redux/managerSlice";
 import UploadImageField from "../../../components/uploadImage";
 import InfoIcon from "@mui/icons-material/Info";
 import areaData from "../../../data.json";
+import moment from "moment";
+import * as yup from 'yup';
 const ModalEdit = ({
   openEditModal,
   setOpenEditModal,
@@ -40,6 +42,17 @@ const ModalEdit = ({
   const [filteredCustomers, setFilteredCustomers] = useState([]);
   const [downloadUrl, setDownloadUrl] = useState("");
   const [dataJson, setDataJson] = useState([]);
+  const [editBirthdate, setEditBirthdate] = useState('');
+  const formatDateForClient = (birthdate) => {
+    console.log(birthdate)
+    const formattedDate = moment(birthdate)
+      .tz("Asia/Ho_Chi_Minh")
+      .add(7, "hours")
+      .startOf("day")
+      .format("YYYY-MM-DD"); 
+      console.log(formattedDate)
+    return formattedDate;
+  };
   useEffect(() => {
     if (dataJson.area && dataJson.area.length > 0) {
       console.log(dataJson.area[0].name || "Không có ");
@@ -88,9 +101,18 @@ const ModalEdit = ({
           setEdit(customerToEdit);
           setInitialFormState(customerToEdit);
         }
+
+      }
+      if (selectedEditManager) {
+        console.log(selectedEditManager.birthdate)
+        const formattedDate = formatDateForClient(selectedEditManager.birthdate);
+        setEditBirthdate(formattedDate);
       }
     }
   }, [selectedEditManager, managers]);
+  const handleBirthdateChange = (event) => {
+    setEditBirthdate(event.target.value); 
+  };
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -104,7 +126,14 @@ const ModalEdit = ({
   const isValidPhoneNumber = (phone) => {
     return /^[0-9]{10}$/.test(phone);
   };
+  const birthdateSchema = yup.date()
+  .max(new Date(), "Ngày sinh không được lớn hơn ngày hiện tại")
+  .min(new Date(new Date().getFullYear() - 120, 0, 1), "Ngày sinh không hợp lệ");
   const handleSaveClick = () => {
+    if (!birthdateSchema.isValidSync(editBirthdate)) {
+      toast.error("Ngày sinh không hợp lệ");
+      return;
+    }
     if (!isValidPhoneNumber(edit.phone)) {
       toast.error("Số điện thoại không hợp lệ");
       return;
@@ -114,9 +143,10 @@ const ModalEdit = ({
       return;
     }
 
-    // Kiểm tra xem có sự thay đổi trong dữ liệu so với dữ liệu ban đầu
+    const updatedEdit = { ...edit, birthdate: editBirthdate };
+
     const hasChanges =
-      JSON.stringify(edit) !== JSON.stringify(initialFormState);
+      JSON.stringify(updatedEdit) !== JSON.stringify(initialFormState);
     const updatedInitialValues = {
       ...edit,
       account: {
@@ -127,13 +157,13 @@ const ModalEdit = ({
         createAt: accountData.account.createAt,
       },
     };
+
     console.log(updatedInitialValues);
     if (!hasChanges) {
       toast.info("Không có thay đổi để lưu.");
       handleClose();
     } else {
-      // Gửi yêu cầu cập nhật lên máy chủ
-      dispatch(editManager({ data: edit }))
+      dispatch(editManager( edit ))
         .then(() => {
           setIsSuccess(true);
           toast.success("Cập nhật thành công.");
@@ -157,7 +187,6 @@ const ModalEdit = ({
   };
 
   if (!managers) {
-    // Thêm điều kiện kiểm tra nếu customers không có giá trị
     return null;
   }
 
@@ -312,7 +341,7 @@ const ModalEdit = ({
                         <MenuItem key="status-name" value="Nam">
                           Nam
                         </MenuItem>
-                        <MenuItem key="status-nu" value="Nu">
+                        <MenuItem key="status-nu" value="Nữ">
                           Nữ
                         </MenuItem>
                       </Select>
@@ -358,7 +387,20 @@ const ModalEdit = ({
                           ))}
                       </Select>
                     </FormControl>
+                    <TextField
+                      fullWidth
+                      variant="filled"
+                      type="date"
+                      label="Ngày Sinh"
+                      className="filter-select"
+                      onChange={handleBirthdateChange}
+                      value={editBirthdate}
+                      name="birthdate"
+               
+                      sx={{ gridColumn: "span 1" }}
 
+                      margin="normal"
+                    />
                     
                     <TextField
                       name="phone"

@@ -6,7 +6,6 @@ const accessToken = localStorage.getItem("access_token");
 export const createManager = createAsyncThunk(
   "managers/create",
   async (manager) => {
-    console.log(manager)
     try {
       const id = uuidv4();
       const managerData = {
@@ -76,14 +75,15 @@ export const getManagerId = createAsyncThunk(
 
 export const editManager = createAsyncThunk(
   "managers/edit",
-  async ({ data }, { rejectWithValue }) => {
+  async ( data ) => {
     try {
+      console.log(data)
       const res = await axios.put(
         `https://rescuecapstoneapi.azurewebsites.net/api/Manager/Update`,
         data,
         {
           headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json-patch+json',
             'Authorization':`${accessToken}`
           },
         }
@@ -91,7 +91,7 @@ export const editManager = createAsyncThunk(
       return res.data;
     } catch (error) {
       console.error("Failed to update manager: ", error.response);
-      return rejectWithValue(error.response.data || error.message);
+      throw error.response.data || error.message
     }
   }
 );

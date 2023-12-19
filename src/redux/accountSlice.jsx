@@ -59,7 +59,7 @@ export const getAccountEmail = createAsyncThunk(
   async () => {
     try {
       const response = await axios.get(
-        "https://rescuecapstoneapi.azurewebsites.net/api/Account/GetAll", // Send the account data with UUID
+        "https://rescuecapstoneapi.azurewebsites.net/api/Account/GetAll", 
         {
           headers: {
             "Content-Type": "application/json",

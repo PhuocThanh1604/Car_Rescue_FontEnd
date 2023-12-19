@@ -258,7 +258,6 @@ export const getFeedbackOfOrderId = createAsyncThunk(
   "orders/getFeedbackOfOrderId",
   async ({ id }) => {
     try {
-      console.log("id:" + id);
       const response = await axios.get(
         `https://rescuecapstoneapi.azurewebsites.net/api/Feedback/GetFeedbackOfOrder?id=${id}`, // Send the edited customer data
         {
@@ -340,7 +339,6 @@ export const getFormattedAddressGG = createAsyncThunk(
       );
   
       const data = response.data;
-      console.log(data);
       return data;
     } catch (error) {
       console.error("Failed to get Address ", error.error_message);
@@ -414,7 +412,6 @@ export const createAcceptOrder = createAsyncThunk(
 export const createCancelOrder = createAsyncThunk(
   "orders/createCancelOrder",
   async (data) => {
-    console.log(data);
     try {
       const res = await axios.post(
         "https://rescuecapstoneapi.azurewebsites.net/api/Order/CustomerCancelOrder",
@@ -441,7 +438,6 @@ export const createCancelOrder = createAsyncThunk(
 export const createChangeTypeRescue = createAsyncThunk(
   "orders/createChangeTypeRescue",
   async (data) => {
-    console.log(data);
     try {
       const res = await axios.post(
         "https://rescuecapstoneapi.azurewebsites.net/api/Order/ChangeRescueType",
@@ -469,7 +465,6 @@ export const createChangeTypeRescue = createAsyncThunk(
 export const createOrderOfflineFixing = createAsyncThunk(
   "orders/createOrderOfflineFixing",
   async (data) => {
-    console.log(data);
     try {
       const res = await axios.post(
         "https://rescuecapstoneapi.azurewebsites.net/api/Order/CreateFixingOrderForCustomer",
@@ -486,7 +481,6 @@ export const createOrderOfflineFixing = createAsyncThunk(
           },
         }
       );
-      console.log(data);
       return res.data;
     } catch (error) {
       console.error("Failed to create Order Offline fixing:", error.response);
@@ -525,7 +519,6 @@ export const getImageOfOrder = createAsyncThunk(
 export const createOrderOffline = createAsyncThunk(
   "orders/createOrderOffline",
   async (data) => {
-    console.log(data);
     try {
       const res = await axios.post(
         `https://rescuecapstoneapi.azurewebsites.net/api/Order/CreateTowingOrderForCustomer`,
@@ -542,7 +535,6 @@ export const createOrderOffline = createAsyncThunk(
           },
         }
       );
-      console.log(data);
       return res.data;
     } catch (error) {
       console.error("Failed to create Order Offline:", error.response);
@@ -554,7 +546,6 @@ export const addServiceForTechnicians = createAsyncThunk(
   "orders/addServiceForTechnicians",
   async (data) => {
     try {
-      console.log(data);
       const res = await axios.post(
         "https://rescuecapstoneapi.azurewebsites.net/api/Order/ManagerAddService",
         data,
@@ -577,7 +568,6 @@ export const updateServiceForTechnicians = createAsyncThunk(
   "orders/updateServiceForTechnicians",
   async (data) => {
     try {
-      console.log(data);
       const res = await axios.post(
         "https://rescuecapstoneapi.azurewebsites.net/api/Order/ManagerUpdateService",
         data,
@@ -635,7 +625,6 @@ export const sendNotification = createAsyncThunk(
           },
         }
       );
-      console.log(notificationData);
       return res.data;
     } catch (error) {
       console.error(
@@ -719,7 +708,6 @@ export const getPaymentId = createAsyncThunk(
 export const getCarById = createAsyncThunk(
   "orders/getCarById",
   async ({ id }) => {
-    console.log("carId: " + id);
     try {
       const response = await axios.get(
         `https://rescuecapstoneapi.azurewebsites.net/api/Car/Get?id=${id}`,

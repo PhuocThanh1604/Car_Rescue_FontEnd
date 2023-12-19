@@ -24,19 +24,18 @@ const RequireAuth = () => {
   if (data && data.manager) {
     localStorage.setItem("manager", JSON.stringify(data.manager));
   }
-  // Lấy đối tượng manager từ localStorage
   const managerString = localStorage.getItem("manager");
 
   let manager = null;
 
   if (managerString) {
     try {
-      manager = JSON.parse(managerString); // Thử phân tích chuỗi JSON
+      manager = JSON.parse(managerString);
     } catch (error) {
       console.error("Lỗi khi phân tích chuỗi JSON:", error);
     }
   }
- const accessToken = localStorage.getItem("access_token");
+
 
  console.log(AccessTokenProvider)
 
@@ -45,9 +44,9 @@ const RequireAuth = () => {
   if (devicetoken1) {
   }
 
-  const thisrole = data?.role ? `Role ${data?.role}!` : "role!";
+
   const location = useLocation();
-  const token = localStorage.getItem("access_token");
+ 
   const role = localStorage.getItem("role_user");
 
   if (role) {
@@ -60,7 +59,7 @@ const RequireAuth = () => {
           </div>
         );
       }
-      // Các phần còn lại không thay đổi
+    
     } else if (role === "Manager") {
       return (
         <div>

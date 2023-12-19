@@ -53,27 +53,10 @@ export const fetchCustomers = createAsyncThunk(
   }
 );
 
-// export const getCustomerId = createAsyncThunk(
-//   "customer/getCustomerId",
-//   async ({ id }) => {
-//     try {
-//       const response = await axios.get(
-//         `https://rescuecapstoneapi.azurewebsites.net/api/Customer/Get?id=${id}`
-//       );
-//       const data = response.data;
-//       console.log(data);
-//       return data;
-//     } catch (error) {
-//       console.error("Failed to get customer:", error.response);
-//       throw error.response.data || error.message;
-//     }
-//   }
-// );
 
 export const getCustomerId = createAsyncThunk(
   "customer/getCustomerId",
   async ({id}) => {
-    console.log(id);
 
     try {
       const response = await axios.get(
@@ -122,10 +105,10 @@ export const getCustomerIdFullName = createAsyncThunk(
 export const editCustomer = createAsyncThunk(
   "customers/edit",
   async ({ data }) => {
-    console.log(data);
     try {
       const res = await axios.put(
         `https://rescuecapstoneapi.azurewebsites.net/api/Customer/Update`,
+        data,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -133,7 +116,6 @@ export const editCustomer = createAsyncThunk(
           },
         }
       );
-      console.log(data);
       return res.data;
     } catch (error) {
       console.error("Failed to update customer:", error.response);

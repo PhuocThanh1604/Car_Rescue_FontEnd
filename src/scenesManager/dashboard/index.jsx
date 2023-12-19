@@ -563,7 +563,7 @@ const Dashboard = () => {
               alignItems="center"
               p="10px"
             >
-              <Box>
+              <Box style={{ minWidth: "200px", maxWidth: "200px" }}>
                 <Typography
                   color={colors.greenAccent[500]}
                   variant="h5"
@@ -573,7 +573,7 @@ const Dashboard = () => {
                 </Typography>
               </Box>
 
-              <Box color={colors.grey[100]}>
+              <Box color={colors.grey[100]} style={{ minWidth: "100px" }}>
                 {new Date(dataTransaction.createdAt).toLocaleDateString()}{" "}
               </Box>
 

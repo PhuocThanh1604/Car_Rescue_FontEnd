@@ -27,6 +27,8 @@ import {
 import UploadImageField from "../../../components/uploadImage";
 import InfoIcon from "@mui/icons-material/Info";
 import areaData from "../../../data.json";
+import moment from "moment";
+import * as yup from 'yup';
 const ModalEdit = ({
   openEditModal,
   setOpenEditModal,
@@ -44,7 +46,7 @@ const ModalEdit = ({
   const [loading, setLoading] = useState(false);
   const [filteredTechnicians, setFilteredTechnicians] = useState([]);
   const [downloadUrl, setDownloadUrl] = useState("");
-  const [serverError, setServerError] = useState(null);
+  const [editBirthdate, setEditBirthdate] = useState('');
   const [currentImageUrl, setCurrentImageUrl] = useState(edit.avatar || "");
 
   const [dataJson, setDataJson] = useState([]);
@@ -66,9 +68,15 @@ const ModalEdit = ({
     }));
   };
 
-  const getCurrentDateISOString = () => {
-    const date = new Date();
-    return date.toISOString();
+  const formatDateForClient = (birthdate) => {
+    console.log(birthdate)
+    const formattedDate = moment(birthdate)
+      .tz("Asia/Ho_Chi_Minh")
+      .add(7, "hours")
+      .startOf("day")
+      .format("YYYY-MM-DD"); 
+      console.log(formattedDate)
+    return formattedDate;
   };
   useEffect(() => {
     console.log(accountData);
@@ -80,7 +88,6 @@ const ModalEdit = ({
         const data = response.payload.data;
         if (data) {
           setFilteredTechnicians(data);
-          // Đặt loading thành false sau khi tải lại dữ liệu
           setLoading(false);
           console.log("Services reloaded:", data);
         }
@@ -96,7 +103,6 @@ const ModalEdit = ({
       !technicians ||
       !Array.isArray(technicians)
     ) {
-      // Xử lý khi selectedEditTechnician hoặc technicians không tồn tại hoặc không hợp lệ
       toast.dismiss("Dữ liệu không hợp lệ để thực hiện tác vụ.");
       return;
     }
@@ -106,7 +112,6 @@ const ModalEdit = ({
     );
 
     if (!technicianToEdit) {
-      // Xử lý khi không tìm thấy technician để chỉnh sửa
       toast.dismiss("Không tìm thấy thông tin kỹ thuật viên để chỉnh sửa.");
       return;
     }
@@ -115,7 +120,18 @@ const ModalEdit = ({
     setFullnameValue(technicianToEdit.fullname);
     setEdit(technicianToEdit);
     setInitialFormState(technicianToEdit);
+    if (technicianToEdit) {
+      const formattedDate = formatDateForClient(technicianToEdit.birthdate);
+      setEditBirthdate(formattedDate);
+    }
+
   }, [selectedEditTechnician, technicians]);
+
+
+  const handleBirthdateChange = (event) => {
+    setEditBirthdate(event.target.value); 
+  };
+  
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -129,9 +145,14 @@ const ModalEdit = ({
   const isValidPhoneNumber = (phone) => {
     return /^[0-9]{10}$/.test(phone);
   };
+  const birthdateSchema = yup.date()
+  .max(new Date(), "Ngày sinh không được lớn hơn ngày hiện tại")
+  .min(new Date(new Date().getFullYear() - 120, 0, 1), "Ngày sinh không hợp lệ");
   const handleSaveClick = () => {
-    console.log(accountData.account.id);
-    console.log(accountData.account.email);
+    if (!birthdateSchema.isValidSync(editBirthdate)) {
+      toast.error("Ngày sinh không hợp lệ");
+      return;
+    }
     if (!isValidPhoneNumber(edit.phone)) {
       toast.error("Số điện thoại không hợp lệ");
       return;
@@ -140,12 +161,14 @@ const ModalEdit = ({
       toast.error("Không có thông tin kỹ thuật viên để cập nhật.");
       return;
     }
+    const updatedEdit = { ...edit, birthdate: editBirthdate };
 
     // Kiểm tra xem có sự thay đổi trong dữ liệu so với dữ liệu ban đầu
     const hasChanges =
-      JSON.stringify(edit) !== JSON.stringify(initialFormState);
+      JSON.stringify(updatedEdit) !== JSON.stringify(initialFormState);
+
     const updatedInitialValues = {
-      ...edit,
+      ...updatedEdit,
       account: {
         id: accountData.account.id,
         email: accountData.account.email,
@@ -290,7 +313,6 @@ const ModalEdit = ({
                       label="Họ Và Tên"
                       value={edit.fullname}
                       onChange={handleInputChange}
-                      // disabled // Disable the TextField
                       fullWidth
                       margin="normal"
                     />
@@ -338,7 +360,7 @@ const ModalEdit = ({
                       disabled
                       style={{ display: "none" }}
                     />
-
+                    
                     <FormControl fullWidth sx={{ marginTop: 1 }}>
                       <InputLabel id="demo-simple-select-label">
                         Giới Tính
@@ -356,12 +378,14 @@ const ModalEdit = ({
                         <MenuItem key="status-active" value="Nam">
                           Nam
                         </MenuItem>
-                        <MenuItem key="status-outofstock" value="Nu">
+                        <MenuItem key="status-outofstock" value="Nữ">
                           Nữ
                         </MenuItem>
                       </Select>
                     </FormControl>
 
+
+                    
                     <FormControl
                       fullWidth
                       variant="outlined"
@@ -406,6 +430,20 @@ const ModalEdit = ({
                           ))}
                       </Select>
                     </FormControl>
+                    <TextField
+                      fullWidth
+                      variant="filled"
+                      type="date"
+                      label="Ngày Sinh"
+                      className="filter-select"
+                      onChange={handleBirthdateChange}
+                      value={editBirthdate}
+                      name="birthdate"
+               
+                      sx={{ gridColumn: "span 1" }}
+
+                      margin="normal"
+                    />
 
                     <TextField
                       name="phone"
@@ -442,9 +480,10 @@ const ModalEdit = ({
                           Hoạt Động
                         </MenuItem>
                         {edit.status === "ASSIGNED" ? ( // Kiểm tra nếu edit.status không phải là "ASSIGNED", hiển thị MenuItem
-                          <MenuItem value="ASSIGNED" sx={{display:"none"}}>Đang làm việc</MenuItem>
+                          <MenuItem value="ASSIGNED" sx={{ display: "none" }}>
+                            Đang làm việc
+                          </MenuItem>
                         ) : null}{" "}
-                 
                         <MenuItem key="status-INACTIVE" value="INACTIVE">
                           Không Hoạt Động
                         </MenuItem>

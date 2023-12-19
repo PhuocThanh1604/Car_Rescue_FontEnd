@@ -238,7 +238,7 @@ const Managers = (props) => {
     {
       field: "sex",
       headerName: "Gioi Tính",
-      width: 50,
+      width: 60,
       key: "sex",
     },
     { field: "address", headerName: "Địa Chỉ", width: 260, key: "address" },

@@ -23,12 +23,8 @@ const AddSymptom = () => {
 
   const service = useSelector((state) => state.service.services);
   const isNonMobile = useMediaQuery("(min-width:600px)");
-
-  
-
-  
   const checkoutSchema = yup.object().shape({
-    symptom1: yup.string().required("Yêu cầu"),
+    symptom1: yup.string().required("Yêu cầu").matches(/^[\p{L}\s]+$/u, "Tên chỉ chứa ký tự chữ cái và khoảng trắng"),
    
   });
 

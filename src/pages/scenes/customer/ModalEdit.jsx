@@ -303,7 +303,7 @@ const ModalEdit = ({
                      <MenuItem key="status-nam" value="Nam">
                        Nam
                      </MenuItem>
-                     <MenuItem key="status-nu" value="Nu">
+                     <MenuItem key="status-nu" value="Nữ">
                        Nữ
                      </MenuItem>
                    </Select>

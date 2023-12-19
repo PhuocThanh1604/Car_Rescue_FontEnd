@@ -64,7 +64,7 @@ const AddManager = () => {
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/,
       "Mật khẩu phải có ít nhất một chữ hoa, một chữ thường, một số và một ký tự đặc biệt"
     ),
-    fullname: yup.string().required("Yêu cầu"),
+    fullname: yup.string().required("Yêu cầu").matches(/^[\p{L}\s]+$/u, "Tên chỉ chứa ký tự chữ cái và khoảng trắng"),
     sex: yup.string().required("Yêu cầu"),
     status: yup.string().required("Yêu cầu"),
     address: yup.string().required("Yêu cầu"),
@@ -146,8 +146,8 @@ const AddManager = () => {
           formikRef.current.setFieldValue("email", "");
           formikRef.current.setFieldValue("password", "");
           formikRef.current.setValues(initialValues);
-        } else {
-          toast.error("Tạo tài khoản không thành công vui lòng thử lại");
+        } else if (response.payload.status === "Fail") {
+          toast.error("Email đã tồn tại vui lòng thử lại");
         }
       })
       .catch((error) => {

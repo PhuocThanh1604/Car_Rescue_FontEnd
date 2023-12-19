@@ -52,7 +52,6 @@ export const fetchVehicle = createAsyncThunk(
         }
       );
       const data = response.data;
-      console.log(data.status);
       return data;
     } catch (error) {
       console.error("Failed to retrieve fetch Vehicle:", error);
@@ -106,10 +105,8 @@ export const fetchVehicleStatus = createAsyncThunk(
 export const getVehicleId = createAsyncThunk(
   "vehicles/getVehicleId",
   async ({ id }) => {
-    const storageKey = "ordersNew";
 
     try {
-      removeFromStorage(storageKey);
       const response = await axios.get(
         `https://rescuecapstoneapi.azurewebsites.net/api/Vehicle/Get?id=${id}`,
         {
@@ -120,8 +117,7 @@ export const getVehicleId = createAsyncThunk(
         }
       );
       const data = response.data;
-      saveToStorage(storageKey, data);
-      console.log(data);
+  
       return data;
     } catch (error) {
       console.error("Failed to get  Vehicle ", error.response);
@@ -144,7 +140,6 @@ export const getAllVehicleOfUser = createAsyncThunk(
         }
       );
       const data = response.data;
-      console.log(data);
       return data;
     } catch (error) {
       console.error("Failed to get  Al lVehicle Of User ", error.response);
@@ -167,7 +162,6 @@ export const editRescueVehicleOwner = createAsyncThunk(
           },
         }
       );
-      console.log("dữ liệu đã sửa carowner " + data);
       return res.data;
     } catch (error) {
       console.error("Failed to update RescueVehicleOwner:", error.response);
@@ -180,7 +174,7 @@ export const updateStatusRescueVehicleOwner = createAsyncThunk(
   async ({ data }) => {
     try {
       const res = await axios.put(
-        `https://rescuecapstoneapi.azurewebsites.net/api/RescueVehicleOwner/Update`, // Assuming you need to provide the customer ID for editing
+        `https://rescuecapstoneapi.azurewebsites.net/api/RescueVehicleOwner/Update`, 
         data,
         {
           headers: {
@@ -189,7 +183,6 @@ export const updateStatusRescueVehicleOwner = createAsyncThunk(
           },
         }
       );
-      console.log("dữ liệu đã sửa updateStatusRescueVehicleOwner " + data);
       return res.data;
     } catch (error) {
       console.error("Failed to update RescueVehicleOwner:", error.response);
@@ -202,7 +195,6 @@ export const createAcceptRegisterVehicle = createAsyncThunk(
   "vehicles/createAcceptRegisterVehicle",
   async ({ id, boolean }) => {
     try {
-      console.log(id, boolean);
       const response = await axios.post(
         `https://rescuecapstoneapi.azurewebsites.net/api/Vehicle/ApproveVehicle?id=${id}&boolean=${boolean}`,
         {
@@ -214,7 +206,6 @@ export const createAcceptRegisterVehicle = createAsyncThunk(
       );
 
       const data = response.data;
-      console.log(data);
       return data;
     } catch (error) {
       console.error(

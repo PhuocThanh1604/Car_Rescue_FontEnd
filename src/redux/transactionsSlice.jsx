@@ -8,7 +8,6 @@ export const createAcceptWithdrawRequest = createAsyncThunk(
   "vehicles/createAcceptWithdrawRequest",
   async ({ id, boolean }) => {
     try {
-      console.log(id, boolean);
       const response = await axios.post(
         `https://rescuecapstoneapi.azurewebsites.net/api/Transaction/AcceptWithdrawRequest?id=${id}&boolean=${boolean}`,
         {
@@ -20,7 +19,6 @@ export const createAcceptWithdrawRequest = createAsyncThunk(
       );
 
       const data = response.data;
-      console.log(data);
       return data;
     } catch (error) {
       console.error(
@@ -67,9 +65,7 @@ export const fetchTransactionsAll = createAsyncThunk(
           },
         }
       );
-      console.log(response.data)
       const data = response.data;
-      console.log(data.walletId);
       return data;
     } catch (error) {
       console.error("Failed to retrieve fetch Transactions All:", error.response);
@@ -95,7 +91,6 @@ export const getTransactionOfWalletId = createAsyncThunk(
       );
       
       const data = response.data;
-      console.log(data);
       return data;
     } catch (error) {
       console.error("Failed to get Transaction Of Wallet Id:", error.response);
@@ -119,7 +114,6 @@ export const getTransactionById = createAsyncThunk(
         }
       );
       const data = response.data;
-      console.log(data);
       return data;
     } catch (error) {
       console.error("Failed to get Transaction By Id ", error.response);

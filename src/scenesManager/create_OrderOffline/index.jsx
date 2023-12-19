@@ -214,7 +214,7 @@ const CreateOrderOffline = () => {
       .string()
       .required("Vui lòng nhập số điện thoại")
       .matches(/^[0-9]{9}$/, "Số điện thoại phải có 9 chữ số"),
-      nameCustomer: yup.string().required("Vui lòng nhập tên khách hàng"),
+      nameCustomer: yup.string().required("Vui lòng nhập tên khách hàng").matches(/^[\p{L}\s]+$/u, "Tên chỉ chứa ký tự chữ cái và khoảng trắng"),
     };
 
     if (selectedRescueType === "Towing") {

@@ -52,14 +52,12 @@ const Symptoms = (props) => {
     setSearchText(value);
   };
 
-
-
   const handleUpdateClick = (serviceId) => {
-    console.log(serviceId); //check
-    // Fetch the serviceId details based on the selected serviceId ID
-    dispatch(getSymptomId({ id: serviceId })) //check
+    console.log(serviceId);
+
+    dispatch(getSymptomId({ id: serviceId })) 
       .then((response) => {
-        const serviceDetails = response.payload.data; //check
+        const serviceDetails = response.payload.data; 
         setSelectedEditSevice(serviceDetails);
         setOpenEditModal(true);
         setIsSuccess(true);
@@ -88,12 +86,9 @@ useEffect(() => {
 }, [services, searchText, filterOption, filterOptionType]);
 
 
-
-
-
   if (services) {
     services.forEach((service) => {
-      // Đây bạn có thể truy cập và xử lý dữ liệu từng đối tượng khách hàng ở đây
+
     });
   }
 

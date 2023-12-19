@@ -77,7 +77,6 @@ export const getTransactionById = createAsyncThunk(
         }
       );
       const data = response.data;
-      console.log(data);
       return data;
     } catch (error) {
       console.error("Failed to get Transaction By Id ", error.response);

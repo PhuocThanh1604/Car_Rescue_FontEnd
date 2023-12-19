@@ -34,8 +34,6 @@ const Customers = (props) => {
   const [openEditModal, setOpenEditModal] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [filterOption, setFilterOption] = useState("Status");
-  const [openModal, setOpenModal] = useState(false);
-  const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [selectedEditCustomer, setSelectedEditCustomer] = useState(null);
   const [filteredCustomers, setFilteredCustomers] = useState([]);
   const [page, setPage] = useState(0);
@@ -69,12 +67,11 @@ const Customers = (props) => {
   }
 
   const handleSearchChange = (event) => {
-    const value = event.target.value || ""; // Use an empty string if the value is null
+    const value = event.target.value || ""; 
     setSearchText(value);
   };
   const handleDateFilterChange = () => {
     if (startDate && endDate) {
-      // Format startDate and endDate to the beginning of the day in the specified time zone
       const formattedStartDate = moment(startDate)
         .tz("Asia/Ho_Chi_Minh")
         .add(7, "hours")
@@ -235,6 +232,12 @@ const Customers = (props) => {
       headerName: "Địa Chỉ",
       width: 160,
       key: "address",
+    },
+    {
+      field: "sex",
+      headerName: "Gioi Tính",
+      width: 60,
+      key: "sex",
     },
     {
       field: "birthdate",

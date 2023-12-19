@@ -4,6 +4,7 @@ import {
   Box,
   Button,
   FormControl,
+  Grid,
   InputLabel,
   MenuItem,
   Select,
@@ -17,27 +18,54 @@ import Header from "../../components/Header";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import {  getAccountEmail } from "../../redux/accountSlice";
+import { getAccountEmail } from "../../redux/accountSlice";
 import UploadImageField from "../../components/uploadImage";
 import { editManager } from "../../redux/managerSlice";
 import InfoIcon from "@mui/icons-material/Info";
 import areaData from "../../data.json";
+import moment from "moment";
+import CircularProgress from "@mui/material/CircularProgress";
 const UpdateProfileManager = () => {
   const dispatch = useDispatch();
   const rescueVehicleOwner = useSelector(
     (state) => state.rescueVehicleOwner.rescueVehicleOwners
   );
   const isNonMobile = useMediaQuery("(min-width:600px)");
-  const [selectedAccount, setSelectedAccount] = useState(null);
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [currentImageUrl, setCurrentImageUrl] = useState(data.avatar || "");
   const [downloadUrl, setDownloadUrl] = useState("");
   const [dataManager, setDataManager] = useState({});
-  const [formattedDate, setFormattedDate] = useState("");
+  const checkoutSchema = yup.object().shape({
+    fullname: yup
+      .string()
+      .matches(/^[\p{L}\s]+$/u, "Tên chỉ chứa ký tự chữ cái và khoảng trắng"),
+    address: yup.string().required("Required"),
+    phone: yup
+      .string()
+      .matches(/^[0-9]{10}$/, "Số điện thoại phải có 10 chữ số"),
+    birthdate: yup
+      .date()
+      .max(new Date(), "Ngày sinh không được lớn hơn ngày hiện tại")
+      .min(
+        new Date(new Date().getFullYear() - 120, 0, 1),
+        "Ngày sinh không hợp lệ"
+      ),
+  });
+
+  const initialValues = {
+    fullname: "",
+    sex: "",
+    status: "",
+    birthdate: "",
+    address: "",
+    phone: "",
+    avatar: "",
+  };
+
+  const formikRef = useRef({});
   const handleImageUploaded = (imageUrl) => {
     setDownloadUrl(imageUrl);
-    // Set the avatar value to the uploaded image URL
     formikRef.current.setFieldValue("avatar", imageUrl);
   };
   const [dataJson, setDataJson] = useState([]);
@@ -49,27 +77,63 @@ const UpdateProfileManager = () => {
     }
     setDataJson(areaData);
   }, [dataJson]);
-  const formatDate = (birthdate) => {
-    // const formattedDate = convertDateFormat(birthdate);
-    console.log(formattedDate);
+  const formatDateForClient = (birthdate) => {
+    const formattedDate = moment(birthdate)
+      .tz("Asia/Ho_Chi_Minh")
+      .add(7, "hours")
+      .startOf("day")
+      .format("YYYY-MM-DD"); // Adjust the date format as per your requirement
     return formattedDate;
   };
   useEffect(() => {
-    // Lấy dữ liệu từ localStorage
     const managerData = localStorage.getItem("manager");
-
     if (managerData) {
       const manager = JSON.parse(managerData);
-      formatDate(manager.birthdate);
-      console.log(manager.birthdate);
-      setDataManager(manager);
+      const formattedBirthdate = formatDateForClient(manager.birthdate);
+      setDataManager({ ...manager, birthdate: formattedBirthdate });
     } else {
       console.log("Manager data not found");
     }
   }, []);
-  const statusMapping = {
-    ACTIVE: "Hoạt Động",
-    INACTIVE: "Không Hoạt Động",
+
+  const handleSaveClick = (values) => {
+    setLoading(true);
+    if (!values) {
+      toast.error("Không có thông tin để cập nhật");
+      setLoading(false);
+      return;
+    }
+    const hasChanges = JSON.stringify(values) !== JSON.stringify(initialValues);
+
+    if (!hasChanges) {
+      toast.info("Không có thay đổi để lưu.");
+      setLoading(false);
+    } else {
+      dispatch(editManager(values))
+        .then((res) => {
+          console.log();
+          if (res.payload.status === "Success") {
+            toast.success("Cập nhật thành công.");
+            localStorage.setItem("manager", JSON.stringify(values));
+            setLoading(false);
+          } else {
+            toast.error("Cập nhật không thành công.");
+            localStorage.setItem("manager", JSON.stringify(values));
+            setLoading(false);
+          }
+        })
+        .catch((error) => {
+          if (error.response && error.response.data) {
+            toast.error(
+              `Lỗi khi cập nhật thông tin: ${error.response.data.message}`
+            );
+          } else {
+            toast.error("Lỗi khi cập nhật thông tin.");
+          }
+        }).finally(() => {
+          setLoading(false); 
+        });
+    }
   };
 
   useEffect(() => {
@@ -77,88 +141,7 @@ const UpdateProfileManager = () => {
       formikRef.current.setValues(dataManager);
     }
   }, [dataManager]);
-  const checkoutSchema = yup.object().shape({
-    email: yup.string().email("Email không hợp lệ").required("Yêu cầu"),
-    password: yup
-      .string()
-      .required("Yêu cầu")
-      .min(8, "Mật khẩu cần dài ít nhất 8 ký tự")
-      .matches(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/,
-        "Mật khẩu phải có ít nhất một chữ hoa, một chữ thường, một số và một ký tự đặc biệt"
-      ),
-    fullname: yup.string().required("Yêu cầu"),
-    sex: yup.string().required("Required"),
-    status: yup.string().required("Required"),
-    address: yup.string().required("Required"),
-    phone: yup
-      .string()
-      .required("Yêu cầu")
-      .matches(/^[0-9]{10}$/, "Số điện thoại phải có 10 chữ số"),
-    avatar: yup
-      .string()
-      .required("Yêu cầu")
-      .test("is-avatar-provided", "Yêu cầu thêm avatar", function (value) {
-        if (this.parent.avatar === "") {
-          return this.createError({
-            message: "Yêu cầu thêm avatar",
-            path: "avatar",
-          });
-        }
-        return true;
-      }),
-    birthdate: yup
-      .date()
-      .required("Yêu cầu")
-      .max(new Date(), "Ngày sinh không được lớn hơn ngày hiện tại")
-      .min(
-        new Date(new Date().getFullYear() - 120, 0, 1),
-        "Ngày sinh không hợp lệ"
-      ),
-    accountId: yup.string().required("Required"),
-  });
 
-  const initialValues = {
-    fullname: "",
-    sex: "",
-    status: "",
-    birthdate: "",
-    address: "",
-    phone: "",
-    avatar: "",
-    accountId: "",
-  };
-
-  // Tạo ref để lưu trữ tham chiếu đến formik
-  const formikRef = useRef(null);
-
-  const handleFormSubmit = (values, { resetForm }) => {
-    resetForm({ values: initialValues });
-    setSelectedAccount(null);
-    // In ra tất cả dữ liệu đã nhập
-    console.log("Dữ liệu đã nhập:", rescueVehicleOwner);
-    dispatch(editManager(values))
-      .then((response) => {
-        console.log(response);
-        toast.success("Cập Nhật Tài Khoản Thành Công");
-
-        // Đặt lại giá trị của formik về giá trị ban đầu (rỗng)
-        formikRef.current.resetForm();
-      })
-      .catch((error) => {
-        if (error.response && error.response.data) {
-          toast.error(
-            `Lỗi khi cập nhật thông tin quản lí: ${error.response.data.message}`
-          );
-        } else {
-          toast.error("Lỗi khi cập nhật thông tin quản lí");
-        }
-      });
-  };
-  const handleChange = (event) => {
-    setFormattedDate(event.target.value);
-    // You can also update the state 'apiDate' here if needed
-  };
   useEffect(() => {
     dispatch(getAccountEmail())
       .then((response) => {
@@ -183,13 +166,16 @@ const UpdateProfileManager = () => {
         title="Cập Nhật Thông Tin Cá Nhân"
         subtitle="Cập Nhật Thông Tin Cá Nhân"
       />
-
+      {/* <div>
+        {loading ? (
+          <CircularProgress />
+        ) : ( */}
       <Formik
-        onSubmit={handleFormSubmit}
+        onSubmit={handleSaveClick}
+        innerRef={formikRef}
+        loading={loading}
         initialValues={initialValues}
         validationSchema={checkoutSchema}
-        // Gán formikRef cho ref
-        innerRef={formikRef}
       >
         {({
           values,
@@ -202,7 +188,7 @@ const UpdateProfileManager = () => {
           <form onSubmit={handleSubmit}>
             <Box display="flex" justifyContent="left" mb="20px">
               <Button type="submit" color="secondary" variant="contained">
-                Cập Nhật Thông Tin Cá Nhân
+                Chỉnh sửa thông tin
               </Button>
             </Box>
             <Box
@@ -210,7 +196,9 @@ const UpdateProfileManager = () => {
               gap="30px"
               gridTemplateColumns="repeat(4, minmax(0, 1fr))"
               sx={{
-                "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
+                "& > div": {
+                  gridColumn: isNonMobile ? undefined : "span 4",
+                },
               }}
             >
               <TextField
@@ -226,140 +214,10 @@ const UpdateProfileManager = () => {
                 name="email"
                 error={touched.email && errors.email ? true : false}
                 helperText={touched.email && errors.email}
-                sx={{ gridColumn: "span 1" }}
-              />
-              <TextField
-                fullWidth
-                variant="outlined"
-                type="text"
-                label="Họ Và Tên"
-                onBlur={handleBlur}
-                onChange={handleChange}
-                value={values.fullname}
-                name="fullname"
-                error={touched.fullname && errors.fullname ? true : false}
-                helperText={touched.fullname && errors.fullname}
-                sx={{ gridColumn: "span 1" }}
-              />
-              <Box
-                display="flex"
-                alignItems="center"
-                sx={{ gridColumn: "span 1", gap: "10px" }}
-              >
-                <Avatar
-                  alt="Avatar"
-                  src={values.avatar}
-                  sx={{ width: 50, height: 50 }}
-                />
-                <UploadImageField
-                  onImageUploaded={handleImageUploaded}
-                  imageUrl={currentImageUrl}
-                />
-                {touched.avatar && errors.avatar && (
-                  <Box
-                    position="absolute"
-                    bottom={-25}
-                    left={0}
-                    color="red"
-                    fontSize="0.8rem"
-                  >
-                    {errors.avatar}
-                  </Box>
-                )}
-              </Box>
-
-              <FormControl fullWidth variant="filled">
-                <InputLabel id="sex-label">Giới Tính</InputLabel>
-                <Select
-                  labelId="sex-label"
-                  id="sex"
-                  name="sex"
-                  variant="outlined"
-                  value={values.sex}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  error={touched.sex && errors.sex ? true : false}
-                >
-                  <MenuItem value="Nam">Nam</MenuItem>
-                  <MenuItem value="Nu">Nữ</MenuItem>
-                </Select>
-              </FormControl>
-
-              <TextField
-                fullWidth
-                variant="outlined"
-                type="text"
-                label="Địa Chỉ"
-                onBlur={handleBlur}
-                onChange={handleChange}
-                value={values.address}
-                name="address"
-                error={touched.address && errors.address ? true : false}
-                helperText={touched.address && errors.address}
                 sx={{ gridColumn: "span 2" }}
+                disabled
               />
-
-           
-              <TextField
-                fullWidth
-                variant="outlined"
-                type="phone"
-                label="Số Điện Thoại"
-                onBlur={handleBlur}
-                onChange={handleChange}
-                value={values.phone}
-                name="phone"
-                error={touched.phone && errors.phone ? true : false}
-                helperText={touched.phone && errors.phone}
-                sx={{ gridColumn: "span 1" }}
-              />
-
-              <TextField
-                fullWidth
-                variant="filled"
-                type="date"
-                label="Ngày Sinh"
-                onBlur={handleBlur}
-                onChange={handleChange}
-                value={values.birthday}
-                name="birthdate"
-                error={touched.birthdate && errors.birthdate ? true : false}
-                helperText={touched.birthdate && errors.birthdate}
-                sx={{ gridColumn: "span 1" }}
-              />
-              
-              <Box sx={{ minWidth: 120 }}>
-                <FormControl
-                  fullWidth
-                  error={!!touched.status && !!errors.status}
-                >
-                  <InputLabel id="demo-simple-select-label">
-                    Trạng Thái
-                  </InputLabel>
-                  <Select
-                    labelId="demo-simple-select-label"
-                    id="demo-simple-select"
-                    label="Trạng Thái"
-                    variant="outlined"
-                    name="status"
-                    onBlur={handleBlur}
-                    onChange={handleChange}
-                    value={values.status}
-                    sx={{ gridColumn: "span 4" }}
-                  >
-                    {Object.keys(statusMapping).map((statusKey) => (
-                      <MenuItem key={statusKey} value={statusKey}>
-                        {statusMapping[statusKey]}{" "}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Box>
-              <FormControl
-                fullWidth
-                variant="outlined"
-               
-              >
+              <FormControl fullWidth variant="outlined">
                 <InputLabel id="area-label">Khu Vực</InputLabel>
                 <Select
                   labelId="demo-simple-select-label"
@@ -367,9 +225,10 @@ const UpdateProfileManager = () => {
                   name="area"
                   variant="outlined"
                   value={values.area || ""}
+                  onBlur={handleBlur}
                   onChange={handleChange}
-                  className="filter-select"
                   label="Khu vực"
+                  disabled // Thêm thuộc tính disabled ở đây
                 >
                   {dataJson?.area &&
                     dataJson.area.length >= 3 &&
@@ -397,10 +256,114 @@ const UpdateProfileManager = () => {
                     ))}
                 </Select>
               </FormControl>
+
+              <Box
+                display="flex"
+                alignItems="center"
+                sx={{ gridColumn: "span 1", gap: "10px" }}
+              >
+                <Avatar
+                  alt="Avatar"
+                  src={values.avatar}
+                  sx={{ width: 50, height: 50 }}
+                />
+                <UploadImageField
+                  onImageUploaded={handleImageUploaded}
+                  imageUrl={currentImageUrl}
+                />
+                {touched.avatar && errors.avatar && (
+                  <Box
+                    position="absolute"
+                    bottom={-25}
+                    left={0}
+                    color="red"
+                    fontSize="0.8rem"
+                  >
+                    {errors.avatar}
+                  </Box>
+                )}
+              </Box>
+              <TextField
+                fullWidth
+                variant="outlined"
+                type="text"
+                label="Họ Và Tên"
+                onBlur={handleBlur}
+                onChange={handleChange}
+                value={values.fullname}
+                name="fullname"
+                error={touched.fullname && errors.fullname ? true : false}
+                helperText={touched.fullname && errors.fullname}
+                sx={{ gridColumn: "span 1" }}
+              />
+
+              <FormControl fullWidth variant="outlined">
+                <InputLabel id="sex-label">Giới Tính</InputLabel>
+                <Select
+                  labelId="sex-label"
+                  id="sex"
+                  name="sex"
+                  variant="outlined"
+                  label="Giới Tinh"
+                  value={values.sex}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  error={touched.sex && errors.sex ? true : false}
+                >
+                  <MenuItem value="Nam">Nam</MenuItem>
+                  <MenuItem value="Nu">Nữ</MenuItem>
+                </Select>
+              </FormControl>
+
+              <TextField
+                fullWidth
+                variant="outlined"
+                type="phone"
+                label="Số Điện Thoại"
+                onBlur={handleBlur}
+                onChange={handleChange}
+                value={values.phone}
+                name="phone"
+                error={touched.phone && errors.phone ? true : false}
+                helperText={touched.phone && errors.phone}
+                sx={{ gridColumn: "span 1" }}
+              />
+              <TextField
+                fullWidth
+                variant="filled"
+                type="date"
+                label="Ngày Sinh"
+                onBlur={handleBlur}
+                onChange={(event) => {
+                  const value = event.target.value;
+                  setDataManager({ ...dataManager, birthdate: value });
+                  // Thêm logic xử lý khi người dùng thay đổi ngày sinh ở đây (nếu cần)
+                }}
+                value={dataManager.birthdate || ""}
+                name="birthdate"
+                error={touched.birthdate && errors.birthdate ? true : false}
+                helperText={touched.birthdate && errors.birthdate}
+                sx={{ gridColumn: "span 1" }}
+              />
+              <TextField
+                fullWidth
+                variant="outlined"
+                type="text"
+                label="Địa Chỉ"
+                onBlur={handleBlur}
+                onChange={handleChange}
+                value={values.address}
+                name="address"
+                error={touched.address && errors.address ? true : false}
+                helperText={touched.address && errors.address}
+                sx={{ gridColumn: "span 1" }}
+              />
             </Box>
           </form>
         )}
       </Formik>
+      {/* )}
+      </div> */}
     </Box>
   );
 };

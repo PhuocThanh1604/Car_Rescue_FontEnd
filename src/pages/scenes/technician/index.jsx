@@ -22,9 +22,6 @@ import SearchIcon from "@mui/icons-material/Search";
 import InputBase from "@mui/material/InputBase";
 import moment from "moment";
 
-import AddCardIcon from "@mui/icons-material/AddCard";
-import RepeatOnIcon from "@mui/icons-material/RepeatOn";
-import PersonOffIcon from "@mui/icons-material/PersonOff";
 import HowToRegIcon from "@mui/icons-material/HowToReg";
 import PersonPinCircleIcon from "@mui/icons-material/PersonPinCircle";
 import PlacesAutocomplete, {
@@ -42,6 +39,7 @@ import {
 import CustomTablePagination from "../../../components/TablePagination";
 import InfoIcon from "@mui/icons-material/Info";
 import areaData from "../../../data.json";
+import * as yup from 'yup';
 const Technicians = (props) => {
   const dispatch = useDispatch();
   const technicians = useSelector((state) => state.technician.technicians);
@@ -50,11 +48,9 @@ const Technicians = (props) => {
   const [searchText, setSearchText] = useState("");
   const [filterOption, setFilterOption] = useState("Status");
   const [selectedEditTechnician, setSelectedEditTechnician] = useState(null);
-  const [dataTechnician, setDataLocationTechnician] = useState(null);
   const [filteredTechnicians, setFilteredTechnicians] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(8);
-  const [selectedtechnician, setSelectedtechnician] = useState(null);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [startDate, setStartDate] = useState(null);
@@ -65,8 +61,6 @@ const Technicians = (props) => {
 
   const [lat, setLat] = useState(null);
   const [lng, setLng] = useState(null);
-  const [latTech, setLatTech] = useState(null);
-  const [lngTech, setLngTech] = useState(null);
   const [technicianLocation, setTechnicianLocation] = useState(null);
   const [infoTechnician, setInfoTechnician] = useState(null);
   const [mapLoading, setMapLoading] = useState(false);
@@ -82,6 +76,14 @@ const Technicians = (props) => {
     }
     setDataJson(areaData);
   }, [dataJson]);
+  let managerString = "Admin"; 
+
+  try {
+    managerString = localStorage.getItem("role_user") || managerString;
+  } catch (error) {
+      toast.error("Lỗi không nhận được role_user")
+  }
+
   const handleLocationOfTechnician = (technicianId) => {
     console.log(technicianId);
     setShowMapModal(true);
@@ -158,7 +160,7 @@ const Technicians = (props) => {
     };
   }, [intervalId]);
 
-  // Effect to handle map loading
+
   useEffect(() => {
     if (showMapModal) {
       setMapLoading(true);
@@ -213,9 +215,9 @@ const Technicians = (props) => {
       .startOf("day");
 
     const filteredTechnicians = technicians.filter((technician) => {
-      // Kiểm tra nếu dữ liệu không hợp lệ trong technician.createAt
+
       if (!technician.createdAt || !moment(technician.createdAt).isValid()) {
-        // Xử lý khi dữ liệu không hợp lệ, ví dụ: loại bỏ technician này khỏi kết quả lọc
+   
         return false;
       }
 
@@ -284,7 +286,7 @@ const Technicians = (props) => {
       ? technicians.filter((technician) => {
           const hasFullName =
             technician &&
-            technician.fullname && // Kiểm tra technician không phải undefined và có thuộc tính fullname
+            technician.fullname && 
             technician.fullname
               .toLowerCase()
               .includes(searchText.toLowerCase());
@@ -533,7 +535,10 @@ const Technicians = (props) => {
       ),
       key: "update",
     },
-    {
+
+  ];
+  if (managerString  === "Manager") {
+    columns.push({
       field: "Location",
       headerName: "Vị Trí",
       width: 120,
@@ -545,7 +550,6 @@ const Technicians = (props) => {
             "&:hover": {
               cursor: "pointer",
               backgroundColor: "lightgray",
-
               borderRadius: "4px",
             },
           }}
@@ -561,9 +565,9 @@ const Technicians = (props) => {
         </Box>
       ),
       key: "update",
-    },
-  ];
-
+    });
+  }
+  
   return (
     <Box ml="50px" mr="50px" mb="auto">
       <Header title="Kỹ Thuật Viên" subtitle="Danh sách kỹ thuật vi" />

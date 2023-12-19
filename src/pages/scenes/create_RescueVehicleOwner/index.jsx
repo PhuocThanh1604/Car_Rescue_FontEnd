@@ -64,7 +64,7 @@ const AddRescueVehicleOwner = () => {
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/,
         "Mật khẩu phải có ít nhất một chữ hoa, một chữ thường, một số và một ký tự đặc biệt"
       ),
-    fullname: yup.string().required("Yêu cầu"),
+    fullname: yup.string().required("Yêu cầu").matches(/^[\p{L}\s]+$/u, "Tên chỉ chứa ký tự chữ cái và khoảng trắng"),
     sex: yup.string().required("Yêu cầu"),
     status: yup.string().required("Yêu cầu"),
     address: yup.string().required("Yêu cầu"),
@@ -99,7 +99,7 @@ const AddRescueVehicleOwner = () => {
   const statusMapping = {
     ACTIVE: "Hoạt Động",
     INACTIVE: "Không Hoạt Động",
-    // Thêm các trạng thái khác nếu cần thiết
+  
   };
   const initialValues = {
     fullname: "",
@@ -114,9 +114,10 @@ const AddRescueVehicleOwner = () => {
     area: "",
   };
 
-  // Tạo ref để lưu trữ tham chiếu đến formik
+
   const formikRef = useRef(null);
 
+ 
   const handleFormSubmit = (values, { resetForm }) => {
     const { email, password, ...restValues } = values;
     const updatedInitialValues = {
@@ -150,8 +151,8 @@ const AddRescueVehicleOwner = () => {
           formikRef.current.setFieldValue("email", "");
           formikRef.current.setFieldValue("password", "");
           formikRef.current.setValues(initialValues);
-        } else {
-          toast.error("Tạo Tài Khoản không Thành Công vui lòng thử lại");
+        }  else if (response.payload.status === "Fail") {
+          toast.error("Email đã tồn tại vui lòng thử lại");
         }
       })
       .catch((error) => {

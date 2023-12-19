@@ -81,7 +81,6 @@ export const getRescueVehicleOwnerId = createAsyncThunk(
 export const editRescueVehicleOwner = createAsyncThunk(
   "rescueVehicleOwners/edit",
   async ({ data }) => {
-    console.log(data);
     try {
       const res = await axios.put(
         `https://rescuecapstoneapi.azurewebsites.net/api/RescueVehicleOwner/Update`,
@@ -192,7 +191,6 @@ export const acceptReport = createAsyncThunk(
   "vehicles/acceptReport",
   async ({ id, boolean }) => {
     try {
-      console.log(id, boolean);
       const response = await axios.post(
         `https://rescuecapstoneapi.azurewebsites.net/api/Report/Accept?id=${id}&boolean=${boolean}`,
         {
@@ -204,7 +202,6 @@ export const acceptReport = createAsyncThunk(
       );
 
       const data = response.data;
-      console.log(data);
       return data;
     } catch (error) {
       console.error("Failed to create Accept Report of RVO:", error.response);

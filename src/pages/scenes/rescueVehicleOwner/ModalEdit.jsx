@@ -19,7 +19,6 @@ import {
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
-
 import { ToastContainer, toast } from "react-toastify";
 import UploadImageField from "../../../components/uploadImage";
 import {
@@ -28,6 +27,8 @@ import {
 } from "../../../redux/rescueVehicleOwnerSlice";
 import InfoIcon from "@mui/icons-material/Info";
 import areaData from "../../../data.json";
+import * as yup from 'yup';
+import moment from "moment";
 const ModalEdit = ({
   openEditModal,
   setOpenEditModal,
@@ -53,6 +54,17 @@ const ModalEdit = ({
   const [downloadUrl, setDownloadUrl] = useState("");
   const [serverError, setServerError] = useState(null);
   const [dataJson, setDataJson] = useState([]);
+  const [editBirthdate, setEditBirthdate] = useState('');
+  const formatDateForClient = (birthdate) => {
+    console.log(birthdate)
+    const formattedDate = moment(birthdate)
+      .tz("Asia/Ho_Chi_Minh")
+      .add(7, "hours")
+      .startOf("day")
+      .format("YYYY-MM-DD"); 
+      console.log(formattedDate)
+    return formattedDate;
+  };
   useEffect(() => {
     if (dataJson.area && dataJson.area.length > 0) {
       console.log(dataJson.area[0].name || "Không có ");
@@ -84,19 +96,25 @@ const ModalEdit = ({
   useEffect(() => {
     if (selectedEditRescuseVehicleOwner && rescueVehicleOwners) {
       if (selectedEditRescuseVehicleOwner.id) {
-        const RescuseVehicleOwnerToEditToEdit = rescueVehicleOwners.find(
+        const RescuseVehicleOwnerToEdit = rescueVehicleOwners.find(
           (rescuseVehicleOwner) =>
             rescuseVehicleOwner.id === selectedEditRescuseVehicleOwner.id
         );
-        if (RescuseVehicleOwnerToEditToEdit) {
-          console.log(RescuseVehicleOwnerToEditToEdit);
-          setEdit(RescuseVehicleOwnerToEditToEdit);
-          setInitialFormState(RescuseVehicleOwnerToEditToEdit);
+        if (RescuseVehicleOwnerToEdit) {
+          setEdit(RescuseVehicleOwnerToEdit);
+          setInitialFormState(RescuseVehicleOwnerToEdit);
+        }
+        if (selectedEditRescuseVehicleOwner) {
+          const formattedDate = formatDateForClient(selectedEditRescuseVehicleOwner.birthdate);
+          setEditBirthdate(formattedDate);
         }
       }
     }
   }, [selectedEditRescuseVehicleOwner, rescueVehicleOwners]);
 
+  const handleBirthdateChange = (event) => {
+    setEditBirthdate(event.target.value); 
+  };
   const handleInputChange = (event) => {
     const { name, value } = event.target;
 
@@ -110,9 +128,14 @@ const ModalEdit = ({
   const isValidPhoneNumber = (phone) => {
     return /^[0-9]{10}$/.test(phone);
   };
+  const birthdateSchema = yup.date()
+  .max(new Date(), "Ngày sinh không được lớn hơn ngày hiện tại")
+  .min(new Date(new Date().getFullYear() - 120, 0, 1), "Ngày sinh không hợp lệ");
   const handleSaveClick = () => {
-    console.log(accountData.account.id); 
-    console.log(accountData.account.email); 
+    if (!birthdateSchema.isValidSync(editBirthdate)) {
+      toast.error("Ngày sinh không hợp lệ");
+      return;
+    }
     if (!isValidPhoneNumber(edit.phone)) {
       toast.error("Số điện thoại không hợp lệ");
       return;
@@ -121,36 +144,13 @@ const ModalEdit = ({
       toast.error("Không có thông tin khách hàng để cập nhật.");
       return;
     }
+    const updatedEdit = { ...edit, birthdate: editBirthdate };
 
-    // if (!edit.id) {
-    //   toast.error("Không có thông tin khách hàng để cập nhật.");
-    //   dispatch(getAllVehicleOfUser({ id: edit.id }))
-    //   .then((res) => {
-    //    const data = res.payload.data;
-    //     if(data.status ==="ASSIGNED"||data.status ==="REJECTED")
-    //     toast.success("Kỹ thuật viên đang ở trạng thái Đang làm việc không thể chuyển sang trạng thái Không Hoạt Động.");
-    //     handleClose();
-    //     reloadRescueVehicleOwners();
-    //     setIsSuccess(true);
-    //   })
-    //   .catch((error) => {
-    //     if (error.response && error.response.data) {
-    //       toast.error(`Lỗi khi cập nhật khách hàng: ${error.response.data.message}`);
-    //     } else if (error.message) {
-    //       toast.error(`Lỗi khi cập nhật khách hàng: ${error.message}`);
-    //     } else {
-    //       toast.error("Lỗi khi cập nhật khách hàng.");
-    //     }
-    //   });
-    //   return;
-    // }
-    // Kiểm tra xem có sự thay đổi trong dữ liệu so với dữ liệu ban đầu
     const hasChanges =
-      JSON.stringify(edit) !== JSON.stringify(initialFormState);
-    console.log(edit);
+      JSON.stringify(updatedEdit) !== JSON.stringify(initialFormState);
 
     const updatedInitialValues = {
-      ...edit,
+      ...updatedEdit,
       account: {
         id: accountData.account.id,
         email: accountData.account.email,
@@ -356,7 +356,7 @@ const ModalEdit = ({
                         <MenuItem key="status-nam" value="Nam">
                           Nam
                         </MenuItem>
-                        <MenuItem key="status-nu" value="Nu">
+                        <MenuItem key="status-nu" value="Nữ">
                           Nữ
                         </MenuItem>
                       </Select>
@@ -401,7 +401,20 @@ const ModalEdit = ({
                           ))}
                       </Select>
                     </FormControl>
-          
+                    <TextField
+                      fullWidth
+                      variant="filled"
+                      type="date"
+                      label="Ngày Sinh"
+                      className="filter-select"
+                      onChange={handleBirthdateChange}
+                      value={editBirthdate}
+                      name="birthdate"
+               
+                      sx={{ gridColumn: "span 1" }}
+
+                      margin="normal"
+                    />
                     <TextField
                       name="phone"
                       label="Số Điện Thoại"

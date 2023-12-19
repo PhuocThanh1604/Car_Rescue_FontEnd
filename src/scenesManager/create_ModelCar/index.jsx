@@ -38,8 +38,6 @@ const AddModelCar = () => {
       console.error("Lỗi khi phân tích chuỗi JSON:", error);
     }
   }
-  
-
 
   const checkoutSchema = yup.object().shape({
     model1: yup.string().required("Required"),
