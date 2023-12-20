@@ -80,18 +80,13 @@ useEffect(() => {
         return nameMatch ;
       })
     : [];
-    
+
   
   console.log(filteredServices);
   setFilteredSerivces(filteredServices);
 }, [services, searchText, filterOption, filterOptionType]);
 
 
-  if (services) {
-    services.forEach((service) => {
-
-    });
-  }
 
   useEffect(() => {
     setLoading(true);

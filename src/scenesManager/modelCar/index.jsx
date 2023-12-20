@@ -105,19 +105,14 @@ const ModelCar = (props) => {
   };
   useEffect(() => {
     const filteredServices = services
-      ? services.filter((service) => {
-          const nameMatch = 
-            service?.name ? 
-            service.name.toLowerCase().includes(searchText.toLowerCase()): false;
-
-            
-          const filterMatch =
-            filterOption === "Status" ||
-            (filterOption === "ACTIVE" && service.status === "ACTIVE") ||
-            (filterOption === "INACTIVE" && service.status === "INACTIVE");
-          return nameMatch && filterMatch;
-        })
-      : [];
+    ? services.filter((service) => {
+        const nameMatch = service?.symptom1
+          ? service.symptom1.toLowerCase().includes(searchText.toLowerCase())
+          : false;
+        return nameMatch;
+      })
+    : [];
+  
     setFilteredSerivces(filteredServices);
   }, [services, searchText, filterOption]);
 

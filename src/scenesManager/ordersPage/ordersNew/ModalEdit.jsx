@@ -89,7 +89,6 @@ const ModalEdit = ({
   const [isSuccess, setIsSuccess] = useState(false);
   const [initialFormState, setInitialFormState] = useState({});
   const [fullnameValue, setFullnameValue] = useState("");
-  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [dataImage, setDataImage] = useState([]);
   const [filteredOrders, setFilteredOrders] = useState([]);
@@ -127,7 +126,6 @@ const ModalEdit = ({
   const [dataCustomer, setDataCustomer] = useState({});
   const [dataCar, setDataCar] = useState({});
   const [dataOrder, setDataOrder] = useState({});
-  const [dataDeparture, setDataDeparture] = useState({});
   const [accountId, setAccountId] = useState("");
   const [accountIdCustomer, setAccountIdCustomer] = useState("");
   const [accountDeviceToken, setAccountDeviceToken] = useState("");
@@ -1255,19 +1253,59 @@ const ModalEdit = ({
                               marginRight: "2px",
                             }}
                           >
-                            <MapRoundedIcon style={iconColor} />{" "}
-                            <strong>Khu vực: </strong>{" "}
-                            <Typography
-                              variant="h5"
-                              sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                marginLeft: "10px",
-                              }}
-                            >
-                              {" "}
-                              {edit.area}
-                            </Typography>
+                            
+                             
+
+                              <MapRoundedIcon style={iconColor} />
+                                    <Typography variant="h6">
+                                      {edit.area === 1 ? (
+                                        <Typography>
+                                          {dataJson.area[0]?.name || "Không có"}
+                                          <Tooltip
+                                            title={
+                                              dataJson.area[0]?.description
+                                            }
+                                          >
+                                            <InfoIcon
+                                              style={{
+                                                fontSize: "16px",
+                                              }}
+                                            />
+                                          </Tooltip>
+                                        </Typography>
+                                      ) : edit.area === 2 ? (
+                                          <Typography>
+                                          {dataJson.area[1]?.name || "Không có"}
+                                          <Tooltip
+                                            title={dataJson.area[1]?.description}
+                                          >
+                                            <InfoIcon
+                                              style={{
+                                                fontSize: "16px",
+                                              }}
+                                            />
+                                          </Tooltip>
+                                        </Typography>
+                                      ) : edit.area === 3 ? (
+                                          <Typography>
+                                          {dataJson.area[2]?.name || "Không có"}
+                                          <Tooltip
+                                            title={dataJson.area[2]?.description}
+                                          >
+                                            <InfoIcon
+                                              style={{
+                                                fontSize: "16px",
+                                              }}
+                                            />
+                                          </Tooltip>
+                                        </Typography>
+                                      ) : (
+                                        <Typography>
+                                          Không có thông tin
+                                        </Typography>
+                                      )}
+                                    </Typography>
+                                    
                           </Typography>
 
                           <Typography

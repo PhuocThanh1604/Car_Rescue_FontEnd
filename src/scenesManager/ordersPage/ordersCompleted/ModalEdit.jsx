@@ -786,6 +786,7 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
                                 {orderQuantities[order.id] !== undefined
                                   ? orderQuantities[order.id]
                                   : ""}
+                                      {dataOrder.rescueType==="Towing"&& (<span> km</span>)}
                               </TableCell>
                               <TableCell sx={{fontWeight:"bold"}}>
                                 {order.tOtal

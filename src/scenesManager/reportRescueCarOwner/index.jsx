@@ -248,7 +248,7 @@ const Reports = (props) => {
   };
 
   const handleSearchChange = (event) => {
-    const value = event.target.value || ""; // Use an empty string if the value is null
+    const value = event.target.value || ""; 
     setSearchText(value);
   };
 
@@ -258,9 +258,8 @@ const Reports = (props) => {
 
     if (selectedStatusOption === "type") {
       // Hiển thị tất cả các trạng thái
-      setFilteredVehicles(rescueVehicleOwners); // Sử dụng dữ liệu gốc khi không lọc
+      setFilteredVehicles(rescueVehicleOwners); 
     } else {
-      // Lọc dữ liệu gốc dựa trên giá trị trạng thái
       const filteredVehicles = rescueVehicleOwners.filter(
         (vehicle) => vehicle.type === selectedStatusOption
       );
@@ -519,9 +518,9 @@ const Reports = (props) => {
             onBlur={handleDateFilterChange}
             inputProps={{
               max: moment()
-                .tz("Asia/Ho_Chi_Minh") // Set the time zone to Vietnam's ICT
-                .add(7, "hours") // Adding 3 hours (you can adjust this number as needed)
-                .format("DD-MM-YYYY"), // Set the maximum selectable date as today
+                .tz("Asia/Ho_Chi_Minh")
+                .add(7, "hours") 
+                .format("DD-MM-YYYY"),
             }}
             sx={{ ml: 4, mr: 2 }}
           />

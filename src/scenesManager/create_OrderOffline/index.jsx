@@ -211,10 +211,13 @@ const CreateOrderOffline = () => {
       service: yup.string().required("Vui lòng nhập dịch vụ"),
       symptomId: yup.string().required("Vui lòng nhập hiện tượng"),
       to: yup
-      .string()
-      .required("Vui lòng nhập số điện thoại")
-      .matches(/^[0-9]{9}$/, "Số điện thoại phải có 9 chữ số"),
-      nameCustomer: yup.string().required("Vui lòng nhập tên khách hàng").matches(/^[\p{L}\s]+$/u, "Tên chỉ chứa ký tự chữ cái và khoảng trắng"),
+        .string()
+        .required("Vui lòng nhập số điện thoại")
+        .matches(/^[0-9]{9}$/, "Số điện thoại phải có 9 chữ số"),
+      nameCustomer: yup
+        .string()
+        .required("Vui lòng nhập tên khách hàng")
+        .matches(/^[\p{L}\s]+$/u, "Tên chỉ chứa ký tự chữ cái và khoảng trắng"),
     };
 
     if (selectedRescueType === "Towing") {
@@ -222,8 +225,6 @@ const CreateOrderOffline = () => {
     }
     return yup.object().shape(schema);
   };
-
-
 
   // const checkoutSchema = yup.object().shape({
   //   customerNote: yup.string().required("Required"),
@@ -238,7 +239,7 @@ const CreateOrderOffline = () => {
 
   const initialValues = {
     customerNote: "",
-    nameCustomer:"",
+    nameCustomer: "",
     distance: "",
     destination: "",
     departure: "",
@@ -874,7 +875,6 @@ const CreateOrderOffline = () => {
                   onBlur={handleBlur}
                   error={touched.rescueType && errors.rescueType ? true : false}
                 >
-                  <MenuItem value="Towing">Xe Kéo</MenuItem>
                   <MenuItem value="Fixing">Sửa Tại Chỗ Cơ Bản</MenuItem>
                 </Select>
               </FormControl>
@@ -1034,85 +1034,86 @@ const CreateOrderOffline = () => {
                   <MenuItem value="Banking">Chuyển Khoản</MenuItem>
                 </Select>
               </FormControl>
-
-              <PlacesAutocomplete
-                value={address}
-                onChange={setAddress}
-                onSelect={handleMapLocationSelected}
-                sx={{ gridColumn: "span 2", width: "80vw" }}
-              >
-                {({ getInputProps, suggestions, getSuggestionItemProps }) => (
-                  <div style={{ position: "relative" }}>
-                    <TextField
-                      {...getInputProps({
-                        placeholder: "Nhập địa chỉ bắt đầu",
-                        variant: "outlined",
-                        fullWidth: true,
-                        InputProps: {
-                          endAdornment: (
-                            <IconButton onClick={handleOpenMapModal}>
-                              <EditLocationAltIcon />
-                            </IconButton>
-                          ),
-                        },
-                      })}
-                      error={
-                        touched.departure && errors.departure ? true : false
-                      }
-                      helperText={touched.departure && errors.departure}
-                    />
-                    <div
-                      style={{
-                        position: "absolute",
-                        top: "100%",
-                        left: 0,
-                        right: 0,
-                        zIndex: 1,
-                        maxHeight: "200px",
-                        overflowY: "auto",
-                        backgroundColor: "white",
-                      }}
-                    >
-                      {suggestions.map((suggestion, index) => {
-                        const style = {
-                          backgroundColor: suggestion.active
-                            ? "#41b6e6"
-                            : "#fff",
-                          whiteSpace: "nowrap",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          maxWidth: "400px",
-                        };
-                        return (
-                          <div
-                            key={index}
-                            {...getSuggestionItemProps(suggestion, { style })}
-                          >
-                            {" "}
-                            <FaMapMarkerAlt
-                              style={{
-                                color: colors.cyan[200],
-                                marginTop: "5px",
-                                marginLeft: "5px",
-                                marginRight: "5px",
-                              }}
-                            />
-                            {suggestion.description}
-                          </div>
-                        );
-                      })}
+              <Box sx={{ gridColumn: "span 2" }}>
+                <PlacesAutocomplete
+                  value={address}
+                  onChange={setAddress}
+                  onSelect={handleMapLocationSelected}
+                  sx={{ gridColumn: "span 2", width: "80vw" }}
+                >
+                  {({ getInputProps, suggestions, getSuggestionItemProps }) => (
+                    <div style={{ position: "relative" }}>
+                      <TextField
+                        {...getInputProps({
+                          placeholder: "Nhập địa chỉ bắt đầu",
+                          variant: "outlined",
+                          fullWidth: true,
+                          InputProps: {
+                            endAdornment: (
+                              <IconButton onClick={handleOpenMapModal}>
+                                <EditLocationAltIcon />
+                              </IconButton>
+                            ),
+                          },
+                        })}
+                        error={
+                          touched.departure && errors.departure ? true : false
+                        }
+                        helperText={touched.departure && errors.departure}
+                      />
+                      <div
+                        style={{
+                          position: "absolute",
+                          top: "100%",
+                          left: 0,
+                          right: 0,
+                          zIndex: 1,
+                          maxHeight: "200px",
+                          overflowY: "auto",
+                          backgroundColor: "white",
+                        }}
+                      >
+                        {suggestions.map((suggestion, index) => {
+                          const style = {
+                            backgroundColor: suggestion.active
+                              ? "#41b6e6"
+                              : "#fff",
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            maxWidth: "400px",
+                          };
+                          return (
+                            <div
+                              key={index}
+                              {...getSuggestionItemProps(suggestion, { style })}
+                            >
+                              {" "}
+                              <FaMapMarkerAlt
+                                style={{
+                                  color: colors.cyan[200],
+                                  marginTop: "5px",
+                                  marginLeft: "5px",
+                                  marginRight: "5px",
+                                }}
+                              />
+                              {suggestion.description}
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
-                )}
-              </PlacesAutocomplete>
+                  )}
+                </PlacesAutocomplete>
+              </Box>
 
               {selectedRescueType !== "Fixing" && (
-                <div>
+                <Box  sx={{ gridColumn: "span 2" }}>
                   <PlacesAutocomplete
                     value={addressDestination}
                     onChange={setAddressDestination}
                     onSelect={handleMapLocationSelectedDestination}
-                    sx={{ gridColumn: "span 2", width: "80vw" }}
+                   
                   >
                     {({
                       getInputProps,
@@ -1171,7 +1172,7 @@ const CreateOrderOffline = () => {
                       </div>
                     )}
                   </PlacesAutocomplete>
-                </div>
+                </Box>
               )}
 
               {isDestinationSelected && (

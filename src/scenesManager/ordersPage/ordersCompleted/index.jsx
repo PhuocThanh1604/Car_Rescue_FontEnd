@@ -28,19 +28,12 @@ import moment from "moment";
 
 import {
   fetchOrdersCompleted,
-  fetchOrdersNew,
   getOrderDetailId,
   getOrderId,
 } from "../../../redux/orderSlice";
 import { getCustomerIdFullName } from "../../../redux/customerSlice";
-import CreditScoreIcon from "@mui/icons-material/CreditScore";
-import AddCardIcon from "@mui/icons-material/AddCard";
-import RepeatOnIcon from "@mui/icons-material/RepeatOn";
-import BuildIcon from "@mui/icons-material/Build";
 import SupportIcon from "@mui/icons-material/Support";
 import HandymanIcon from "@mui/icons-material/Handyman";
-
-import TaskAltIcon from "@mui/icons-material/TaskAlt";
 import { useLocation } from "react-router-dom";
 import CustomTablePagination from "../../../components/TablePagination";
 import VisibilityIcon from "@mui/icons-material/Visibility";

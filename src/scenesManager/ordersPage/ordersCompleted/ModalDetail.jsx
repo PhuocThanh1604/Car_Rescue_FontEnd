@@ -304,7 +304,7 @@ const MyModal = (props) => {
 
             setDataImage(data);
           } else {
-            toast.error("Image URLs not found in the API response.");
+            toast.dismiss("Image URLs not found in the API response.");
           }
         })
         .catch((error) => {

@@ -272,7 +272,7 @@ const Managers = (props) => {
     {
       field: "area",
       headerName: "Khu Vực",
-      width: 120,
+      width: 100,
       key: "area",
       renderCell: ({ row }) => {
         const { area } = row;
