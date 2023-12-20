@@ -57,13 +57,9 @@ const AddModelCar = () => {
 
   const handleFormSubmit = (values, { resetForm }) => {
     resetForm({ values: initialValues });
-    // In ra tất cả dữ liệu đã nhập
-    console.log("Dữ liệu đã nhập:", values);
     dispatch(createModelCar(values))
       .then((response) => {
-          console.log(response);
           toast.success("Tạo Mẫu Xe Thành Công");
-          // Đặt lại giá trị của formik về giá trị ban đầu (rỗng)
           formikRef.current.resetForm();
   
 
@@ -91,7 +87,6 @@ const AddModelCar = () => {
           toast.dismiss("không có dữ liệu trả về")
         }
       }).catch(error => {
-        // Xử lý lỗi ở đây
         console.error("Lỗi khi lấy dữ liệu báo cáo:", error);
       })
       .finally(() => {

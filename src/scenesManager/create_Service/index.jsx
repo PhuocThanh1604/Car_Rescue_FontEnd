@@ -70,10 +70,8 @@ const AddService = () => {
   const handleFormSubmit = (values, { resetForm }) => {
     resetForm({ values: initialValues });
     // In ra tất cả dữ liệu đã nhập
-    console.log("Dữ liệu đã nhập:", service);
     dispatch(createService(values))
       .then((response) => {
-        console.log(response);
         toast.success("Tạo Dịch Vụ Thành Công");
         // Đặt lại giá trị của formik về giá trị ban đầu (rỗng)
         formikRef.current.resetForm();

@@ -110,7 +110,6 @@ const CreateOrderOffline = () => {
           address: firstResult.formatted_address,
         };
         const latLngDeparture = `lat:${selectedLocation.lat},long:${selectedLocation.lng}`;
-        console.log(latLngDeparture);
         setLat(selectedLocation.lat);
         setLng(selectedLocation.lng);
         setAddress(selectedLocation.address);
@@ -141,7 +140,6 @@ const CreateOrderOffline = () => {
           address: firstResult.formatted_address,
         };
         const latLngDestination = `lat:${selectedLocation.lat},long:${selectedLocation.lng}`;
-        console.log(latLngDestination);
         setLatDestination(selectedLocation.lat);
         setLngDestination(selectedLocation.lng);
         setAddressDestination(selectedLocation.address);
@@ -174,7 +172,6 @@ const CreateOrderOffline = () => {
         latDestination,
         lngDestination
       );
-      console.log(`Distance: ${distance.toFixed(2)} km`);
       // Here you could set the distance in state or in a form field
       formikRef.current.setFieldValue("distance", distance.toFixed(2));
     }
@@ -430,8 +427,7 @@ const CreateOrderOffline = () => {
   // };
 
   const handleTowingFormSubmit = (values, { resetForm }) => {
-    console.log(selectedRescueType);
-    console.log(values.nameCustomer);
+
     const initialPhoneNumber = "+84";
     const customer_name = values.nameCustomer;
     const service = values.service;
@@ -441,13 +437,9 @@ const CreateOrderOffline = () => {
     const sms_message = `Xin chào ${customer_name}!  \nDịch vụ: ${service}\nĐơn hàng: ${order_phone} 
      của bạn đã được nhận và đang được xử lý. Hình thức thanh toán: ${type_payment}. Cảm ơn bạn đã mua hàng!`;
     const submissionValuesTowing = { ...values, service: [values.service] };
-    console.log(
-      "Data sent to createOrderOffline API for Towing:",
-      submissionValuesTowing
-    );
+
     dispatch(createOrderOffline(submissionValuesTowing))
       .then((response) => {
-        console.log(response);
         if (response.payload.message === "Hiện tại không còn xe cứu hộ") {
           toast.warn("Hiện tại không có xe cứu hộ vui lòng đợi");
         } else {
@@ -475,7 +467,6 @@ const CreateOrderOffline = () => {
         setAddressDestination("");
       })
       .catch((error) => {
-        console.log(error); // Log the error object to inspect its structure
         if (error.response && error.response.data) {
           // Handle specific error message provided by the API
           toast.error(
@@ -493,8 +484,7 @@ const CreateOrderOffline = () => {
   };
 
   const handleFixingFormSubmit = (values, { resetForm }) => {
-    console.log(selectedRescueType);
-    console.log(values.nameCustomer);
+
     const initialPhoneNumber = "+84";
     const customer_name = values.nameCustomer;
     const service = values.service;
@@ -505,10 +495,8 @@ const CreateOrderOffline = () => {
      của bạn đã được nhận và đang được xử lý. Hình thức thanh toán: ${type_payment}. Cảm ơn bạn đã mua hàng!`;
     const { distance, destination, ...submissionValues } = values;
     submissionValues.service = [values.service];
-    console.log("Submitting Fixing Service:", submissionValues);
     dispatch(createOrderOfflineFixing(submissionValues))
       .then((response) => {
-        console.log(response);
         if (response.payload.message === "Hiện tại không kĩ thuật viên") {
           toast.warn("Hiện tại không có kỹ thuật viên vui lòng đợi");
         } else {
@@ -520,10 +508,8 @@ const CreateOrderOffline = () => {
             ...submissionValuesIncident
           } = values;
 
-          console.log("submissionIncidentValues" + submissionValuesIncident);
           dispatch(createIncidentForFixing(submissionValuesIncident))
             .then((response) => {
-              console.log("Create Incident:" + response.payload.data);
               if (response.payload.message === "Hiện tại không kĩ thuật viên") {
                 toast.warn("Hiện tại không có kỹ thuật viên vui lòng đợi");
               } else {
@@ -580,8 +566,7 @@ const CreateOrderOffline = () => {
     // ...
   };
   const handleFixingFormSubmit2 = (values, { resetForm }) => {
-    console.log(selectedRescueType);
-    console.log(values.nameCustomer);
+  
     const initialPhoneNumber = "+84";
     const customer_name = values.nameCustomer;
     const service = values.service;
@@ -592,10 +577,8 @@ const CreateOrderOffline = () => {
    của bạn đã được nhận và đang được xử lý. Hình thức thanh toán: ${type_payment}. Cảm ơn bạn đã mua hàng!`;
     const { distance, destination, ...submissionValues } = values;
     submissionValues.service = [values.service];
-    console.log("Submitting Fixing Service:", submissionValues);
     dispatch(createOrderOfflineFixing(submissionValues))
       .then((response) => {
-        console.log(response);
         if (response.payload.message === "Hiện tại không kĩ thuật viên") {
           toast.warn("Hiện tại không có kỹ thuật viên vui lòng đợi");
         } else {
@@ -607,10 +590,8 @@ const CreateOrderOffline = () => {
             ...submissionValuesIncident
           } = values;
 
-          console.log("submissionIncidentValues" + submissionValuesIncident);
           dispatch(createIncidentForFixing(submissionValuesIncident))
             .then((response) => {
-              console.log("Create Incident:" + response.payload.data);
               if (response.payload.message === "Hiện tại không kĩ thuật viên") {
                 toast.warn("Hiện tại không có kỹ thuật viên vui lòng đợi");
               } else {
@@ -634,7 +615,6 @@ const CreateOrderOffline = () => {
               }
             });
 
-          //push noti
           const smsData = {
             to: order_phone,
             body: sms_message,
@@ -667,8 +647,6 @@ const CreateOrderOffline = () => {
     // ...
   };
   const handleFormSubmit = (values, { resetForm }) => {
-    console.log(selectedRescueType);
-    // Check selectedRescueType and call appropriate handler
     if (selectedRescueType === "Towing") {
       handleTowingFormSubmit(values, { resetForm });
     } else if (selectedRescueType === "Fixing") {
@@ -679,7 +657,6 @@ const CreateOrderOffline = () => {
   useEffect(() => {
     setSelectedService(null);
     setSelectedSymptom(null);
-    console.log(selectedRescueType);
   }, [selectedRescueType]);
 
   useEffect(() => {

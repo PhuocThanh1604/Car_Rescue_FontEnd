@@ -150,7 +150,6 @@ const CreateOrderOffline = () => {
           address: firstResult.formatted_address,
         };
         const latLngDeparture = `lat:${selectedLocation.lat},long:${selectedLocation.lng}`;
-        console.log(latLngDeparture);
         setLat(selectedLocation.lat);
         setLng(selectedLocation.lng);
         setAddress(selectedLocation.address);
@@ -181,7 +180,6 @@ const CreateOrderOffline = () => {
           address: firstResult.formatted_address,
         };
         const latLngDestination = `lat:${selectedLocation.lat},long:${selectedLocation.lng}`;
-        console.log(latLngDestination);
         setLatDestination(selectedLocation.lat);
         setLngDestination(selectedLocation.lng);
         setAddressDestination(selectedLocation.address);
@@ -213,7 +211,6 @@ const CreateOrderOffline = () => {
         latDestination,
         lngDestination
       );
-      console.log(distance);
 
       if (distance > 100 && parseFloat(distanceValue) <= 100) {
         // Khoảng cách hợp lệ và đã vượt quá trước đó, giảm xuống dưới 100km
@@ -255,8 +252,7 @@ const CreateOrderOffline = () => {
       );
       return;
     }
-    console.log(selectedRescueType);
-    console.log(values.nameCustomer);
+  
     const initialPhoneNumber = "+84";
     const customer_name = values.nameCustomer;
     const service = values.service;
@@ -268,10 +264,8 @@ const CreateOrderOffline = () => {
     const { ...submissionValues } = values;
     submissionValues.service = [values.service];
     submissionValues.distance = distanceValue;
-    console.log("Submitting Fixing data:", submissionValues);
     dispatch(createOrderOffline(submissionValues))
       .then((response) => {
-        console.log(response);
         if (response.payload.message === "Hiện tại không còn xe") {
           toast.warn("Hiện tại không có kỹ thuật viên vui lòng đợi");
         } else if (response.payload.message === "Success") {
@@ -312,7 +306,6 @@ const CreateOrderOffline = () => {
   const formikRef = useRef(null);
 
   const handleFormSubmit = (values, { resetForm }) => {
-    console.log(selectedRescueType);
     if (selectedRescueType === "Towing") {
       handleTowingFormSubmit(values, { resetForm });
     }
@@ -321,7 +314,6 @@ const CreateOrderOffline = () => {
   useEffect(() => {
     setSelectedService(null);
     setSelectedSymptom(null);
-    console.log(selectedRescueType);
   }, [selectedRescueType]);
 
   useEffect(() => {

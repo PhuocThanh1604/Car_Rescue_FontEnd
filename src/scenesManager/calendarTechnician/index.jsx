@@ -60,7 +60,6 @@ const CalendarTechnician = () => {
           // Filter items that have a technicianId and process them
           return response.data.filter(eventData => eventData.technicianId).map(async (eventData) => {
             const fullname = await fetchFullNameTechnician(eventData.technicianId);
-            console.log(fullname);
 
             // Define shift hours based on shift type
             let startHour = "00:00:00";
@@ -109,7 +108,6 @@ const CalendarTechnician = () => {
       const response = await dispatch(
         getTechnicianId({ id: technicianId })
       ).unwrap();
-      console.log("Response data:", response.data); // Log to check the structure of response data
 
       // Check the structure of response data to find the correct field containing fullname
       const fullname = response.data?.fullname || response.data?.name;
@@ -124,7 +122,6 @@ const CalendarTechnician = () => {
   useEffect(() => {
     // Nếu có technicianData và fullname được trả về từ API
     if (technicianData && technicianData.fullname) {
-      console.log(technicianData.fullname);
       // Cập nhật description của event với fullname từ technicianData
       setInitialEvents((prevEvents) => {
         return prevEvents.map((event) => {

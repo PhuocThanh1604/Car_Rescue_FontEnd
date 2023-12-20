@@ -38,12 +38,10 @@ const AddSymptom = () => {
   const handleFormSubmit = (values, { resetForm }) => {
     resetForm({ values: initialValues });
     // In ra tất cả dữ liệu đã nhập
-    console.log("Dữ liệu đã nhập:", service);
     dispatch(createSymptom(values))
       .then((response) => {
         console.log(response);
         toast.success("Tạo Hiện Tượng Thành Công");
-        // Đặt lại giá trị của formik về giá trị ban đầu (rỗng)
         formikRef.current.resetForm();
       })
       .catch((error) => {

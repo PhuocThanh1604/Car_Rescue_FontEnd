@@ -141,9 +141,8 @@ const MyModal = (props) => {
 
   const fetchAddress = async (addressType, addressValue) => {
     if (!addressValue) {
-      return; // Trả về nếu order không tồn tại hoặc địa chỉ đã được lưu trữ
+      return; 
     }
-
     const matches = /lat:\s*([^,]+),\s*long:\s*([^,]+)/.exec(addressValue);
     if (matches && matches.length === 3) {
       const [, lat, lng] = matches;
