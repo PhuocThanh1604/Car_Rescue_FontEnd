@@ -44,6 +44,7 @@ import {
   getImageOfOrder,
   getOrderDetailId,
 } from "../../../redux/orderSlice";
+import PinDropIcon from "@mui/icons-material/PinDrop";
 import { useTheme } from "@emotion/react";
 import { tokens } from "../../../theme";
 import { getServiceId } from "../../../redux/serviceSlice";
@@ -53,8 +54,8 @@ import areaData from "../../../data.json";
 import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
 import SwipeableViews from "react-swipeable-views";
 import { autoPlay } from "react-swipeable-views-utils";
-import moment from "moment";
 const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
+
 const MyModal = (props) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -636,33 +637,33 @@ const MyModal = (props) => {
                             </Typography>
                           </Typography>
 
-                          <Typography
-                            variant="body1"
-                            component="p"
-                            sx={{
-                              marginBottom: "8px",
-                              fontSize: "1rem",
-                            }}
-                          >
-                            <LocationOnIcon style={iconColor} />
-                            <strong>Địa chỉ kết thúc: </strong>
-                            <Typography
-                              variant="h6"
-                              component="span"
-                              sx={{
-                                padding: "8px",
-                                borderRadius: "4px",
-                                marginLeft: "4px",
-                                wordWrap: "break-word",
-                                overflowWrap: "break-word",
-                                whiteSpace: "normal",
-                                flex: 1,
-                              }}
-                            >
-                              {formattedAddresses.destination ||
-                                "Không có thông tin"}
-                            </Typography>
-                          </Typography>
+                          {selectedEditOrder.rescueType === "Towing" && (
+                                  <Typography
+                                  variant="body1"
+                                  component="p"
+                                  sx={{
+                                    marginBottom: "8px",
+                                    fontSize: "1rem",
+                                  }}
+                                >
+                                  <PinDropIcon style={iconColor} />
+                                  <strong>Địa chỉ kết thúc: </strong>
+                                  <Typography
+                                    variant="h6"
+                                    component="span"
+                                    sx={{
+                                      padding: "8px",
+                                      wordWrap: "break-word",
+                                      overflowWrap: "break-word",
+                                      whiteSpace: "normal",
+                                      flex: 1,
+                                    }}
+                                  >
+                                    {formattedAddresses.destination ||
+                                      "Không có thông tin"}
+                                  </Typography>
+                                </Typography>
+                          )}
 
                           {/* List all services */}
                           <Typography

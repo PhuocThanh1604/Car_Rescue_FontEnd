@@ -97,7 +97,6 @@ const ModalEdit = ({
   const [selectedVehicle, setSelectedVehicel] = useState(null);
   const [vehicleDetails, setVehicleDetails] = useState(null);
   const [vehicleId, setVehicleId] = useState(null);
-  const [orderId, setOrderId] = useState(null);
   const [loadingVehicle, setLoadingVehicle] = useState(true);
   const [vehicleData, setVehicleData] = useState([]);
   const [rvoName, setRvoName] = useState([]);
@@ -105,7 +104,6 @@ const ModalEdit = ({
   const [loadingTechnician, setLoadingTechnician] = useState(true);
   const [technicianData, setTechnicianData] = useState([]);
   const [vehicleDataActive, setVehicleDataActive] = useState([]);
-  const [rvoData, setRVOData] = useState([]);
   const [selectedTechnician, setSelectedTechnician] = useState(null);
   const [technicianDetails, setTechnicianDetails] = useState(null);
   const [selectedRescueType, setSelectedRescueType] = useState([
@@ -116,11 +114,9 @@ const ModalEdit = ({
   const [showModal, setShowModal] = useState(false);
   const [showModalVehicleOfRvo, setShowModalVehicleOfRvo] = useState(false);
   const [collapse, setCollapse] = useState(false);
-  const [selectedRescueTypeTowing, setSelectedRescueTypeTowing] =
-    useState("Towing");
+
   const [filteredTechnicianData, setFilteredTechnicianData] = useState([]);
   const [filteredVehicleData, setFilteredVehicleData] = useState([]);
-  const [filteredData, setFilteredData] = useState([]);
   const [formattedAddresses, setFormattedAddresses] = useState({});
   const [selectedOrderFormattedAddress, setSelectedOrderFormattedAddress] =
     useState("");
@@ -950,35 +946,7 @@ const ModalEdit = ({
         });
     }
   };
-  // Hàm fetch chung
-  // const fetchData = (dispatch, getIdAction, setDataFunction) => (orderId) => {
-  //   console.log(orderId);
-  //   if (orderId) {
-  //     dispatch(getIdAction({ id: orderId }))
-  //       .then((response) => {
-  //         const data = response.payload.data;
-  //         console.log(data);
-  //         if (data) {
-  //           setDataFunction((prevData) => ({
-  //             ...prevData,
-  //             [orderId]: data,
-  //           }));
-  //         } else {
-  //           console.error("Service name not found in the API response.");
-  //         }
-  //       })
-  //       .catch((error) => {
-  //         console.error("Error while fetching service data:", error);
-  //       });
-  //   }
-  // };
-  // const fetchOrder = fetchData(dispatch, getPaymentId, setDataOrder);
-  // const fetchOrderDetail = fetchData(
-  //   dispatch,
-  //   getOrderDetailId,
-  //   setDataOrderDetail
-  // );
-  // Thay someOrderId bằng dependency của useEffect của bạn, để đảm bảo useEffect chạy khi dependency thay đổi
+
 
  
 

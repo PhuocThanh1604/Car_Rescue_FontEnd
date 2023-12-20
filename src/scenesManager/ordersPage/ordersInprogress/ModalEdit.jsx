@@ -663,8 +663,7 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
                         {formattedAddresses.departure || "Đang cập nhật"}
                       </Typography>
                     </Typography>
-
-                    <Typography
+                    {selectedEditOrder.rescueType === "Towing" && (    <Typography
                       variant="body1"
                       component="p"
                       sx={{
@@ -673,7 +672,7 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
                       }}
                     >
                       <LocationOnIcon style={iconColor} />
-                      <strong>Địa chỉ đến: </strong>
+                      <strong>Địa chỉ kết thúc: </strong>
                       <Typography
                         variant="h6"
                         component="span"
@@ -690,7 +689,8 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
                         {}
                         {formattedAddresses.destination || "Không có thông tin"}
                       </Typography>
-                    </Typography>
+                    </Typography>)}
+                
                     <Typography
                       variant="body1"
                       component="p"

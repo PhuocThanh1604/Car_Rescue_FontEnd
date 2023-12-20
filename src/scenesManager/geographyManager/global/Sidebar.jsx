@@ -173,9 +173,9 @@ const Sidebar = ({ selectedWalletId, selectedItemId }) => {
       sx={{
         ...sidebarStyles, // Apply the sidebar styles
         display: "flex",
-        height: 
-       
-         userRole === "Manager"
+        height: isSmallScreen
+          ? "100vh"
+          : userRole === "manager"
           ? "100%"
           : "auto",
 

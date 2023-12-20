@@ -698,31 +698,33 @@ const MyModal = (props) => {
                             </Typography>
                           </Typography>
 
-                          <Typography
-                            variant="body1"
-                            component="p"
-                            sx={{
-                              marginBottom: "8px",
-                              fontSize: "1rem",
-                            }}
-                          >
-                            <PinDropIcon style={iconColor} />
-                            <strong>Địa chỉ kết thúc: </strong>
-                            <Typography
-                              variant="h6"
-                              component="span"
-                              sx={{
-                                padding: "8px",
-                                wordWrap: "break-word",
-                                overflowWrap: "break-word",
-                                whiteSpace: "normal",
-                                flex: 1,
-                              }}
-                            >
-                              {formattedAddresses.destination ||
-                                "Không có thông tin"}
-                            </Typography>
-                          </Typography>
+                          {selectedEditOrder.rescueType === "Towing" && (
+                                  <Typography
+                                  variant="body1"
+                                  component="p"
+                                  sx={{
+                                    marginBottom: "8px",
+                                    fontSize: "1rem",
+                                  }}
+                                >
+                                  <PinDropIcon style={iconColor} />
+                                  <strong>Địa chỉ kết thúc: </strong>
+                                  <Typography
+                                    variant="h6"
+                                    component="span"
+                                    sx={{
+                                      padding: "8px",
+                                      wordWrap: "break-word",
+                                      overflowWrap: "break-word",
+                                      whiteSpace: "normal",
+                                      flex: 1,
+                                    }}
+                                  >
+                                    {formattedAddresses.destination ||
+                                      "Không có thông tin"}
+                                  </Typography>
+                                </Typography>
+                          )}
 
                            <Typography
                             variant="body1"
