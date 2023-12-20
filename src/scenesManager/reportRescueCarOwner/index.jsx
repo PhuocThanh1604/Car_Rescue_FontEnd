@@ -4,10 +4,7 @@ import {
   Button,
   useTheme,
   TextField,
-  Select,
-  MenuItem,
   IconButton,
-  FormControl,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -37,7 +34,7 @@ import {
   fetchVehicleWatting,
   getVehicleId,
 } from "../../redux/vehicleSlice";
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
 import TimerIcon from "@mui/icons-material/Timer";
 import "react-responsive-carousel/lib/styles/carousel.min.css"; // Import the carousel styles
@@ -50,14 +47,15 @@ import {
   getReportById,
   getRescueVehicleOwnerId,
 } from "../../redux/rescueVehicleOwnerSlice";
-import MapRoundedIcon from "@mui/icons-material/MapRounded";
+import SupportIcon from "@mui/icons-material/Support";
+import HandymanIcon from "@mui/icons-material/Handyman";
 import PhoneRoundedIcon from "@mui/icons-material/PhoneRounded";
 import PeopleAltRoundedIcon from "@mui/icons-material/PeopleAltRounded";
 import PlaceIcon from "@mui/icons-material/Place";
 import CustomTablePagination from "../../components/TablePagination";
 import { tokens } from "../../theme";
 import { getOrderId, sendNotification } from "../../redux/orderSlice";
-import { getAccountId } from "../../redux/accountSlice";
+import DescriptionIcon from "@mui/icons-material/Description";
 import { getCustomerId } from "../../redux/customerSlice";
 const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
 const Reports = (props) => {
@@ -85,7 +83,7 @@ const Reports = (props) => {
   const [editStatus, setEditStatus] = useState({});
   const [vehicleId, setVehicleId] = useState(null);
   const [openConfirmModal, setOpenConfirmModal] = useState(false);
-  const [detailedData, setDetailedData] = useState(null);
+  const [dataOrderDetail, setDataOrderDetail] = useState({});
   const [vehicleDetail, setVehicleDetail] = useState({});
   const [dataCustomer, setDataCustomer] = useState({});
 
@@ -146,10 +144,10 @@ const Reports = (props) => {
           if (dataReport) {
             setVehicleId(dataReport.id);
             setVehicleDetail(dataReport);
-  
+
             // Pass orderId to fetchOrderDetail function
             fetchOrderDetail(dataReport.orderId);
-  
+
             setOpenConfirmModal(true);
             // reloadVehicle();
           } else {
@@ -161,25 +159,26 @@ const Reports = (props) => {
         });
     }
   };
-  
+
   const fetchOrderDetail = (orderId) => {
     console.log(orderId);
     // Make sure you have a check to prevent unnecessary API calls
-    if (orderId) { // Change the condition to ensure orderId exists
+    if (orderId) {
+      // Change the condition to ensure orderId exists
       dispatch(getOrderId({ id: orderId }))
         .then((response) => {
           const dataOrder = response.payload.data;
-          console.log(dataOrder.customerId);
+          setDataOrderDetail(dataOrder);
+          console.log(dataOrder);
           if (dataOrder.customerId) {
             dispatch(getCustomerId({ id: dataOrder.customerId }))
-            .then((response) => {
-              const dataCustomer = response.payload.data;
-            setDataCustomer(dataCustomer);
-              
-            })
-            .catch((error) => {
-              console.error("Error while fetching service data:", error);
-            }); 
+              .then((response) => {
+                const dataCustomer = response.payload.data;
+                setDataCustomer(dataCustomer);
+              })
+              .catch((error) => {
+                console.error("Error while fetching service data:", error);
+              });
           } else {
             console.error("Service name not found in the API response.");
           }
@@ -189,7 +188,6 @@ const Reports = (props) => {
         });
     }
   };
-  
 
   //Hủy đăng kí xe
   const handleCancel = () => {
@@ -198,7 +196,46 @@ const Reports = (props) => {
     setVehicleId(null);
   };
 
-  //Reload data after accept resgistration vehicle
+  let formattedDateStart = "Không có thông tin";
+  let formattedDateEnd = "Không có thông tin";
+  let formattedDateCreated = "Không có thông tin";
+
+  if (
+    dataOrderDetail &&
+    dataOrderDetail.startTime &&
+    dataOrderDetail.endTime &&
+    dataOrderDetail.createdAt
+  ) {
+    const dateStart = moment(dataOrderDetail.startTime)
+      .tz("Asia/Ho_Chi_Minh")
+      .add(7, "hours")
+      .format("DD/MM/YYYY HH:mm");
+
+    const dateEnd = moment(dataOrderDetail.endTime)
+      .tz("Asia/Ho_Chi_Minh")
+      .add(7, "hours")
+      .format("DD/MM/YYYY HH:mm");
+
+    const dateCreated = moment(dataOrderDetail.createdAt)
+      .tz("Asia/Ho_Chi_Minh")
+      .add(7, "hours")
+      .format("DD/MM/YYYY HH:mm");
+
+    formattedDateStart =
+      dateStart !== "Invalid date" ? dateStart : "Không có thông tin";
+    formattedDateEnd =
+      dateEnd !== "Invalid date" ? dateEnd : "Không có thông tin";
+    formattedDateCreated =
+      dateCreated !== "Invalid date" ? dateCreated : "Không có thông tin";
+  }
+
+  function formatDate(dateString) {
+    const date = new Date(dateString);
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  }
 
   const reloadVehicle = () => {
     dispatch(getReportAllNew())
@@ -222,7 +259,7 @@ const Reports = (props) => {
     console.log(vehicleId);
     setIsAccepted(accept);
     console.log(accept);
- 
+
     dispatch(acceptReport({ id: vehicleId, boolean: accept }))
       .then(() => {
         const updatedVehicles = filteredVehicles.filter(
@@ -234,7 +271,6 @@ const Reports = (props) => {
         setIsSuccess(true);
         if (accept) {
           toast.success("Chấp nhận đơn báo cáo thành công");
-     
         } else {
           toast.error("Không đồng chấp nhận xe vào hệ thống ");
         }
@@ -248,7 +284,7 @@ const Reports = (props) => {
   };
 
   const handleSearchChange = (event) => {
-    const value = event.target.value || ""; 
+    const value = event.target.value || "";
     setSearchText(value);
   };
 
@@ -258,7 +294,7 @@ const Reports = (props) => {
 
     if (selectedStatusOption === "type") {
       // Hiển thị tất cả các trạng thái
-      setFilteredVehicles(rescueVehicleOwners); 
+      setFilteredVehicles(rescueVehicleOwners);
     } else {
       const filteredVehicles = rescueVehicleOwners.filter(
         (vehicle) => vehicle.type === selectedStatusOption
@@ -479,8 +515,8 @@ const Reports = (props) => {
   return (
     <Box ml="50px" mr="50px" mb="auto">
       <Header
-        title="Danh Sách Xe Cứu Hộ"
-        subtitle="Danh sách xe cứu hộ chờ duyệt"
+        title="Danh Sách Đơn Báo Cáo"
+        subtitle="Danh sách đơn báo cáo chờ duyệt"
       />
       <Box display="flex" className="box" left={0}>
         <Box
@@ -503,7 +539,7 @@ const Reports = (props) => {
         </Box>
 
         <ToastContainer />
-     
+
         <Box display="flex" alignItems="center" className="startDate-box">
           <TextField
             label="Từ ngày"
@@ -519,7 +555,7 @@ const Reports = (props) => {
             inputProps={{
               max: moment()
                 .tz("Asia/Ho_Chi_Minh")
-                .add(7, "hours") 
+                .add(7, "hours")
                 .format("DD-MM-YYYY"),
             }}
             sx={{ ml: 4, mr: 2 }}
@@ -618,7 +654,12 @@ const Reports = (props) => {
       >
         <DialogTitle
           id="alert-dialog-title"
-          sx={{ color: "indigo", fontSize: "24px", textAlign: "center" , fontWeight:"bold"}}
+          sx={{
+            color: "indigo",
+            fontSize: "24px",
+            textAlign: "center",
+            fontWeight: "bold",
+          }}
         >
           Đơn Báo Cáo Từ Khách Hàng
         </DialogTitle>
@@ -675,40 +716,43 @@ const Reports = (props) => {
 
                   <Divider light />
                   <Grid container spacing={2} alignItems="stretch">
-                    <Grid item xs={5} >
+                    <Grid item xs={4}>
                       <CardContent>
                         <Typography
                           variant="h5"
-                          sx={{ marginBottom: "4px", textAlign: "center", fontWeight:"bold" }}
+                          sx={{
+                            marginBottom: "4px",
+                            textAlign: "center",
+                            fontWeight: "bold",
+                          }}
                         >
                           Thông tin chủ xe
                         </Typography>
                         <Box
+                          sx={{
+                            mr: 2,
+                            display: "flex",
+                            alignItems: "center",
+                            marginBottom: "10px",
+                          }}
+                        >
+                          <Avatar
+                            alt="Avatar"
+                            src={
+                              dataCustomer.avatar || "URL mặc định của avatar"
+                            }
                             sx={{
-                              mr: 2,
-                              display: "flex",
-                              alignItems: "center",
-                              marginBottom: "10px",
+                              width: 44,
+                              height: 44,
+                              marginLeft: 1.75,
                             }}
-                          >
-                            <Avatar
-                              alt="Avatar"
-                              src={
-                                dataCustomer.avatar || "URL mặc định của avatar"
-                              }
-                              sx={{
-                                width: 44,
-                                height: 44,
-                                marginLeft: 1.75,
-                              }}
-                            />
-                            
-                          </Box>
+                          />
+                        </Box>
                         <Box
                           sx={{
                             display: "flex",
                             alignItems: "center",
-                            gap: 1, // Khoảng cách giữa icon và văn bản
+                            gap: 1,
                           }}
                         >
                           <PersonRoundedIcon style={iconColor} />
@@ -721,7 +765,7 @@ const Reports = (props) => {
                           sx={{
                             display: "flex",
                             alignItems: "center",
-                            gap: 1, // Khoảng cách giữa icon và văn bản
+                            gap: 1,
                           }}
                         >
                           <PhoneRoundedIcon style={iconColor} />
@@ -730,7 +774,7 @@ const Reports = (props) => {
                             {dataCustomer.phone || "Không có thông tin"}
                           </Typography>
                         </Box>
-                  
+
                         <Box
                           sx={{
                             display: "flex",
@@ -757,24 +801,224 @@ const Reports = (props) => {
                             {dataCustomer.address || "Không có thông tin"}
                           </Typography>
                         </Box>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 1, // Khoảng cách giữa icon và văn bản
-                          }}
-                        >
-                          <MapRoundedIcon style={iconColor} />
-                          <Typography variant="h6">
-                            <strong>Bằng lái: </strong>{" "}
-                            {dataCustomer.licensePlate || "Chưa cập nhật"}
-                          </Typography>
-                        </Box>
-                       
                       </CardContent>
                     </Grid>
-                   
-                   
+
+                    <Grid item xs={1}>
+                      <Divider orientation="vertical" sx={{ height: "100%" }} />
+                    </Grid>
+
+                    <Grid item xs={7}>
+                      <Typography
+                        variant="h5"
+                        sx={{
+                          marginTop: "10px",
+                          textAlign: "center",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        Thông tin đơn hàng
+                      </Typography>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1, // Khoảng cách giữa các phần tử
+                        }}
+                      >
+                        <TimerIcon style={iconColor} />
+                        <strong> Thời gian tạo đơn:</strong>
+                        <Typography
+                          variant="h6"
+                          component="span"
+                          sx={{
+                            padding: "4px",
+                            borderRadius: "4px",
+                            marginLeft: "4px",
+                            wordWrap: "break-word",
+                            overflowWrap: "break-word",
+                            whiteSpace: "normal",
+                            flex: 1,
+                          }}
+                        >
+                          {formattedDateCreated || "Đang cập nhật"}
+                        </Typography>
+                      </Box>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1, // Khoảng cách giữa các phần tử
+                        }}
+                      >
+                        <TimerIcon style={iconColor} />
+                        <strong>Thời gian bắt đầu: </strong>
+                        <Typography
+                          variant="h6"
+                          component="span"
+                          sx={{
+                            padding: "4px",
+                            borderRadius: "4px",
+                            marginLeft: "4px",
+                            wordWrap: "break-word",
+                            overflowWrap: "break-word",
+                            whiteSpace: "normal",
+                            flex: 1,
+                          }}
+                        >
+                          {formattedDateStart || "Đang cập nhật"}
+                        </Typography>
+                      </Box>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1, // Khoảng cách giữa các phần tử
+                        }}
+                      >
+                        <TimerIcon style={iconColor} />
+                        <strong>Thời gian kết thúc: </strong>
+                        <Typography
+                          variant="h6"
+                          component="span"
+                          sx={{
+                            padding: "4px",
+                            borderRadius: "4px",
+                            marginLeft: "4px",
+                            wordWrap: "break-word",
+                            overflowWrap: "break-word",
+                            whiteSpace: "normal",
+                            flex: 1,
+                          }}
+                        >
+                          {formattedDateEnd || "Đang cập nhật"}
+                        </Typography>
+                      </Box>
+                    
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1, // Khoảng cách giữa các phần tử
+                        }}
+                      >
+                        <CategoryRounded style={iconColor} />
+                        <strong>Hình thức: </strong>
+
+                        <Box
+                          width="auto"
+                        
+                          p="2px"
+                          display="flex"
+                          justifyContent="center"
+                          fontSize={10}
+                          borderRadius={2}
+                          backgroundColor={
+                            dataOrderDetail.rescueType === "Fixing"
+                              ? colors.yellowAccent[400]
+                              : colors.grey[800]
+                              ? colors.redAccent[600]
+                              : dataOrderDetail.rescueType === "Towing"
+                          }
+                          color={
+                            dataOrderDetail.rescueType === "Towing"
+                              ? colors.redAccent[300]
+                              : colors.yellowAccent[700]
+                          }
+                        >
+                          {dataOrderDetail.rescueType === "Towing" && (
+                            <SupportIcon />
+                          )}
+                          {dataOrderDetail.rescueType === "Fixing" && (
+                            <HandymanIcon />
+                          )}
+                          <Typography
+                            color="inherit"
+                            sx={{ ml: "1px", fontWeight: "bold" }}
+                          >
+                            {dataOrderDetail.rescueType === "Towing"
+                              ? "Kéo Xe"
+                              : dataOrderDetail.rescueType === "Fixing"
+                              ? "Sữa Chữa Tại Chỗ"
+                              : dataOrderDetail.rescueType}
+                          </Typography>
+                        </Box>
+                      </Box>
+               
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1, 
+                          marginTop:"6px"
+                        }}
+                      >
+                        <CheckCircleIcon style={iconColor} />
+                        <strong>Trạng Thái: </strong>
+                        <Box
+                          style={{
+                            display: "flex",
+                            alignItems: "center", // Canh giữa theo chiều dọc
+                            background: colors.green[200],
+                            color: "black",
+                            borderRadius: "5px",
+                            fontWeight: "bold",
+                          }}
+                        >
+                          {dataOrderDetail.status === "COMPLETED"
+                            ? "Hoàn Thành"
+                            : dataOrderDetail.status || "Không có thông tin"}
+                        </Box>
+                        
+                      </Box>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1, // Khoảng cách giữa các phần tử
+                        }}
+                      >
+                        <DescriptionIcon style={iconColor} />
+                        <strong>Ghi chú kỹ thuật viên: </strong>
+                        <Typography
+                          variant="h6"
+                          component="span"
+                          sx={{
+                            padding: "4px",
+                            borderRadius: "4px",
+                            marginLeft: "4px",
+                            wordWrap: "break-word",
+                            overflowWrap: "break-word",
+                            whiteSpace: "normal",
+                            flex: 1,
+                          }}
+                        >
+                          {dataOrderDetail.staffNote || "Đang cập nhật"}
+                        </Typography>
+                      </Box>
+
+                  
+                      <DescriptionIcon  sx={{
+                        marginRight:"5px",
+                  
+                        }}style={iconColor} />
+                      <strong >Ghi chú khách hàng: </strong>
+                        <Typography
+                          variant="h6"
+                          component="span"
+                          sx={{
+                            padding: "4px",
+                            borderRadius: "4px",
+                            marginLeft: "4px",
+                            wordWrap: "break-word",
+                            overflowWrap: "break-word",
+                            whiteSpace: "normal",
+                            flex: 1,
+                          }}
+                        >
+                          {dataOrderDetail.customerNote || "Đang cập nhật"}
+                        </Typography>
+                    </Grid>
                   </Grid>
                 </Card>
               </div>

@@ -37,10 +37,10 @@ import {
   fetchVehicleWatting,
   getVehicleId,
 } from "../../redux/vehicleSlice";
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+
 import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
 import TimerIcon from "@mui/icons-material/Timer";
-import "react-responsive-carousel/lib/styles/carousel.min.css"; // Import the carousel styles
+import "react-responsive-carousel/lib/styles/carousel.min.css"; 
 import ReceiptRoundedIcon from "@mui/icons-material/ReceiptRounded";
 import SwipeableViews from "react-swipeable-views";
 import { autoPlay } from "react-swipeable-views-utils";
@@ -54,6 +54,7 @@ import { tokens } from "../../theme";
 import { sendNotification } from "../../redux/orderSlice";
 import { getAccountId } from "../../redux/accountSlice";
 const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
+
 const Vehicles = (props) => {
   const dispatch = useDispatch();
   const vehicles = useSelector((state) => state.vehicle.vehicles);
@@ -68,8 +69,7 @@ const Vehicles = (props) => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(8);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
+  const [fullnameDataRvo, setFullnameDataRvo] = useState({});
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]);
   const [initialFormState, setInitialFormState] = useState({});
@@ -342,25 +342,60 @@ const Vehicles = (props) => {
     setLoading(true);
     dispatch(fetchVehicleWatting())
       .then((response) => {
-        if (!response.payload || !response.payload.data) {
+        try {
+          if (!response.payload || !response.payload.data) {
+            setLoading(false);
+            return;
+          }
+  
+          const data = response.payload.data;
+          setData(data);
+          setFilteredVehicles(data);
+          setDetailedData(data);
+          setLoading(false); 
+          
+          data.forEach((item) => {
+            fetchFullnameRvo(item.rvoid);
+          });
+        } catch (error) {
+          console.error("Error while processing data:", error);
           setLoading(false);
-          return;
         }
-
-        const data = response.payload.data;
-        console.log(data);
-        setData(data);
-        setFilteredVehicles(data);
-        setDetailedData(data);
-        setLoading(false); 
       })
       .catch((error) => {
+        console.error("Error while fetching vehicle data:", error);
         setLoading(false);
       })
       .finally(() => {
         setLoading(false); 
       });
   }, [dispatch]);
+  
+  const fetchFullnameRvo = (rvoId) => {
+    if (rvoId) {
+      dispatch(getRescueVehicleOwnerId({ id: rvoId }))
+        .then((response) => {
+          const data = response.payload.data;
+          console.log(data.fullname)
+          
+          if (data && data.fullname) {
+           
+            setFullnameDataRvo((prevData) => ({
+              ...prevData,
+              [rvoId]: data.fullname,
+            }));
+            
+     
+          } else {
+            console.error("Fullname not found in the API response.");
+          }
+        })
+        .catch((error) => {
+          console.error("Error while fetching customer data:", error);
+        });
+    }
+    // You can use your existing code to fetch the fullname
+  };
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -379,6 +414,13 @@ const Vehicles = (props) => {
   );
 
   const columns = [
+    {
+      field: "fullname",
+      headerName: "Tên chủ xe",
+      width: 120,
+      valueGetter: (params) => fullnameDataRvo[params.row.rvoid] || 'Loading...', // Get fullname from fullnameDataRvo based on rvoId
+      key: "fullname",
+    },
     {
       field: "manufacturer",
       headerName: "Hiệu xe",

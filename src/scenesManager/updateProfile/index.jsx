@@ -24,7 +24,6 @@ import { editManager } from "../../redux/managerSlice";
 import InfoIcon from "@mui/icons-material/Info";
 import areaData from "../../data.json";
 import moment from "moment";
-import CircularProgress from "@mui/material/CircularProgress";
 const UpdateProfileManager = () => {
   const dispatch = useDispatch();
   const rescueVehicleOwner = useSelector(
@@ -104,21 +103,27 @@ const UpdateProfileManager = () => {
       return;
     }
     const hasChanges = JSON.stringify(values) !== JSON.stringify(initialValues);
-
+  
     if (!hasChanges) {
       toast.info("Không có thay đổi để lưu.");
       setLoading(false);
     } else {
       dispatch(editManager(values))
         .then((res) => {
-          console.log();
           if (res.payload.status === "Success") {
             toast.success("Cập nhật thành công.");
             localStorage.setItem("manager", JSON.stringify(values));
-            setLoading(false);
+  
+            // Cập nhật lại dataManager với dữ liệu mới
+            dispatch(getAccountEmail()).then((response) => {
+              if (response.payload && response.payload.data) {
+                const newData = response.payload.data;
+                setData(newData);
+                setLoading(false);
+              }
+            });
           } else {
             toast.error("Cập nhật không thành công.");
-            localStorage.setItem("manager", JSON.stringify(values));
             setLoading(false);
           }
         })
@@ -130,11 +135,13 @@ const UpdateProfileManager = () => {
           } else {
             toast.error("Lỗi khi cập nhật thông tin.");
           }
-        }).finally(() => {
-          setLoading(false); 
+        })
+        .finally(() => {
+          setLoading(false);
         });
     }
   };
+  
 
   useEffect(() => {
     if (Object.keys(dataManager).length > 0) {

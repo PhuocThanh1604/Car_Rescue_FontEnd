@@ -524,14 +524,12 @@ const OrdersCancelled = (props) => {
               <MenuItem key="rescueType-all" value="rescueType">
                 Hình Thức
               </MenuItem>
-              <MenuItem key="rescueType-repair" value="repair">
-                Sửa Chữa Tại Chỗ
-              </MenuItem>
+             
               <MenuItem key="rescueType-towing" value="Towing">
                 Kéo Xe
               </MenuItem>
               <MenuItem key="rescueType-fixing" value="Fixing">
-                Sữa Chữa
+              Sửa Chữa Tại Chỗ
               </MenuItem>
             </Select>
           </FormControl>

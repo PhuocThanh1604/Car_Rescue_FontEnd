@@ -97,17 +97,12 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
     }
   }, [accountId, accountDeviceToken]);
   const fetchAccounts = (accountId) => {
-    console.log(accountId);
-    // Make sure you have a check to prevent unnecessary API calls
     if (accountId) {
       //lấy devices của account
-      console.log("RovId off Account " + accountId);
       dispatch(getAccountId({ id: accountId }))
         .then((response) => {
           const dataAccount = response.payload.data;
-          console.log("DeviceToken of Account " + dataAccount.deviceToken);
           if (dataAccount.deviceToken) {
-            console.log(dataAccount.deviceToken);
             setAccountDeviceToken(dataAccount.deviceToken);
           } else {
             console.error("deviceToken not found in the API response.");
@@ -119,8 +114,7 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
     }
   };
   const handleDetailClickDetail = (selectedWalletId) => {
-    console.log(selectedWalletId);
-    console.log("Invoices: Selected Wallet ID", selectedWalletId);
+  
     setSelectedWalletId(selectedWalletId);
     onSelectWallet(selectedWalletId);
     setSelectedItemId(selectedWalletId);
@@ -142,7 +136,6 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
       });
   };
   const handleClickModalDetail = (transactionDetailId) => {
-    console.log(transactionDetailId); // Fetch the rescueVehicleOwnerId details based on the selected rescueVehicleOwnerId ID
     dispatch(getTransactionById({ id: transactionDetailId }))
       .then((response) => {
         const transactionDetails = response.payload.data;
@@ -173,7 +166,6 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
         if (data) {
           setFilteredTransaction(data);
           setLoading(false);
-          console.log("Services reloaded:", data);
         }
       })
       .catch((error) => {
@@ -182,10 +174,8 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
   };
   //Chấp nhận order
   const handleConfirmWithdraw = (transactionId, accept) => {
-    console.log(accountId);
-    console.log(transactionId);
+   
     setIsAccepted(accept);
-    console.log(accept);
     const messageAcceptWithdraw = {
       title: "Chấp nhận đơn rút ví",
       body: "Đơn rút tiền của bạn đã được hệ thống chấp nhận!!",
@@ -238,7 +228,6 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
             body: messageRejectedWithdraw.body,
             target: accountId,
           };
-          console.log("notificationData Accepted withdraw" + notificationData);
           // Gửi thông báo bằng hàm sendNotification
           dispatch(sendNotification(notificationData))
             .then((res) => {
@@ -384,14 +373,12 @@ const Invoices = ({ onSelectWallet = () => {} }) => {
   }, [data, fullnameData]);
 
   const fetchFullname = (walletId) => {
-    console.log(walletId);
     if (!fullnameData[walletId]) {
       dispatch(getRVOOfWallet({ id: walletId }))
         .then((response) => {
           const data = response.payload.data;
           if (data && data.rvo.fullname) {
-            console.log(data.rvo.id);
-            console.log(data.rvo.accountId);
+         
             setAccountId(data.rvo.accountId);
             setFullnameData((prevData) => ({
               ...prevData,
@@ -495,14 +482,14 @@ const remainingBalance = totalAmount - transactionAmount;
     {
       field: "id",
       headerName: "id",
-      width: 100,
+      width: 140,
       cellClassName: "name-column--cell",
     },
 
     {
       field: "walletId",
       headerName: "Họ Và tên",
-      width: 140,
+      width: 120,
       renderCell: (params) => {
         return fullnameData[params.value] ? (
           fullnameData[params.value]

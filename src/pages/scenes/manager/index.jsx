@@ -34,29 +34,24 @@ const Managers = (props) => {
   const [openEditModal, setOpenEditModal] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [filterOption, setFilterOption] = useState("Status");
-  const [openModal, setOpenModal] = useState(false);
-  const [selectedManager, setSelectedManager] = useState(null);
   const [selectedEditManager, setSelectedEditManager] = useState(null);
   const [filteredManagers, setFilteredManagers] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(8);
-  const [selectedmanager, setSelectedmanager] = useState(null);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
-  const [selectedBookId, setSelectedBookId] = useState(null);
   const [isSuccess, setIsSuccess] = useState(false);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]);
-  const [managerData, setManagerData] = useState([]);
   const [accountData, setAccountData] = useState({});
 
    const [dataJson, setDataJson] = useState([]);
   useEffect(() => {
     if (dataJson.area && dataJson.area.length > 0) {
-      console.log(dataJson.area[0].name || "Không có ");
+      toast.dismiss(dataJson.area[0].name || "Không có ");
     } else {
-      console.log("Không có dữ liệu");
+      toast.dismiss("Không có dữ liệu khư vực!! vui lòng load lại");
     }
     setDataJson(areaData);
   }, [dataJson]);
@@ -85,18 +80,17 @@ const Managers = (props) => {
   const handleFilterChange = (event) => {
     const selectedStatusOption = event.target.value;
     setFilterOption(selectedStatusOption);
-
+  
     if (selectedStatusOption === "Status") {
-      setFilteredManagers(managers);
+      setFilteredManagers(managers || []); // Bắt lỗi nếu managers không tồn tại
     } else {
-      const filteredmanagers = managers.filter(
-        (manager) => manager.status === selectedStatusOption
-      );
-      setFilteredManagers(filteredmanagers);
+      const filteredManagers = managers
+        ? managers.filter((manager) => manager.status === selectedStatusOption)
+        : [];
+      setFilteredManagers(filteredManagers);
     }
   };
   const handleUpdateClick = (managerId) => {
-    console.log(managerId);
     dispatch(getManagerId({ id: managerId }))
       .then((response) => {
         const managerDetails = response.payload.data; 

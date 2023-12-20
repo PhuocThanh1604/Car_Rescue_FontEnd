@@ -193,7 +193,7 @@ useEffect(() => {
     {
       field: "description",
       headerName: "Mô Tả",
-      width: 260,
+      width: 200,
       key: "description",
     },
   
