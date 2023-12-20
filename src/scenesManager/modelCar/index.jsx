@@ -106,9 +106,11 @@ const ModelCar = (props) => {
   useEffect(() => {
     const filteredServices = services
       ? services.filter((service) => {
-          const nameMatch =
-            service.name &&
-            service.name.toLowerCase().includes(searchText.toLowerCase());
+          const nameMatch = 
+            service?.name ? 
+            service.name.toLowerCase().includes(searchText.toLowerCase()): false;
+
+            
           const filterMatch =
             filterOption === "Status" ||
             (filterOption === "ACTIVE" && service.status === "ACTIVE") ||
@@ -118,6 +120,8 @@ const ModelCar = (props) => {
       : [];
     setFilteredSerivces(filteredServices);
   }, [services, searchText, filterOption]);
+
+  
 
   if (services) {
     services.forEach((service) => {

@@ -47,7 +47,7 @@ import { getCustomerId } from "../../redux/customerSlice";
 import { getTechnicianId } from "../../redux/technicianSlice";
 import { getVehicleId } from "../../redux/vehicleSlice";
 import { getRescueVehicleOwnerId } from "../../redux/rescueVehicleOwnerSlice";
-import ReportProblemOutlinedIcon from '@mui/icons-material/ReportProblemOutlined';
+import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
 import {
   getFeedbackOfOrderId,
   getFormattedAddressGG,
@@ -65,10 +65,9 @@ import { autoPlay } from "react-swipeable-views-utils";
 import moment from "moment";
 const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
 
-
 const MyModal = (props) => {
   const dispatch = useDispatch();
-  const { openModal, setOpenModal, selectedEditOrder,detailedData } = props;
+  const { openModal, setOpenModal, selectedEditOrder, detailedData } = props;
   const [collapse, setCollapse] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [data, setData] = useState({
@@ -136,7 +135,6 @@ const MyModal = (props) => {
       fetchOrder(selectedEditOrder.id);
       fetchImageOfOrder(selectedEditOrder.id);
     }
-   
   }, [selectedEditOrder]);
   const fetchImageOfOrder = (orderId) => {
     if (orderId) {
@@ -181,13 +179,14 @@ const MyModal = (props) => {
         try {
           const response = await dispatch(getFormattedAddressGG({ lat, lng }));
           console.log(response.payload);
-          const formattedAddress = response.payload.results[0].formatted_address;
+          const formattedAddress =
+            response.payload.results[0].formatted_address;
           setFormattedAddresses((prevAddresses) => ({
             ...prevAddresses,
             [addressType]: formattedAddress,
           }));
         } catch (error) {
-          setLoading(false)
+          setLoading(false);
           toast.error(
             "Không tìm thấy địa chỉ:",
             error.response ? error.response : error
@@ -209,7 +208,7 @@ const MyModal = (props) => {
             const serviceDetails = data.map((item) => ({
               serviceId: item.serviceId,
               quantity: item.quantity,
-              type: null, 
+              type: null,
             }));
 
             const servicePromises = serviceDetails.map(
@@ -221,13 +220,12 @@ const MyModal = (props) => {
                     let updatedQuantity = quantity;
 
                     if (serviceType === "Towing") {
-                      updatedQuantity += " km"; 
+                      updatedQuantity += " km";
                     } else if (serviceType === "Fixing") {
-                      updatedQuantity = `Số lượng: ${quantity}`; 
+                      updatedQuantity = `Số lượng: ${quantity}`;
                     }
 
-                   
-                    return { serviceName, updatedQuantity }; 
+                    return { serviceName, updatedQuantity };
                   })
                   .catch((serviceError) => {
                     setLoading(true);
@@ -242,7 +240,6 @@ const MyModal = (props) => {
 
             Promise.all(servicePromises)
               .then((serviceData) => {
-              
                 setServiceNames((prevServiceNames) => ({
                   ...prevServiceNames,
                   [orderId]: serviceData,
@@ -257,9 +254,7 @@ const MyModal = (props) => {
               });
           } else {
             setLoading(false);
-            toast.warning(
-              "Không có dịch vụ "
-            );
+            toast.warning("Không có dịch vụ ");
           }
         })
         .catch((error) => {
@@ -272,7 +267,7 @@ const MyModal = (props) => {
   // Lưu giá trị vào một biến
   useEffect(() => {
     if (selectedEditOrder && selectedEditOrder.vehicleId) {
-      console.log(selectedEditOrder.vehicleId)
+      console.log(selectedEditOrder.vehicleId);
       const vehicleRvoidId = data.vehicle[selectedEditOrder.vehicleId]?.rvoid;
       const orderId = selectedEditOrder.id;
       if (vehicleRvoidId) {
@@ -285,7 +280,7 @@ const MyModal = (props) => {
   const fetchRescueVehicleOwner = (technicianId) => {
     // Make sure you have a check to prevent unnecessary API calls
     if (technicianId) {
-      dispatch(getTechnicianId({ id: technicianId }))
+      dispatch(getRescueVehicleOwnerId({ id: technicianId }))
         .then((response) => {
           const data = response.payload.data;
           console.log(data);
@@ -319,7 +314,10 @@ const MyModal = (props) => {
           }
         })
         .catch((error) => {
-          toast.error("Error while fetching payment data!! Please loading", error);
+          toast.error(
+            "Error while fetching payment data!! Please loading",
+            error
+          );
         });
     }
   };
@@ -341,11 +339,13 @@ const MyModal = (props) => {
         })
         .catch((error) => {
           setLoading(false);
-          toast.error("Error while fetching feedback data:please loading agian", error);
+          toast.error(
+            "Error while fetching feedback data:please loading agian",
+            error
+          );
         });
     }
   };
-
 
   useEffect(() => {
     if (selectedEditOrder) {
@@ -404,37 +404,36 @@ const MyModal = (props) => {
     selectedEditOrder && selectedEditOrder.vehicleId
       ? data.vehicle[selectedEditOrder.vehicleId]?.rvoid
       : null;
-      let formattedDateStart = "Không có thông tin";
-      let formattedDateEnd = "Không có thông tin";
-    
-      if (
-        selectedEditOrder &&
-        selectedEditOrder.startTime &&
-        selectedEditOrder.endTime
-      ) {
-        const dateStart = moment(selectedEditOrder.startTime)
-          .tz("Asia/Ho_Chi_Minh")
-          .add(7, "hours")
-          .format("DD/MM/YYYY HH:mm"); // Format start date and time
-    
-        const dateEnd = moment(selectedEditOrder.endTime)
-          .tz("Asia/Ho_Chi_Minh")
-          .add(7, "hours")
-          .format("DD/MM/YYYY HH:mm"); // Format end date and time
-    
-        formattedDateStart =
-          dateStart !== "Invalid date" ? dateStart : "Không có thông tin";
-        formattedDateEnd =
-          dateEnd !== "Invalid date" ? dateEnd : "Không có thông tin";
-      }
-    
-      function formatDate(dateString) {
-        const date = new Date(dateString);
-        const day = date.getDate().toString().padStart(2, "0");
-        const month = (date.getMonth() + 1).toString().padStart(2, "0");
-        const year = date.getFullYear();
-        return `${day}/${month}/${year}`;
-      }
+  let formattedDateStart = "Chưa cập nhật";
+  let formattedDateEnd = "Chưa cập nhật";
+
+  if (
+    selectedEditOrder &&
+    selectedEditOrder.startTime &&
+    selectedEditOrder.endTime
+  ) {
+    const dateStart = moment(selectedEditOrder.startTime)
+      .tz("Asia/Ho_Chi_Minh")
+      .add(7, "hours")
+      .format("DD/MM/YYYY HH:mm"); // Format start date and time
+
+    const dateEnd = moment(selectedEditOrder.endTime)
+      .tz("Asia/Ho_Chi_Minh")
+      .add(7, "hours")
+      .format("DD/MM/YYYY HH:mm"); // Format end date and time
+
+    formattedDateStart =
+      dateStart !== "Invalid date" ? dateStart : "Chưa cập nhật";
+    formattedDateEnd = dateEnd !== "Invalid date" ? dateEnd : "Chưa cập nhật";
+  }
+
+  function formatDate(dateString) {
+    const date = new Date(dateString);
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  }
   const StyledGrid1 = styled(Grid)(({ theme }) => ({
     display: "flex",
     flexDirection: "column",
@@ -494,7 +493,11 @@ const MyModal = (props) => {
             <Typography
               variant="h4"
               id="book-detail-modal"
-              sx={{ marginBottom: "4px", textAlign: "center" ,fontWeight:"bold"}}
+              sx={{
+                marginBottom: "4px",
+                textAlign: "center",
+                fontWeight: "bold",
+              }}
             >
               Chi tiết đơn hàng hoàn thành
             </Typography>
@@ -662,133 +665,113 @@ const MyModal = (props) => {
 
                       <Grid item xs={6}>
                         <StyledGrid1>
-                          <Typography variant="h5" sx={{ marginBottom: 2 }}>
-                            FeedBack của đơn hàng
-                          </Typography>
-                          <Box
-                            sx={{
-                              mb: 2.75,
-                              display: "flex",
-                              flexWrap: "wrap",
-                              alignItems: "center",
-                            }}
-                          >
-                            <Rating
-                              readOnly
-                              value={dataFeedBack.rating}
-                              name="read-only"
-                              sx={{ marginRight: 2 }}
-                            />
-                            <Typography variant="body2">
-                              {dataFeedBack.rating} Star
-                            </Typography>
-                          </Box>
-                          <Typography
-                            variant="body1"
-                            component="p"
-                            sx={{
-                              marginBottom: "8px",
-                              fontSize: "1rem",
-                            }}
-                          >
-                            <TimerIcon style={iconColor} />
-                            <strong>Thời gian bắt đầu: </strong>
-                            <Typography
-                              variant="h6"
-                              component="span"
-                              sx={{
-                                padding: "8px",
-                                borderRadius: "4px",
-                                marginLeft: "4px",
-                                wordWrap: "break-word",
-                                overflowWrap: "break-word",
-                                whiteSpace: "normal",
-                                flex: 1,
-                              }}
-                            >
-                              {formattedDateStart || "Đang cập nhật"}
-                            </Typography>
-                          </Typography>
-                          <Typography
-                            variant="body1"
-                            component="p"
-                            sx={{
-                              marginBottom: "8px",
-                              fontSize: "1rem",
-                            }}
-                          >
-                            <TimerIcon style={iconColor} />
-                            <strong>Thời gian kết thúc: </strong>
-                            <Typography
-                              variant="h6"
-                              component="span"
-                              sx={{
-                                padding: "8px",
-                                borderRadius: "4px",
-                                marginLeft: "4px",
-                                wordWrap: "break-word",
-                                overflowWrap: "break-word",
-                                whiteSpace: "normal",
-                                flex: 1,
-                              }}
-                            >
-                              {formattedDateEnd || "Đang cập nhật"}
-                            </Typography>
-                          </Typography>
-                          <Typography
-                            variant="body1"
-                            component="p"
-                            sx={{
-                              marginBottom: "8px",
-                              fontSize: "1rem",
-                            }}
-                          >
-                            <PlaceIcon style={iconColor} />
-                            <strong>Địa chỉ bắt đầu: </strong>
-                            <Typography
-                              variant="h6"
-                              component="span"
-                              sx={{
-                                padding: "8px",
-                                marginLeft: "14px",
-                                wordWrap: "break-word",
-                                overflowWrap: "break-word",
-                                whiteSpace: "normal",
-                                flex: 1,
-                              }}
-                            >
-                              {formattedAddresses.departure || "Đang cập nhật"}
-                            </Typography>
-                          </Typography>
-
-                          {selectedEditOrder.rescueType === "Towing" && (
-                                  <Typography
-                                  variant="body1"
-                                  component="p"
+                          {detailedData.status === "COMPLETED" && (
+                            <>
+                              <Typography variant="h5" sx={{ marginBottom: 2 }}>
+                                FeedBack của đơn hàng
+                              </Typography>
+                              <Box
+                                sx={{
+                                  mb: 2.75,
+                                  display: "flex",
+                                  flexWrap: "wrap",
+                                  alignItems: "center",
+                                }}
+                              >
+                                <Rating
+                                  readOnly
+                                  value={dataFeedBack.rating}
+                                  name="read-only"
+                                  sx={{ marginRight: 2 }}
+                                />
+                                <Typography variant="body2">
+                                  {dataFeedBack.rating} Star
+                                </Typography>
+                              </Box>
+                              <Typography
+                                variant="body1"
+                                component="p"
+                                sx={{
+                                  marginBottom: "8px",
+                                  fontSize: "1rem",
+                                }}
+                              >
+                                <TimerIcon style={iconColor} />
+                                <strong>Thời gian bắt đầu: </strong>
+                                <Typography
+                                  variant="h6"
+                                  component="span"
                                   sx={{
-                                    marginBottom: "8px",
-                                    fontSize: "1rem",
+                                    padding: "8px",
+                                    borderRadius: "4px",
+                                    marginLeft: "4px",
+                                    wordWrap: "break-word",
+                                    overflowWrap: "break-word",
+                                    whiteSpace: "normal",
+                                    flex: 1,
                                   }}
                                 >
-                                  <PinDropIcon style={iconColor} />
-                                  <strong>Địa chỉ kết thúc: </strong>
-                                  <Typography
-                                    variant="h6"
-                                    component="span"
-                                    sx={{
-                                      padding: "8px",
-                                      wordWrap: "break-word",
-                                      overflowWrap: "break-word",
-                                      whiteSpace: "normal",
-                                      flex: 1,
-                                    }}
-                                  >
-                                    {formattedAddresses.destination ||
-                                      "Không có thông tin"}
-                                  </Typography>
+                                  {formattedDateStart || "Đang cập nhật"}
                                 </Typography>
+                              </Typography>
+
+                              <Typography
+                                variant="body1"
+                                component="p"
+                                sx={{
+                                  marginBottom: "8px",
+                                  fontSize: "1rem",
+                                }}
+                              >
+                                <TimerIcon style={iconColor} />
+                                <strong>Thời gian kết thúc: </strong>
+                                <Typography
+                                  variant="h6"
+                                  component="span"
+                                  sx={{
+                                    padding: "8px",
+                                    borderRadius: "4px",
+                                    marginLeft: "4px",
+                                    wordWrap: "break-word",
+                                    overflowWrap: "break-word",
+                                    whiteSpace: "normal",
+                                    flex: 1,
+                                  }}
+                                >
+                                  {formattedDateEnd || "Đang cập nhật"}
+                                </Typography>
+                              </Typography>
+                            </>
                           )}
-                    
+
+                          {selectedEditOrder.rescueType === "Towing" && (
+                            <Typography
+                              variant="body1"
+                              component="p"
+                              sx={{
+                                marginBottom: "8px",
+                                fontSize: "1rem",
+                              }}
+                            >
+                              <PinDropIcon style={iconColor} />
+                              <strong>Địa chỉ kết thúc: </strong>
+                              <Typography
+                                variant="h6"
+                                component="span"
+                                sx={{
+                                  padding: "8px",
+                                  wordWrap: "break-word",
+                                  overflowWrap: "break-word",
+                                  whiteSpace: "normal",
+                                  flex: 1,
+                                }}
+                              >
+                                {formattedAddresses.destination ||
+                                  "Không có thông tin"}
+                              </Typography>
+                            </Typography>
+                          )}
+
                           <Typography
                             variant="body1"
                             component="p"
@@ -798,7 +781,6 @@ const MyModal = (props) => {
                               marginBottom: "8px", // Thêm khoảng cách dưới cùng của dòng
                               fontSize: "1rem",
                               marginRight: "2px",
-                              
                             }}
                           >
                             <PaymentIcon style={iconColor} />{" "}
@@ -821,8 +803,12 @@ const MyModal = (props) => {
                                 borderRadius: "16px",
                               }}
                             >
-                              {selectedEditOrder.rescueType === "Towing" && <SupportIcon />}
-                              {selectedEditOrder.rescueType === "Fixing" && <HandymanIcon />}
+                              {selectedEditOrder.rescueType === "Towing" && (
+                                <SupportIcon />
+                              )}
+                              {selectedEditOrder.rescueType === "Fixing" && (
+                                <HandymanIcon />
+                              )}
                               <Typography
                                 variant="h5"
                                 sx={{
@@ -938,71 +924,71 @@ const MyModal = (props) => {
                             </Box>
                           </Typography>
 
-                          {detailedData.status==="COMPLETED" && (
-                               <Typography
-                               variant="body1"
-                               component="p"
-                               sx={{
-                                 display: "flex",
-                                 alignItems: "center",
-                                 marginBottom: "8px", // Thêm khoảng cách dưới cùng của dòng
-                                 fontSize: "1rem",
-                                 marginRight: "2px",
-                               }}
-                             >
-                               <CreditScoreIcon style={iconColor} />{" "}
-                               <strong>Số tiền đã thanh toán:</strong>
-                               <Typography
-                                 variant="h6"
-                                 sx={{
-                                   display: "flex",
-                                   alignItems: "center",
-                                   marginLeft: "10px",
-                                   fontSize: "16px",
-                                   fontWeight: "bold",
-                                   color: colors.redAccent[400],
-                                 }}
-                               >
-                                 {" "}
-                                 {dataPayment.amount
-                                   ? formatCurrency(dataPayment.amount)
-                                   : "Không có thông tin"}
-                               </Typography>
-                             </Typography>
+                          {detailedData.status === "COMPLETED" && (
+                            <Typography
+                              variant="body1"
+                              component="p"
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                marginBottom: "8px", // Thêm khoảng cách dưới cùng của dòng
+                                fontSize: "1rem",
+                                marginRight: "2px",
+                              }}
+                            >
+                              <CreditScoreIcon style={iconColor} />{" "}
+                              <strong>Số tiền đã thanh toán:</strong>
+                              <Typography
+                                variant="h6"
+                                sx={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  marginLeft: "10px",
+                                  fontSize: "16px",
+                                  fontWeight: "bold",
+                                  color: colors.redAccent[400],
+                                }}
+                              >
+                                {" "}
+                                {dataPayment.amount
+                                  ? formatCurrency(dataPayment.amount)
+                                  : "Không có thông tin"}
+                              </Typography>
+                            </Typography>
                           )}
-                          {detailedData.status==="NEW" && (
-                               <Typography
-                               variant="body1"
-                               component="p"
-                               sx={{
-                                 display: "flex",
-                                 alignItems: "center",
-                                 marginBottom: "8px", // Thêm khoảng cách dưới cùng của dòng
-                                 fontSize: "1rem",
-                                 marginRight: "2px",
-                               }}
-                             >
-                               <CreditScoreIcon style={iconColor} />{" "}
-                               <strong>Số tiền cần thanh toán:</strong>
-                               <Typography
-                                 variant="h6"
-                                 sx={{
-                                   display: "flex",
-                                   alignItems: "center",
-                                   marginLeft: "10px",
-                                   fontSize: "16px",
-                                   fontWeight: "bold",
-                                   color: colors.redAccent[400],
-                                 }}
-                               >
-                                 {" "}
-                                 {dataPayment.amount
-                                   ? formatCurrency(dataPayment.amount)
-                                   : "Không có thông tin"}
-                               </Typography>
-                             </Typography>
+                          {detailedData.status === "NEW" && (
+                            <Typography
+                              variant="body1"
+                              component="p"
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                marginBottom: "8px", // Thêm khoảng cách dưới cùng của dòng
+                                fontSize: "1rem",
+                                marginRight: "2px",
+                              }}
+                            >
+                              <CreditScoreIcon style={iconColor} />{" "}
+                              <strong>Số tiền cần thanh toán:</strong>
+                              <Typography
+                                variant="h6"
+                                sx={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  marginLeft: "10px",
+                                  fontSize: "16px",
+                                  fontWeight: "bold",
+                                  color: colors.redAccent[400],
+                                }}
+                              >
+                                {" "}
+                                {dataPayment.amount
+                                  ? formatCurrency(dataPayment.amount)
+                                  : "Không có thông tin"}
+                              </Typography>
+                            </Typography>
                           )}
-                       
+
                           <Typography
                             variant="body1"
                             component="p"
@@ -1169,7 +1155,7 @@ const MyModal = (props) => {
                                 }}
                               >
                                 <MapRoundedIcon style={iconColor} />
-                      
+
                                 <Typography variant="h6">
                                   {data.technician[
                                     selectedEditOrder.technicianId
@@ -1187,9 +1173,9 @@ const MyModal = (props) => {
                                       </Tooltip>
                                     </Typography>
                                   ) : data.technician[
-                                    selectedEditOrder.technicianId
+                                      selectedEditOrder.technicianId
                                     ]?.area === 2 ? (
-                                      <Typography>
+                                    <Typography>
                                       {dataJson.area[1]?.name || "Không có"}
                                       <Tooltip
                                         title={dataJson.area[1]?.description}
@@ -1202,9 +1188,9 @@ const MyModal = (props) => {
                                       </Tooltip>
                                     </Typography>
                                   ) : data.technician[
-                                    selectedEditOrder.technicianId
+                                      selectedEditOrder.technicianId
                                     ]?.area === 3 ? (
-                                      <Typography>
+                                    <Typography>
                                       {dataJson.area[2]?.name || "Không có"}
                                       <Tooltip
                                         title={dataJson.area[2]?.description}
@@ -1277,10 +1263,12 @@ const MyModal = (props) => {
                                       height: imageHeight,
                                     }}
                                   >
-                                     <ReportProblemOutlinedIcon
-                                  style={{ fontSize: 64, color: colors.amber[200] }}
-                                />
-                                 
+                                    <ReportProblemOutlinedIcon
+                                      style={{
+                                        fontSize: 64,
+                                        color: colors.amber[200],
+                                      }}
+                                    />
                                   </Box>
                                 )}
                               </CardMedia>
@@ -1360,12 +1348,14 @@ const MyModal = (props) => {
                                           </Tooltip>
                                         </Typography>
                                       ) : data.technician[
-                                        selectedEditOrder.technicianId
+                                          selectedEditOrder.technicianId
                                         ]?.area === 2 ? (
-                                          <Typography>
+                                        <Typography>
                                           {dataJson.area[1]?.name || "Không có"}
                                           <Tooltip
-                                            title={dataJson.area[1]?.description}
+                                            title={
+                                              dataJson.area[1]?.description
+                                            }
                                           >
                                             <InfoIcon
                                               style={{
@@ -1375,12 +1365,14 @@ const MyModal = (props) => {
                                           </Tooltip>
                                         </Typography>
                                       ) : data.technician[
-                                        selectedEditOrder.technicianId
+                                          selectedEditOrder.technicianId
                                         ]?.area === 3 ? (
-                                          <Typography>
+                                        <Typography>
                                           {dataJson.area[2]?.name || "Không có"}
                                           <Tooltip
-                                            title={dataJson.area[2]?.description}
+                                            title={
+                                              dataJson.area[2]?.description
+                                            }
                                           >
                                             <InfoIcon
                                               style={{
@@ -1515,7 +1507,10 @@ const MyModal = (props) => {
                             <Grid item xs={6}>
                               <Typography
                                 variant="h6"
-                                sx={{ textAlign: "center" , marginBottom:"10px"}}
+                                sx={{
+                                  textAlign: "center",
+                                  marginBottom: "10px",
+                                }}
                               >
                                 Hình ảnh đơn hàng
                               </Typography>

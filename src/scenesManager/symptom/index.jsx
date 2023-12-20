@@ -80,6 +80,7 @@ useEffect(() => {
         return nameMatch ;
       })
     : [];
+    
   
   console.log(filteredServices);
   setFilteredSerivces(filteredServices);

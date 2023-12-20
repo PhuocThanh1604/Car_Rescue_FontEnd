@@ -726,32 +726,7 @@ const MyModal = (props) => {
                                 </Typography>
                           )}
 
-                           <Typography
-                            variant="body1"
-                            component="p"
-                            sx={{
-                              marginBottom: "8px",
-                              fontSize: "1rem",
-                            }}
-                          >
-                            <MapIcon style={iconColor}/>
-                            <strong>Khu vực: </strong>
-                            <Typography
-                              variant="h6"
-                              component="span"
-                              sx={{
-                                padding: "8px",
-                                borderRadius: "4px",
-                                marginLeft: "4px",
-                                wordWrap: "break-word",
-                                overflowWrap: "break-word",
-                                whiteSpace: "normal",
-                                flex: 1,
-                              }}
-                            >
-                              {selectedEditOrder.area||"khu vực 1"}
-                            </Typography>
-                          </Typography>
+                      
 
                           <Typography
                             variant="body1"

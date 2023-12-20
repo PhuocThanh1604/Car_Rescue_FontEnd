@@ -90,12 +90,10 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
   const [fixingCounter, setFixingCounter] = useState(0);
   useEffect(() => {
     if (dataOrder.rescueType === "Towing") {
-      console.log(servicesPrice.services[0].price);
       setServices(services);
     }
   }, [services]);
   useEffect(() => {
-    console.log(dataOrder.rescueType);
     setLoading(true);
 
     const fetchData = async () => {
@@ -159,9 +157,9 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
       if (!isNaN(lat) && !isNaN(lng)) {
         try {
           const response = await dispatch(getFormattedAddressGG({ lat, lng }));
-          console.log(response.payload);
           // const formattedAddress = response.payload.display_name;//osm
-          const formattedAddress = response.payload.results[0].formatted_address; // gong
+          const formattedAddress =
+            response.payload.results[0].formatted_address; // gong
           setFormattedAddresses((prevAddresses) => ({
             ...prevAddresses,
             [addressType]: formattedAddress,
@@ -180,7 +178,6 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
   };
 
   const fetchOrder = (orderId) => {
-    console.log(orderId);
     if (orderId) {
       dispatch(getOrderId({ id: orderId }))
         .then((response) => {
@@ -199,7 +196,6 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
     }
   };
   const fetchPayment = (orderId) => {
-    console.log(orderId);
     if (orderId) {
       dispatch(getPaymentId({ id: orderId }))
         .then((response) => {
@@ -223,7 +219,6 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
       dispatch(calculatePayment({ id: orderId }))
         .then((response) => {
           const data = response.payload;
-          console.log(data);
         })
         .catch((error) => {
           console.error("Error while fetching service data detail:", error);
@@ -264,21 +259,19 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
       });
   };
   useEffect(() => {
-    console.log(selectedEditOrder);
     const setSelectedOrderDetails = () => {
       if (selectedEditOrder?.id) {
         const OrderToEdit = orders.find(
           (order) => order.id === selectedEditOrder.id
         );
+
         if (OrderToEdit) {
-          console.log(OrderToEdit);
           setFullnameValue(OrderToEdit.fullname);
           setEdit(OrderToEdit);
           setInitialFormState(OrderToEdit);
         }
       }
     };
-
     const setOrderQuantitiesForEdit = () => {
       if (selectedEditOrder && selectedEditOrder.length > 0) {
         const newOrderQuantities = {};
@@ -289,7 +282,7 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
         setOrderQuantities(newOrderQuantities);
       }
     };
-
+ 
     setSelectedOrderDetails();
     setOrderQuantitiesForEdit();
   }, [selectedEditOrder, orders]);
@@ -313,7 +306,6 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
         setLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
-        // Handle errors if needed
       }
     };
 
@@ -366,7 +358,6 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
 
   const handleAddService = () => {
     // Lấy giá trị quantity từ values
-    console.log(quantity);
     if (!selectedEditOrder || !edit) {
       toast.error("Không có thêm nhật dịch vụ");
       return;
@@ -379,18 +370,16 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
     // Lấy tên dịch vụ đã chọn
     const selectedServiceName = selectedService.name;
     const selectedOrderId = selectedEditOrder[0].orderId;
-    console.log(selectedServiceName);
 
     if (!selectedOrderId) {
       console.error("No orderId to reload details for.");
       toast.error("No valid order ID found.");
       return;
     }
-    // Tạo một bản sao của đối tượng `edit` với tên dịch vụ
     const updatedEdit = {
       orderId: selectedOrderId, // Lấy id của đơn hàng
       service: selectedServiceName, // Lưu tên dịch vụ vào thuộc tính `service` hoặc tùy chỉnh tên thuộc tính tương ứng trong đối tượng `edit`
-      quantity: quantity, // Lấy số lượng
+      quantity: quantity, 
     };
     // Kiểm tra xem có sự thay đổi trong dữ liệu so với dữ liệu ban đầu
     const hasChanges =
@@ -514,7 +503,6 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
   };
 
   const reloadOrderDetail = (orderId) => {
-    console.log(orderId);
     if (!orderId) {
       console.error("No orderId provided for reloading order details.");
       return;
@@ -540,8 +528,8 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
         .map((order) => order.serviceId)
         .filter((serviceId) => {
           const isDuplicate = serviceIdsSeen.has(serviceId);
-          serviceIdsSeen.add(serviceId); 
-          return !isDuplicate && serviceId && !nameService[serviceId]; 
+          serviceIdsSeen.add(serviceId);
+          return !isDuplicate && serviceId && !nameService[serviceId];
         });
 
       uniqueServiceIds.forEach(fetchServiceName);
@@ -552,7 +540,9 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
     if (!nameService[serviceId]) {
       dispatch(getServiceId({ id: serviceId }))
         .then((response) => {
+         
           const data = response.payload.data;
+          console.log(data.type);
           if (data && data.name) {
             setNameService((prevData) => ({
               ...prevData,
@@ -635,9 +625,11 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
               {selectedEditOrder && (
                 <Card>
                   <CardContent>
-                    <Typography variant="h5" sx={{ marginBottom: 2 }}>
-                      Thông Tin đơn hàng
-                    </Typography>
+                    <Box style={{ display: "flex" }}>
+                      <Typography variant="h5" sx={{ marginBottom: 2, fontWeight:"bold" }}>
+                        Thông Tin đơn hàng
+                      </Typography>
+                    </Box>
 
                     <Typography
                       variant="body1"
@@ -663,34 +655,37 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
                         {formattedAddresses.departure || "Đang cập nhật"}
                       </Typography>
                     </Typography>
-                    {selectedEditOrder.rescueType === "Towing" && (    <Typography
-                      variant="body1"
-                      component="p"
-                      sx={{
-                        marginBottom: "8px",
-                        fontSize: "1rem",
-                      }}
-                    >
-                      <LocationOnIcon style={iconColor} />
-                      <strong>Địa chỉ kết thúc: </strong>
+                    {dataOrder.rescueType === "Towing"  && (
                       <Typography
-                        variant="h6"
-                        component="span"
+                        variant="body1"
+                        component="p"
                         sx={{
-                          padding: "8px",
-                          borderRadius: "4px",
-                          marginLeft: "4px",
-                          wordWrap: "break-word",
-                          overflowWrap: "break-word",
-                          whiteSpace: "normal",
-                          flex: 1,
+                          marginBottom: "8px",
+                          fontSize: "1rem",
                         }}
                       >
-                        {}
-                        {formattedAddresses.destination || "Không có thông tin"}
+                        <LocationOnIcon style={iconColor} />
+                        <strong>Địa chỉ kết thúc: </strong>
+                        <Typography
+                          variant="h6"
+                          component="span"
+                          sx={{
+                            padding: "8px",
+                            borderRadius: "4px",
+                            marginLeft: "4px",
+                            wordWrap: "break-word",
+                            overflowWrap: "break-word",
+                            whiteSpace: "normal",
+                            flex: 1,
+                          }}
+                        >
+                          {}
+                          {formattedAddresses.destination ||
+                            "Không có thông tin"}
+                        </Typography>
                       </Typography>
-                    </Typography>)}
-                
+                    )}
+
                     <Typography
                       variant="body1"
                       component="p"
@@ -750,7 +745,6 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
                     label="id"
                     value={edit.id}
                     onChange={(event) => {
-                      // Check if it's coming from selectedEditRescuseVehicleOwner and prevent changes
                       if (!selectedEditOrder) {
                         handleInputChange(event);
                       }

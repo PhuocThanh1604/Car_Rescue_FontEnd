@@ -248,10 +248,10 @@ const MyModal = (props) => {
     }
   }, [selectedEditOrder, data.vehicle]);
 
-  const fetchRescueVehicleOwner = (technicianId) => {
+  const fetchRescueVehicleOwner = (vehicleRvoidId) => {
     // Make sure you have a check to prevent unnecessary API calls
-    if (technicianId) {
-      dispatch(getTechnicianId({ id: technicianId }))
+    if (vehicleRvoidId) {
+      dispatch(getRescueVehicleOwnerId({ id: vehicleRvoidId }))
         .then((response) => {
           const data = response.payload.data;
           console.log(data);

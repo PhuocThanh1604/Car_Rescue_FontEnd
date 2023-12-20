@@ -89,7 +89,6 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
   const [fixingCounter, setFixingCounter] = useState(0);
   useEffect(() => {
     if (dataOrder.rescueType === "Towing") {
-      console.log(servicesPrice.services[0].price);
       setServices(services);
     }
   }, [services]);
@@ -105,7 +104,7 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
       if (dataOrder) {
         if (dataOrder.rescueType === "Fixing") {
           if (fixingCounter === 1) {
-            resetDestinationAddress(); // Reset destination address when fixingCounter is 1
+            resetDestinationAddress(); 
             setLoading(false);
           } else {
             setFixingCounter(fixingCounter + 1);
@@ -124,7 +123,7 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
         setLoading(false);
       }
     };
-  
+    console.log(selectedEditOrder)
     fetchData();
   }, [selectedEditOrder, fixingCounter]);
   
@@ -250,7 +249,6 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
         const data = response.payload.data;
         if (data) {
           setFilteredOrders(data);
-          // Đặt loading thành false sau khi tải lại dữ liệu
           setLoading(false);
         }
       })
@@ -311,7 +309,7 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
         setLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
-        // Handle errors if needed
+      
       }
     };
 
@@ -640,16 +638,14 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
                   <CardContent>
                       <Typography variant="h5" sx={{ marginBottom: 2 }}>
                         Thông Tin đơn hàng
-                      
                       </Typography>
-
                       <Typography
                         variant="body1"
                         component="p"
                         sx={{
                           display: "flex",
                           alignItems: "center",
-                          marginBottom: "8px", // Thêm khoảng cách dưới cùng của dòng
+                          marginBottom: "8px", 
                           fontSize: "1rem",
                           marginRight: "2px",
                         }}
@@ -667,34 +663,36 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
                           {formattedAddresses.departure || "Đang cập nhật"}
                         </Typography>
                       </Typography>
-
-                      <Typography
-                        variant="body1"
-                        component="p"
-                        sx={{
-                          marginBottom: "8px",
-                          fontSize: "1rem",
-                        }}
-                      >
-                        <LocationOnIcon style={iconColor} />
-                        <strong>Địa chỉ kết thúc: </strong>
-                        <Typography
-                          variant="h6"
-                          component="span"
-                          sx={{
-                            padding: "8px",
-                            borderRadius: "4px",
-                            marginLeft: "4px",
-                            wordWrap: "break-word",
-                            overflowWrap: "break-word",
-                            whiteSpace: "normal",
-                            flex: 1,
-                          }}
-                        >
-                          {}
-                          {formattedAddresses.destination || "Không có thông tin"}
-                        </Typography>
-                      </Typography>
+                      {dataOrder.rescueType === "Towing" && (
+                           <Typography
+                           variant="body1"
+                           component="p"
+                           sx={{
+                             marginBottom: "8px",
+                             fontSize: "1rem",
+                           }}
+                         >
+                           <LocationOnIcon style={iconColor} />
+                           <strong>Địa chỉ kết thúc: </strong>
+                           <Typography
+                             variant="h6"
+                             component="span"
+                             sx={{
+                               padding: "8px",
+                               borderRadius: "4px",
+                               marginLeft: "4px",
+                               wordWrap: "break-word",
+                               overflowWrap: "break-word",
+                               whiteSpace: "normal",
+                               flex: 1,
+                             }}
+                           >
+                             {}
+                             {formattedAddresses.destination || "Không có thông tin"}
+                           </Typography>
+                         </Typography>
+                      )}
+                   
                       <Typography
                         variant="body1"
                         component="p"
@@ -766,6 +764,7 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
                       style={{ display: "none" }}
                     />
                   <Divider />
+
                   <TableContainer component={Paper}>
                     <Table>
                       <TableHead>
