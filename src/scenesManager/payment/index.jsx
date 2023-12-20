@@ -104,7 +104,7 @@ const Payment = () => {
   }, [isSuccess]);
 
   const handleSearchChange = (event) => {
-    const value = event.target.value || ""; // Use an empty string if the value is null
+    const value = event.target.value || ""; 
     setSearchText(value);
   };
 
@@ -112,7 +112,7 @@ const Payment = () => {
     const selectedStatusOption = event.target.value;
 
     if (selectedStatusOption === "Status") {
-      setFilteredPayment(data); // Show all payments if "Status" is selected
+      setFilteredPayment(data);
     } else {
       const filteredTransaction = data.filter(
         (transaction) => transaction.status === selectedStatusOption
@@ -690,6 +690,7 @@ const Payment = () => {
         setOpenModal={setOpenModal}
         onClose={() => setOpenModal(false)}
         selectedEditOrder={selectedEditOrder}
+        detailedData={detailedData}
         loading={loading}
       ></MyModal>
 

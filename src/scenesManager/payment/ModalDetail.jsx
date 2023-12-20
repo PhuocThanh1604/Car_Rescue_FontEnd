@@ -68,7 +68,7 @@ const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
 
 const MyModal = (props) => {
   const dispatch = useDispatch();
-  const { openModal, setOpenModal, selectedEditOrder } = props;
+  const { openModal, setOpenModal, selectedEditOrder,detailedData } = props;
   const [collapse, setCollapse] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [data, setData] = useState({
@@ -85,7 +85,6 @@ const MyModal = (props) => {
   const [rating, setRating] = useState(0); // Initialize with a default rating, e.g., 0
   const [loading, setLoading] = useState(false);
   const [formattedAddresses, setFormattedAddresses] = useState({});
-  const [firstServiceName, setFirstServiceName] = useState([]);
   const [serviceNames, setServiceNames] = useState([]);
   const [formattedAmount, setFormattedAmount] = useState("");
   const theme = useTheme();
@@ -137,6 +136,7 @@ const MyModal = (props) => {
       fetchOrder(selectedEditOrder.id);
       fetchImageOfOrder(selectedEditOrder.id);
     }
+   
   }, [selectedEditOrder]);
   const fetchImageOfOrder = (orderId) => {
     if (orderId) {
@@ -272,6 +272,7 @@ const MyModal = (props) => {
   // Lưu giá trị vào một biến
   useEffect(() => {
     if (selectedEditOrder && selectedEditOrder.vehicleId) {
+      console.log(selectedEditOrder.vehicleId)
       const vehicleRvoidId = data.vehicle[selectedEditOrder.vehicleId]?.rvoid;
       const orderId = selectedEditOrder.id;
       if (vehicleRvoidId) {
@@ -281,14 +282,14 @@ const MyModal = (props) => {
     }
   }, [selectedEditOrder, data.vehicle]);
 
-  const fetchRescueVehicleOwner = (vehicleRvoidId) => {
+  const fetchRescueVehicleOwner = (technicianId) => {
     // Make sure you have a check to prevent unnecessary API calls
-    if (vehicleRvoidId) {
-      dispatch(getRescueVehicleOwnerId({ id: vehicleRvoidId }))
+    if (technicianId) {
+      dispatch(getTechnicianId({ id: technicianId }))
         .then((response) => {
           const data = response.payload.data;
+          console.log(data);
           if (data) {
-            console.log(data)
             setDataRescueVehicleOwner((prevData) => ({
               ...prevData,
               [vehicleRvoidId]: data,
@@ -298,7 +299,10 @@ const MyModal = (props) => {
           }
         })
         .catch((error) => {
-          toast.error("Error while fetching data of rvo!! please loading ", error);
+          toast.error(
+            "Error while fetching data of rvo!! please loading ",
+            error
+          );
         });
     }
   };
@@ -931,36 +935,72 @@ const MyModal = (props) => {
                               </Typography>
                             </Box>
                           </Typography>
-                          <Typography
-                            variant="body1"
-                            component="p"
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              marginBottom: "8px", // Thêm khoảng cách dưới cùng của dòng
-                              fontSize: "1rem",
-                              marginRight: "2px",
-                            }}
-                          >
-                            <CreditScoreIcon style={iconColor} />{" "}
-                            <strong>Tổng tiền đã thanh toán:</strong>
-                            <Typography
-                              variant="h6"
-                              sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                marginLeft: "10px",
-                                fontSize: "16px",
-                                fontWeight: "bold",
-                                color: colors.redAccent[400],
-                              }}
-                            >
-                              {" "}
-                              {dataPayment.amount
-                                ? formatCurrency(dataPayment.amount)
-                                : "Không có thông tin"}
-                            </Typography>
-                          </Typography>
+
+                          {detailedData.status==="COMPLETED" && (
+                               <Typography
+                               variant="body1"
+                               component="p"
+                               sx={{
+                                 display: "flex",
+                                 alignItems: "center",
+                                 marginBottom: "8px", // Thêm khoảng cách dưới cùng của dòng
+                                 fontSize: "1rem",
+                                 marginRight: "2px",
+                               }}
+                             >
+                               <CreditScoreIcon style={iconColor} />{" "}
+                               <strong>Số tiền đã thanh toán:</strong>
+                               <Typography
+                                 variant="h6"
+                                 sx={{
+                                   display: "flex",
+                                   alignItems: "center",
+                                   marginLeft: "10px",
+                                   fontSize: "16px",
+                                   fontWeight: "bold",
+                                   color: colors.redAccent[400],
+                                 }}
+                               >
+                                 {" "}
+                                 {dataPayment.amount
+                                   ? formatCurrency(dataPayment.amount)
+                                   : "Không có thông tin"}
+                               </Typography>
+                             </Typography>
+                          )}
+                          {detailedData.status==="NEW" && (
+                               <Typography
+                               variant="body1"
+                               component="p"
+                               sx={{
+                                 display: "flex",
+                                 alignItems: "center",
+                                 marginBottom: "8px", // Thêm khoảng cách dưới cùng của dòng
+                                 fontSize: "1rem",
+                                 marginRight: "2px",
+                               }}
+                             >
+                               <CreditScoreIcon style={iconColor} />{" "}
+                               <strong>Số tiền cần thanh toán:</strong>
+                               <Typography
+                                 variant="h6"
+                                 sx={{
+                                   display: "flex",
+                                   alignItems: "center",
+                                   marginLeft: "10px",
+                                   fontSize: "16px",
+                                   fontWeight: "bold",
+                                   color: colors.redAccent[400],
+                                 }}
+                               >
+                                 {" "}
+                                 {dataPayment.amount
+                                   ? formatCurrency(dataPayment.amount)
+                                   : "Không có thông tin"}
+                               </Typography>
+                             </Typography>
+                          )}
+                       
                           <Typography
                             variant="body1"
                             component="p"
