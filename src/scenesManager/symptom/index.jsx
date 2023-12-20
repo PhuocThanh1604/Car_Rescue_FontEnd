@@ -132,12 +132,11 @@ useEffect(() => {
  
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  // eslint-disable-next-line no-sparse-arrays
   const columns = [
     {
       field: "symptom1",
       headerName: "Tên Hiện Tượng",
-      width: 160,
+      width: 220,
       key: "symptom1",
       cellClassName: "name-column--cell",
     },

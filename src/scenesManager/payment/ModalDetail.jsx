@@ -404,35 +404,37 @@ const MyModal = (props) => {
     selectedEditOrder && selectedEditOrder.vehicleId
       ? data.vehicle[selectedEditOrder.vehicleId]?.rvoid
       : null;
-  let formattedDateStart = "Không có thông tin";
-  let formattedDateEnd = "Không có thông tin";
-  if (
-    selectedEditOrder &&
-    selectedEditOrder.startTime &&
-    selectedEditOrder.endTime
-  ) {
-    const dateStart = new Date(selectedEditOrder.startTime);
-    const dateEnd = new Date(selectedEditOrder.startTime);
-    formattedDateStart = `${dateStart.getDate()}/${
-      dateStart.getMonth() + 1
-    }/${dateStart.getFullYear()} ${
-      dateStart.getHours() + 7
-    }:${dateStart.getMinutes()}`;
-    formattedDateEnd = `${dateEnd.getDate()}/${
-      dateEnd.getMonth() + 1
-    }/${dateEnd.getFullYear()} ${
-      dateEnd.getHours() + 7
-    }:${dateEnd.getMinutes()}`;
-  }
-  function formatDate(dateString) {
-    const date = new Date(dateString);
-    const day = date.getDate().toString().padStart(2, "0");
-    const month = (date.getMonth() + 1).toString().padStart(2, "0"); // +1 because months start at 0
-    const year = date.getFullYear();
-
-    return `${day}/${month}/${year}`; // Formats to dd/mm/yyyy
-  }
-
+      let formattedDateStart = "Không có thông tin";
+      let formattedDateEnd = "Không có thông tin";
+    
+      if (
+        selectedEditOrder &&
+        selectedEditOrder.startTime &&
+        selectedEditOrder.endTime
+      ) {
+        const dateStart = moment(selectedEditOrder.startTime)
+          .tz("Asia/Ho_Chi_Minh")
+          .add(7, "hours")
+          .format("DD/MM/YYYY HH:mm"); // Format start date and time
+    
+        const dateEnd = moment(selectedEditOrder.endTime)
+          .tz("Asia/Ho_Chi_Minh")
+          .add(7, "hours")
+          .format("DD/MM/YYYY HH:mm"); // Format end date and time
+    
+        formattedDateStart =
+          dateStart !== "Invalid date" ? dateStart : "Không có thông tin";
+        formattedDateEnd =
+          dateEnd !== "Invalid date" ? dateEnd : "Không có thông tin";
+      }
+    
+      function formatDate(dateString) {
+        const date = new Date(dateString);
+        const day = date.getDate().toString().padStart(2, "0");
+        const month = (date.getMonth() + 1).toString().padStart(2, "0");
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+      }
   const StyledGrid1 = styled(Grid)(({ theme }) => ({
     display: "flex",
     flexDirection: "column",

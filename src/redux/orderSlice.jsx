@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 const apiKeyGG = "AIzaSyChI9DuNbyJd4I5Od1hBrs9n3VB-EYEh2E";
-const apiKeyGong = "267Zysi7kKypsNGSqcIBzWc3wxpz7rkeWguYkiM4";
+const apiKeyGong = "uYO7jxleAR8KO17JgxrimjEvKQy0M7EOSc21T9Xr";
 
 const saveToStorage = (key, data) => {
   const jsonData = JSON.stringify(data);
