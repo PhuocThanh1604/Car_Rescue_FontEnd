@@ -24,16 +24,13 @@ const AddService = () => {
 
   const service = useSelector((state) => state.service.services);
   const isNonMobile = useMediaQuery("(min-width:600px)");
-  const [selectedManager, setSelectedManager] = useState(null);
-  const [dataSelect, setDataSelect] = useState([]);
-  const [loading, setLoading] = useState(false);
-  // Lấy đối tượng manager từ localStorage
+
   const managerString = localStorage.getItem("manager");
   let manager = null;
   
   if (managerString) {
     try {
-      manager = JSON.parse(managerString); // Thử phân tích chuỗi JSON
+      manager = JSON.parse(managerString); 
     } catch (error) {
       console.error("Lỗi khi phân tích chuỗi JSON:", error);
     }

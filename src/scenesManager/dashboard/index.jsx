@@ -425,7 +425,7 @@ const Dashboard = () => {
                 fontWeight="500"
                 color={colors.grey[100]}
               >
-                Doanh Thu Cao Nhất
+                Doanh Thu 
               </Typography>
               <Box display="flex" alignItems="center">
                 <EmojiEventsIcon
