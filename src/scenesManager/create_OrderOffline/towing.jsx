@@ -245,57 +245,60 @@ const CreateOrderOffline = () => {
     let d = R * c; // Distance in kilometers
     return d;
   }
-  const handleTowingFormSubmit = async (values, { resetForm }) => {
-    try {
-      if (distanceValue > 100) {
-        toast.warning("Khoảng cách vượt quá 100km. Vui lòng chọn một địa chỉ khác.");
-        return;
-      }
+  const handleTowingFormSubmit = (values, { resetForm }) => {
+    if (distanceValue > 100) {
+      toast.warning(
+        "Khoảng cách vượt quá 100km. Vui lòng chọn một địa chỉ khác."
+      );
+      return;
+    }
   
-      const initialPhoneNumber = "+84";
-      const customer_name = values.nameCustomer;
-      const service = values.service;
-      const order_phone = initialPhoneNumber + values.to;
-      const type_payment = values.paymentMethod;
-      const sms_message = `Xin chào ${customer_name}!\nDịch vụ: ${service}\nĐơn hàng: ${order_phone} của bạn đã được nhận và đang được xử lý. Hình thức thanh toán: ${type_payment}. Cảm ơn bạn đã mua hàng!`;
-  
-      const { ...submissionValues } = values;
-      submissionValues.service = [values.service];
-      submissionValues.distance = distanceValue;
-  
-      const orderResponse = await dispatch(createOrderOffline(submissionValues));
-  
-      if (orderResponse.payload.message === "Hiện tại không còn xe") {
-        toast.warn("Hiện tại không có kỹ thuật viên vui lòng đợi");
-      } else if (orderResponse.payload.message === "Success") {
+    const initialPhoneNumber = "+84";
+    const customer_name = values.nameCustomer;
+    const service = values.service;
+    const symptom = values.symptom;
+    const order_phone = initialPhoneNumber + values.to;
+    const type_payment = values.paymentMethod;
+    const sms_message = `Xin chào ${customer_name}!  \nDịch vụ: ${service}\nĐơn hàng: ${order_phone} 
+     của bạn đã được nhận và đang được xử lý. Hình thức thanh toán: ${type_payment}. Cảm ơn bạn đã mua hàng!`;
+    const { ...submissionValues } = values;
+    submissionValues.service = [values.service];
+    submissionValues.distance = distanceValue;
+    dispatch(createOrderOffline(submissionValues))
+      .then(() => {
         toast.success("Tạo đơn thành công");
-  
         const smsData = {
           to: order_phone,
           body: sms_message,
         };
-        console.log(smsData);
-        const smsResponse = await dispatch(sendSMS(smsData));
-        console.log("Tin nhắn SMS đã được gửi:", smsResponse);
-      }
-  
-      formikRef.current.setFieldValue("to", "");
-      formikRef.current.setFieldValue("nameCustomer", "");
-      formikRef.current.resetForm();
-      setSelectedService(null);
-      setSelectedSymptom(null);
-      setAddress("");
-      setAddressDestination("");
-      setIsDestinationSelected(false);
-    } catch (error) {
-      if (error.response && error.response.data) {
-        toast.dismiss(`Lỗi khi tạo đơn hàng trực Offline: ${error.response.data.message}`);
-      } else {
-        toast.dismiss("Lỗi khi lỗi khi tạo đơn hàng trực Offline");
-      }
-    }
+        dispatch(sendSMS(smsData))
+          .then((smsResponse) => {
+            console.log("Tin nhắn SMS đã được gửi:", smsResponse);
+          })
+          .catch((smsError) => {
+            console.error("Lỗi khi gửi tin nhắn SMS:", smsError);
+          });
+        formikRef.current.setFieldValue("to", "");
+        formikRef.current.setFieldValue("nameCustomer", "");
+        formikRef.current.resetForm();
+        setSelectedService(null);
+        setSelectedSymptom(null);
+        setAddress("");
+        setAddressDestination("");
+        setIsDestinationSelected(false);
+      })
+      .catch((error) => {
+        if (error.response && error.response.data) {
+          toast.dismiss(
+            `Lỗi khi tạo đơn hàng trực Offline: ${error.response.data.message}`
+          );
+        } else {
+          toast.dismiss("Lỗi khi lỗi khi tạo đơn hàng trực Offline");
+        }
+      });
+    // ...
   };
-  
+
   const formikRef = useRef(null);
 
   const handleFormSubmit = (values, { resetForm }) => {
