@@ -270,17 +270,17 @@ const CreateOrderOffline = () => {
           toast.warn("Hiện tại không có kỹ thuật viên vui lòng đợi");
         } else if (response.payload.message === "Success") {
           toast.success("Tạo đơn thành công");
-          const smsData = {
-            to: order_phone,
-            body: sms_message,
-          };
-          dispatch(sendSMS(smsData))
-            .then((smsResponse) => {
-              console.log("Tin nhắn SMS đã được gửi:", smsResponse);
-            })
-            .catch((smsError) => {
-              console.error("Lỗi khi gửi tin nhắn SMS:", smsError);
-            });
+          // const smsData = {
+          //   to: order_phone,
+          //   body: sms_message,
+          // };
+          // dispatch(sendSMS(smsData))
+          //   .then((smsResponse) => {
+          //     console.log("Tin nhắn SMS đã được gửi:", smsResponse);
+          //   })
+          //   .catch((smsError) => {
+          //     console.error("Lỗi khi gửi tin nhắn SMS:", smsError);
+          //   });
         }
         formikRef.current.setFieldValue("to", "");
         formikRef.current.setFieldValue("nameCustomer", "");

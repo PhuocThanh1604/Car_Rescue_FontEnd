@@ -664,6 +664,7 @@ export const getAllNotification = createAsyncThunk(
 
 export const sendSMS = createAsyncThunk("orders/sendSMS", async (data) => {
   try {
+    console.log(data);
     const res = await axios.post(
       "https://rescuecapstoneapi.azurewebsites.net/api/SMS/Send-SMS",
       data,
@@ -674,6 +675,7 @@ export const sendSMS = createAsyncThunk("orders/sendSMS", async (data) => {
         },
       }
     );
+    console.log(data)
     return res.data;
   } catch (error) {
     console.error("Failed to create send sms to customer:", error.res);
