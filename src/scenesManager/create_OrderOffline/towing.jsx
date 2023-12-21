@@ -289,9 +289,9 @@ const CreateOrderOffline = () => {
       setIsDestinationSelected(false);
     } catch (error) {
       if (error.response && error.response.data) {
-        toast.error(`Lỗi khi tạo đơn hàng trực Offline: ${error.response.data.message}`);
+        toast.dismiss(`Lỗi khi tạo đơn hàng trực Offline: ${error.response.data.message}`);
       } else {
-        toast.error("Lỗi khi lỗi khi tạo đơn hàng trực Offline");
+        toast.dismiss("Lỗi khi lỗi khi tạo đơn hàng trực Offline");
       }
     }
   };
