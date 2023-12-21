@@ -770,7 +770,9 @@ const ModalEdit = ({ openEditModal, setOpenEditModal, selectedEditOrder }) => {
                       <TableHead>
                         <TableRow>
                           <TableCell>Tên dịch vụ</TableCell>
-                          <TableCell>Số lượng</TableCell>
+                          {dataOrder.rescueType==="Towing"&& ( <TableCell>Khoảng cách</TableCell>)}
+                        
+                        {dataOrder.rescueType==="Fixing"&& ( <TableCell>Số lượng</TableCell>)}
                           <TableCell>Tổng cộng</TableCell>
                         </TableRow>
                       </TableHead>
