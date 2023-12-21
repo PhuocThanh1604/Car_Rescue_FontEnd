@@ -401,7 +401,7 @@ const Orders = (props) => {
     {
       field: "area",
       headerName: "Khu Vực",
-      width: 120,
+      width: 100,
       key: "area",
       renderCell: ({ row }) => {
         const { area } = row;
@@ -448,7 +448,7 @@ const Orders = (props) => {
     {
       field: "rescueType",
       headerName: "Hình Thức",
-      width: 140,
+      width: 120,
       key: "rescueType",
       renderCell: ({ row: { rescueType } }) => {
         return (

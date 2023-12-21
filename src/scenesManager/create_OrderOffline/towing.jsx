@@ -685,7 +685,7 @@ const CreateOrderOffline = () => {
                             whiteSpace: "nowrap",
                             overflow: "hidden",
                             textOverflow: "ellipsis",
-                            maxWidth: "400px",
+                            maxWidth: "auto",
                           };
                           return (
                             <div
@@ -767,7 +767,7 @@ const CreateOrderOffline = () => {
                                 whiteSpace: "nowrap",
                                 overflow: "hidden",
                                 textOverflow: "ellipsis",
-                                maxWidth: "400px",
+                                maxWidth: "auto",
                               };
                               return (
                                 <div

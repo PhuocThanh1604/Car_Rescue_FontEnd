@@ -19,6 +19,8 @@ import {
   Divider,
   Grid,
   styled,
+  Avatar,
+  Tooltip,
 } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import TimeToLeaveIcon from "@mui/icons-material/TimeToLeave";
@@ -37,10 +39,12 @@ import {
   fetchVehicleWatting,
   getVehicleId,
 } from "../../redux/vehicleSlice";
+import areaData from "../../data.json";
+import InfoIcon from "@mui/icons-material/Info";
 
 import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
 import TimerIcon from "@mui/icons-material/Timer";
-import "react-responsive-carousel/lib/styles/carousel.min.css"; 
+import "react-responsive-carousel/lib/styles/carousel.min.css";
 import ReceiptRoundedIcon from "@mui/icons-material/ReceiptRounded";
 import SwipeableViews from "react-swipeable-views";
 import { autoPlay } from "react-swipeable-views-utils";
@@ -88,32 +92,40 @@ const Vehicles = (props) => {
   const imageHeight = "300px";
   const CustomButton = styled(Box)({
     backgroundColor: colors.lightGreen[300],
-    borderRadius:"10px",
-    padding:"2px",
-    transition: 'background-color 0.3s',
-    '&:hover': {
+    borderRadius: "10px",
+    padding: "2px",
+    transition: "background-color 0.3s",
+    "&:hover": {
       backgroundColor: colors.lightGreen[500], // Màu sẽ thay đổi khi hover
-      cursor: 'pointer',
-      borderRadius:"10px"
+      cursor: "pointer",
+      borderRadius: "10px",
     },
   });
+
+  const [dataJson, setDataJson] = useState([]);
+
+  useEffect(() => {
+    if (dataJson.area && dataJson.area.length > 0) {
+      console.log(dataJson.area[0].name || "Không có ");
+    } else {
+      console.log("Không có dữ liệu");
+    }
+    setDataJson(areaData);
+  }, [dataJson]);
+
   useEffect(() => {
     if (accountId && !accountDeviceToken) {
       fetchAccounts(accountId);
     }
   }, [accountId, accountDeviceToken]);
   const fetchAccounts = (accountId) => {
-    console.log(accountId);
-    // Make sure you have a check to prevent unnecessary API calls
+
     if (accountId) {
       //lấy devices của account
-      console.log("RovId off Account " + accountId);
       dispatch(getAccountId({ id: accountId }))
         .then((response) => {
           const dataAccount = response.payload.data;
-          console.log("DeviceToken of Account " + dataAccount.deviceToken);
           if (dataAccount.deviceToken) {
-            console.log(dataAccount.deviceToken);
             setAccountDeviceToken(dataAccount.deviceToken);
           } else {
             console.error("deviceToken not found in the API response.");
@@ -125,13 +137,11 @@ const Vehicles = (props) => {
     }
   };
   const fetchRescueVehicleOwner = (vehicleRvoidId) => {
-    console.log(vehicleRvoidId);
     // Make sure you have a check to prevent unnecessary API calls
     if (vehicleRvoidId) {
       dispatch(getRescueVehicleOwnerId({ id: vehicleRvoidId }))
         .then((response) => {
           const data = response.payload.data;
-          console.log(data);
           const accountId = data.accountId;
           setAccountId(accountId);
           if (data) {
@@ -158,13 +168,10 @@ const Vehicles = (props) => {
   };
 
   const handleConfirm = (orderId) => {
-    console.log(orderId);
-    // Make sure you have a check to prevent unnecessary API calls
     if (orderId) {
       dispatch(getVehicleId({ id: orderId }))
         .then((response) => {
           const data = response.payload.data;
-          console.log(data);
           if (data) {
             setVehicleId(data.id);
             setVehicleDetail(data);
@@ -186,7 +193,6 @@ const Vehicles = (props) => {
     setVehicleId(null);
   };
 
-
   const reloadVehicle = () => {
     dispatch(fetchVehicleWatting())
       .then((response) => {
@@ -195,7 +201,6 @@ const Vehicles = (props) => {
         if (data) {
           setFilteredVehicles(data);
           setLoading(false);
-          console.log("Services reloaded:", data);
         }
       })
       .catch((error) => {
@@ -204,9 +209,7 @@ const Vehicles = (props) => {
   };
   //Chấp nhận order
   const handleAcceptOrderClick = (vehicleId, accept) => {
-    console.log(vehicleId);
     setIsAccepted(accept);
-    console.log(accept);
     const messageAccept = {
       title: "Chấp nhận đơn đăng kí",
       body: "Chúc mừng xe của bạn đã đủ điều kiện vào hệ thống",
@@ -232,9 +235,8 @@ const Vehicles = (props) => {
             isAndroiodDevice: true,
             title: messageAccept.title,
             body: messageAccept.body,
-            target:vehicleId
+            target: vehicleId,
           };
-            console.log("notificationData Test Accept : "+notificationData)
           // Gửi thông báo bằng hàm sendNotification
           dispatch(sendNotification(notificationData))
             .then((res) => {
@@ -257,9 +259,9 @@ const Vehicles = (props) => {
             isAndroiodDevice: true,
             title: messageRejected.title,
             body: messageRejected.body,
-            target:vehicleId
+            target: vehicleId,
           };
-         console.log(notificationData)
+          console.log(notificationData);
           dispatch(sendNotification(notificationData))
             .then((res) => {
               if (res.payload.message === "Notification sent successfully")
@@ -291,15 +293,15 @@ const Vehicles = (props) => {
   const handleFilterChange = (event) => {
     const selectedStatusOption = event.target.value;
     setFilterOption(selectedStatusOption);
-
-    if (selectedStatusOption === "type") {
-      // Hiển thị tất cả các trạng thái
-      setFilteredVehicles(vehicles); // Sử dụng dữ liệu gốc khi không lọc
+  
+    if (selectedStatusOption === "Type") {
+      // Hiển thị tất cả các loại xe
+      setFilteredVehicles(vehicles || []); // Đảm bảo vehicles là một mảng trước khi filter
     } else {
-      // Lọc dữ liệu gốc dựa trên giá trị trạng thái
-      const filteredVehicles = vehicles.filter(
-        (vehicle) => vehicle.type === selectedStatusOption
-      );
+      // Lọc dữ liệu xe dựa trên loại xe được chọn
+      const filteredVehicles = Array.isArray(vehicles)
+        ? vehicles.filter((vehicle) => vehicle.type === selectedStatusOption)
+        : [];
       setFilteredVehicles(filteredVehicles);
     }
   };
@@ -337,7 +339,6 @@ const Vehicles = (props) => {
       setFilteredVehicles([]);
     }
   }, [vehicles, searchText, filterOption]);
-
   useEffect(() => {
     setLoading(true);
     dispatch(fetchVehicleWatting())
@@ -347,13 +348,13 @@ const Vehicles = (props) => {
             setLoading(false);
             return;
           }
-  
+
           const data = response.payload.data;
           setData(data);
           setFilteredVehicles(data);
           setDetailedData(data);
-          setLoading(false); 
-          
+          setLoading(false);
+
           data.forEach((item) => {
             fetchFullnameRvo(item.rvoid);
           });
@@ -367,25 +368,21 @@ const Vehicles = (props) => {
         setLoading(false);
       })
       .finally(() => {
-        setLoading(false); 
+        setLoading(false);
       });
   }, [dispatch]);
-  
+
   const fetchFullnameRvo = (rvoId) => {
     if (rvoId) {
       dispatch(getRescueVehicleOwnerId({ id: rvoId }))
         .then((response) => {
           const data = response.payload.data;
-          console.log(data.fullname)
-          
+
           if (data && data.fullname) {
-           
             setFullnameDataRvo((prevData) => ({
               ...prevData,
               [rvoId]: data.fullname,
             }));
-            
-     
           } else {
             console.error("Fullname not found in the API response.");
           }
@@ -408,17 +405,18 @@ const Vehicles = (props) => {
     setPage(0);
   };
 
-  const filteredVehiclePagination = filteredVehicles.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
-  );
+  const filteredVehiclePagination = Array.isArray(filteredVehicles)
+  ? filteredVehicles.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+  : [];
+
 
   const columns = [
     {
       field: "fullname",
       headerName: "Tên chủ xe",
       width: 120,
-      valueGetter: (params) => fullnameDataRvo[params.row.rvoid] || 'Loading...', // Get fullname from fullnameDataRvo based on rvoId
+      valueGetter: (params) =>
+        fullnameDataRvo[params.row.rvoid] || "Loading...", // Get fullname from fullnameDataRvo based on rvoId
       key: "fullname",
     },
     {
@@ -430,7 +428,7 @@ const Vehicles = (props) => {
     {
       field: "vinNumber",
       headerName: "Số khung",
-      width: 100,
+      width: 140,
       key: "vinNumber",
     },
     {
@@ -440,7 +438,7 @@ const Vehicles = (props) => {
       key: "licensePlate",
     },
 
-    { field: "type", headerName: "Loại Xe", width: 140, key: "type" },
+    { field: "type", headerName: "Loại Xe", width: 100, key: "type" },
     {
       field: "manufacturingYear",
       headerName: "Năm sản xuất",
@@ -474,17 +472,15 @@ const Vehicles = (props) => {
       headerName: "Chấp nhận",
       width: 140,
       renderCell: (params) => (
-        <CustomButton
-          onClick={() => handleConfirm(params.row.id)}
-        >
-            <Typography
-              variant="body1"
-              color="error"
-              sx={{ fontWeight: "bold",  color: "green" }}
-              onClick={() => handleConfirm(params.row.id)}
-            >
-              {"Chấp Nhận Đơn"}
-            </Typography>
+        <CustomButton onClick={() => handleConfirm(params.row.id)}>
+          <Typography
+            variant="body1"
+            color="error"
+            sx={{ fontWeight: "bold", color: "green" }}
+            onClick={() => handleConfirm(params.row.id)}
+          >
+            {"Chấp Nhận Đơn"}
+          </Typography>
         </CustomButton>
       ),
       key: "acceptOrder",
@@ -702,11 +698,35 @@ const Vehicles = (props) => {
                       <CardContent>
                         <Typography
                           variant="h5"
-                          sx={{ marginBottom: "4px", textAlign: "center" }}
+                          sx={{
+                            marginBottom: "4px",
+                            textAlign: "center",
+                            fontWeight: "bold",
+                          }}
                         >
                           Thông tin chủ xe
                         </Typography>
-
+                        <Box
+                          sx={{
+                            mr: 2,
+                            display: "flex",
+                            alignItems: "center",
+                            marginBottom: "10px",
+                          }}
+                        >
+                          <Avatar
+                            alt="Avatar"
+                            src={
+                              dataRescueVehicleOwner[vehicleDetail?.rvoid]
+                                ?.avatar || "URL mặc định của avatar"
+                            }
+                            sx={{
+                              width: 44,
+                              height: 44,
+                              marginLeft: 1.75,
+                            }}
+                          />
+                        </Box>
                         <Box
                           sx={{
                             display: "flex",
@@ -772,12 +792,58 @@ const Vehicles = (props) => {
                             gap: 1, // Khoảng cách giữa icon và văn bản
                           }}
                         >
-                          <MapRoundedIcon style={iconColor} />
-                          <Typography variant="h6">
-                            <strong>Khu vực: </strong>{" "}
-                            {dataRescueVehicleOwner[vehicleDetail?.rvoid]
-                              ?.area || "Chưa cập nhật"}
-                          </Typography>
+                        
+                           
+
+
+                            <MapRoundedIcon style={iconColor} />
+                            <Typography variant="h6">
+                              {dataRescueVehicleOwner[vehicleDetail?.rvoid]
+                                ?.area === 1 ? (
+                                <Typography>
+                                  {dataJson.area[0]?.name || "Không có"}
+                                  <Tooltip
+                                    title={dataJson.area[0]?.description}
+                                  >
+                                    <InfoIcon
+                                      style={{
+                                        fontSize: "16px",
+                                      }}
+                                    />
+                                  </Tooltip>
+                                </Typography>
+                              ) : dataRescueVehicleOwner[vehicleDetail?.rvoid]
+                                  ?.area === 2 ? (
+                                <Typography>
+                                  {dataJson.area[1]?.name || "Không có"}
+                                  <Tooltip
+                                    title={dataJson.area[1]?.description}
+                                  >
+                                    <InfoIcon
+                                      style={{
+                                        fontSize: "16px",
+                                      }}
+                                    />
+                                  </Tooltip>
+                                </Typography>
+                              ) : dataRescueVehicleOwner[vehicleDetail?.rvoid]
+                                  ?.area === 3 ? (
+                                <Typography>
+                                  {dataJson.area[2]?.name || "Không có"}
+                                  <Tooltip
+                                    title={dataJson.area[2]?.description}
+                                  >
+                                    <InfoIcon
+                                      style={{
+                                        fontSize: "16px",
+                                      }}
+                                    />
+                                  </Tooltip>
+                                </Typography>
+                              ) : (
+                                <Typography>Không có thông tin</Typography>
+                              )}
+                            </Typography>
                         </Box>
                       </CardContent>
                     </Grid>
@@ -788,7 +854,11 @@ const Vehicles = (props) => {
                       <CardContent>
                         <Typography
                           variant="h5"
-                          sx={{ marginBottom: "4px", textAlign: "center" }}
+                          sx={{
+                            marginBottom: "4px",
+                            textAlign: "center",
+                            fontWeight: "bold",
+                          }}
                         >
                           Thông tin xe
                         </Typography>
