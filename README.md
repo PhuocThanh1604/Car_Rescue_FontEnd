@@ -69,6 +69,6 @@ Customer Home:
 ![image](https://user-images.githubusercontent.com/39693803/184523403-c273a00e-5fee-48da-8e7e-750f022a4628.png)
 
 Login Home: 
-![image]([https://user-images.githubusercontent.com/39693803/184523387-ff161c43-5f45-42d5-90e4-3a7df727ead6.png](https://github.com/PhuocThanh1604/react-native-assigment3/assets/87697583/660a5e87-4367-4b01-b9d5-e9722044805b)https://github.com/PhuocThanh1604/react-native-assigment3/assets/87697583/660a5e87-4367-4b01-b9d5-e9722044805b)
+![Administrator -Manager - Login](https://github.com/PhuocThanh1604/react-native-assigment3/assets/87697583/660a5e87-4367-4b01-b9d5-e9722044805b)
 
 **DO NOT COPY FOR AN ASSIGNMENT** -.
