@@ -352,7 +352,39 @@ const Sidebar = ({ selectedWalletId, selectedItemId }) => {
                 {/* Add more sub-items as needed */}
               </div>
             )}
-           
+                 <MenuItem
+              onClick={handleReportClick}
+              icon={<AssessmentIcon />}
+              style={{
+                color: colors.grey[100],
+                // Add a conditional class to indicate if this item is selected
+                backgroundColor:
+                  selectedItemId === "yourItemId"
+                    ? "selectedColor"
+                    : "defaultColor",
+              }}
+            >
+              <Typography>Các Loại Báo Cáo</Typography>
+              <Link to="#" />
+            </MenuItem>
+            {showSubItemsReport && (
+              <div style={{ marginLeft: "20px" }}>
+                <Item
+                  title="Đơn Báo Cáo"
+                  to="manager/reports"
+                  icon={<ListIcon />}
+                  selected={selected}
+                  setSelected={setSelected}
+                />
+                <Item
+                  title="Danh Sách Báo Cáo"
+                  to="manager/listReport"
+                  icon={<ListIcon />}
+                  selected={selected}
+                  setSelected={setSelected}
+                />
+              </div>
+            )}
             <MenuItem
               onClick={handleTransactionClick}
               icon={<ListAltIcon />}
@@ -393,39 +425,7 @@ const Sidebar = ({ selectedWalletId, selectedItemId }) => {
                 />{" "}
               </div>
             )}
-            <MenuItem
-              onClick={handleReportClick}
-              icon={<AssessmentIcon />}
-              style={{
-                color: colors.grey[100],
-                // Add a conditional class to indicate if this item is selected
-                backgroundColor:
-                  selectedItemId === "yourItemId"
-                    ? "selectedColor"
-                    : "defaultColor",
-              }}
-            >
-              <Typography>Các Loại Báo Cáo</Typography>
-              <Link to="#" />
-            </MenuItem>
-            {showSubItemsReport && (
-              <div style={{ marginLeft: "20px" }}>
-                <Item
-                  title="Đơn Báo Cáo"
-                  to="manager/reports"
-                  icon={<ListIcon />}
-                  selected={selected}
-                  setSelected={setSelected}
-                />
-                <Item
-                  title="Danh Sách Báo Cáo"
-                  to="manager/listReport"
-                  icon={<ListIcon />}
-                  selected={selected}
-                  setSelected={setSelected}
-                />
-              </div>
-            )}
+      
             <Item
               title="Kỹ Thuật Viên "
               to="manager/techinian"
