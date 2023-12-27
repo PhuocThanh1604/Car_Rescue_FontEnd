@@ -78,6 +78,8 @@ Accept a withdraw:
 ![Withdraw](https://github.com/PhuocThanh1604/react-native-assigment3/assets/87697583/e849ac5a-e931-48dd-a7de-6cc2f86e09b7)
 Completed a order:
 ![Completed-Order-Detail](https://github.com/PhuocThanh1604/react-native-assigment3/assets/87697583/a1f61d48-05af-486e-92f0-26269840f49a)
+Transaction list:
+![Transaction-Detail](https://github.com/PhuocThanh1604/react-native-assigment3/assets/87697583/0e340b9b-4297-40d5-a5fb-43884586dc86)
 
 
 
