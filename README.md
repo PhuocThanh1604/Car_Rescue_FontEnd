@@ -1,15 +1,4 @@
 
-
-
-**Description:**
-
-
-### Academic Honesty
-
-
-
-
-﻿
 #  Car Rescue Sevice Management System
 CRS is Manage activities in the system. There are 2 parts:
 
@@ -65,10 +54,23 @@ Admin Interface:
 
 
 ## Screenshots
+Login: 
+![Administrator -Manager - Login](https://github.com/PhuocThanh1604/react-native-assigment3/assets/87697583/660a5e87-4367-4b01-b9d5-e9722044805b)
 Customer Home: 
 ![image](https://user-images.githubusercontent.com/39693803/184523403-c273a00e-5fee-48da-8e7e-750f022a4628.png)
+Schedule:
+![WorkFlow-4](https://github.com/PhuocThanh1604/react-native-assigment3/assets/87697583/8e8335b4-68ed-482a-86d2-cb4541cc2f23)
+Tracking Map:
+![TrackingMap](https://github.com/PhuocThanh1604/react-native-assigment3/assets/87697583/f62f9fa0-34d6-42bf-98cb-7f811706a5bf)
+Technicians List:
+![Technician_List](https://github.com/PhuocThanh1604/react-native-assigment3/assets/87697583/f5d61115-1ce9-4d97-aa6f-9a6ad415e227)
+Create offline:
+![Create-Order-Offline2](https://github.com/PhuocThanh1604/react-native-assigment3/assets/87697583/48a6739c-5518-409b-a3b3-49a57bccfcfb)
+Rescue Vehicle Owner List:
+![List-RVO](https://github.com/PhuocThanh1604/react-native-assigment3/assets/87697583/f138e1da-4294-474e-8e6d-0a7b8b39246b)
+Update a information:
+![Update-Info-RVO](https://github.com/PhuocThanh1604/react-native-assigment3/assets/87697583/0c9c24b6-8cb0-4cb3-a0fd-aec3aecf5cc7)
 
-Login Home: 
-![Administrator -Manager - Login](https://github.com/PhuocThanh1604/react-native-assigment3/assets/87697583/660a5e87-4367-4b01-b9d5-e9722044805b)
 
-**DO NOT COPY FOR AN ASSIGNMENT** -.
+
+**DO NOT COPY FOR AN ASSIGNMENT**.
