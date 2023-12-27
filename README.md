@@ -32,11 +32,13 @@ Admin Interface:
 
 
 ## Tech Stack
-**Front-end:** React JS, Boostrap 5
+**Front-end:** React JS
 
 **Back-end:** C#
 
 **Database:** Sql Server 
+
+**Deployed:** Vercell App
 
 **Libraries:**: React Paypal, React Oauth, Axios, JWT, React Hook Form, Google Api, Goong, Redux, MUI, Firebase,...
 
@@ -56,8 +58,8 @@ Admin Interface:
 ## Screenshots
 Login: 
 ![Administrator -Manager - Login](https://github.com/PhuocThanh1604/react-native-assigment3/assets/87697583/660a5e87-4367-4b01-b9d5-e9722044805b)
-Customer Home: 
-![image](https://user-images.githubusercontent.com/39693803/184523403-c273a00e-5fee-48da-8e7e-750f022a4628.png)
+Dashboard: 
+![Dashbroad_2](https://github.com/PhuocThanh1604/react-native-assigment3/assets/87697583/31c70526-a4fe-4034-937b-5f7776b4f383)
 Schedule:
 ![WorkFlow-4](https://github.com/PhuocThanh1604/react-native-assigment3/assets/87697583/8e8335b4-68ed-482a-86d2-cb4541cc2f23)
 Tracking Map:
@@ -70,6 +72,12 @@ Rescue Vehicle Owner List:
 ![List-RVO](https://github.com/PhuocThanh1604/react-native-assigment3/assets/87697583/f138e1da-4294-474e-8e6d-0a7b8b39246b)
 Update a information:
 ![Update-Info-RVO](https://github.com/PhuocThanh1604/react-native-assigment3/assets/87697583/0c9c24b6-8cb0-4cb3-a0fd-aec3aecf5cc7)
+Rescue vehicle coordination:
+![CondinationVehicle](https://github.com/PhuocThanh1604/react-native-assigment3/assets/87697583/12044cea-5e83-46e4-8804-7f253bb2890c)
+Accept a withdraw:
+![Withdraw](https://github.com/PhuocThanh1604/react-native-assigment3/assets/87697583/e849ac5a-e931-48dd-a7de-6cc2f86e09b7)
+Completed a order:
+![Completed-Order-Detail](https://github.com/PhuocThanh1604/react-native-assigment3/assets/87697583/a1f61d48-05af-486e-92f0-26269840f49a)
 
 
 
