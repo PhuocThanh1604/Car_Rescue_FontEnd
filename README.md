@@ -80,6 +80,8 @@ Completed a order:
 ![Completed-Order-Detail](https://github.com/PhuocThanh1604/react-native-assigment3/assets/87697583/a1f61d48-05af-486e-92f0-26269840f49a)
 Transaction list:
 ![Transaction-Detail](https://github.com/PhuocThanh1604/react-native-assigment3/assets/87697583/0e340b9b-4297-40d5-a5fb-43884586dc86)
+Notification list:
+![Notification](https://github.com/PhuocThanh1604/react-native-assigment3/assets/87697583/f1232bf1-dddd-4eab-8673-0ff1291ad6ff)
 
 
 
