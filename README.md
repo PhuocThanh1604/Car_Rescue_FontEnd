@@ -27,8 +27,8 @@ Customer Interface:
 Admin Interface: 
 
     1. Manage accounts all actors in system CRS
-    2. Check In
-    3. Check Out
+    2. Login
+    3. LogOut
 
 
 ## Tech Stack
